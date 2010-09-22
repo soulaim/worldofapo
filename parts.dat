@@ -1,0 +1,62 @@
+NEXT
+FINGER
+TRIANGLE -0.01 0   0
+          0.01 0   0
+          0    -0.2 0
+ENDPOINT  0    -0.2 0
+
+NEXT
+WRIST
+TRIANGLE -0.15 0    0
+          0.15 0    0
+          0    -0.22 0
+ENDPOINT  0    -0.22 0
+          
+NEXT
+HAND
+TRIANGLE -0.15 0   0
+         +0.15 0   0
+          0    -1   0
+ENDPOINT  0    -1.1 0
+
+NEXT
+HIP
+TRIANGLE -0.5 0      0
+         +0.5 0      0
+          0  -0.15   0
+ENDPOINT 0 0 0
+
+NEXT
+ARM
+TRIANGLE -0.15 0   0
+         +0.15 0   0
+          0    -1   0
+ENDPOINT  0    -1.1 0
+
+NEXT
+TORSO
+TRIANGLE -0.4  0     0
+         +0.4  0     0
+          0    -2.5  0
+ENDPOINT  0    0     0
+
+NEXT
+LEG
+TRIANGLE -0.15 0   0
+         +0.15 0   0
+          0    -1   0
+ENDPOINT  0    -1.1 0
+
+NEXT
+FOOT
+TRIANGLE -0.15 0   0
+         +0.15 0   0
+          0    -1   0
+ENDPOINT  0    -1.1 0
+
+NEXT
+HEAD
+TRIANGLE -0.15 0.24   0
+         +0.15 0.24   0
+          0    0      0
+ENDPOINT  0    0.25   0
