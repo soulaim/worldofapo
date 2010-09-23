@@ -43,6 +43,8 @@ class Graphics
 {
   void init();
   void createWindow();
+  float modelGround(Model& model);
+  
   SDL_Surface* drawContext;
   Location camera;
 public:

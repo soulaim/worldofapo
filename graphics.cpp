@@ -5,6 +5,15 @@
 using namespace std;
 
 
+float Graphics::modelGround(Model& model)
+{
+  // :G
+  
+  return -2.f;
+}
+
+
+
 void Graphics::megaFuck()
 {
   ObjectPart& leg = objects["LEG"];
@@ -156,15 +165,15 @@ void Graphics::draw(vector<Model>& models)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
     glLoadIdentity();                                   // Reset The View
     
-    glTranslatef(-0.0f, -10.0f, -30.0f); // move some units into the screen.    
+    glTranslatef(-0.0f, -10.0f, -50.0f); // move some units into the screen.    
     glRotatef(60.f, 1, 0, 0);
     glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.    
-    glTranslatef(-camera.x, 0, -camera.y);
+    glTranslatef(-camera.x.getFloat(), 0, -camera.y.getFloat());
     
     glBegin(GL_TRIANGLES);
     glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(20. , 0, 20);
     glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-20., 0, 20);
-    glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(0.   , 0, -20);
+    glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(0.  , 0, -20);
     glEnd();
     
     for(int i=0; i<models.size(); i++)

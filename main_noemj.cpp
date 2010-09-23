@@ -2,6 +2,7 @@
 
 #include "graphics.h"
 #include "world.h"
+#include "userio.h"
 
 #include <SDL/SDL.h>
 
@@ -22,27 +23,14 @@ int main()
   view.megaFuck(); // first attempt at animation datastructures, for try-out purposes only..
   cerr << "done" << endl;
   
-  cerr << "loading model.." << flush;
-
   World world;
+  cerr << "creating ApoMath" << endl;
+  world.init();
+  cerr << "loading model" << flush;
   world.addUnit();
   
-/*
-  // actually unit contains a model, but is also described by other information..
-  vector<Model> units;
-  units.resize(15);
-  
-  for(int i=0; i<15; i++)
-  {
-    units[i].load("model.bones");
-    units[i].setAction("walk");
-    units[i].parts[0].offset_x = (i % 5) * 4;
-    units[i].parts[0].offset_z = (i / 5) * 7;
-    cerr << units[i].parts.size() << endl;
-  }
-  
-  cerr << "done" << endl;
-*/
+  cerr << "creating controller" << endl;
+  UserIO userio;
   
   while(true)
   {
@@ -55,74 +43,21 @@ int main()
     for(int i=0; i<world.units.size(); i++)
     {
       world.models[i].tick();
-      world.models[i].parts[world.models[i].root].rotation_x = world.units[i].angle;
-      world.models[i].parts[world.models[i].root].offset_x = world.units[i].location.x;
-      world.models[i].parts[world.models[i].root].offset_z = world.units[i].location.y;
+      world.models[i].parts[world.models[i].root].rotation_x = world.units[i].getAngle();
+      world.models[i].parts[world.models[i].root].offset_x = world.units[i].position.x.getFloat();
+      world.models[i].parts[world.models[i].root].offset_z = world.units[i].position.y.getFloat();
     }
     
-    // wait for user IO
-    SDL_Event event;
-    while ( SDL_PollEvent(&event) )
-    {
-        switch (event.type) {
-            case SDL_MOUSEMOTION:
-//                view.mouseMove(event.motion.xrel, event.motion.yrel);
-//              event.motion.xrel, event.motion.yrel, event.motion.x, event.motion.y
-                break;
-
-            case SDL_MOUSEBUTTONDOWN:
-	    {
-//	      int select_id = view.mousePress(event.button.button);
-              break;
-	    }
-	    
-	    case SDL_KEYDOWN:
-		switch( event.key.keysym.sym )
-		{
-		        case SDLK_RETURN:
-			{
-			}
-			  break;
-			
-			case SDLK_SPACE:
-			  view.setCamera(world.units[0].location);
-			  break;
-			  
-			case SDLK_UP:
-			{
-			  world.units[0].move(1.);
-			}
-			break;
-			  
-			case SDLK_DOWN:
-			  break;
-			  
-			case SDLK_LEFT:
-			{
-			  world.units[0].angle -= 10;
-			}
-			  break;
-			  
-			case SDLK_RIGHT:
-			{
-			  world.units[0].angle += 10;
-			}
-			  break;
-			
-			case SDLK_ESCAPE:
-			{
-			  // shut down
-			  SDL_Quit();
-			  exit(0);
-			}
-		}
-	      break;
-	      
-            case SDL_QUIT:
-                exit(0);
-        }
-    }
-
+    userio.checkEvents();
+    int keyState = userio.getKeyChange();
+    world.units[0].keyState ^= keyState;
+    
+    int mx, my;
+    userio.getMouseChange(mx, my);
+    world.units[0].angle += mx;
+    world.models[0].parts[world.models[0].root].rotation_x = world.units[0].getAngle();
+    
+    world.units[0].tick();
   }
   
   return 0;

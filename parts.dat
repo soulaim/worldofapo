@@ -24,7 +24,7 @@ HIP
 TRIANGLE -0.5 0      0
          +0.5 0      0
           0  -0.15   0
-ENDPOINT 0 0 0
+ENDPOINT  0 0 0
 
 NEXT
 ARM
