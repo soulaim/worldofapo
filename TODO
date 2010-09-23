@@ -1,17 +1,18 @@
 TODO
    - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
-   - Fixed point representation for all game world data (for visual information this is not relevant)
-   - user IO class
    - networking. all commands with game effects must go through the network code
    - Animator. A separate program that allows the creation of animations for models.
    - Collision detection (the constraints for this problem are still open)
    - Apply gravity and model other significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
    - Create a ground for the game world, with textures and height informations
    - organize files. src for source files. data for data files etc.
+   
 DONE
-Mika: Data structure for models (Model)
-Mika: Create a sample model ("model.bones")
-Mika: Create a sample set of object parts ("parts.dat")
-Mika: Representation of animations (Animation)
-Mika: Draw a model (Graphics::drawPartsRecursive())
-Juho: Make Git Work :), and make me learn to do something useful ou god vim (:D)
+23.9. Mika: Fixed point representation for all game world data (for visual information this is not relevant)
+23.9. Mika: user IO class
+xx.x. Mika: Data structure for models (Model)
+xx.x. Mika: Create a sample model ("model.bones")
+xx.x. Mika: Create a sample set of object parts ("parts.dat")
+xx.x. Mika: Representation of animations (Animation)
+xx.x. Mika: Draw a model (Graphics::drawPartsRecursive())
+23.9. Juho: Make Git Work :), and make me learn to do something useful ou god vim (:D)
