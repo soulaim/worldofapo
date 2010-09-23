@@ -3,6 +3,10 @@
 
 using namespace std;
 
+void World::init()
+{
+}
+
 void World::addUnit()
 {
   units.push_back(Unit());
