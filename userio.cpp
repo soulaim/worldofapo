@@ -49,6 +49,42 @@ int UserIO::getMousePress()
 }
 
 
+char UserIO::getSingleChar()
+{
+  SDL_Event event;
+
+  for(int i=0; i<20; i++)
+  {
+    if( SDL_PollEvent( &event ) )
+    {
+      if(event.type == SDL_KEYDOWN)
+      {
+	if(event.key.keysym.sym == SDLK_ESCAPE)
+	{
+	  cerr << "User pressed ESC, shutting down." << endl;
+	  SDL_Quit();
+	  exit(0);
+	}
+	
+	if(event.key.keysym.sym == SDLK_SPACE)
+	{
+	  return ' ';
+	}
+	
+	if(event.key.keysym.sym == SDLK_RETURN)
+	{
+	  return '#';
+	}
+	
+	
+	return *(SDL_GetKeyName (event.key.keysym.sym));
+      }
+    }
+  }
+  
+  return 0;
+}
+
 int UserIO::checkEvents()
 {
   SDL_Event event;

@@ -1,13 +1,14 @@
 TODO
-   - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
-   - networking. all commands with game effects must go through the network code
-   - Animator. A separate program that allows the creation of animations for models.
-   - Collision detection (the constraints for this problem are still open)
-   - Apply gravity and model other significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
-   - Create a ground for the game world, with textures and height informations
-   - organize files. src for source files. data for data files etc.
+     VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
+     VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
+     OLISI KIVA   - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
+     OLISI KIVA   - Animator. A separate program that allows the creation of animations for models.
+     VITUN TARKEA - Collision detection (the constraints for this problem are still open)
+     OLISI KIVA   - Apply gravity and model other significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
+     NOT IMPORTANT- organize files. src for source files. data for data files etc.
    
 DONE
+24.9. Mika: networking. all commands with game effects must go through the network code.
 23.9. Mika: Fixed point representation for all game world data (for visual information this is not relevant)
 23.9. Mika: user IO class
 xx.x. Mika: Data structure for models (Model)

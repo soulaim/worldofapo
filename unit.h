@@ -20,7 +20,8 @@ public:
   ApoMath apomath; // megasuper mathematics library! for integer sin/cos :)
 		  // ALTHOUGH, THIS SHOULD NOT BE A PART OF UNIT, BUT
 		  // DECLARED SOMEWHERE CLOSER TO ROOT. LIKE GAME.H
-		  
+
+  void updateInput(int, int, int);
   void tick();
   float getAngle();
 };

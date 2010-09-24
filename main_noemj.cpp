@@ -55,6 +55,7 @@ int main()
     int mx, my;
     userio.getMouseChange(mx, my);
     world.units[0].angle += mx;
+    
     world.models[0].parts[world.models[0].root].rotation_x = world.units[0].getAngle();
     
     world.units[0].tick();

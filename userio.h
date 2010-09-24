@@ -24,12 +24,12 @@ class UserIO
 public:
   
   int getKeyChange();
-  
   int getMousePress();
   Coord getMousePoint();
   void getMouseChange(int& x, int& y);
   
   int checkEvents();
+  char getSingleChar();
   UserIO();
 };
 

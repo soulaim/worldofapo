@@ -16,6 +16,12 @@ float Unit::getAngle()
   return apomath.getRad(angle);
 }
 
+void Unit::updateInput(int keyState_, int mousex_, int mousey_)
+{
+  keyState ^= keyState_;
+  angle += mousex_;
+}
+
 void Unit::tick()
 {
   // if unit is ok, it should move towards its destination
