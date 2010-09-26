@@ -14,6 +14,9 @@
 #include "model.h"
 #include "animation.h"
 
+struct Level;
+
+
 struct ObjectTri
 {
   float x[3];
@@ -41,6 +44,8 @@ struct ObjectPart
 
 class Graphics
 {
+  std::vector<GLuint> textures;
+  
   void init();
   void createWindow();
   float modelGround(Model& model);
@@ -53,11 +58,10 @@ public:
   std::map<std::string, ObjectPart> objects;
   void drawPartsRecursive(Model&, int, int, std::string&, int);
   
-  
   void megaFuck(); // this function creates a test animation called "walk" for the test model
   
   void setCamera(Location);
-  void draw(std::vector<Model>&);
+  void draw(std::vector<Model>&, Level& lvl);
   void buildTexture(Image&);
   void loadObjects(std::string);
   Graphics();

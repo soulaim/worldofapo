@@ -40,12 +40,12 @@ struct Order
 // frame skips, window sizes..
 struct StateInfo
 {
-  StateInfo():windowSize(1), frameSkip(3), currentFrame(0), allowedFrame(0) {}
+  StateInfo():windowSize(3), frameSkip(1), currentFrame(0), allowedFrame(0) {}
   
   void reset()
   {
-    windowSize = 1;
-    frameSkip = 3;
+    windowSize = 3;
+    frameSkip = 1;
     currentFrame = 0;
     allowedFrame = 0;
     numPlayers = 0;

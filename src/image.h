@@ -6,7 +6,7 @@
 #include <string>
 
 struct Image {
-  Image(): id(0), data(0) {}
+  Image(): data(0), id(0) {}
   
 //  void constructTexture();
   void loadImage(std::string& filename);

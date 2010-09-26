@@ -106,8 +106,12 @@ void Game::init()
 //  sockets;
   myID = -1;
   state = "menu";
-
-  view.loadObjects("parts.dat");
+  view.loadObjects("data/parts.dat");
+  
+  Image img;
+  string grassFile = "data/grass.png";
+  img.loadImage(grassFile);
+  view.buildTexture(img);
   
 }
 
@@ -282,7 +286,7 @@ void Game::start()
 	if(numInputs[simulRules.currentFrame+1] == simulRules.numPlayers)
 	{
 	  cerr << "Have all inputs. Incrementing allowed simulation range" << endl;
-	  simulRules.allowedFrame++;
+	  simulRules.allowedFrame++; // += simulRules.frameSkip;
 	  numInputs.erase(simulRules.currentFrame+1);
 	}
       }
@@ -324,7 +328,7 @@ void Game::start()
     if(world.units.size() > myID)
     {
       view.setCamera(world.units[myID].position);
-      view.draw(world.models);
+      view.draw(world.models, world.lvl);
     }
   }
   

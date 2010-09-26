@@ -7,7 +7,7 @@
 
 struct ModelNode
 {
-  ModelNode(): rotation_x(0), rotation_y(0), rotation_z(0), offset_x(0), offset_y(0), offset_z(0)
+  ModelNode(): offset_x(0), offset_y(0), offset_z(0), rotation_x(0), rotation_y(0), rotation_z(0)
   {
   }
   

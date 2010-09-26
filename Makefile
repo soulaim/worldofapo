@@ -1,4 +1,31 @@
-all:
-	g++ animation.cpp file_io.cpp graphics.cpp image.cpp main.cpp model.cpp world.cpp unit.cpp apomath.cpp userio.cpp game.cpp ordercontainer.cpp net/socket.cpp net/socket_handler.cpp -lGL -lGLU -lpng -lSDL -o menu
-	g++ animation.cpp file_io.cpp graphics.cpp image.cpp main_animator.cpp model.cpp -lGL -lGLU -lpng -lSDL -o animator
-	g++ animation.cpp file_io.cpp graphics.cpp image.cpp main_noemj.cpp model.cpp world.cpp unit.cpp apomath.cpp userio.cpp -lGL -lGLU -lpng -lSDL -o noemj
+CXXFLAGS = -Wall -O3 -std=c++98 
+LDLIBS = -lSDL -lGL -lGLU -lpng
+#-lSDL_mixer
+CC = g++
+
+DIRS = src src/net
+
+
+obj = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS), $(wildcard $(dir)/*.cpp)))
+dep = $(obj:.o=.d)
+
+.PHONY: all clean
+
+targets = diablo
+
+
+all: $(targets)
+
+diablo: $(obj)
+	g++ $(obj) $(LDLIBS) -o  bin/diablo
+
+$(dep): %.d: %.cpp
+	$(CXX) -MT "$(@:.d=.o) $@" -MM $(CXXFLAGS) $< > $@
+
+clean:
+	$(RM) $(targets) $(obj) $(dep)
+
+ifneq ($(MAKECMDGOALS),clean)
+  include $(dep)
+endif
+

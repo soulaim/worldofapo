@@ -1,5 +1,7 @@
 
 #include "graphics.h"
+#include "level.h"
+
 #include <iostream>
 
 using namespace std;
@@ -69,6 +71,11 @@ void Graphics::init()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();				// Reset The Projection Matrix
     
+    // do some weird magic i dont understand
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    
     gluPerspective(45.0f,(GLfloat) 800/(GLfloat) 600,0.1f,100.0f);	// Calculate The Aspect Ratio Of The Window
     glMatrixMode(GL_MODELVIEW);
 }
@@ -96,8 +103,10 @@ void Graphics::buildTexture(Image& img)
     return;
   }
   
-  glGenTextures(1, &(img.id));
-  glBindTexture(GL_TEXTURE_2D, img.id);   // 2d texture (x and y size)
+  textures.push_back(0);
+  
+  glGenTextures(1, &(textures.back()));
+  glBindTexture(GL_TEXTURE_2D, textures.back());   // 2d texture (x and y size)
 
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
@@ -158,7 +167,7 @@ void Graphics::setCamera(Location cam)
   camera = cam;
 }
 
-void Graphics::draw(vector<Model>& models)
+void Graphics::draw(vector<Model>& models, Level& lvl)
 {
     
     glMatrixMode(GL_MODELVIEW);
@@ -170,11 +179,32 @@ void Graphics::draw(vector<Model>& models)
     glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.    
     glTranslatef(-camera.x.getFloat(), 0, -camera.y.getFloat());
     
+    glEnable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    int multiplier = 8;
+    for(int x=0; x < lvl.pointheight_info.size()-1; x++)
+    {
+      for(int y=0; y < lvl.pointheight_info[x].size()-1; y++)
+      {
+	glTexCoord2f(0.f, 0.0f); glVertex3f( multiplier* (x)   , lvl.pointheight_info[x][y].getFloat()    , multiplier * y);
+	glTexCoord2f(1.f, 0.0f); glVertex3f( multiplier* (x+1) , lvl.pointheight_info[x+1][y].getFloat()  , multiplier * y);
+	glTexCoord2f(1.f, 1.0f); glVertex3f( multiplier* (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1) );
+	glTexCoord2f(0.f, 1.0f); glVertex3f( multiplier* (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1) );
+      }
+    }
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
+    /*
     glBegin(GL_TRIANGLES);
     glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(20. , 0, 20);
     glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-20., 0, 20);
     glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(0.  , 0, -20);
     glEnd();
+    */
     
     for(int i=0; i<models.size(); i++)
     {

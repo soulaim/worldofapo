@@ -9,17 +9,19 @@ WARNING: THIS FILE IS FULL OF SHIT
 
 #include "unit.h"
 #include "model.h"
+#include "level.h"
 
 class World
 {
   void updateModels();
   
 public:
+  World();
   void init();
   std::vector<Unit> units;   // each unit corresponds to
   std::vector<Model> models; // one of these BUT
   
-  // heroes should be stored in a separate vector!? how can.
+  Level lvl;
   
   void tick();
   void addUnit();

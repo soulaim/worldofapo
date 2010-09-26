@@ -13,6 +13,16 @@ struct FixedPoint
     return number / 1000 + (number % 1000) / 1000.0;
   }
   
+  int getInteger()
+  {
+    return number / 1000;
+  }
+
+  int getDesimal()
+  {
+    return number % 1000;
+  }
+
   FixedPoint abs()
   {
     FixedPoint tmp(*this);
