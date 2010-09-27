@@ -34,8 +34,9 @@ void World::tick()
   updateModels();
 }
 
+// trololol..
 void World::addUnit()
-{ 
+{
   units.push_back(Unit());
   units.back().position.x.number = 50000;
   units.back().position.y.number = 50000;

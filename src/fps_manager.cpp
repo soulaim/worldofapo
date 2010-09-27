@@ -15,6 +15,12 @@ int FPS_Manager::insert()
   
 }
 
+int FPS_Manager::setStartTime(int time)
+{
+  start_time = time;
+  return 1;
+}
+
 int FPS_Manager::need_to_draw(int time)
 {
   int real_time = time - start_time;

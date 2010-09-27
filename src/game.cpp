@@ -9,7 +9,7 @@ using namespace std;
 
 void Game::processClientMsgs()
 {
-  for(int i=0; i<clientOrders.orders.size(); i++)
+  for(int i=0; i<static_cast<int>(clientOrders.orders.size()); i++)
   {
     stringstream ss(clientOrders.orders[i]);
     
@@ -50,6 +50,7 @@ void Game::processClientMsgs()
 	ss >> simulRules.numPlayers;
 	client_state = 1; // ready to rock :)
 	
+	fps_world.setStartTime( SDL_GetTicks() );
 	for(int player = 0; player < simulRules.numPlayers; player++)
 	    world.addUnit();
 	
@@ -90,7 +91,7 @@ void Game::processClientMsgs()
 
 
 
-Game::Game()
+Game::Game(): fps_world(0)
 {
   client_state = 0;
   myID = -1;
@@ -214,12 +215,12 @@ void Game::start()
     sockets.read_selected();
     
     // mirror any client commands to all clients
-    for(int i=0; i<sockets.sockets.size(); i++)
+    for(int i=0; i<static_cast<int>(sockets.sockets.size()); i++)
     {
-      for(int k=0; k<sockets.sockets[i].msgs.size(); k++)
+      for(int k=0; k<static_cast<int>(sockets.sockets[i].msgs.size()); k++)
       {
 	sockets.sockets[i].msgs[k].append("#");
-	for(int j=0; j<sockets.sockets.size(); j++)
+	for(int j=0; j<static_cast<int>(sockets.sockets.size()); j++)
 	  sockets.sockets[j].write(sockets.sockets[i].msgs[k]);
       }
       sockets.sockets[i].msgs.clear();
@@ -242,8 +243,8 @@ void Game::start()
     
     
     // transmit serverMsgs to players
-    for(int k=0; k<serverMsgs.size(); k++)
-      for(int i=0; i<sockets.sockets.size(); i++)
+    for(int k=0; k   < static_cast<int>(serverMsgs.size()); k++)
+      for(int i=0; i < static_cast<int>(sockets.sockets.size()); i++)
 	sockets.sockets[i].write(serverMsgs[k]);
     serverMsgs.clear();
   }
@@ -291,8 +292,9 @@ void Game::start()
 	}
       }
 	
-      if(simulRules.currentFrame < simulRules.allowedFrame)
+      if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
       {
+	fps_world.insert();
 	int keyState = userio.getKeyChange();
 	int x, y; userio.getMouseChange(x, y);
 	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
@@ -321,11 +323,11 @@ void Game::start()
       }
       else
       {
-	cerr << "current frame: " << simulRules.currentFrame << "  allowedFrame: " << simulRules.allowedFrame << endl;
+	cerr << "current frame: " << simulRules.currentFrame << "  allowedFrame: " << simulRules.allowedFrame << " mypos: " << world.units[0].position.x.number << " " << world.units[0].position.y.number << endl;
       }
     }
     
-    if(world.units.size() > myID)
+    if(static_cast<int>(world.units.size()) > myID)
     {
       view.setCamera(world.units[myID].position);
       view.draw(world.models, world.lvl);

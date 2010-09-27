@@ -10,6 +10,7 @@ class FPS_Manager
 
 public:
   FPS_Manager(int time, int fps = 30);
+  int setStartTime(int time);
   int insert();
   int need_to_draw(int time);
   // fps_counter.resize(50, 10000);

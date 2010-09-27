@@ -132,11 +132,12 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
     ani_addition = obj_part.animations[animation].getSize() / 2;
   
   obj_part.animations[animation].getAnimationState(animation_state + ani_addition, model.parts[current_node].rotation_x, model.parts[current_node].rotation_y, model.parts[current_node].rotation_z);
-  
+
+
   glRotatef(model.parts[current_node].rotation_x, 0, 1, 0);
   glRotatef(model.parts[current_node].rotation_y, 1, 0, 0);
   glRotatef(model.parts[current_node].rotation_z, 0, 0, 1);
-  
+
 
   glBegin(GL_TRIANGLES);
   for(int i=0; i<obj_part.triangles.size(); i++)
@@ -175,9 +176,13 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glLoadIdentity();                                   // Reset The View
     
     glTranslatef(-0.0f, -10.0f, -50.0f); // move some units into the screen.    
-    glRotatef(60.f, 1, 0, 0);
-    glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.    
-    glTranslatef(-camera.x.getFloat(), 0, -camera.y.getFloat());
+    glRotatef(40.f, 1, 0, 0);
+    
+//  glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.
+
+    glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
+    glTranslatef(-camera.x.getFloat(), 0, -camera.y.getFloat()); // place the "camera" at players location.
+
     
     glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);

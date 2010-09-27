@@ -5,6 +5,10 @@ Mika: VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
 
 Mika: VITUN TARKEA - Collision detection (the constraints for this problem are still open)
 
+      VITUN TARKEA - Combat system.
+
+      VITUN TARKEA - Foreign entity behaviour.
+
       OLISI KIVA   - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
       
       OLISI KIVA   - Animator. A separate program that allows the creation of animations for models.

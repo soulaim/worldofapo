@@ -6,6 +6,7 @@
 #include "userio.h"
 #include "graphics.h"
 #include "ordercontainer.h"
+#include "fps_manager.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -40,11 +41,11 @@ struct Order
 // frame skips, window sizes..
 struct StateInfo
 {
-  StateInfo():windowSize(3), frameSkip(1), currentFrame(0), allowedFrame(0) {}
+  StateInfo():windowSize(5), frameSkip(1), currentFrame(0), allowedFrame(0) {}
   
   void reset()
   {
-    windowSize = 3;
+    windowSize = 5;
     frameSkip = 1;
     currentFrame = 0;
     allowedFrame = 0;
@@ -61,6 +62,8 @@ struct StateInfo
 
 class Game
 {
+  FPS_Manager fps_world;
+  
   World world;
   UserIO userio;
   Graphics view;
