@@ -14,9 +14,33 @@ UserIO::UserIO()
 
 int UserIO::getKeyChange()
 {
-  int val = keyBoard;
+  Uint8* keystate = SDL_GetKeyState(NULL);
+  
   keyBoard = 0;
-  return val;
+  if(keystate[SDLK_LEFT])
+    keyBoard |= 1;
+  if(keystate[SDLK_RIGHT])
+    keyBoard |= 2;
+  if(keystate[SDLK_UP])
+    keyBoard |= 4;
+  if(keystate[SDLK_DOWN])
+    keyBoard |= 8;
+  if(keystate[SDLK_SPACE])
+    keyBoard |= 16;
+  if(keystate[SDLK_INSERT])
+    keyBoard |= 32;
+  if(keystate[SDLK_DELETE])
+    keyBoard |= 64;
+  if(keystate[SDLK_HOME])
+    keyBoard |= 128;
+  if(keystate[SDLK_END])
+    keyBoard |= 256;
+  if(keystate[SDLK_PAGEUP])
+    keyBoard |= 512;
+  if(keystate[SDLK_PAGEDOWN])
+    keyBoard |= 1024;
+  
+  return keyBoard;
 }
 
 void UserIO::getMouseChange(int& x, int& y)
@@ -101,29 +125,6 @@ int UserIO::checkEvents()
 	  SDL_Quit();
 	  exit(0);
 	}
-
-	if(event.key.keysym.sym == SDLK_LEFT)
-	  keyBoard |= 1;
-	if(event.key.keysym.sym == SDLK_RIGHT)
-	  keyBoard |= 2;
-	if(event.key.keysym.sym == SDLK_UP)
-	  keyBoard |= 4;
-	if(event.key.keysym.sym == SDLK_DOWN)
-	  keyBoard |= 8;
-	if(event.key.keysym.sym == SDLK_SPACE)
-	  keyBoard |= 16;
-	if(event.key.keysym.sym == SDLK_INSERT)
-	  keyBoard |= 32;
-	if(event.key.keysym.sym == SDLK_DELETE)
-	  keyBoard |= 64;
-	if(event.key.keysym.sym == SDLK_HOME)
-	  keyBoard |= 128;
-	if(event.key.keysym.sym == SDLK_END)
-	  keyBoard |= 256;
-	if(event.key.keysym.sym == SDLK_PAGEUP)
-	  keyBoard |= 512;
-	if(event.key.keysym.sym == SDLK_PAGEDOWN)
-	  keyBoard |= 1024;
       }
       
       if( event.type == SDL_MOUSEMOTION )
@@ -132,7 +133,7 @@ int UserIO::checkEvents()
 	mouseMove.y += event.motion.yrel;
       }
       
-      if( event.type == SDL_MOUSEBUTTONUP )
+      if( event.type == SDL_MOUSEBUTTONDOWN )
       {
 	//If the left mouse button was released
 	if( event.button.button == SDL_BUTTON_LEFT )

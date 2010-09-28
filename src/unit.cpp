@@ -17,7 +17,8 @@ float Unit::getAngle(ApoMath& apomath)
 
 void Unit::updateInput(int keyState_, int mousex_, int mousey_)
 {
-  keyState ^= keyState_;
+//  keyState ^= keyState_;
+  keyState = keyState_;
   angle += mousex_;
 }
 

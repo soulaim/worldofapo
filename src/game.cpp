@@ -139,14 +139,9 @@ void Game::start()
 	cerr << "Client connection has died. :(" << endl;
 	state = "menu";
       }
-	
-//      cerr << "Client received msg: " << msg << endl;
 
       clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
-      
-      cerr << "processClientMsgs" << endl;
       processClientMsgs();
-      cerr << "ok" << endl;
     }
     
 
@@ -205,9 +200,12 @@ void Game::start()
 	  clientSocket.write(msg);
 	}
 	
+	/*
 	for(int k=0; k<UnitInput.size(); k++)
 	  cerr << UnitInput[k].frameID <<  " ";
 	cerr << endl;
+	*/
+	
 	
 	// update commands of player controlled characters
 	for(int i=0; i<simulRules.numPlayers; i++)
