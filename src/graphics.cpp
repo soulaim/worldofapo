@@ -58,10 +58,10 @@ void Graphics::megaFuck()
   foot.animations["idle"].insertAnimationState(0.f, 0.f, 0.f);
   arm.animations["walk"].insertAnimationState(0.f, 0.f, 0.f);
   
+  // when idle, SWING YOUR ARMS AROUND WILDLY :DD
   for(int i=0; i<4*num_frames; i++)
-  {
     arm.animations["idle"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
-  }
+
 }
 
 
