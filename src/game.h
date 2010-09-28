@@ -7,6 +7,7 @@
 #include "graphics.h"
 #include "ordercontainer.h"
 #include "fps_manager.h"
+#include "order.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -16,32 +17,16 @@
 #include <queue>
 #include <map>
 
-struct Order
-{
-  Order(): frameID(0), plr_id(0), keyState(0), mousex(0), mousey(0) {}
-  
-  int frameID;
-  int plr_id;
-  int keyState;
-  int mousex;
-  int mousey;
-  
-  bool operator < (const Order& a) const
-  {
-    if(frameID == a.frameID)
-      return plr_id > a.plr_id;
-    return frameID > a.frameID;
-  }
-};
-
-
 
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,
 // frame skips, window sizes..
 struct StateInfo
 {
-  StateInfo():windowSize(5), frameSkip(1), currentFrame(0), allowedFrame(0) {}
+  StateInfo():windowSize(5), frameSkip(1), currentFrame(0), numPlayers(0)
+  {
+    reset();
+  }
   
   void reset()
   {
@@ -78,7 +63,7 @@ class Game
   std::vector<std::string> clientMsgs; // messages to be sent by the client
   std::vector<std::string> serverMsgs; // messages to be sent by the host
   
-  std::priority_queue<Order> UnitInput;
+  std::vector<Order> UnitInput;
   std::map<int, int> numInputs;
   
   int state_descriptor;
@@ -97,8 +82,10 @@ class Game
   void init();
   void menuQuestions();
   
-  
   void processClientMsgs();
+  void acceptConnections();
+  
+  void handleServerMessage(const Order&);
   
 public:
   Game();

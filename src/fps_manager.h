@@ -9,7 +9,8 @@ class FPS_Manager
   int desired_fps;
 
 public:
-  FPS_Manager(int time, int fps = 30);
+  FPS_Manager(int time, int fps = 15);
+  int reset();
   int setStartTime(int time);
   int insert();
   int need_to_draw(int time);

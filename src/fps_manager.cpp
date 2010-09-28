@@ -9,6 +9,11 @@ FPS_Manager::FPS_Manager(int time, int fps)
   desired_fps = fps;
 }
 
+int FPS_Manager::reset()
+{
+  frame_count = 0;
+}
+
 int FPS_Manager::insert()
 {
   return ++frame_count;

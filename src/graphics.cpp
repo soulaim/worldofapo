@@ -228,8 +228,10 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     
 //  glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.
 
-    glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
-    glTranslatef(-camera.x.getFloat(), -camera.h.getFloat()/3, -camera.y.getFloat()); // place the "camera" at players location.
+    // this must be done with the model of the local player if at all! models[0] is not the hero for all players.
+//  glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
+
+    glTranslatef(-camera.x.getFloat(), 0.f, -camera.y.getFloat()); // place the "camera" at players location.
 
     glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);

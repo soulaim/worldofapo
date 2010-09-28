@@ -109,7 +109,7 @@ int MU_Socket::socket_init()
 	return 1;
 }
 
-int MU_Socket::write(string& msg)
+int MU_Socket::write(const string& msg)
 {
 //	cerr << "Writing data to socket.. " << endl;
 	

@@ -28,7 +28,7 @@ public:
 	int socket_init();
 
 	int conn_init(std::string& ip, int port);
-	int write(std::string& msg);
+	int write(const std::string& msg);
 	std::string read();
 
 	int init_listener(int port);
