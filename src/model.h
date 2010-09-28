@@ -37,7 +37,7 @@ struct Model
 
   void tick();
   void load(std::string);
-  void setAction(std::string);
+  void setAction(const std::string&);
   
 };
 

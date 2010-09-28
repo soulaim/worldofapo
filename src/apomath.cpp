@@ -12,8 +12,8 @@ void ApoMath::init(int size)
   
   for(int i=0; i<size; i++)
   {
-    int sin_val = 200 * sin(2 * 3.14159265 * i / size);
-    int cos_val = 200 * cos(2 * 3.14159265 * i / size);
+    int sin_val = 1000 * sin(2 * 3.14159265 * i / size);
+    int cos_val = 1000 * cos(2 * 3.14159265 * i / size);
     float radian  = 360. * i / size;
     
     cerr << sin_val << " " << cos_val << " " << radian << endl;

@@ -108,6 +108,7 @@ void Game::init()
   myID = -1;
   state = "menu";
   view.loadObjects("data/parts.dat");
+  view.megaFuck(); // blah..
   
   Image img;
   string grassFile = "data/grass.png";

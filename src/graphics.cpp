@@ -20,36 +20,48 @@ void Graphics::megaFuck()
 {
   ObjectPart& leg = objects["LEG"];
   ObjectPart& foot = objects["FOOT"];
+  ObjectPart& arm = objects["ARM"];
+  
+  int num_frames = 3;
   
   // walking, step #1
-  for(int i=0; i<50; i++)
+  for(int i=0; i<num_frames; i++)
   {
-    leg.animations["walk"].insertAnimationState(0.f, -30.f * i / 50.f, 0.f);
+    leg.animations["walk"].insertAnimationState(0.f, -30.f * i / num_frames, 0.f);
     foot.animations["walk"].insertAnimationState(0.f, 0.f, 0.f);
   }
   
   // walking, step #2
-  for(int i=0; i<50; i++)
+  for(int i=0; i< 2 * num_frames; i++)
   {
-    leg.animations["walk"].insertAnimationState(0.f, -30.f + 30.f * i / 50.f, 0.f);
-    foot.animations["walk"].insertAnimationState(0.f, +30.f * i / 50.f, 0.f);
+    leg.animations["walk"].insertAnimationState(0.f, -30.f + 30.f * i / (2*num_frames), 0.f);
+    foot.animations["walk"].insertAnimationState(0.f, +30.f * i / (2*num_frames), 0.f);
   }
   
   // walking, step #3
-  for(int i=0; i<50; i++)
+  for(int i=0; i<num_frames; i++)
   {
-    leg.animations["walk"].insertAnimationState(0.f, +40.f * i / 50.f, 0.f);
+    leg.animations["walk"].insertAnimationState(0.f, +40.f * i / num_frames, 0.f);
     foot.animations["walk"].insertAnimationState(0.f, +30.f, 0.f);
   }
 
   // walking, step #4
-  for(int i=0; i<50; i++)
+  for(int i=0; i<num_frames; i++)
   {
-    leg.animations["walk"].insertAnimationState(0.f, +40.f - 40.f * i / 50.f, 0.f);
-    foot.animations["walk"].insertAnimationState(0.f, +30.f - 30.f * i / 50.f, 0.f);
+    leg.animations["walk"].insertAnimationState(0.f, +40.f - 40.f * i / num_frames, 0.f);
+    foot.animations["walk"].insertAnimationState(0.f, +30.f - 30.f * i / num_frames, 0.f);
   }
 
   // there you go! now you know how to walk :D
+  
+  leg.animations["idle"].insertAnimationState(0.f, 0.f, 0.f);
+  foot.animations["idle"].insertAnimationState(0.f, 0.f, 0.f);
+  arm.animations["walk"].insertAnimationState(0.f, 0.f, 0.f);
+  
+  for(int i=0; i<4*num_frames; i++)
+  {
+    arm.animations["idle"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
+  }
 }
 
 
@@ -155,6 +167,7 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
     drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
   glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
   
+  
   // restore rotations
   glRotatef(-model.parts[current_node].rotation_z, 0, 0, 1);
   glRotatef(-model.parts[current_node].rotation_y, 1, 0, 0);
@@ -214,8 +227,13 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     for(int i=0; i<models.size(); i++)
     {
       if(models[i].root < 0)
-	continue;
+	continue;      
+      
+//      float model_y_offset = models[i].parts[models[i].root].offset_y;
+      glTranslatef(0.0f, -modelGround(models[i]), 0.0f);
       drawPartsRecursive(models[i], models[i].root, -1, models[i].animation_name, models[i].animation_time);
+      glTranslatef(0.0f, +modelGround(models[i]), 0.0f);
+      
     }
     
     SDL_GL_SwapBuffers();

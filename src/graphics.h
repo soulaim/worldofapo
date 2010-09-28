@@ -44,6 +44,7 @@ struct ObjectPart
 
 class Graphics
 {
+  GLfloat m[16]; // storage for OGL ModelView matrix
   std::vector<GLuint> textures;
   
   void init();

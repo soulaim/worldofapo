@@ -13,8 +13,11 @@ void Model::tick()
 }
 
 
-void Model::setAction(string name)
+void Model::setAction(const string& name)
 {
+  if(name == animation_name)
+    return;
+  
   animation_name = name;
   animation_time = 0;
 }

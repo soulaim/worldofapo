@@ -17,11 +17,11 @@ public:
   int angle; // integer representation of the angle variable.
   int keyState; // what is the unit doing right now, represented as player keyboard input
   
-  ApoMath apomath; // megasuper mathematics library! for integer sin/cos :)
+  // megasuper mathematics library! for integer sin/cos :)
 		  // ALTHOUGH, THIS SHOULD NOT BE A PART OF UNIT, BUT
 		  // DECLARED SOMEWHERE CLOSER TO ROOT. LIKE GAME.H
 
   void updateInput(int, int, int);
-  void tick();
-  float getAngle();
+  void tick(ApoMath&, int);
+  float getAngle(ApoMath&);
 };

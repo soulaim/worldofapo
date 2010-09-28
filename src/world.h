@@ -10,6 +10,7 @@ WARNING: THIS FILE IS FULL OF SHIT
 #include "unit.h"
 #include "model.h"
 #include "level.h"
+#include "apomath.h"
 
 class World
 {
@@ -22,6 +23,7 @@ public:
   std::vector<Model> models; // one of these BUT
   
   Level lvl;
+  ApoMath apomath;
   
   void tick();
   void addUnit();
