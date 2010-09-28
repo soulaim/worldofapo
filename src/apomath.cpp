@@ -12,8 +12,8 @@ void ApoMath::init(int size)
   
   for(int i=0; i<size; i++)
   {
-    int sin_val = 200 * sin(2 * 3.14159265 * i / size);
-    int cos_val = 200 * cos(2 * 3.14159265 * i / size);
+    int sin_val = 1000 * sin(2 * 3.14159265 * i / size);
+    int cos_val = 1000 * cos(2 * 3.14159265 * i / size);
     float radian  = 360. * i / size;
     
     cerr << sin_val << " " << cos_val << " " << radian << endl;
@@ -49,5 +49,14 @@ float ApoMath::getRad(int& angle)
   while(angle >= sin_vals.size())
     angle -= sin_vals.size();
   return rad_vals[angle];
+}
+
+FixedPoint ApoMath::sqrt(const FixedPoint& x)
+{
+	// sqrt(x*1000)*1000 = sqrt(x)/sqrt(1000)*1000
+	// TODO: Need portable implementation.
+	FixedPoint ret;
+	ret.number = int(std::sqrt(x.number) * 1000.0 / std::sqrt(1000.0));
+	return ret;
 }
 

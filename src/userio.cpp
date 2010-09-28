@@ -112,6 +112,18 @@ int UserIO::checkEvents()
 	  keyBoard |= 8;
 	if(event.key.keysym.sym == SDLK_SPACE)
 	  keyBoard |= 16;
+	if(event.key.keysym.sym == SDLK_INSERT)
+	  keyBoard |= 32;
+	if(event.key.keysym.sym == SDLK_DELETE)
+	  keyBoard |= 64;
+	if(event.key.keysym.sym == SDLK_HOME)
+	  keyBoard |= 128;
+	if(event.key.keysym.sym == SDLK_END)
+	  keyBoard |= 256;
+	if(event.key.keysym.sym == SDLK_PAGEUP)
+	  keyBoard |= 512;
+	if(event.key.keysym.sym == SDLK_PAGEDOWN)
+	  keyBoard |= 1024;
       }
       
       if( event.type == SDL_MOUSEMOTION )
