@@ -268,7 +268,7 @@ void Game::start()
 	state = "menu";
       }
 	
-      cerr << "Client received msg: " << msg << endl;
+//      cerr << "Client received msg: " << msg << endl;
       
       clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
       processClientMsgs();
@@ -287,7 +287,7 @@ void Game::start()
       {
 	if(numInputs[simulRules.currentFrame+1] == simulRules.numPlayers)
 	{
-	  cerr << "Have all inputs. Incrementing allowed simulation range" << endl;
+//	  cerr << "Have all inputs. Incrementing allowed simulation range" << endl;
 	  simulRules.allowedFrame++; // += simulRules.frameSkip;
 	  numInputs.erase(simulRules.currentFrame+1);
 	}
@@ -297,7 +297,8 @@ void Game::start()
       {
 	fps_world.insert();
 	int keyState = userio.getKeyChange();
-	int x, y; userio.getMouseChange(x, y);
+	int x, y;
+	userio.getMouseChange(x, y);
 	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
 	
 	stringstream inputMsg;
@@ -313,7 +314,7 @@ void Game::start()
 	  Order tmp = UnitInput.top();
 	  UnitInput.pop();
 	  
-	  cerr << "HERO INPUT #" << simulRules.currentFrame << " " << tmp.frameID << " for hero " << tmp.plr_id << endl;
+//	  cerr << "HERO INPUT #" << simulRules.currentFrame << " " << tmp.frameID << " for hero " << tmp.plr_id << endl;
 	  world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey);
 	}
 	
@@ -324,7 +325,7 @@ void Game::start()
       }
       else
       {
-	cerr << "current frame: " << simulRules.currentFrame << "  allowedFrame: " << simulRules.allowedFrame << " mypos: " << world.units[0].position.x.number << " " << world.units[0].position.y.number << endl;
+//	cerr << "current frame: " << simulRules.currentFrame << "  allowedFrame: " << simulRules.allowedFrame << " mypos: " << world.units[0].position.x.number << " " << world.units[0].position.y.number << endl;
       }
     }
     

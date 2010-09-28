@@ -181,22 +181,56 @@ void Graphics::setCamera(Location cam)
   camera = cam;
 }
 
+#include <cmath>
+
+void rotateCamera(const Location& camera)
+{
+	double yaw = camera.getYaw();
+//	cout << "YAW: " << yaw << "\n";
+	GLdouble yaw_matrix[16] = {
+		cos(yaw), -sin(yaw), 0, 0,
+		sin(yaw), cos(yaw), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1 };
+
+	double pitch = camera.getPitch();
+//	cout << "PITCH: " << pitch << "\n";
+	GLdouble pitch_matrix[16] = {
+		cos(pitch), 0, sin(pitch), 0,
+		0, 1, 0, 0,
+		-sin(pitch), 0, cos(pitch), 0,
+		0, 0, 0, 1 };
+
+	double roll = camera.getRoll();
+//	cout << "ROLL: " << roll << "\n";
+	GLdouble roll_matrix[16] = {
+		1, 0, 0, 0,
+		0, cos(roll), -sin(roll), 0,
+		0, sin(roll), cos(roll), 0,
+		0, 0, 0, 1 };
+
+	glMultTransposeMatrixd(yaw_matrix);
+	glMultTransposeMatrixd(pitch_matrix);
+	glMultTransposeMatrixd(roll_matrix);
+}
+
 void Graphics::draw(vector<Model>& models, Level& lvl)
 {
     
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
     glLoadIdentity();                                   // Reset The View
+
+	rotateCamera(camera);
     
-    glTranslatef(-0.0f, -10.0f, -50.0f); // move some units into the screen.    
+    glTranslatef(-0.0f, -5.0f, -20.0f); // move some units into the screen.    
     glRotatef(40.f, 1, 0, 0);
     
 //  glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.
 
     glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
-    glTranslatef(-camera.x.getFloat(), 0, -camera.y.getFloat()); // place the "camera" at players location.
+    glTranslatef(-camera.x.getFloat(), -camera.h.getFloat()/3, -camera.y.getFloat()); // place the "camera" at players location.
 
-    
     glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
     glBindTexture(GL_TEXTURE_2D, textures[0]);

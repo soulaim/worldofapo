@@ -51,3 +51,12 @@ float ApoMath::getRad(int& angle)
   return rad_vals[angle];
 }
 
+FixedPoint ApoMath::sqrt(const FixedPoint& x)
+{
+	// sqrt(x*1000)*1000 = sqrt(x)/sqrt(1000)*1000
+	// TODO: Need portable implementation.
+	FixedPoint ret;
+	ret.number = int(std::sqrt(x.number) * 1000.0 / std::sqrt(1000.0));
+	return ret;
+}
+

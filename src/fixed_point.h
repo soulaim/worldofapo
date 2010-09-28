@@ -58,11 +58,9 @@ struct FixedPoint
   
   FixedPoint operator * (const FixedPoint& a) const
   {
-    long long tmp = a.number;
-    tmp *= number;
-    tmp /= 1000;
-    FixedPoint tmpfp((int)(tmp));
-    return tmpfp;
+	  FixedPoint tmp(*this);
+	  tmp *= a;
+	  return tmp;
   }
   
   void operator *= (const FixedPoint& a)
@@ -77,6 +75,13 @@ struct FixedPoint
   {
     number *= 1000;
     number /= a.number;
+  }
+
+  FixedPoint operator / (const FixedPoint& a) const
+  {
+	  FixedPoint tmp(*this);
+	  tmp /= a;
+	  return tmp;
   }
 };
 
