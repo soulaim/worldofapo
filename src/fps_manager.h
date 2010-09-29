@@ -9,7 +9,7 @@ class FPS_Manager
   int desired_fps;
 
 public:
-  FPS_Manager(int time, int fps = 30);
+  FPS_Manager(int time, int fps = 60);
   int reset();
   int setStartTime(int time);
   int insert();

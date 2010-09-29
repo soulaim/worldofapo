@@ -77,9 +77,9 @@ char UserIO::getSingleChar()
 {
   SDL_Event event;
 
-  for(int i=0; i<20; i++)
+  while(1)
   {
-    if( SDL_PollEvent( &event ) )
+    if(SDL_PollEvent( &event ))
     {
       if(event.type == SDL_KEYDOWN)
       {
@@ -104,6 +104,10 @@ char UserIO::getSingleChar()
 	return *(SDL_GetKeyName (event.key.keysym.sym));
       }
     }
+    else
+    {
+      SDL_Delay(50);
+    }
   }
   
   return 0;
@@ -113,43 +117,40 @@ int UserIO::checkEvents()
 {
   SDL_Event event;
 
-  for(int i=0; i<20; i++)
+  while( SDL_PollEvent( &event ) )
   {
-    if( SDL_PollEvent( &event ) )
+    if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
     {
-      if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+      if(event.key.keysym.sym == SDLK_ESCAPE)
       {
-	if(event.key.keysym.sym == SDLK_ESCAPE)
-	{
-	  cerr << "User pressed ESC, shutting down." << endl;
-	  SDL_Quit();
-	  exit(0);
-	}
+	cerr << "User pressed ESC, shutting down." << endl;
+	SDL_Quit();
+	exit(0);
+      }
+    }
+    
+    if( event.type == SDL_MOUSEMOTION )
+    {
+      mouseMove.x += event.motion.xrel;
+      mouseMove.y += event.motion.yrel;
+    }
+    
+    if( event.type == SDL_MOUSEBUTTONDOWN )
+    {
+      //If the left mouse button was released
+      if( event.button.button == SDL_BUTTON_LEFT )
+      {
+	mouse = Coord(event.button.x, event.button.y);
+	mouse_has_been_pressed = 1;
       }
       
-      if( event.type == SDL_MOUSEMOTION )
+      //If the right mouse button was released
+      if( event.button.button == SDL_BUTTON_RIGHT )
       {
-	mouseMove.x += event.motion.xrel;
-	mouseMove.y += event.motion.yrel;
+	mouse = Coord(event.button.x, event.button.y);
+	mouse_right_button = 1;
       }
       
-      if( event.type == SDL_MOUSEBUTTONDOWN )
-      {
-	//If the left mouse button was released
-	if( event.button.button == SDL_BUTTON_LEFT )
-	{
-	  mouse = Coord(event.button.x, event.button.y);
-	  mouse_has_been_pressed = 1;
-	}
-	
-	//If the right mouse button was released
-	if( event.button.button == SDL_BUTTON_RIGHT )
-	{
-	  mouse = Coord(event.button.x, event.button.y);
-	  mouse_right_button = 1;
-	}
-	
-      }
     }
   }
 

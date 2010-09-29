@@ -86,9 +86,16 @@ void Graphics::init()
     // do some weird magic i dont understand
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
     
-    gluPerspective(45.0f,(GLfloat) 800/(GLfloat) 600,0.1f,100.0f);	// Calculate The Aspect Ratio Of The Window
+    // these could be stored and set somewhere else possibly
+    float angle = 45.f;
+    float ratio = 800.f / 600.f;
+    float nearP = 1.f;
+    float farP  = 100.f;
+    
+    gluPerspective(angle,ratio,nearP,farP);
+    frustum.setCamInternals(angle,ratio,nearP,farP);
+    
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -104,7 +111,11 @@ void Graphics::createWindow()
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
   
   drawContext = SDL_SetVideoMode(800, 600, 0, SDL_OPENGL); // | SDL_FULLSCREEN);
-  cerr << "drawContext = " << drawContext << endl;
+  if(drawContext == 0)
+  {
+    cerr << "ERROR: drawContext = " << drawContext << endl;
+    exit(0);
+  }
 }
 
 void Graphics::buildTexture(Image& img)
@@ -221,51 +232,72 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
     glLoadIdentity();                                   // Reset The View
 
-	rotateCamera(camera);
     
-    glTranslatef(-0.0f, -5.0f, -20.0f); // move some units into the screen.    
-    glRotatef(40.f, 1, 0, 0);
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-//  glTranslatef(.0f, .0f, -10.0f); // move some units into the screen.
+    Vec3 camPos, camTarget, upVector;
+    camPos.x = camera.x.getFloat();
+    camPos.y = camera.h.getFloat() + 30;
+    camPos.z = camera.y.getFloat() + 25;
+    
+    camTarget.x = camera.x.getFloat();
+    camTarget.y = camera.h.getFloat();
+    camTarget.z = camera.y.getFloat();
+    
+    upVector.x = 0.f;
+    upVector.y = 1.f;
+    upVector.z = 0.f;
+    
+    glLoadIdentity();
+    gluLookAt(camPos.x, camPos.y, camPos.z,
+	      camTarget.x, camTarget.y, camTarget.z,
+	      upVector.x, upVector.y, upVector.z);
 
-    // this must be done with the model of the local player if at all! models[0] is not the hero for all players.
+    frustum.setCamDef(camPos, camTarget, upVector);
+    
+// this must also be integrated to the camera describing frustum
+// this must be done with the model of the local player if at all! models[0] is not the hero for all players.
 //  glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
 
-    glTranslatef(-camera.x.getFloat(), 0.f, -camera.y.getFloat()); // place the "camera" at players location.
-
     glEnable(GL_TEXTURE_2D);
-    glBegin(GL_QUADS);
     glBindTexture(GL_TEXTURE_2D, textures[0]);
+    
+    glBegin(GL_QUADS);
     int multiplier = 8;
+    
+    Vec3 semiAverage;
     for(int x=0; x < lvl.pointheight_info.size()-1; x++)
     {
       for(int y=0; y < lvl.pointheight_info[x].size()-1; y++)
       {
-	glTexCoord2f(0.f, 0.0f); glVertex3f( multiplier* (x)   , lvl.pointheight_info[x][y].getFloat()    , multiplier * y);
-	glTexCoord2f(1.f, 0.0f); glVertex3f( multiplier* (x+1) , lvl.pointheight_info[x+1][y].getFloat()  , multiplier * y);
-	glTexCoord2f(1.f, 1.0f); glVertex3f( multiplier* (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1) );
-	glTexCoord2f(0.f, 1.0f); glVertex3f( multiplier* (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1) );
+	FixedPoint fpx; fpx.number = multiplier * (1000 * x + 500);
+	FixedPoint fpy; fpy.number = multiplier * (1000 * y + 500);
+	
+	semiAverage.x = multiplier * (x + 0.5f);
+	semiAverage.z = multiplier * (y + 0.5f);
+	semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
+	
+	if(frustum.sphereInFrustum(semiAverage, multiplier * 1.f) != FrustumR::OUTSIDE)
+	{
+	  glTexCoord2f(0.f, 0.0f); glVertex3f( multiplier * (x)   , lvl.pointheight_info[x][y].getFloat()    , multiplier * y);
+	  glTexCoord2f(1.f, 0.0f); glVertex3f( multiplier * (x+1) , lvl.pointheight_info[x+1][y].getFloat()  , multiplier * y);
+	  glTexCoord2f(1.f, 1.0f); glVertex3f( multiplier * (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1) );
+	  glTexCoord2f(0.f, 1.0f); glVertex3f( multiplier * (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1) );
+	}
       }
     }
     glEnd();
+    
     glDisable(GL_TEXTURE_2D);
-    
     glColor3f(1.0f, 1.0f, 1.0f);
-    
-    /*
-    glBegin(GL_TRIANGLES);
-    glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(20. , 0, 20);
-    glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(-20., 0, 20);
-    glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(0.  , 0, -20);
-    glEnd();
-    */
+
     
     for(int i=0; i<models.size(); i++)
     {
       if(models[i].root < 0)
 	continue;      
       
-//      float model_y_offset = models[i].parts[models[i].root].offset_y;
       glTranslatef(0.0f, -modelGround(models[i]), 0.0f);
       drawPartsRecursive(models[i], models[i].root, -1, models[i].animation_name, models[i].animation_time);
       glTranslatef(0.0f, +modelGround(models[i]), 0.0f);

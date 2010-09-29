@@ -3,9 +3,12 @@
 
 using namespace std;
 
+// this function should prolly block too.. be it's own little world!
 void Game::menuQuestions()
 {
-  char val = userio.getSingleChar();
+  cerr << "entry to menuQuestions" << endl;
+  
+  char val = userio.getSingleChar(); // blocks!
   char str[2];
   str[0] = val;
   str[1] = 0;
@@ -46,4 +49,5 @@ void Game::menuQuestions()
     cerr << "current menuword: " << menuWord << endl;
   }
   
+  cerr << "out of menuQuestions" << endl;
 }

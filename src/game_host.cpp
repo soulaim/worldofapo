@@ -12,8 +12,8 @@ void Game::acceptConnections()
     serverSocket.accept_connection(sockets);
     
     // if game in progress, inform everyone else of a new connecting player TODO
-  
-  
+    
+    
     
     // send new player the current simulRules state
     stringstream simulRules_msg;

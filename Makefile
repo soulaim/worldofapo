@@ -3,7 +3,7 @@ LDLIBS = -lSDL -lGL -lGLU -lpng
 #-lSDL_mixer
 CC = g++
 
-DIRS = src src/net
+DIRS = src src/net src/frustum
 
 
 obj = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS), $(wildcard $(dir)/*.cpp)))

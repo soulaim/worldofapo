@@ -13,9 +13,9 @@
 
 #include "model.h"
 #include "animation.h"
+#include "frustum/FrustumR.h"
 
 struct Level;
-
 
 struct ObjectTri
 {
@@ -66,5 +66,7 @@ public:
   void buildTexture(Image&);
   void loadObjects(std::string);
   Graphics();
+  
+  FrustumR frustum;
 };
 

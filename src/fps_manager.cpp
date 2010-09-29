@@ -33,3 +33,4 @@ int FPS_Manager::need_to_draw(int time)
     return 1;
   return 0;
 }
+
