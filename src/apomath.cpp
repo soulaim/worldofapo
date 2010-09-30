@@ -16,7 +16,7 @@ void ApoMath::init(int size)
     int cos_val = 1000 * cos(2 * 3.14159265 * i / size);
     float radian  = 360. * i / size;
     
-    cerr << sin_val << " " << cos_val << " " << radian << endl;
+//    cerr << sin_val << " " << cos_val << " " << radian << endl;
     
     sin_vals.push_back(FixedPoint()); sin_vals.back().number = sin_val;
     cos_vals.push_back(FixedPoint()); cos_vals.back().number = cos_val;

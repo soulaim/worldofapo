@@ -19,9 +19,8 @@ void Game::handleServerMessage(const Order& server_msg)
   {
     world.addUnit();
     simulRules.numPlayers++;
-    cerr << "Adding a new hero at frame " << simulRules.currentFrame << endl;
-    view.bindCamera(&world.units.back());
-    
+    cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+
     cerr << "Creating dummy input for new hero." << endl;
     // WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
     for(int frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; frame++)
@@ -42,6 +41,11 @@ void Game::handleServerMessage(const Order& server_msg)
   {
     myID = server_msg.keyState; // trololol. nice place to store the info.
     cerr << "Setting local playerID at frame " << simulRules.currentFrame << " to value " << myID << endl;
+    if(world.units.size() > myID)
+    {
+		cerr << "Binding camera to player " << myID << "\n";
+        view.bindCamera(&world.units[myID]);
+    }
   }
   else
   {

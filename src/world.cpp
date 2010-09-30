@@ -20,7 +20,8 @@ int World::heightDifference2Velocity(int h_diff)
 
 World::World()
 {
- init();
+	init();
+	units.reserve(20);
 }
 
 void World::init()
