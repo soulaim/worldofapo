@@ -10,3 +10,10 @@ void Image::loadImage(string& filename)
   pngLoad(filename.c_str(), &sizeX, &sizeY, &data);
 }
 
+void Image::unload()
+{
+  if(data == 0)
+    return;
+  delete[] data;
+  data = 0;
+}

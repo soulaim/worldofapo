@@ -1,5 +1,6 @@
 
 #include "game.h"
+#include "texturehandler.h"
 
 #include <iostream>
 #include <sstream>
@@ -28,15 +29,15 @@ void Game::init()
   Image img;
   string grassFile = "data/grass.png";
   img.loadImage(grassFile);
-  view.buildTexture(img);
+  TextureHandler::getSingleton().createTexture("grass" ,img);
 
   string highGround = "data/highground.png";
   img.loadImage(highGround);
-  view.buildTexture(img);
-
+  TextureHandler::getSingleton().createTexture("highground" ,img);
+  
   string mountain = "data/hill.png";
   img.loadImage(mountain);
-  view.buildTexture(img);
+  TextureHandler::getSingleton().createTexture("mountain" ,img);
 
 }
 

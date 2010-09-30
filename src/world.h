@@ -15,6 +15,7 @@ WARNING: THIS FILE IS FULL OF SHIT
 class World
 {
   void updateModels();
+  int heightDifference2Velocity(int h_diff);
   
 public:
   World();
@@ -25,6 +26,7 @@ public:
   Level lvl;
   ApoMath apomath;
   
+  void tickUnit(Unit& unit);
   void tick();
   void addUnit();
 };
