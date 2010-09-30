@@ -45,30 +45,5 @@ void Unit::tick(ApoMath& apomath, int multiplier)
 	{
 		angle -= 2;
 	}
-
-	if(keyState & 32)
-	{
-		position.setYaw(position.getYaw() + 0.05);
-	}
-	if(keyState & 64)
-	{
-		position.setYaw(position.getYaw() - 0.05);
-	}
-	if(keyState & 128)
-	{
-		position.setPitch(position.getPitch() + 0.05);
-	}
-	if(keyState & 256)
-	{
-		position.setPitch(position.getPitch() - 0.05);
-	}
-	if(keyState & 512)
-	{
-		position.setRoll(position.getRoll() + 0.05);
-	}
-	if(keyState & 1024)
-	{
-		position.setRoll(position.getRoll() - 0.05);
-	}
 }
 

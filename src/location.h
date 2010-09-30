@@ -12,10 +12,7 @@ struct Location
 	Location():
 		x(0),
 		y(0),
-		h(0),
-		yaw(0.0),
-		pitch(0.0),
-		roll(0.0)
+		h(0)
 	{}
 
 	FixedPoint x;
@@ -49,39 +46,6 @@ struct Location
     x -= a.x;
     y -= a.y;
   }
-
-
-	// Maybe one these to a class called "Camera" or something...
-	void setYaw(double y)
-	{
-		yaw = y;
-	}
-	void setPitch(double y)
-	{
-		pitch = y;
-	}
-	void setRoll(double y)
-	{
-		roll = y;
-	}
-
-	double getYaw() const
-	{
-		return yaw;
-	}
-	double getPitch() const
-	{
-		return pitch;
-	}
-	double getRoll() const
-	{
-		return roll;
-	}
-	
-private:
-	double yaw;
-	double pitch;
-	double roll;
 };
 
 #endif

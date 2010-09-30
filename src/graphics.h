@@ -15,6 +15,7 @@
 #include "model.h"
 #include "animation.h"
 #include "frustum/FrustumR.h"
+#include "camera.h"
 
 struct Level;
 
@@ -53,16 +54,18 @@ class Graphics
   float modelGround(Model& model);
   
   SDL_Surface* drawContext;
-  Location camera;
+  Camera camera;
 public:
 
+  void bindCamera(Location* location);
+  void updateInput(int keystate, int mousex, int mousey);
   
   std::map<std::string, ObjectPart> objects;
   void drawPartsRecursive(Model&, int, int, std::string&, int);
   
   void megaFuck(); // this function creates a test animation called "walk" for the test model
   
-  void setCamera(Location);
+  void setCamera(const Camera& camera);
   void draw(std::vector<Model>&, Level& lvl);
   
   GLuint buildTexture(Image&);

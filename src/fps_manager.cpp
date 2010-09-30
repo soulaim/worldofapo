@@ -12,12 +12,12 @@ FPS_Manager::FPS_Manager(int time, int fps)
 int FPS_Manager::reset()
 {
   frame_count = 0;
+  return 0;
 }
 
 int FPS_Manager::insert()
 {
   return ++frame_count;
-  
 }
 
 int FPS_Manager::setStartTime(int time)

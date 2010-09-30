@@ -146,7 +146,7 @@ GLuint Graphics::buildTexture(Image& img)
 
 void Graphics::deleteTexture(unsigned texture)
 {
-  for(int i=0; i<textures.size(); i++)
+  for(size_t i=0; i<textures.size(); i++)
   {
     if(textures[i] == texture)
     {
@@ -181,7 +181,7 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 
 
   glBegin(GL_TRIANGLES);
-  for(int i=0; i<obj_part.triangles.size(); i++)
+  for(size_t i=0; i<obj_part.triangles.size(); i++)
   {
     // how to choose textures??
     ObjectTri& tri = obj_part.triangles[i];
@@ -192,7 +192,7 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
   glEnd();
   
   glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
-  for(int i=0; i<model.parts[current_node].children.size(); i++)
+  for(size_t i=0; i<model.parts[current_node].children.size(); i++)
     drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
   glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
   
@@ -205,14 +205,14 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
   glTranslatef(-model.parts[current_node].offset_x, -model.parts[current_node].offset_y, -model.parts[current_node].offset_z);
 }
 
-void Graphics::setCamera(Location cam)
+void Graphics::setCamera(const Camera& cam)
 {
-  camera = cam;
+	camera = cam;
 }
 
 #include <cmath>
 
-void rotateCamera(const Location& camera)
+void rotateCamera(const Camera& camera)
 {
 	double yaw = camera.getYaw();
 //	cout << "YAW: " << yaw << "\n";
@@ -253,13 +253,13 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glLoadIdentity();                                   // Reset The View
     
     Vec3 camPos, camTarget, upVector;
-    camPos.x = camera.x.getFloat();
-    camPos.y = camera.h.getFloat() + 30;
-    camPos.z = camera.y.getFloat() + 25;
+    camPos.x = camera.getX();
+    camPos.y = camera.getY() + 30.0;
+    camPos.z = camera.getZ() + 25.0;
     
-    camTarget.x = camera.x.getFloat();
-    camTarget.y = camera.h.getFloat();
-    camTarget.z = camera.y.getFloat();
+    camTarget.x = camera.getX();
+    camTarget.y = camera.getY();
+    camTarget.z = camera.getZ();
     
     upVector.x = 0.f;
     upVector.y = 1.f;
@@ -282,9 +282,9 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     int multiplier = 8;
     
     Vec3 semiAverage;
-    for(int x=0; x < lvl.pointheight_info.size()-1; x++)
+    for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
     {
-      for(int y=0; y < lvl.pointheight_info[x].size()-1; y++)
+      for(size_t y=0; y < lvl.pointheight_info[x].size()-1; y++)
       {
 	FixedPoint fpx; fpx.number = multiplier * (1000 * x + 500);
 	FixedPoint fpy; fpy.number = multiplier * (1000 * y + 500);
@@ -318,7 +318,7 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glColor3f(1.0f, 1.0f, 1.0f);
 
     
-    for(int i=0; i<models.size(); i++)
+    for(size_t i=0; i<models.size(); i++)
     {
       if(models[i].root < 0)
 	continue;      
@@ -332,3 +332,98 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     SDL_GL_SwapBuffers();
     return;
 }
+
+void Graphics::updateInput(int keystate, int mousex, int mousey)
+{
+/*
+	if(keystate & 1)
+	{
+		Location location = camera.getLocation();
+		location.x += 5;
+		camera.setLocation(location);
+	}
+	if(keystate & 2)
+	{
+		Location location = camera.getLocation();
+		location.x -= 5;
+		camera.setLocation(location);
+	}
+
+	if(keystate & 4)
+	{
+		Location location = camera.getLocation();
+		location.y += 5;
+		camera.setLocation(location);
+	}
+	if(keystate & 8)
+	{
+		Location location = camera.getLocation();
+		location.y -= 5;
+		camera.setLocation(location);
+	}
+*/
+	if(keystate & 32)
+	{
+		camera.setYaw(camera.getYaw() + 0.05);
+	}
+	if(keystate & 64)
+	{
+		camera.setYaw(camera.getYaw() - 0.05);
+	}
+	if(keystate & 128)
+	{
+		camera.setPitch(camera.pitch + 0.05);
+	}
+	if(keystate & 256)
+	{
+		camera.setPitch(camera.pitch - 0.05);
+	}
+	if(keystate & 512)
+	{
+		camera.setRoll(camera.getRoll() + 0.05);
+	}
+	if(keystate & 1024)
+	{
+		camera.setRoll(camera.getRoll() - 0.05);
+	}
+	if(keystate & 1 << 11)
+	{
+		camera.x = 0.0;
+		camera.y = 0.0;
+		camera.z = 0.0;
+		camera.setYaw(0.0);
+		camera.setPitch(0.0);
+		camera.setRoll(0.0);
+	}
+
+	if(keystate & 1 << 12)
+	{
+		camera.x += 1;
+	}
+	if(keystate & 1 << 13)
+	{
+		camera.x -= 1;
+	}
+	if(keystate & 1 << 14)
+	{
+		camera.y += 1;
+	}
+	if(keystate & 1 << 15)
+	{
+		camera.y -= 1;
+	}
+	if(keystate & 1 << 16)
+	{
+		camera.z += 1;
+	}
+	if(keystate & 1 << 17)
+	{
+		camera.z -= 1;
+	}
+}
+
+void Graphics::bindCamera(Location* location)
+{
+	camera.bind(location);
+}
+

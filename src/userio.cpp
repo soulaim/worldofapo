@@ -40,6 +40,22 @@ int UserIO::getKeyChange()
     keyBoard |= 512;
   if(keystate[SDLK_PAGEDOWN])
     keyBoard |= 1024;
+
+  if(keystate[SDLK_F1])
+    keyBoard |= 1<<11;
+
+  if(keystate[SDLK_F5])
+    keyBoard |= 1<<12;
+  if(keystate[SDLK_F6])
+    keyBoard |= 1<<13;
+  if(keystate[SDLK_F7])
+    keyBoard |= 1<<14;
+  if(keystate[SDLK_F8])
+    keyBoard |= 1<<15;
+  if(keystate[SDLK_F9])
+    keyBoard |= 1<<16;
+  if(keystate[SDLK_F10])
+    keyBoard |= 1<<17;
   
   return keyBoard;
 }

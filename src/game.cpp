@@ -222,9 +222,9 @@ void Game::start()
 
 	  world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey);
 	}
-	
-	
-	
+
+	view.updateInput(keyState, x, y);
+
 	// run simulation for one WorldFrame
 	world.tick();
 	simulRules.currentFrame++;
@@ -237,7 +237,7 @@ void Game::start()
     
     if((static_cast<int>(world.units.size()) > myID) && (myID >= 0))
     {
-      view.setCamera(world.units[myID].position);
+      view.bindCamera(&world.units[myID].position);
       view.draw(world.models, world.lvl);
     }
   }
