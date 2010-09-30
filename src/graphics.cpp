@@ -247,12 +247,10 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
 {
     
     glMatrixMode(GL_MODELVIEW);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-    glLoadIdentity();                                   // Reset The View
-
     
     glClearColor(0.0f,0.0f,0.0f,0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+    glLoadIdentity();                                   // Reset The View
     
     Vec3 camPos, camTarget, upVector;
     camPos.x = camera.x.getFloat();
@@ -281,7 +279,6 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textures[0]);
     
-    glBegin(GL_QUADS);
     int multiplier = 8;
     
     Vec3 semiAverage;
@@ -296,16 +293,26 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
 	semiAverage.z = multiplier * (y + 0.5f);
 	semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 	
-	if(frustum.sphereInFrustum(semiAverage, multiplier * 1.f) != FrustumR::OUTSIDE)
+	// this is bubblegum. could maybe test each corner point of the quad.
+	float h_diff = lvl.estimateHeightDifference(x, y);
+	if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
 	{
+	  if(h_diff < 3500)
+	    glBindTexture(GL_TEXTURE_2D, textures[0]);
+	  else if(h_diff < 10000)
+	    glBindTexture(GL_TEXTURE_2D, textures[1]);
+	  else
+	    glBindTexture(GL_TEXTURE_2D, textures[2]);
+	    
+	  glBegin(GL_QUADS);
 	  glTexCoord2f(0.f, 0.0f); glVertex3f( multiplier * (x)   , lvl.pointheight_info[x][y].getFloat()    , multiplier * y);
 	  glTexCoord2f(1.f, 0.0f); glVertex3f( multiplier * (x+1) , lvl.pointheight_info[x+1][y].getFloat()  , multiplier * y);
 	  glTexCoord2f(1.f, 1.0f); glVertex3f( multiplier * (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1) );
 	  glTexCoord2f(0.f, 1.0f); glVertex3f( multiplier * (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1) );
+	  glEnd();
 	}
       }
     }
-    glEnd();
     
     glDisable(GL_TEXTURE_2D);
     glColor3f(1.0f, 1.0f, 1.0f);

@@ -18,20 +18,26 @@ Game::Game(): fps_world(0)
 
 void Game::init()
 {
-  
-//  serverSocket.init_listener(12345);
-//  clientSocket.conn_init("dcb-16", 12345);
-//  sockets;
   myID = -1;
   state = "menu";
   view.loadObjects("data/parts.dat");
   view.megaFuck(); // blah..
-  
+ 
+  // load some textures.
+  // should not be done here.
   Image img;
   string grassFile = "data/grass.png";
   img.loadImage(grassFile);
   view.buildTexture(img);
-  
+
+  string highGround = "data/highground.png";
+  img.loadImage(highGround);
+  view.buildTexture(img);
+
+  string mountain = "data/hill.png";
+  img.loadImage(mountain);
+  view.buildTexture(img);
+
 }
 
 

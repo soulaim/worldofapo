@@ -11,5 +11,7 @@ struct Level
   
   void generate(int);
   FixedPoint getHeight(FixedPoint& x, FixedPoint& y);
+  
+  float estimateHeightDifference(int x, int y);
 };
 

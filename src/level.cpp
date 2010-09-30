@@ -17,27 +17,98 @@ void Level::generate(int seed)
     pointheight_info[i].resize( 101 );
     for(int k=0; k<static_cast<int>(pointheight_info[i].size()); k++)
     {
-      pointheight_info[i][k].number = 1000 * i / 2;
+      pointheight_info[i][k].number = 3000;
     }
   }
   
+  // create long walls
+  for(int i=0; i<150; i++)
+  {
+    
+    int x_p = rand() % pointheight_info.size();
+    int y_p = rand() % pointheight_info[x_p].size();
+    
+    for(int k=0; k<15; k++)
+    {
+      pointheight_info[x_p][y_p].number = 28000;
+      x_p += (rand() % 3) - 1;
+      y_p += (rand() % 3) - 1;
+      
+      if(x_p < 0 || x_p >= pointheight_info.size())
+	break;
+      if(y_p < 0 || y_p >= pointheight_info[x_p].size())
+	break;
+    }
+  }
   
+  // create some accessible higher ground
+  for(int i=0; i<150; i++)
+  {
+    
+    int x_p = rand() % pointheight_info.size();
+    int y_p = rand() % pointheight_info[x_p].size();
+    int height = 3000;
+    
+    for(int k=0; k<10; k++)
+    {
+      height += 1000;
+      pointheight_info[x_p][y_p].number = height;
+      x_p += (rand() % 3) - 1;
+      y_p += (rand() % 3) - 1;
+      
+      if(x_p < 0 || x_p >= pointheight_info.size())
+	break;
+      if(y_p < 0 || y_p >= pointheight_info[x_p].size())
+	break;
+    }
+  }
+
+  
+  /*
   pointheight_info[10][11].number = 18000;
   pointheight_info[11][10].number = 18000;
   pointheight_info[11][11].number = 18000;
   pointheight_info[10][10].number = 18000;
-  
-  walls_info.resize(100);
-  for(int i=0; i<static_cast<int>(walls_info.size()); i++)
-  {
-    walls_info[i].resize(100, 0);
-    
-    for(int k=0; k<static_cast<int>(walls_info[i].size()); k++)
-      if(rand() % 10 < 2)
-        walls_info[i][k] = 1;
-  }
-  
+
+  pointheight_info[15][15].number = 40000;
+  pointheight_info[15][16].number = 40000;
+  pointheight_info[16][16].number = 40000;
+  pointheight_info[17][17].number = 40000;
+  */
 }
+
+float Level::estimateHeightDifference(int x, int y)
+{
+  float min = 10000000;
+  float max = 0;
+  
+  if(pointheight_info[x][y].number < min)
+    min = pointheight_info[x][y].number;
+  if(pointheight_info[x][y].number > max)
+    max = pointheight_info[x][y].number;
+  
+  x++;
+  if(pointheight_info[x][y].number < min)
+    min = pointheight_info[x][y].number;
+  if(pointheight_info[x][y].number > max)
+    max = pointheight_info[x][y].number;
+  
+  y++;
+  if(pointheight_info[x][y].number < min)
+    min = pointheight_info[x][y].number;
+  if(pointheight_info[x][y].number > max)
+    max = pointheight_info[x][y].number;
+  
+  x--;
+  if(pointheight_info[x][y].number < min)
+    min = pointheight_info[x][y].number;
+  if(pointheight_info[x][y].number > max)
+    max = pointheight_info[x][y].number;
+  
+  return max - min;
+}
+
+
 
 FixedPoint Level::getHeight(FixedPoint& x, FixedPoint& y)
 {

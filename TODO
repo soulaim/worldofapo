@@ -1,11 +1,11 @@
 TODO:
-      VITUN TARKEA - data structures for multilayered level information (terrain, enemies, objects and what-not)
+      VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
 
       VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
 
       VITUN TARKEA - Collision detection (the constraints for this problem are still open)
 
-      VITUN TARKEA - Combat system.
+      VITUN TARKEA - Combat system & game mechanics.
 
       VITUN TARKEA - NPC behaviour.
 
@@ -19,7 +19,7 @@ TODO:
       
       OLISI KIVA   - Use server name instead of IP address for connecting
       
-      VITUN TARKEA - Menu UI & Menu IO
+Mika  VITUN TARKEA - Menu UI & Menu IO
       
       OLISI KIVA   - Apply some basic physics (velocity, acceleration, gravity)
       
