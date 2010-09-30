@@ -75,7 +75,7 @@ int MU_Socket::setnonblocking()
 	return 1;
 }
 
-int MU_Socket::conn_init(string& ip, int port)
+int MU_Socket::conn_init(string& host, int port)
 {
 //	cerr << "Connecting to server.. " << endl;
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -85,10 +85,19 @@ int MU_Socket::conn_init(string& ip, int port)
 		return 0;
 	}
 
+	hostent* serverMachineInfo = gethostbyname(host.c_str());
+	if(serverMachineInfo == 0)
+	{
+	  cerr << "Zomg, couldn't find the address of \"" << host << "\"" << endl;
+	  return 0;
+	}
+
 	struct sockaddr_in server;
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = inet_addr(ip.c_str());
+	
+//	server.sin_addr.s_addr = inet_addr(ip.c_str());
+	server.sin_addr.s_addr = ((struct in_addr*)(serverMachineInfo->h_addr))->s_addr;
 	server.sin_port = htons(port);
 
 	int conn_result = connect(sock, (struct sockaddr*) (&server), sizeof(server));

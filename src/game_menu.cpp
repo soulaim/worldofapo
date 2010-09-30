@@ -68,12 +68,33 @@ void Game::menuQuestions()
 	if(buttons[selected].name == "connect")
 	{
 	  // ask for host name and connect.
-	  cerr << "connecting to an existing game is currently not supported by the menu. sorry." << endl;
+	  cerr << "Type the name of the host machine: " << endl;
+	  string hostName = "";
 	  
-	  /*
-	  string ip_addr = "128.214.48.248";
-	  joinInternetGame(ip_addr);
-	  */
+	  while(true)
+	  {
+	    string key_hostname = userio.getSingleKey();
+	    
+	    if(key_hostname == "")
+	    {
+	      SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+	      continue;
+	    }
+	    else
+	    {
+	      if(key_hostname.size() == 1)
+		hostName.append(key_hostname);
+	      if(key_hostname == "backspace")
+		hostName = "";
+	      if(key_hostname == "return")
+	      {
+		joinInternetGame(hostName);
+		break;
+	      }
+	      
+	      cerr << "Current input: \"" << hostName << "\"" << endl;
+	    }
+	  }
 	}
 	
 	if(buttons[selected].name == "exit")

@@ -86,9 +86,7 @@ void World::tickUnit(Unit& unit)
   unit.position.x.number += unit.velocity.x.number * h_val / 1000;
   
   if( (unit.keyState & 16) && hitGround)
-  {
     unit.velocity.h.number = 900;
-  }
   
   unit.position.h += unit.velocity.h;
 }
@@ -122,6 +120,7 @@ void World::tick()
 {
   for(int i=0; i<units.size(); i++)
     tickUnit(units[i]);
+  
   updateModels();
 }
 

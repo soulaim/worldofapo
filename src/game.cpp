@@ -55,17 +55,20 @@ void Game::makeLocalGame()
   clientSocket.conn_init(host, port);
 }
 
-void Game::joinInternetGame(string ip_addr)
+void Game::joinInternetGame(string hostName)
 {
   myID = -1;
   state = "client";
   int port = 12345;
   
-  while(clientSocket.conn_init(ip_addr, port) == 0)
+  while(clientSocket.conn_init(hostName, port) == 0)
   {
     port--;
     if(port < 12000)
+    {
+      cerr << "superfail :(" << endl;
       exit(0);
+    }
   }
 }
 
