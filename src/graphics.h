@@ -7,9 +7,8 @@
 #include <map>
 #include <string>
 
-#include <GL/glut.h>    // Header File For The GLUT Library 
-#include <GL/gl.h>	// Header File For The OpenGL32 Library
-#include <GL/glu.h>	// Header File For The GLu32 Library
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <SDL/SDL.h>
 
 #include "model.h"
@@ -47,7 +46,6 @@ struct ObjectPart
 class Graphics
 {
   GLfloat m[16]; // storage for OGL ModelView matrix
-  std::vector<GLuint> textures;
   
   void init();
   void createWindow();
@@ -67,10 +65,6 @@ public:
   
   void setCamera(const Camera& camera);
   void draw(std::vector<Model>&, Level& lvl);
-  
-  GLuint buildTexture(Image&);
-  void deleteTexture(unsigned);
-  
   void loadObjects(std::string);
   
   void drawMenu(std::vector<MenuButton>&);

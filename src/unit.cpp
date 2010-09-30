@@ -19,9 +19,21 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_)
 {
 //  keyState ^= keyState_;
   keyState = keyState_;
-  angle += mousex_;
+  angle -= mousex_;
 }
 
+
+bool Unit::movingFront()
+{
+  return (keyState & 4);
+}
+
+bool Unit::movingBack()
+{
+  return (keyState & 8);  
+}
+
+/*
 void Unit::tick(ApoMath& apomath, int multiplier)
 {
 
@@ -32,11 +44,6 @@ void Unit::tick(ApoMath& apomath, int multiplier)
     position.x.number += multiplier * apomath.getCos(angle).number / 1000;
   }
 
-	if(keyState & 8) // if should be moving, moves backward
-	{
-		position.y -= apomath.getSin(angle);
-		position.x -= apomath.getCos(angle);
-	}
 	if(keyState & 1) // if should be moving, turns left
 	{
 		angle += 2;
@@ -46,4 +53,4 @@ void Unit::tick(ApoMath& apomath, int multiplier)
 		angle -= 2;
 	}
 }
-
+*/

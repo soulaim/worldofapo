@@ -118,49 +118,6 @@ void Graphics::createWindow()
   }
 }
 
-GLuint Graphics::buildTexture(Image& img)
-{
-  if(img.data == 0)
-  {
-    cerr << "ERROR: Trying to build texture of image pointer -> 0" << endl;
-    return -1;
-  }
-  
-  textures.push_back(0);
-  
-  glGenTextures(1, &(textures.back()));
-  glBindTexture(GL_TEXTURE_2D, textures.back());   // 2d texture (x and y size)
-
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
-
-  // 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
-  // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
-  
-  free(img.data);
-  img.data = 0;
-  
-  return textures.back();
-}
-
-void Graphics::deleteTexture(unsigned texture)
-{
-  for(size_t i=0; i<textures.size(); i++)
-  {
-    if(textures[i] == texture)
-    {
-      // this changes the order they are stored in the vector, is it ok? probably yes.
-      textures[i] = textures.back();
-      textures.pop_back();
-    }
-  }
-  
-  glDeleteTextures(1, &texture);
-  return;
-}
-
-
 void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, string& animation, int animation_state)
 {
   glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
@@ -196,7 +153,7 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
     drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
   glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
   
-  
+
   // restore rotations
   glRotatef(-model.parts[current_node].rotation_z, 0, 0, 1);
   glRotatef(-model.parts[current_node].rotation_y, 1, 0, 0);
@@ -275,8 +232,7 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
 //  glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-    
+
     int multiplier = 8;
     
     Vec3 semiAverage;
@@ -296,12 +252,12 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
 	if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
 	{
 	  if(h_diff < 3500)
-	    glBindTexture(GL_TEXTURE_2D, textures[0]);
+	    TextureHandler::getSingleton().bindTexture("grass");
 	  else if(h_diff < 10000)
-	    glBindTexture(GL_TEXTURE_2D, textures[1]);
+	    TextureHandler::getSingleton().bindTexture("highground");
 	  else
-	    glBindTexture(GL_TEXTURE_2D, textures[2]);
-	    
+	    TextureHandler::getSingleton().bindTexture("mountain");
+	  
 	  glBegin(GL_QUADS);
 	  glTexCoord2f(0.f, 0.0f); glVertex3f( multiplier * (x)   , lvl.pointheight_info[x][y].getFloat()    , multiplier * y);
 	  glTexCoord2f(1.f, 0.0f); glVertex3f( multiplier * (x+1) , lvl.pointheight_info[x+1][y].getFloat()  , multiplier * y);

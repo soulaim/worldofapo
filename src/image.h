@@ -10,6 +10,7 @@ struct Image {
   
 //  void constructTexture();
   void loadImage(std::string& filename);
+  void unload();
   
   unsigned long sizeX;
   unsigned long sizeY;

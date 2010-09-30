@@ -1,11 +1,9 @@
 
 #include "game.h"
 #include "image.h"
+#include "menubutton.h"
 
 using namespace std;
-
-
-
 
 void Game::menuQuestions()
 {
@@ -15,9 +13,10 @@ void Game::menuQuestions()
   // load images & create textures
   vector<MenuButton> buttons;
   
-  buttons.push_back(MenuButton("host", "data/menu/host.png"));       buttons.back().texture = view.buildTexture(buttons.back().image);
-  buttons.push_back(MenuButton("connect", "data/menu/connect.png")); buttons.back().texture = view.buildTexture(buttons.back().image);
-  buttons.push_back(MenuButton("exit", "data/menu/exit.png"));       buttons.back().texture = view.buildTexture(buttons.back().image);
+  buttons.push_back(MenuButton("host", "data/menu/host.png"));
+  buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+  buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
+  
   buttons[0].selected = 1;
   int selected = 0;
   
@@ -92,10 +91,10 @@ void Game::menuQuestions()
   
   cerr << "Exiting menu" << endl;
   
-  
-  // delete textures
   for(int i=0; i<buttons.size(); i++)
-    view.deleteTexture(buttons[i].texture);
+  {
+    buttons[i].unloadTexture();
+  }
   
   return;
   

@@ -63,6 +63,11 @@ struct FixedPoint
 	  return tmp;
   }
   
+  bool operator <= (const FixedPoint& a)
+  {
+    return number <= a.number;
+  }
+  
   void operator *= (const FixedPoint& a)
   {
     long long tmp = a.number;

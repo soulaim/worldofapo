@@ -1,6 +1,7 @@
 
 #include "graphics.h"
 #include "menubutton.h"
+#include "texturehandler.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ void Graphics::drawMenu(vector<MenuButton>& buttons)
     float minus = 2.f * (i+0.f) / buttons.size() - 1.f;
     float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
     
-    glBindTexture(GL_TEXTURE_2D, buttons[i].texture);
+    TextureHandler::getSingleton().bindTexture(buttons[i].name);
     
     glBegin(GL_QUADS);
     glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus, -1);
