@@ -1,4 +1,5 @@
 
+#include "menubutton.h"
 #include "image.h"
 #include "location.h"
 
@@ -63,8 +64,14 @@ public:
   
   void setCamera(Location);
   void draw(std::vector<Model>&, Level& lvl);
-  void buildTexture(Image&);
+  
+  GLuint buildTexture(Image&);
+  void deleteTexture(unsigned);
+  
   void loadObjects(std::string);
+  
+  void drawMenu(std::vector<MenuButton>&);
+  
   Graphics();
   
   FrustumR frustum;

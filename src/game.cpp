@@ -103,15 +103,10 @@ void Game::start()
     
     if(state_descriptor == 0)
     {
-      menuQuestions();
+      state_descriptor = 1;
       
-      if(state_descriptor == 1)
-      {
-	// send the beginning commands to all players currently connected.
-//	for(int i=0; i<sockets.sockets.size(); i++)
-//	  serverMsgs.push_back("-1 0 1#");
-	serverMsgs.push_back("-2 GO#");
-      }
+      // send the beginning commands to all players currently connected.
+      serverMsgs.push_back("-2 GO#");
     }
     
     

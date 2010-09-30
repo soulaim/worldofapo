@@ -1,14 +1,107 @@
 
 #include "game.h"
+#include "image.h"
 
 using namespace std;
 
-// this function should prolly block too.. be it's own little world!
+
+
+
 void Game::menuQuestions()
 {
-  cerr << "entry to menuQuestions" << endl;
+  cerr << "Entering menu" << endl;
   
-  char val = userio.getSingleChar(); // blocks!
+  
+  // load images & create textures
+  vector<MenuButton> buttons;
+  
+  buttons.push_back(MenuButton("host", "data/menu/host.png"));       buttons.back().texture = view.buildTexture(buttons.back().image);
+  buttons.push_back(MenuButton("connect", "data/menu/connect.png")); buttons.back().texture = view.buildTexture(buttons.back().image);
+  buttons.push_back(MenuButton("exit", "data/menu/exit.png"));       buttons.back().texture = view.buildTexture(buttons.back().image);
+  buttons[0].selected = 1;
+  int selected = 0;
+  
+  while(1)
+  {
+    view.drawMenu(buttons);
+    
+    string key = userio.getSingleKey();
+    
+    if(key == "")
+    {
+      SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+      continue;
+    }
+    else
+    {
+      cerr << "  pressed key: \"" << key << "\"" << endl;
+      
+      if(key == "down")
+      {
+	buttons[selected].selected = 0;
+	if(selected == 0)
+	  selected = buttons.size() - 1;
+	else
+	  selected--;
+	buttons[selected].selected = 1;
+      }
+      
+      if(key == "up")
+      {
+	buttons[selected].selected = 0;
+	if(selected == (buttons.size()-1))
+	  selected = 0;
+	else
+	  selected++;
+	buttons[selected].selected = 1;
+      }
+ 
+ 
+ 
+      if(key == "return")
+      {
+	if(buttons[selected].name == "host")
+	{
+	  makeLocalGame();
+	  state = "host";
+	}
+	
+	if(buttons[selected].name == "connect")
+	{
+	  // ask for host name and connect.
+	  cerr << "connecting to an existing game is currently not supported by the menu. sorry." << endl;
+	  
+	  /*
+	  string ip_addr = "128.214.48.248";
+	  joinInternetGame(ip_addr);
+	  */
+	}
+	
+	if(buttons[selected].name == "exit")
+	{
+	  cerr << "user selected EXIT from the menu, awesome." << endl;
+	  SDL_Quit();
+	  exit(0);
+	}
+	
+	break;
+      }
+ 
+    }
+  }
+  
+  cerr << "Exiting menu" << endl;
+  
+  
+  // delete textures
+  for(int i=0; i<buttons.size(); i++)
+    view.deleteTexture(buttons[i].texture);
+  
+  return;
+  
+  
+  /*
+   // blocks!
   char str[2];
   str[0] = val;
   str[1] = 0;
@@ -49,5 +142,6 @@ void Game::menuQuestions()
     cerr << "current menuword: " << menuWord << endl;
   }
   
-  cerr << "out of menuQuestions" << endl;
+  */
+  
 }

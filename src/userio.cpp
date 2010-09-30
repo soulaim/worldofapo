@@ -2,6 +2,7 @@
 #include "userio.h"
 #include <iostream>
 
+
 using namespace std;
 
 UserIO::UserIO()
@@ -73,44 +74,26 @@ int UserIO::getMousePress()
 }
 
 
-char UserIO::getSingleChar()
+string UserIO::getSingleKey()
 {
   SDL_Event event;
 
-  while(1)
+  while(SDL_PollEvent( &event ))
   {
-    if(SDL_PollEvent( &event ))
+    if(event.type == SDL_KEYDOWN)
     {
-      if(event.type == SDL_KEYDOWN)
+      if(event.key.keysym.sym == SDLK_ESCAPE)
       {
-	if(event.key.keysym.sym == SDLK_ESCAPE)
-	{
-	  cerr << "User pressed ESC, shutting down." << endl;
-	  SDL_Quit();
-	  exit(0);
-	}
-	
-	if(event.key.keysym.sym == SDLK_SPACE)
-	{
-	  return ' ';
-	}
-	
-	if(event.key.keysym.sym == SDLK_RETURN)
-	{
-	  return '#';
-	}
-	
-	
-	return *(SDL_GetKeyName (event.key.keysym.sym));
-      }
-    }
-    else
-    {
-      SDL_Delay(50);
+	cerr << "User pressed ESC, shutting down." << endl;
+	SDL_Quit();
+	exit(0);
+      }   
+      
+      return string(SDL_GetKeyName (event.key.keysym.sym));
     }
   }
   
-  return 0;
+  return "";
 }
 
 int UserIO::checkEvents()

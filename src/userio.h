@@ -1,8 +1,11 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <stdlib.h>
 #include <SDL/SDL.h>
+
+#include <string>
+#include <cstdlib>
+
 
 struct Coord
 {
@@ -29,7 +32,7 @@ public:
   void getMouseChange(int& x, int& y);
   
   int checkEvents();
-  char getSingleChar();
+  std::string getSingleKey();
   UserIO();
 };
 

@@ -118,12 +118,12 @@ void Graphics::createWindow()
   }
 }
 
-void Graphics::buildTexture(Image& img)
+GLuint Graphics::buildTexture(Image& img)
 {
   if(img.data == 0)
   {
     cerr << "ERROR: Trying to build texture of image pointer -> 0" << endl;
-    return;
+    return -1;
   }
   
   textures.push_back(0);
@@ -140,6 +140,24 @@ void Graphics::buildTexture(Image& img)
   
   free(img.data);
   img.data = 0;
+  
+  return textures.back();
+}
+
+void Graphics::deleteTexture(unsigned texture)
+{
+  for(int i=0; i<textures.size(); i++)
+  {
+    if(textures[i] == texture)
+    {
+      // this changes the order they are stored in the vector, is it ok? probably yes.
+      textures[i] = textures.back();
+      textures.pop_back();
+    }
+  }
+  
+  glDeleteTextures(1, &texture);
+  return;
 }
 
 
