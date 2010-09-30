@@ -5,39 +5,75 @@
 #include "fixed_point.h"
 #include "apomath.h"
 #include "location.h"
+#include "unit.h"
+#include "frustum/Vec3.h"
 
 #include <iostream>
 
 struct Camera
 {
+	enum FollowMode
+	{
+		STATIC, // Camera doesn't care about unit's direction.
+		RELATIVE // Camera rotates if unit rotates.
+	};
+
 	Camera():
+		position(-30.0, 0.0, 0.0),
 		yaw(0.0),
 		pitch(0.0),
 		roll(0.0),
-		location(0)
+		unit(0),
+		mode(STATIC)
 	{
 	}
 
-	double getX() const
+	Vec3 getPosition() const
 	{
-		if(location)
-			return x + location->x.getFloat();
-		return x;
-	}
-	double getY() const
-	{
-		if(location)
-			return y + location->h.getFloat();
-		return y;
-	}
-	double getZ() const
-	{
-		if(location)
-			return z + location->y.getFloat();
-		return z;
+		if(unit)
+		{
+			Vec3 relative_position = position;
+
+			if(mode == RELATIVE)
+			{
+				// TODO: Fix to use some common ApoMath.
+				ApoMath dorka;
+				dorka.init(300);
+				double cos = dorka.getCos(unit->angle).getFloat();
+				double sin = dorka.getSin(unit->angle).getFloat();
+
+				relative_position.x = cos * position.x - sin * position.z;
+				relative_position.z = sin * position.x + cos * position.z;
+				relative_position.y = position.y;
+			}
+
+			return Vec3(getTargetX(), getTargetY(), getTargetZ()) + relative_position;
+		}
+		return position;
 	}
 
-	// Maybe one these to a class called "Camera" or something...
+
+	double getTargetX() const
+	{
+		if(unit)
+			return unit->position.x.getFloat();
+		return position.x + -50.0;
+	}
+
+	double getTargetY() const
+	{
+		if(unit)
+			return unit->position.h.getFloat() + head_level;
+		return position.y;
+	}
+
+	double getTargetZ() const
+	{
+		if(unit)
+			return unit->position.y.getFloat();
+		return position.z;
+	}
+
 	void setYaw(double y)
 	{
 		yaw = y;
@@ -65,21 +101,28 @@ struct Camera
 		return roll;
 	}
 
-	void bind(Location* loc)
+	void bind(Unit* unit, FollowMode mode)
 	{
-		location = loc;
+		this->unit = unit;
+		this->mode = mode;
 	}
 
-	double x;
-	double y;
-	double z;
+	void setMode(FollowMode mode)
+	{
+		this->mode = mode;
+	}
+
+	Vec3 position;
 
 	double yaw;
 	double pitch;
 	double roll;
 
+	static const double head_level = 7.0;
+
 private:
-	Location* location;
+	Unit* unit;
+	FollowMode mode;
 };
 
 #endif

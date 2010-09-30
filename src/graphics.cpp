@@ -253,13 +253,11 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glLoadIdentity();                                   // Reset The View
     
     Vec3 camPos, camTarget, upVector;
-    camPos.x = camera.getX();
-    camPos.y = camera.getY() + 30.0;
-    camPos.z = camera.getZ() + 25.0;
+	camPos = camera.getPosition();
     
-    camTarget.x = camera.getX();
-    camTarget.y = camera.getY();
-    camTarget.z = camera.getZ();
+    camTarget.x = camera.getTargetX();
+    camTarget.y = camera.getTargetY();
+    camTarget.z = camera.getTargetZ();
     
     upVector.x = 0.f;
     upVector.y = 1.f;
@@ -388,9 +386,7 @@ void Graphics::updateInput(int keystate, int mousex, int mousey)
 	}
 	if(keystate & 1 << 11)
 	{
-		camera.x = 0.0;
-		camera.y = 0.0;
-		camera.z = 0.0;
+		camera.position = Vec3();
 		camera.setYaw(0.0);
 		camera.setPitch(0.0);
 		camera.setRoll(0.0);
@@ -398,32 +394,40 @@ void Graphics::updateInput(int keystate, int mousex, int mousey)
 
 	if(keystate & 1 << 12)
 	{
-		camera.x += 1;
+		camera.position.x += 1;
 	}
 	if(keystate & 1 << 13)
 	{
-		camera.x -= 1;
+		camera.position.x -= 1;
 	}
 	if(keystate & 1 << 14)
 	{
-		camera.y += 1;
+		camera.position.y += 1;
 	}
 	if(keystate & 1 << 15)
 	{
-		camera.y -= 1;
+		camera.position.y -= 1;
 	}
 	if(keystate & 1 << 16)
 	{
-		camera.z += 1;
+		camera.position.z += 1;
 	}
 	if(keystate & 1 << 17)
 	{
-		camera.z -= 1;
+		camera.position.z -= 1;
+	}
+	if(keystate & 1 << 18)
+	{
+		camera.setMode(Camera::RELATIVE);
+	}
+	if(keystate & 1 << 19)
+	{
+		camera.setMode(Camera::STATIC);
 	}
 }
 
-void Graphics::bindCamera(Location* location)
+void Graphics::bindCamera(Unit* unit)
 {
-	camera.bind(location);
+	camera.bind(unit, Camera::RELATIVE);
 }
 

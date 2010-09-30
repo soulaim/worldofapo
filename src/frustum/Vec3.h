@@ -26,7 +26,7 @@ public:
 	float length();
 	void normalize();
 	float innerProduct(const Vec3  &v);
-	void copy(const Vec3 &v);
+	Vec3& operator=(const Vec3&);
 	void set(float x,float y, float z);
 	Vec3 scalarMult(float a);
 

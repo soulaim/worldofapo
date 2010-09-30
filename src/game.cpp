@@ -237,7 +237,6 @@ void Game::start()
     
     if((static_cast<int>(world.units.size()) > myID) && (myID >= 0))
     {
-      view.bindCamera(&world.units[myID].position);
       view.draw(world.models, world.lvl);
     }
   }

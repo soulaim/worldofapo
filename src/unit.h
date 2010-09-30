@@ -1,3 +1,5 @@
+#ifndef UNIT_H
+#define UNIT_H
 
 #include <vector>
 #include <string>
@@ -25,3 +27,6 @@ public:
   void tick(ApoMath&, int);
   float getAngle(ApoMath&);
 };
+
+#endif
+

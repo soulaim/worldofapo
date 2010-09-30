@@ -20,6 +20,7 @@ void Game::handleServerMessage(const Order& server_msg)
     world.addUnit();
     simulRules.numPlayers++;
     cerr << "Adding a new hero at frame " << simulRules.currentFrame << endl;
+    view.bindCamera(&world.units.back());
     
     cerr << "Creating dummy input for new hero." << endl;
     // WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!

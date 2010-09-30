@@ -57,7 +57,7 @@ class Graphics
   Camera camera;
 public:
 
-  void bindCamera(Location* location);
+  void bindCamera(Unit* unit);
   void updateInput(int keystate, int mousex, int mousey);
   
   std::map<std::string, ObjectPart> objects;

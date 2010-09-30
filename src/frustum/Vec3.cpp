@@ -141,11 +141,12 @@ float Vec3::innerProduct(const Vec3 &v) {
 	return (x * v.x + y * v.y + z * v.z);
 }
 
-void Vec3::copy(const Vec3 &v) {
-
+Vec3& Vec3::operator=(const Vec3& v)
+{
 	x = v.x;
 	y = v.y;
 	z = v.z;
+	return *this;
 }
 
 void Vec3::set(float x,float y, float z) {
@@ -155,23 +156,9 @@ void Vec3::set(float x,float y, float z) {
 	this->z = z;
 }
 
-Vec3 Vec3::scalarMult(float a) {
-
-	Vec3 res;
-
-	res.x = x * a;
-	res.y = y * a;
-	res.z = z * a;
-
-	return res;
-}
-
-
 // -----------------------------------------------------------------------
 // For debug pruposes: Prints a vector
 // -----------------------------------------------------------------------
-
-
 void Vec3::print() {
 	printf("Vec3(%f, %f, %f)",x,y,z);
 	

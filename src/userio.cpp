@@ -56,6 +56,11 @@ int UserIO::getKeyChange()
     keyBoard |= 1<<16;
   if(keystate[SDLK_F10])
     keyBoard |= 1<<17;
+
+  if(keystate[SDLK_F2])
+    keyBoard |= 1<<18;
+  if(keystate[SDLK_F3])
+    keyBoard |= 1<<19;
   
   return keyBoard;
 }
