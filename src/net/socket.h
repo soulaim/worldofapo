@@ -47,6 +47,8 @@ public:
 	struct sockaddr_in cliAddr, servAddr;
 	std::string order;
 	std::string write_buffer;
+	bool alive;
+	int last_order;
 };
 
 #endif

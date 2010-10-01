@@ -201,7 +201,7 @@ void rotateCamera(const Location& camera)
 	glMultTransposeMatrixd(roll_matrix);
 }
 
-void Graphics::draw(vector<Model>& models, Level& lvl)
+void Graphics::draw(map<int, Model>& models, Level& lvl)
 {
     
     glMatrixMode(GL_MODELVIEW);
@@ -275,14 +275,17 @@ void Graphics::draw(vector<Model>& models, Level& lvl)
     glColor3f(1.0f, 1.0f, 1.0f);
 
     
-    for(int i=0; i<models.size(); i++)
+    for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
     {
-      if(models[i].root < 0)
-	continue;      
+      if(iter->second.root < 0)
+      {
+	cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
+	continue;
+      }
       
-      glTranslatef(0.0f, -modelGround(models[i]), 0.0f);
-      drawPartsRecursive(models[i], models[i].root, -1, models[i].animation_name, models[i].animation_time);
-      glTranslatef(0.0f, +modelGround(models[i]), 0.0f);
+      glTranslatef(0.0f, -modelGround(iter->second), 0.0f);
+      drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
+      glTranslatef(0.0f, +modelGround(iter->second), 0.0f);
       
     }
     

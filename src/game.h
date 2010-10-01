@@ -19,6 +19,23 @@
 #include <map>
 
 
+/*
+// This is like, not quite yet finished :D
+struct Message
+{
+  enum {PLAYER_DISCONNECT=0, PLAYER_INPUT, SERVER_ORDER, SERVER_INSTANT_REACT};
+  
+  Message(int msgType, int msgFrame)
+  {
+    
+  }
+  
+  string getString();
+  
+};
+*/
+
+
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,
 // frame skips, window sizes..
@@ -72,6 +89,7 @@ class Game
   std::string state;
   std::string menuWord;
   
+  int _playerID_next_player;
   
   StateInfo simulRules;  // rules for running the simulation.
   int myID;

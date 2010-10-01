@@ -9,6 +9,7 @@
 using namespace std;
 
 
+
 Game::Game(): fps_world(0)
 {
   client_state = 0;
@@ -19,6 +20,7 @@ Game::Game(): fps_world(0)
 
 void Game::init()
 {
+  _playerID_next_player = 0;
   myID = -1;
   state = "menu";
   view.loadObjects("data/parts.dat");
@@ -98,17 +100,48 @@ void Game::start()
     sockets.get_readable();
     sockets.read_selected();
     
+    // if there are leavers, send a kill order against one of them
+    int leaver = -1;
+    
     // mirror any client commands to all clients
-    for(int i=0; i<static_cast<int>(sockets.sockets.size()); i++)
+    for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
     {
-      for(int k=0; k<static_cast<int>(sockets.sockets[i].msgs.size()); k++)
+      if(!i->second.alive)
       {
-	sockets.sockets[i].msgs[k].append("#");
-	for(int j=0; j<static_cast<int>(sockets.sockets.size()); j++)
-	  sockets.sockets[j].write(sockets.sockets[i].msgs[k]);
+	leaver = i->first;
+	continue;
       }
-      sockets.sockets[i].msgs.clear();
+      
+      for(int k=0; k<static_cast<int>(i->second.msgs.size()); k++)
+      {
+	i->second.msgs[k].append("#");
+	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
+	  target->second.write(i->second.msgs[k]);
+	
+	// keep track of last frames for which orders have been received.
+	stringstream ss(i->second.msgs[k]);
+	string orderWord;
+	ss >> orderWord;
+	
+	if(orderWord == "1")
+	{
+	  int order_player_id, frame;
+	  ss >> order_player_id >> frame;
+	  i->second.last_order = frame;
+	}
+	
+      }
+      i->second.msgs.clear();
     }
+    
+    if(leaver != -1) // there is a leaver!!
+    {
+      stringstream discCommand;
+      discCommand << -1 << " " << (sockets.sockets[leaver].last_order + 1) << " 100 " << leaver << "#";
+      serverMsgs.push_back( discCommand.str() );
+      sockets.erase_id(leaver);
+    }
+    
     
     
     if(state_descriptor == 0)
@@ -121,9 +154,9 @@ void Game::start()
     
     
     // transmit serverMsgs to players
-    for(int k=0; k   < static_cast<int>(serverMsgs.size()); k++)
-      for(int i=0; i < static_cast<int>(sockets.sockets.size()); i++)
-	sockets.sockets[i].write(serverMsgs[k]);
+    for(int k=0; k < static_cast<int>(serverMsgs.size()); k++)
+      for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
+	i->second.write(serverMsgs[k]);
     serverMsgs.clear();
   }
   
@@ -173,19 +206,20 @@ void Game::start()
       
       
       
+      
+      // this is acceptable because the size is guaranteed to be insignificantly small
+      sort(UnitInput.begin(), UnitInput.end());
+      
+      // handle any server commands intended for this frame
+      while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
+      {
+	Order server_command = UnitInput.back();
+	UnitInput.pop_back();
+	handleServerMessage(server_command);
+      }
+      
       if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
       {
-	
-	// this is acceptable because the size is guaranteed to be insignificantly small
-	sort(UnitInput.begin(), UnitInput.end());
-	
-	// handle any server commands intended for this frame
-	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
-	{
-	  Order server_command = UnitInput.back();
-	  UnitInput.pop_back();
-	  handleServerMessage(server_command);
-	}
 
 	if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 	  cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;

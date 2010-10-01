@@ -1,11 +1,13 @@
 TODO:
+      VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
+
       VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
 
-      VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
+Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
 
       VITUN TARKEA - Collision detection (the constraints for this problem are still open)
 
-      VITUN TARKEA - Combat system & game mechanics.
+      VITUN TARKEA - Game mechanics.
 
       VITUN TARKEA - NPC behaviour.
 
@@ -17,13 +19,11 @@ TODO:
       
       OLISI KIVA   - Handle disconnecting players (currently crashes server :D)
       
-      OLISI KIVA   - Use server name instead of IP address for connecting
-      
 Mika  VITUN TARKEA - Menu UI & Menu IO
       
-      OLISI KIVA   - Apply some basic physics (velocity, acceleration, gravity)
-      
-      OLISI KIVA   - Apply a less idiotic model for moving up & down hills
+Mika  OLISI KIVA   - Apply some basic physics (velocity, acceleration, gravity) -- Jumping should maybe not be so OP
+
+Mika  OLISI KIVA   - Apply a less idiotic model for moving up & down hills
       
       VITUN TARKEA - Print text on screen
       
@@ -31,6 +31,7 @@ Mika  VITUN TARKEA - Menu UI & Menu IO
       
       
 DONE
+1.10. Mika: Use server name instead of IP address for connecting
 30.9. Mika: Introduced some camera control and frustum culling.
 29.9. Mika: Additional networking code. Now possible to join games which have already started (although player disconnects crash the server).
 26.9. Mika: organize files. src for source files. data for data files etc. New makefile.
