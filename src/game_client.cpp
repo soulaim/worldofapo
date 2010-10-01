@@ -15,9 +15,18 @@ void Game::handleServerMessage(const Order& server_msg)
     client_state = 0;
     cerr << "Pausing the game at frame " << simulRules.currentFrame << endl;
   }
+  else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
+  {
+    cerr << "Player #" << server_msg.keyState << " has disconnected :o Erasing everything related to him!" << endl;
+    world.units.erase(server_msg.keyState);
+    world.models.erase(server_msg.keyState);
+    simulRules.numPlayers--;
+    // BWAHAHAHA...
+    
+  }
   else if(server_msg.serverCommand == 1) // ADDHERO message
   {
-    world.addUnit();
+    world.addUnit(server_msg.keyState);
     simulRules.numPlayers++;
     cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
 
@@ -81,18 +90,18 @@ void Game::processClientMsgs()
     
     
     else if(order_type == -1) // A COMMAND message from GOD (server)
-    { 
+    {
       
       Order tmp_order;
       tmp_order.plr_id = -1;
       ss >> tmp_order.frameID;
       ss >> tmp_order.serverCommand;
      
-      cerr << "GOT A SERVER MESSAGE: " << tmp_order.serverCommand << " " << tmp_order.frameID << endl;
+      cerr << "GOT A SERVER MESSAGE: " << tmp_order.serverCommand << " " << tmp_order.frameID << "(current frame: " << simulRules.currentFrame << ", allowed frame: " << simulRules.allowedFrame << ")" << endl;
+      cerr << "numInputs[" << tmp_order.frameID << "] = " << numInputs[tmp_order.frameID] << endl;
       
-      if(tmp_order.serverCommand == 2)
-	ss >> tmp_order.keyState;
-      
+      ss >> tmp_order.keyState;
+            
       UnitInput.push_back(tmp_order);
     }
     
@@ -110,9 +119,16 @@ void Game::processClientMsgs()
       }
       else if(cmd == "UNIT")
       {
+	/*
+	* THIS IS BROKEN. UNIT ID's ARE NOT TRANSMITTED
+	* UNIT VELOCITIES ARE NOT TRANSMITTED. FIX.
+	*/
+	
 	cerr << "Creating a new unit as per instructions" << endl;
-	world.addUnit();
-	ss >> world.units.back().angle >> world.units.back().keyState >> world.units.back().position.x.number >> world.units.back().position.y.number >> world.units.back().position.h.number;
+	int unitID = world.nextUnitID(); // not safe :G
+	world.addUnit(unitID);
+	ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number;
+	
       }
       else if(cmd == "SIMUL")
       {

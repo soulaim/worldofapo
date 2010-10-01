@@ -21,11 +21,11 @@ int World::heightDifference2Velocity(int h_diff)
 World::World()
 {
 	init();
-	units.reserve(20);
 }
 
 void World::init()
 {
+  _unitID_next_unit = 0;
   lvl.generate(50);
   apomath.init(300);
 }
@@ -93,46 +93,52 @@ void World::tickUnit(Unit& unit)
 }
 
 
-void World::updateModels()
-{ 
-  for(int i=0; i<units.size(); i++)
+void World::updateModel(Model& model, Unit& unit)
+{     
+  // deduce which animation to display
+  if(unit.keyState & 4)
   {
-    
-    // deduce which animation to display
-    if(units[i].keyState & 4)
-    {
-      models[i].setAction("walk");
-    }
-    else
-    {
-      models[i].setAction("idle");
-    }
-    
-    // update state of model
-    models[i].tick();
-    models[i].parts[models[i].root].rotation_x = units[i].getAngle(apomath);
-    models[i].parts[models[i].root].offset_x   = units[i].position.x.getFloat();
-    models[i].parts[models[i].root].offset_z   = units[i].position.y.getFloat();
-    models[i].parts[models[i].root].offset_y   = units[i].position.h.getFloat();
+    model.setAction("walk");
   }
+  else
+  {
+    model.setAction("idle");
+  }
+  
+  // update state of model
+  model.tick();
+  model.parts[model.root].rotation_x = unit.getAngle(apomath);
+  model.parts[model.root].offset_x   = unit.position.x.getFloat();
+  model.parts[model.root].offset_z   = unit.position.y.getFloat();
+  model.parts[model.root].offset_y   = unit.position.h.getFloat();
 }
 
 void World::tick()
 {
-  for(int i=0; i<units.size(); i++)
-    tickUnit(units[i]);
+  for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
+    tickUnit(iter->second);
   
-  updateModels();
+  for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
+    updateModel(iter->second, units[iter->first]);
 }
 
 // trololol..
-void World::addUnit()
+void World::addUnit(int id)
 {
-  units.push_back(Unit());
-  units.back().position.x.number = 50000;
-  units.back().position.y.number = 50000;
+  units[id] = Unit();
+  units[id].position.x.number = 50000;
+  units[id].position.y.number = 50000;
   
-  models.push_back(Model());
-  models.back().load("data/model.bones");
+  models[id] = Model();
+  models[id].load("data/model.bones");
+}
+
+
+
+int World::nextUnitID()
+{
+  int id = _unitID_next_unit;
+  _unitID_next_unit++;
+  return id;
 }
 

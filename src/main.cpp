@@ -23,5 +23,7 @@ int main()
     master.start();
   }
   
+  cerr << "lolwut?" << endl;
+  
   return 0;
 }

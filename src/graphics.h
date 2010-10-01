@@ -64,7 +64,7 @@ public:
   void megaFuck(); // this function creates a test animation called "walk" for the test model
   
   void setCamera(const Camera& camera);
-  void draw(std::vector<Model>&, Level& lvl);
+  void draw(std::map<int, Model>&, Level& lvl);
   void loadObjects(std::string);
   
   void drawMenu(std::vector<MenuButton>&);

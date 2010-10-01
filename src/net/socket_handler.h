@@ -4,6 +4,7 @@
 
 #include "socket.h"
 #include <vector>
+#include <map>
 
 class SocketHandler
 {
@@ -15,11 +16,12 @@ class SocketHandler
 	int get_writable();
 	int get_errors();
 
-	std::vector<int> read_selected();
-	int erase_selected();
+	void read_selected();
+	void erase_id(int id);
 	
-	std::vector<MU_Socket> sockets;
+	std::map<int, MU_Socket> sockets;
 	fd_set fd_socks;
+	int nextConnection;
 };
 
 #endif

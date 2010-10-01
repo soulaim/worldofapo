@@ -86,7 +86,7 @@ int MU_Socket::conn_init(string& host, int port)
 	}
 
 	hostent* serverMachineInfo = gethostbyname(host.c_str());
-	if(serverMachineInfo == 0)
+	if(!serverMachineInfo)
 	{
 	  cerr << "Zomg, couldn't find the address of \"" << host << "\"" << endl;
 	  return 0;
@@ -115,6 +115,8 @@ int MU_Socket::socket_init()
 //	cerr << "Reserving read buffer for socket.. " << endl;
 	read_buffer = new char[READ_BUFFER_SIZE];
 	setnonblocking();
+	alive = true;
+	last_order = 0;
 	return 1;
 }
 
@@ -147,6 +149,9 @@ string MU_Socket::read()
 	data_received = recv(sock, read_buffer, READ_BUFFER_SIZE - 1, 0 );
 	read_buffer[data_received] = '\0';
 
+	if(data_received == 0)
+	  alive = false;
+	
 	return string(read_buffer);
 }
 

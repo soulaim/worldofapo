@@ -8,17 +8,17 @@ struct FixedPoint
   FixedPoint(int a):number(a * 1000) {}
   FixedPoint():number(0) {}
   
-  float getFloat()
+  float getFloat() const
   {
     return number / 1000 + (number % 1000) / 1000.0;
   }
   
-  int getInteger()
+  int getInteger() const
   {
     return number / 1000;
   }
 
-  int getDesimal()
+  int getDesimal() const
   {
     return number % 1000;
   }
