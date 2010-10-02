@@ -7,17 +7,17 @@
 
 class OrderContainer
 {
-  std::string work_copy; 
-  void pushWorkCopy();
-  
-public:
-  
-  std::vector<std::string> orders;
-  
-  OrderContainer(){}
-  
-  void init(int);
-  void insert(std::string);
+	std::string work_copy; 
+	void pushWorkCopy();
+	
+	public:
+		
+		std::vector<std::string> orders;
+		
+		OrderContainer(){}
+		
+		void init(int);
+		void insert(std::string);
 };
 
 

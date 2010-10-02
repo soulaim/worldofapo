@@ -20,57 +20,57 @@ struct Level;
 
 struct ObjectTri
 {
-  float x[3];
-  float y[3];
-  float z[3];
+	float x[3];
+	float y[3];
+	float z[3];
 };
 
 struct ObjectQuad
 {
-  float x[4];
-  float y[4];
-  float z[4];
+	float x[4];
+	float y[4];
+	float z[4];
 };
 
 struct ObjectPart
 {
-  std::vector<ObjectQuad> quads;
-  std::vector<ObjectTri> triangles;
-  std::map<std::string, Animation> animations;
-  
-  float end_x;
-  float end_y;
-  float end_z;
+	std::vector<ObjectQuad> quads;
+	std::vector<ObjectTri> triangles;
+	std::map<std::string, Animation> animations;
+	
+	float end_x;
+	float end_y;
+	float end_z;
 };
 
 class Graphics
 {
-  GLfloat m[16]; // storage for OGL ModelView matrix
-  
-  void init();
-  void createWindow();
-  float modelGround(Model& model);
-  
-  SDL_Surface* drawContext;
-  Camera camera;
-public:
-
-  void bindCamera(Unit* unit);
-  void updateInput(int keystate, int mousex, int mousey);
-  
-  std::map<std::string, ObjectPart> objects;
-  void drawPartsRecursive(Model&, int, int, std::string&, int);
-  
-  void megaFuck(); // this function creates a test animation called "walk" for the test model
-  
-  void setCamera(const Camera& camera);
-  void draw(std::map<int, Model>&, Level& lvl);
-  void loadObjects(std::string);
-  
-  void drawMenu(std::vector<MenuButton>&);
-  
-  Graphics();
-  
-  FrustumR frustum;
+	GLfloat m[16]; // storage for OGL ModelView matrix
+	
+	void init();
+	void createWindow();
+	float modelGround(Model& model);
+	
+	SDL_Surface* drawContext;
+	Camera camera;
+	public:
+		
+		void bindCamera(Unit* unit);
+		void updateInput(int keystate, int mousex, int mousey);
+		
+		std::map<std::string, ObjectPart> objects;
+		void drawPartsRecursive(Model&, int, int, std::string&, int);
+		
+		void megaFuck(); // this function creates a test animation called "walk" for the test model
+		
+		void setCamera(const Camera& camera);
+		void draw(std::map<int, Model>&, Level& lvl);
+		void loadObjects(std::string);
+		
+		void drawMenu(std::vector<MenuButton>&);
+		
+		Graphics();
+		
+		FrustumR frustum;
 };
 

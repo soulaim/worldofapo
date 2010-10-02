@@ -6,16 +6,16 @@
 #include <string>
 
 struct Image {
-  Image(): data(0), id(0) {}
-  
-//  void constructTexture();
-  void loadImage(std::string& filename);
-  void unload();
-  
-  unsigned long sizeX;
-  unsigned long sizeY;
-  char *data;
-  GLuint id;
+	Image(): data(0), id(0) {}
+	
+	//  void constructTexture();
+	void loadImage(std::string& filename);
+	void unload();
+	
+	unsigned long sizeX;
+	unsigned long sizeY;
+	char *data;
+	GLuint id;
 };
 
 #endif

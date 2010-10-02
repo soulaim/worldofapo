@@ -13,9 +13,10 @@ SocketHandler::SocketHandler(): nextConnection(0)
 
 int SocketHandler::add_new(int sock)
 {
-//	cerr << "SocketHandler got a new socket, pushing back: " << sock << endl;
+	//	cerr << "SocketHandler got a new socket, pushing back: " << sock << endl;
 	sockets[nextConnection] = MU_Socket();
 	sockets[nextConnection].sock = sock;
+	sockets[nextConnection].alive = true;
 	
 	nextConnection++;
 	if(!sockets[nextConnection-1].setnonblocking())
@@ -35,7 +36,7 @@ int SocketHandler::get_readable()
 	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
 	{
 		if(iter->second.alive == false)
-		  continue;
+			continue;
 		
 		FD_SET(iter->second.sock, &fd_socks);
 		if(iter->second.sock > high)
@@ -60,7 +61,7 @@ void SocketHandler::read_selected()
 			}
 			else
 			{
-//				cerr << "Socket #" << i << " sent message: " << ans << endl;
+				//	cerr << "Socket #" << i << " sent message: " << ans << endl;
 				iter->second.push_message(ans);
 			}
 		}
@@ -79,7 +80,7 @@ int SocketHandler::get_writable()
 	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
 	{
 		if(iter->second.alive == false)
-		  continue;
+			continue;
 		
 		FD_SET(iter->second.sock, &fd_socks);
 		if(iter->second.sock > high)
@@ -89,33 +90,6 @@ int SocketHandler::get_writable()
 	int count = select(high+1, (fd_set *) 0, &fd_socks, (fd_set *) 0, &timeout);
 	return count;
 }
-
-int SocketHandler::get_errors()
-{
-	return 0;
-	
-	// what is this bullshit anyway
-	
-	/*
-	struct timeval timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 5000;
-	
-	int high = 0;
-	
-	FD_ZERO(&fd_socks);
-	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
-	{
-		FD_SET(iter->second.sock, &fd_socks);
-		if(iter->second.sock > high)
-			high = iter->second.sock;
-	}
-	
-	int count = select(high+1, (fd_set *) 0, (fd_set *) 0, &fd_socks, &timeout);
-	return count;
-	*/
-}
-
 
 
 void SocketHandler::erase_id(int id)

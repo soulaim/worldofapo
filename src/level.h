@@ -6,12 +6,12 @@
 
 struct Level
 {
-  std::vector<std::vector<FixedPoint> > pointheight_info;
-  std::vector<std::vector<int> > walls_info;
-  
-  void generate(int);
-  FixedPoint getHeight(FixedPoint& x, FixedPoint& y);
-  
-  float estimateHeightDifference(int x, int y);
+	std::vector<std::vector<FixedPoint> > pointheight_info;
+	std::vector<std::vector<int> > walls_info;
+	
+	void generate(int);
+	FixedPoint getHeight(FixedPoint& x, FixedPoint& y);
+	
+	float estimateHeightDifference(int x, int y);
 };
 

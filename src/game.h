@@ -23,17 +23,17 @@
 // This is like, not quite yet finished :D
 struct Message
 {
-  enum {PLAYER_DISCONNECT=0, PLAYER_INPUT, SERVER_ORDER, SERVER_INSTANT_REACT};
-  
-  Message(int msgType, int msgFrame)
-  {
-    
-  }
-  
-  string getString();
-  
-};
-*/
+	enum {PLAYER_DISCONNECT=0, PLAYER_INPUT, SERVER_ORDER, SERVER_INSTANT_REACT};
+	
+	Message(int msgType, int msgFrame)
+	{
+		
+		}
+		
+		string getString();
+		
+		};
+		*/
 
 
 // information regarding how much of the simulation is allowed to play now,
@@ -41,74 +41,75 @@ struct Message
 // frame skips, window sizes..
 struct StateInfo
 {
-  StateInfo():windowSize(5), frameSkip(1), currentFrame(0), numPlayers(0)
-  {
-    reset();
-  }
-  
-  void reset()
-  {
-    windowSize = 5;
-    frameSkip = 1;
-    currentFrame = 0;
-    allowedFrame = 0;
-    numPlayers = 0;
-  }
-  
-  int windowSize;
-  int frameSkip;
-  int currentFrame;
-  int allowedFrame;
-  int numPlayers;
+	StateInfo():windowSize(5), frameSkip(1), currentFrame(0), numPlayers(0)
+	{
+		reset();
+	}
+	
+	void reset()
+	{
+		windowSize = 5;
+		frameSkip = 1;
+		currentFrame = 0;
+		allowedFrame = 0;
+		numPlayers = 0;
+	}
+	
+	int windowSize;
+	int frameSkip;
+	int currentFrame;
+	int allowedFrame;
+	int numPlayers;
 };
 
 
 class Game
 {
-  FPS_Manager fps_world;
-  
-  World world;
-  UserIO userio;
-  Graphics view;
-  
-  MU_Socket serverSocket; // for hosting games
-  MU_Socket clientSocket; // for connecting to all games (also local games)
-  SocketHandler sockets;  // children, other processes connected to my hosted game.
-  
-  OrderContainer clientOrders;
-  OrderContainer serverOrders;
-  
-  std::vector<std::string> clientMsgs; // messages to be sent by the client
-  std::vector<std::string> serverMsgs; // messages to be sent by the host
-  
-  std::vector<Order> UnitInput;
-  std::map<int, int> numInputs;
-  
-  int state_descriptor;
-  int client_state;
-  std::string state;
-  std::string menuWord;
-  
-  int _playerID_next_player;
-  
-  StateInfo simulRules;  // rules for running the simulation.
-  int myID;
-  
-  void makeLocalGame();
-  void joinInternetGame(std::string);
-  void endGame();
-  
-  void init();
-  void menuQuestions();
-  
-  void processClientMsgs();
-  void acceptConnections();
-  
-  void handleServerMessage(const Order&);
-  
-public:
-  Game();
-  void start();
+	FPS_Manager fps_world;
+	
+	World world;
+	UserIO userio;
+	Graphics view;
+	
+	MU_Socket serverSocket; // for hosting games
+	MU_Socket clientSocket; // for connecting to all games (also local games)
+	SocketHandler sockets;  // children, other processes connected to my hosted game.
+	
+	OrderContainer clientOrders;
+	OrderContainer serverOrders;
+	
+	std::vector<std::string> clientMsgs; // messages to be sent by the client
+	std::vector<std::string> serverMsgs; // messages to be sent by the host
+	
+	std::vector<Order> UnitInput;
+	
+	int state_descriptor;
+	int client_state;
+	std::string state;
+	std::string menuWord;
+	
+	int serverAllow;
+	StateInfo simulRules; // rules for running the simulation.
+	int myID;
+	
+	void makeLocalGame();
+	void joinInternetGame(std::string);
+	void endGame();
+	
+	void init();
+	void menuQuestions();
+	
+	void processClientMsgs();
+	void acceptConnections();
+	
+	void handleServerMessage(const Order&);
+	
+	void host_tick();
+	void client_tick();
+	
+	public:
+		Game();
+		void start();
 };
 
 
