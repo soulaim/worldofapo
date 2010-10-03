@@ -18,11 +18,22 @@ Game::Game(): fps_world(0)
 	init();
 }
 
-void Game::init()
+void Game::reset()
 {
+	cerr << "Reseting client state." << endl;
+	
 	serverAllow = 0;
 	myID = -1;
 	state = "menu";
+	
+	UnitInput.clear();
+	world.terminate();
+}
+
+void Game::init()
+{
+	reset();
+	
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
 	
@@ -112,6 +123,11 @@ void Game::start()
 	}
 	
 	if(state == "menu")
+	{
+		if(myID >= 0)
+			reset();
+		
 		menuQuestions();
+	}
 }
 

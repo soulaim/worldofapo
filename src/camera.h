@@ -24,7 +24,7 @@ struct Camera
 	pitch(0.0),
 	roll(0.0),
 	unit(0),
-	mode(STATIC)
+	mode(RELATIVE)
 	{
 	}
 	
@@ -32,26 +32,56 @@ struct Camera
 	{
 		if(unit)
 		{
-			Vec3 relative_position = position;
+			
+			// Vec3 relative_position = position;
+			// Vec3 relative_position = currentPosition;
 			
 			if(mode == RELATIVE)
 			{
-				// TODO: Fix to use some common ApoMath.
-				ApoMath dorka;
-				dorka.init(300);
-				double cos = dorka.getCos(unit->angle).getFloat();
-				double sin = dorka.getSin(unit->angle).getFloat();
-				
+				/*
 				relative_position.x = cos * position.x - sin * position.z;
 				relative_position.z = sin * position.x + cos * position.z;
 				relative_position.y = position.y;
+				*/
+				
+				/*
+				relative_position.x = cos * currentRelative.x - sin * currentRelative.z;
+				relative_position.z = sin * currentRelative.x + cos * currentRelative.z;
+				relative_position.y = currentRelative.y;
+				*/
+				
+				return currentPosition + currentRelative;
+				
 			}
 			
-			return Vec3(getTargetX(), getTargetY(), getTargetZ()) + relative_position;
+			// return Vec3(getTargetX(), getTargetY(), getTargetZ()) + relative_position;
+			return currentPosition;
 		}
+		
 		return position;
 	}
 	
+	void tick()
+	{
+		if(unit)
+		{
+			// TODO: Fix to use some common ApoMath.
+			static ApoMath dorka;
+			if(!dorka.ready())
+				dorka.init(300);
+			
+			double cos = dorka.getCos(unit->angle).getFloat();
+			double sin = dorka.getSin(unit->angle).getFloat();
+			
+			Vec3 relative_position;
+			relative_position.x = cos * position.x - sin * position.z;
+			relative_position.z = sin * position.x + cos * position.z;
+			relative_position.y = position.y;
+			
+			currentRelative += (relative_position - currentRelative) * 0.01;
+			currentPosition += (Vec3(getTargetX(), getTargetY(), getTargetZ()) - currentPosition) * 0.01;
+		}
+	}
 	
 	double getTargetX() const
 	{
@@ -113,6 +143,10 @@ struct Camera
 	}
 	
 	Vec3 position;
+	
+	// Lagging dudes
+	Vec3 currentPosition;
+	Vec3 currentRelative;
 	
 	double yaw;
 	double pitch;

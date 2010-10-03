@@ -1,4 +1,8 @@
 TODO:
+      OLISI KIVA   - Player informations (name, id, other stuff?)
+      
+      OLISI KIVA   - Request messages (chat, name change, pause, (change map, change fps, change other stuff))
+
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
       VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
@@ -17,7 +21,7 @@ Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
             
       OLISI KIVA   - model significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
       
-      OLISI KIVA   - Handle disconnecting players (currently crashes server :D)
+Mika  OLISI KIVA   - Handle disconnecting players (currently crashes server :D)
       
 Mika  VITUN TARKEA - Menu UI & Menu IO
       

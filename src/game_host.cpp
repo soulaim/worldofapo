@@ -125,10 +125,11 @@ void Game::acceptConnections()
 		sockets.sockets[sockets.nextConnection-1].write(simulRules_msg.str());
 		
 		// send new player the current state of the world:
-		for(int i=0; i<world.units.size(); i++)
+		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 		{
 			stringstream hero_msg;
-			hero_msg << "-2 UNIT " << world.units[i].angle << " " << world.units[i].keyState << " " << world.units[i].position.x.number << " " << world.units[i].position.y.number << " " << world.units[i].position.h.number << "#";
+			hero_msg << "-2 UNIT " << iter->first << " " << iter->second.angle << " " << iter->second.keyState << " " << iter->second.position.x.number << " " << iter->second.position.y.number << " " << iter->second.position.h.number << " " << iter->second.velocity.x.number << " " << iter->second.velocity.y.number << " " << iter->second.velocity.h.number << "#";
+			
 			sockets.sockets[sockets.nextConnection-1].write(hero_msg.str());
 		}
 		

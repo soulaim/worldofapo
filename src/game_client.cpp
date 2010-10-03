@@ -68,6 +68,8 @@ void Game::handleServerMessage(const Order& server_msg)
 }
 
 
+
+
 void Game::processClientMsgs()
 {
 	for(int i=0; i<static_cast<int>(clientOrders.orders.size()); i++)
@@ -135,9 +137,10 @@ void Game::processClientMsgs()
 				*/
 				
 				cerr << "Creating a new unit as per instructions" << endl;
-				int unitID = world.nextUnitID(); // not safe :G
+				int unitID;
+				ss >> unitID;
 				world.addUnit(unitID);
-				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number;
+				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number >> world.units[unitID].velocity.x.number >> world.units[unitID].velocity.y.number >> world.units[unitID].velocity.h.number;
 				
 			}
 			else if(cmd == "SIMUL")
@@ -201,6 +204,10 @@ void Game::client_tick()
 		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
 		processClientMsgs();
 	}
+	
+	
+	
+	
 	
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.

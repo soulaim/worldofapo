@@ -31,6 +31,13 @@ void World::init()
 	apomath.init(300);
 }
 
+void World::terminate()
+{
+	_unitID_next_unit = 0;
+	units.clear();
+	models.clear();
+}
+
 
 void World::tickUnit(Unit& unit)
 {
@@ -38,10 +45,13 @@ void World::tickUnit(Unit& unit)
 	bool hitGround = false;
 	if(unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number)
 	{
+		FixedPoint friction;
+		friction.number = 800;
+		
 		unit.position.h = lvl.getHeight(unit.position.x, unit.position.y);
 		unit.velocity.h.number = 0;
-		unit.velocity.x.number = 0;
-		unit.velocity.y.number = 0;
+		unit.velocity.x *= friction;
+		unit.velocity.y *= friction;
 		hitGround = true;
 	}
 	else
@@ -61,15 +71,21 @@ void World::tickUnit(Unit& unit)
 	
 	if(unit.movingFront() && hitGround)
 	{
-		unit.velocity.x = apomath.getCos(unit.angle);
-		unit.velocity.y = apomath.getSin(unit.angle);
+		FixedPoint scale;
+		scale.number = 150;
+		
+		unit.velocity.x += apomath.getCos(unit.angle) * scale;
+		unit.velocity.y += apomath.getSin(unit.angle) * scale;
 	}
 	
 	
 	if(unit.movingBack() && hitGround)
 	{
-		unit.velocity.x.number = -apomath.getCos(unit.angle).number;
-		unit.velocity.y.number = -apomath.getSin(unit.angle).number;
+		FixedPoint scale;
+		scale.number = 150;
+		
+		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
+		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
 	}
 	
 	

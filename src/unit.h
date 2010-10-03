@@ -17,6 +17,11 @@ class Unit
 		
 		Location velocity;
 		Location position;
+		
+		// This should really be done soon.
+//		map<std::string, Location> vectors;
+//		map<std::string, int> ints;
+		
 		int angle; // integer representation of the angle variable.
 		int keyState; // what is the unit doing right now, represented as player keyboard input
 		

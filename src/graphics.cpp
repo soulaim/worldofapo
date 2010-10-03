@@ -91,7 +91,7 @@ void Graphics::init()
 	float angle = 45.f;
 	float ratio = 800.f / 600.f;
 	float nearP = 1.f;
-	float farP  = 100.f;
+	float farP  = 200.f;
 	
 	gluPerspective(angle,ratio,nearP,farP);
 	frustum.setCamInternals(angle,ratio,nearP,farP);
@@ -213,6 +213,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();                                   // Reset The View
 	
+	camera.tick();
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
 	

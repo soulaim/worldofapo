@@ -83,6 +83,7 @@ class Game
 	
 	std::vector<Order> UnitInput;
 	
+	
 	int state_descriptor;
 	int client_state;
 	std::string state;
@@ -96,15 +97,16 @@ class Game
 	void joinInternetGame(std::string);
 	void endGame();
 	
+	void reset();
 	void init();
+	
 	void menuQuestions();
 	
-	void processClientMsgs();
 	void acceptConnections();
+	void host_tick();
 	
 	void handleServerMessage(const Order&);
-	
-	void host_tick();
+	void processClientMsgs();
 	void client_tick();
 	
 	public:
