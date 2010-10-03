@@ -68,6 +68,7 @@ class Graphics
 		void loadObjects(std::string);
 		
 		void drawMenu(std::vector<MenuButton>&);
+		void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 		
 		Graphics();
 		
