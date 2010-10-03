@@ -38,20 +38,10 @@ void Game::init()
 	view.megaFuck(); // blah..
 	
 	// load some textures.
-	// should not be done here.
-	Image img;
-	string grassFile = "data/grass.png";
-	img.loadImage(grassFile);
-	TextureHandler::getSingleton().createTexture("grass" ,img);
-	
-	string highGround = "data/highground.png";
-	img.loadImage(highGround);
-	TextureHandler::getSingleton().createTexture("highground" ,img);
-	
-	string mountain = "data/hill.png";
-	img.loadImage(mountain);
-	TextureHandler::getSingleton().createTexture("mountain" ,img);
-	
+	// should not be done here. FIX
+	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
+	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 }
 
 

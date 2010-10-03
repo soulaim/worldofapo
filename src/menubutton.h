@@ -13,8 +13,7 @@ struct MenuButton
 	MenuButton(std::string name_, std::string file)
 	{
 		name = name_;
-		image.loadImage(file);
-		TextureHandler::getSingleton().createTexture(name, image);
+		TextureHandler::getSingleton().createTexture(name, file);
 		selected = 0;
 	}
 	
@@ -29,7 +28,6 @@ struct MenuButton
 	}
 	
 	std::string name;
-	Image image;
 	int selected;
 };
 

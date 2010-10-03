@@ -64,7 +64,6 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.h.number -= 35;
 	}
 	
-	
 	if(unit.keyState & 1) // if should be moving, turns left
 	{
 		unit.angle += 2;
@@ -116,8 +115,14 @@ void World::tickUnit(Unit& unit, Model& model)
 
 
 void World::updateModel(Model& model, Unit& unit)
-{     
+{
+	/*
 	// deduce which animation to display
+	if(unit.position.h.number - 100 > lvl.getHeight(unit.position.x, unit.position.y).number)
+	{
+		model.setAction("jump");
+	}
+	else */
 	if(unit.keyState & 4)
 	{
 		model.setAction("walk");

@@ -129,19 +129,13 @@ void Game::processClientMsgs()
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
 			}
-			else if(cmd == "UNIT")
+			else if(cmd == "UNIT") // unit copy message
 			{
-				/*
-				* THIS IS BROKEN. UNIT ID's ARE NOT TRANSMITTED
-				* UNIT VELOCITIES ARE NOT TRANSMITTED. FIX.
-				*/
-				
 				cerr << "Creating a new unit as per instructions" << endl;
 				int unitID;
 				ss >> unitID;
 				world.addUnit(unitID);
 				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number >> world.units[unitID].velocity.x.number >> world.units[unitID].velocity.y.number >> world.units[unitID].velocity.h.number;
-				
 			}
 			else if(cmd == "SIMUL")
 			{

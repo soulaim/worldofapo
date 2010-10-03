@@ -1,4 +1,5 @@
 
+#include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
 
@@ -27,6 +28,7 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	
 	TextureHandler::getSingleton().bindTexture("font");
 	
+	// define some character widths in our particular font
 	vector<float> charWidth;
 	charWidth.resize(255, 1.f);
 	
@@ -66,7 +68,7 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	
 	float totalWidth = 0.025f;
 	for(int i=0; i<msg.size(); i++)
-		totalWidth += 0.05 * charWidth[msg[i]] * 3;
+		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
 	
 	float x_now     = 0.0f;
 	float x_next    = pos_x + 0.05;
@@ -74,16 +76,20 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	float y_top     = pos_y + 0.05 * scale;
 	float edge_size = 1./16.;
 	
-	glDisable(GL_TEXTURE_2D);
-	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
-	glBegin(GL_QUADS);
-	glVertex3f(pos_x             , y_bot, -1);
-	glVertex3f(pos_x + totalWidth, y_bot, -1);
-	glVertex3f(pos_x + totalWidth, y_top, -1);
-	glVertex3f(pos_x             , y_top, -1);
-	glEnd();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
-	glEnable(GL_TEXTURE_2D);
+	// draw a darker background box for the text if that was requested
+	if(background)
+	{
+		glDisable(GL_TEXTURE_2D);
+		glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+		glBegin(GL_QUADS);
+		glVertex3f(pos_x             , y_bot, -1);
+		glVertex3f(pos_x + totalWidth, y_bot, -1);
+		glVertex3f(pos_x + totalWidth, y_top, -1);
+		glVertex3f(pos_x             , y_top, -1);
+		glEnd();
+		glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+		glEnable(GL_TEXTURE_2D);
+	}
 	
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
@@ -123,6 +129,7 @@ void Graphics::megaFuck()
 	ObjectPart& leg = objects["LEG"];
 	ObjectPart& foot = objects["FOOT"];
 	ObjectPart& arm = objects["ARM"];
+	ObjectPart& hip = objects["HIP"];
 	
 	int num_frames = 3;
 	
@@ -163,6 +170,9 @@ void Graphics::megaFuck()
 	// when idle, SWING YOUR ARMS AROUND WILDLY :DD
 	for(int i=0; i<4*num_frames; i++)
 		arm.animations["idle"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
+	
+	for(int i=0; i<4 * num_frames; i++)
+		hip.animations["jump"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
 	
 }
 
@@ -402,8 +412,8 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	
 	
 	drawString("Hello world! :D Random TEXT here. Just to see, if it works at all?", -0.9f, -0.7f, 1.5f, true);
-	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, true);
-	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.5f, true);
+	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
+	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
 	
 	SDL_GL_SwapBuffers();
 	return;

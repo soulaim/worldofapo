@@ -1,5 +1,4 @@
 
-#include "menubutton.h"
 #include "image.h"
 #include "location.h"
 
@@ -17,6 +16,7 @@
 #include "camera.h"
 
 struct Level;
+struct MenuButton;
 
 struct ObjectTri
 {
