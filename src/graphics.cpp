@@ -217,9 +217,13 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
 	
+	/*
 	camTarget.x = camera.getTargetX();
 	camTarget.y = camera.getTargetY();
 	camTarget.z = camera.getTargetZ();
+	*/
+	
+	camTarget = camera.getCurrentTarget();
 	
 	upVector.x = 0.f;
 	upVector.y = 1.f;
@@ -253,7 +257,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 			
 			// this is bubblegum. could maybe test each corner point of the quad.
-			float h_diff = lvl.estimateHeightDifference(x, y);
+			float h_diff = lvl.estimateHeightDifference(x, y); // estimates could be precalculated also.
 			if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
 			{
 				if(h_diff < 3500)
@@ -285,10 +289,11 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			continue;
 		}
 		
-		glTranslatef(0.0f, -modelGround(iter->second), 0.0f);
-		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
-		glTranslatef(0.0f, +modelGround(iter->second), 0.0f);
 		
+		
+		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
+		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
+		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
 	
 	SDL_GL_SwapBuffers();

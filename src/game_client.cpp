@@ -268,7 +268,7 @@ void Game::client_tick()
 			view.updateInput(keyState, x, y);
 			
 			// run simulation for one WorldFrame
-			world.tick();
+			world.worldTick();
 			simulRules.currentFrame++;
 		}
 	}

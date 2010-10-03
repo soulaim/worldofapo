@@ -39,8 +39,13 @@ void World::terminate()
 }
 
 
-void World::tickUnit(Unit& unit)
+void World::tickUnit(Unit& unit, Model& model)
 {
+	// update the information according to which the unit model will be updated from now on
+	model.parts[model.root].rotation_x = unit.getAngle(apomath);
+	model.updatePosition(unit.position.x.getFloat(), unit.position.h.getFloat(), unit.position.y.getFloat());
+	
+	// some physics & game world information
 	
 	bool hitGround = false;
 	if(unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number)
@@ -124,20 +129,26 @@ void World::updateModel(Model& model, Unit& unit)
 	
 	// update state of model
 	model.tick();
-	model.parts[model.root].rotation_x = unit.getAngle(apomath);
+	
+	/*
 	model.parts[model.root].offset_x   = unit.position.x.getFloat();
 	model.parts[model.root].offset_z   = unit.position.y.getFloat();
 	model.parts[model.root].offset_y   = unit.position.h.getFloat();
+	*/
 }
 
-void World::tick()
+void World::worldTick()
 {
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
-		tickUnit(iter->second);
-	
+		tickUnit(iter->second, models[iter->first]);
+}
+
+void World::viewTick()
+{
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
 		updateModel(iter->second, units[iter->first]);
 }
+
 
 // trololol..
 void World::addUnit(int id)

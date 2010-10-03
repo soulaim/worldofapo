@@ -115,6 +115,7 @@ void Game::start()
 	
 	if((world.units.find(myID) != world.units.end()) && (myID >= 0))
 	{
+		world.viewTick();
 		view.draw(world.models, world.lvl);
 	}
 	else

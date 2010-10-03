@@ -15,7 +15,9 @@ WARNING: THIS FILE IS FULL OF SHIT
 
 class World
 {
-	void updateModel(Model&, Unit&);
+	void tickUnit(Unit&, Model&);    // world frame update
+	void updateModel(Model&, Unit&); // view frame update
+	
 	int heightDifference2Velocity(int h_diff);
 	
 public:
@@ -28,8 +30,9 @@ public:
 	Level lvl;
 	ApoMath apomath;
 	
-	void tickUnit(Unit& unit);
-	void tick();
+	void worldTick();
+	void viewTick();
+	
 	void addUnit(int id);
 	
 	int _unitID_next_unit;

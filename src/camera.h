@@ -78,10 +78,21 @@ struct Camera
 			relative_position.z = sin * position.x + cos * position.z;
 			relative_position.y = position.y;
 			
-			currentRelative += (relative_position - currentRelative) * 0.01;
-			currentPosition += (Vec3(getTargetX(), getTargetY(), getTargetZ()) - currentPosition) * 0.01;
+			camTarget.x = getTargetX();
+			camTarget.y = getTargetY();
+			camTarget.z = getTargetZ();
+			
+			currentRelative += (relative_position - currentRelative) * 0.03;
+			currentPosition += (Vec3(getTargetX(), getTargetY(), getTargetZ()) - currentPosition) * 0.03;
+			currentTarget   += (camTarget - currentTarget) * 0.03;
 		}
 	}
+	
+	Vec3& getCurrentTarget()
+	{
+		return currentTarget;
+	}
+	
 	
 	double getTargetX() const
 	{
@@ -143,10 +154,12 @@ struct Camera
 	}
 	
 	Vec3 position;
+	Vec3 camTarget;
 	
 	// Lagging dudes
 	Vec3 currentPosition;
 	Vec3 currentRelative;
+	Vec3 currentTarget;
 	
 	double yaw;
 	double pitch;
