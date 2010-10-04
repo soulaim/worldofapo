@@ -83,7 +83,6 @@ class Game
 	
 	std::vector<Order> UnitInput;
 	
-	
 	int state_descriptor;
 	int client_state;
 	std::string state;
@@ -109,9 +108,9 @@ class Game
 	void processClientMsgs();
 	void client_tick();
 	
-	public:
-		Game();
-		void start();
+public:
+	Game();
+	void start();
 };
 
 

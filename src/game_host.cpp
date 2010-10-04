@@ -116,6 +116,9 @@ void Game::acceptConnections()
 		cerr << "looks like someone is connecting :O" << endl;
 		serverSocket.accept_connection(sockets);
 		
+		view.pushMessage("Player CONNECTED.");
+		
+		
 		// if game in progress, inform everyone else of a new connecting player TODO
 		
 		

@@ -20,6 +20,9 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
 		cerr << "Player #" << server_msg.keyState << " has disconnected :o Erasing everything related to him!" << endl;
+		
+		view.pushMessage("Player disconnected.");
+		
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
 		simulRules.numPlayers--;
@@ -31,6 +34,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		world.addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+		view.pushMessage("Hero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -51,6 +55,8 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		cerr << "Setting local playerID at frame " << simulRules.currentFrame << " to value " << myID << endl;
+		view.pushMessage("got playerID!");
+		
 		if(world.units.find(myID) != world.units.end())
 		{
 			cerr << "Binding camera to player " << myID << "\n";

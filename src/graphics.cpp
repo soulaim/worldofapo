@@ -15,6 +15,37 @@ float Graphics::modelGround(Model& model)
 	return -2.f;
 }
 
+
+void Graphics::pushMessage(string msg, float r, float g, float b)
+{
+	viewMessages.push_back(ViewMessage(msg, currentTime));
+}
+
+void Graphics::setTime(unsigned time)
+{
+	currentTime = time;
+}
+
+void Graphics::drawMessages()
+{
+	for(int i=0; i<viewMessages.size(); i++)
+	{
+		if(viewMessages[i].endTime < currentTime)
+		{
+			for(int k=i+1; k<viewMessages.size(); k++)
+				viewMessages[k-1] = viewMessages[k];
+			viewMessages.pop_back();
+			
+			i--;
+			continue;
+		}
+		
+		float pos_x = -0.9;
+		float pos_y = -0.9 + 0.08 * i;
+		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight);
+	}
+}
+
 void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
 {
 	glDisable(GL_DEPTH_TEST);
@@ -179,6 +210,7 @@ void Graphics::megaFuck()
 
 Graphics::Graphics()
 {
+	currentTime = 0;
 	init();
 }
 
@@ -411,9 +443,11 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	}
 	
 	
-	drawString("Hello world! :D Random TEXT here. Just to see, if it works at all?", -0.9f, -0.7f, 1.5f, true);
-	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
-	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
+//	drawString("Hello world! :D Random TEXT here. Just to see, if it works at all?", -0.9f, -0.7f, 1.5f, true);
+//	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
+//	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
+	
+	drawMessages();
 	
 	SDL_GL_SwapBuffers();
 	return;

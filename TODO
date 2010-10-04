@@ -29,12 +29,15 @@ Mika  OLISI KIVA   - Apply a less idiotic model for moving up & down hills
       
 Mika  VITUN TARKEA - Print text on screen
 
+      VITUN TARKEA - Viewmessage handling
+
       MELKO VITUN TARKEA - Centralize IO checks.
       
       VITUN TARKEA - Mechanism(s) for sending other than Player Input messages across the network (chat, pause, ..)
       
       
 DONE
+3.10. Pessi: Update model
 1.10. Mika: Use server name instead of IP address for connecting
 30.9. Mika: Introduced some camera control and frustum culling.
 29.9. Mika: Additional networking code. Now possible to join games which have already started (although player disconnects crash the server).
