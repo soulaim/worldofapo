@@ -1,10 +1,7 @@
 
 #include "unit.h"
-#include <cmath>
 #include <iostream>
-
-using std::atan2;
-
+#include <sstream>
 
 Unit::Unit(): angle(0), keyState(0)
 {
@@ -15,42 +12,30 @@ float Unit::getAngle(ApoMath& apomath)
 	return apomath.getRad(angle);
 }
 
-void Unit::updateInput(int keyState_, int mousex_, int mousey_)
+void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_)
 {
 	//  keyState ^= keyState_;
 	keyState = keyState_;
+	mouseButton = mouseButton_;
 	angle -= mousex_;
 }
 
 
-bool Unit::movingFront()
+int Unit::getKeyAction(int type)
 {
-	return (keyState & 4);
+	return (keyState & type);
 }
 
-bool Unit::movingBack()
+int Unit::getMouseAction(int type)
 {
-	return (keyState & 8);  
+	return (mouseButton & type);
 }
 
-/*
-void Unit::tick(ApoMath& apomath, int multiplier)
+
+string Unit::copyOrder(int ID)
 {
+	stringstream hero_msg;
+	hero_msg << "-2 UNIT " << ID << " " << angle << " " << keyState << " " << position.x.number << " " << position.y.number << " " << position.h.number << " " << velocity.x.number << " " << velocity.y.number << " " << velocity.h.number << " " << mouseButton << "#";
 	
-	// if unit is ok, it should move towards its destination
-	if(keyState & 4) // if should be moving, moves forward
-	{
-		position.y.number += multiplier * apomath.getSin(angle).number / 1000;
-		position.x.number += multiplier * apomath.getCos(angle).number / 1000;
-		}
-		
-		if(keyState & 1) // if should be moving, turns left
-		{
-			angle += 2;
-		}
-		if(keyState & 2) // if should be moving, turns right
-		{
-			angle -= 2;
-		}
-		}
-		*/
+	return hero_msg.str();
+}

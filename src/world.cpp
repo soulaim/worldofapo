@@ -73,7 +73,7 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.angle -= 2;
 	}
 	
-	if(unit.movingFront() && hitGround)
+	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
 		FixedPoint scale;
 		scale.number = 150;
@@ -83,13 +83,19 @@ void World::tickUnit(Unit& unit, Model& model)
 	}
 	
 	
-	if(unit.movingBack() && hitGround)
+	if(unit.getKeyAction(Unit::MOVE_BACK) && hitGround)
 	{
 		FixedPoint scale;
 		scale.number = 150;
 		
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
+	}
+	
+	
+	if(unit.getMouseAction(Unit::ATTACK_BASIC))
+	{
+		cerr << "BANG!" << endl;
 	}
 	
 	

@@ -334,6 +334,7 @@ void Graphics::setCamera(const Camera& cam)
 
 #include <cmath>
 
+/*
 void rotateCamera(const Camera& camera)
 {
 	double yaw = camera.getYaw();
@@ -364,6 +365,7 @@ void rotateCamera(const Camera& camera)
 	   glMultTransposeMatrixd(pitch_matrix);
 	   glMultTransposeMatrixd(roll_matrix);
 }
+*/
 
 void Graphics::draw(map<int, Model>& models, Level& lvl)
 {
@@ -377,13 +379,6 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	camera.tick();
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
-	
-	/*
-	camTarget.x = camera.getTargetX();
-	camTarget.y = camera.getTargetY();
-	camTarget.z = camera.getTargetZ();
-	*/
-	
 	camTarget = camera.getCurrentTarget();
 	
 	upVector.x = 0.f;
@@ -395,11 +390,8 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);
 			  
-			  frustum.setCamDef(camPos, camTarget, upVector);
-			  
-			  // this must also be integrated to the camera describing frustum
-			  // this must be done with the model of the local player if at all! models[0] is not the hero for all players.
-			  //  glRotatef(-models[0].parts[models[0].root].rotation_x + 180.f, 0.f, 1.0f, 0.f); // rotate the camera to players rotation.
+	frustum.setCamDef(camPos, camTarget, upVector);
+	
 	
 	glEnable(GL_TEXTURE_2D);
 	
@@ -470,33 +462,6 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 
 void Graphics::updateInput(int keystate, int mousex, int mousey)
 {
-	/*
-	if(keystate & 1)
-	{
-		Location location = camera.getLocation();
-		location.x += 5;
-		camera.setLocation(location);
-}
-if(keystate & 2)
-{
-	Location location = camera.getLocation();
-	location.x -= 5;
-	camera.setLocation(location);
-}
-
-if(keystate & 4)
-{
-	Location location = camera.getLocation();
-	location.y += 5;
-	camera.setLocation(location);
-}
-if(keystate & 8)
-{
-	Location location = camera.getLocation();
-	location.y -= 5;
-	camera.setLocation(location);
-}
-*/
 	if(keystate & 32)
 	{
 		camera.setYaw(camera.getYaw() + 0.05);

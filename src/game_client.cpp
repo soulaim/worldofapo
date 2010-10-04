@@ -96,6 +96,7 @@ void Game::processClientMsgs()
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.keyState;
 			ss >> tmp_order.mousex >> tmp_order.mousey;
+			ss >> tmp_order.mouseButton;
 			
 			UnitInput.push_back(tmp_order);
 		}
@@ -321,7 +322,7 @@ void Game::client_tick()
 			{
 				stringstream inputMsg;
 				string msg;
-				inputMsg << "1 " << myID << " " << frame << " " << keyState << " " << x << " " << y << "#";
+				inputMsg << "1 " << myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
 				msg = inputMsg.str();
 				clientSocket.write(msg);
 			}
@@ -339,7 +340,7 @@ void Game::client_tick()
 					break;
 				}
 				
-				world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey);
+				world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButton);
 			}
 			
 			view.updateInput(keyState, x, y);

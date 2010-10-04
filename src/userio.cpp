@@ -28,13 +28,13 @@ int UserIO::getGameInput()
 	//keystate = SDL_GetKeyState(&numKeys);
 	
 	int keyBoard = 0;
-	if(keystate[SDLK_LEFT])
+	if(keystate[SDLK_a])
 		keyBoard |= 1;
-	if(keystate[SDLK_RIGHT])
+	if(keystate[SDLK_d])
 		keyBoard |= 2;
-	if(keystate[SDLK_UP])
+	if(keystate[SDLK_w])
 		keyBoard |= 4;
-	if(keystate[SDLK_DOWN])
+	if(keystate[SDLK_s])
 		keyBoard |= 8;
 	if(keystate[SDLK_SPACE])
 		keyBoard |= 16;
@@ -134,6 +134,17 @@ int UserIO::checkEvents()
 				cerr << "User pressed ESC, shutting down." << endl;
 				SDL_Quit();
 				exit(0);
+			}
+			
+			if(event.key.keysym.sym == SDLK_g)
+			{
+				SDL_WM_GrabInput(SDL_GRAB_ON);
+				SDL_ShowCursor(0);
+			}
+			if(event.key.keysym.sym == SDLK_r)
+			{
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				SDL_ShowCursor(1);
 			}
 			
 			keyStates[event.key.keysym.sym] = 1;

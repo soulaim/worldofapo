@@ -129,20 +129,11 @@ void Game::acceptConnections()
 		
 		// send new player the current state of the world:
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-		{
-			stringstream hero_msg;
-			hero_msg << "-2 UNIT " << iter->first << " " << iter->second.angle << " " << iter->second.keyState << " " << iter->second.position.x.number << " " << iter->second.position.y.number << " " << iter->second.position.h.number << " " << iter->second.velocity.x.number << " " << iter->second.velocity.y.number << " " << iter->second.velocity.h.number << "#";
-			
-			connectingPlayer.write(hero_msg.str());
-		}
+			connectingPlayer.write(iter->second.copyOrder(iter->first));
 		
 		// send new player current pending orders
 		for(int i=0; i<UnitInput.size(); i++)
-		{
-			stringstream input_msg;
-			input_msg << "-4 " << UnitInput[i].frameID << " " << UnitInput[i].plr_id << " " << UnitInput[i].keyState << " " << UnitInput[i].mousex << " " << UnitInput[i].mousey << " " << UnitInput[i].serverCommand << "#";
-			connectingPlayer.write(input_msg.str());
-		}
+			connectingPlayer.write(UnitInput[i].copyOrder());
 		
 		// tell the new player what his player ID is.
 		stringstream playerID_msg;
