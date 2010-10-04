@@ -9,7 +9,11 @@ void ApoMath::init(int size)
 {
 	if(sin_vals.size() > 0)
 		return;
-	
+
+	DEGREES_90 = size / 4;
+	DEGREES_180 = size / 2;
+	DEGREES_360 = size;
+
 	for(int i=0; i<size; i++)
 	{
 		int sin_val = 1000 * sin(2 * 3.14159265 * i / size);

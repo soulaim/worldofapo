@@ -20,12 +20,9 @@ struct Camera
 	};
 	
 	Camera():
-	position(-30.0, 0.0, 0.0),
-	yaw(0.0),
-	pitch(0.0),
-	roll(0.0),
-	unit(0),
-	mode(RELATIVE)
+		position(-30.0, 0.0, 0.0),
+		unit(0),
+		mode(RELATIVE)
 	{
 	}
 	
@@ -80,8 +77,11 @@ struct Camera
 			Vec3 relative_position;
 			relative_position.x = cos * position.x - sin * position.z;
 			relative_position.z = sin * position.x + cos * position.z;
-			relative_position.y = position.y;
-			
+
+			relative_position.y = position.y + unit->upangle/2; // TODO: this is dirty hack :)
+
+
+			Vec3 camTarget;
 			camTarget.x = getTargetX();
 			camTarget.y = getTargetY();
 			camTarget.z = getTargetZ();
@@ -130,33 +130,6 @@ struct Camera
 		return position.z;
 	}
 	
-	void setYaw(double y)
-	{
-		yaw = y;
-	}
-	void setPitch(double y)
-	{
-		pitch = y;
-	}
-	void setRoll(double y)
-	{
-		roll = y;
-	}
-	
-	// TODO: Yaw, pitch and roll axes are wrong?
-	double getYaw() const
-	{
-		return yaw;
-	}
-	double getPitch() const
-	{
-		return pitch;
-	}
-	double getRoll() const
-	{
-		return roll;
-	}
-	
 	void bind(Unit* unit, FollowMode mode)
 	{
 		this->unit = unit;
@@ -169,18 +142,13 @@ struct Camera
 	}
 	
 	Vec3 position;
-	Vec3 camTarget;
+	Vec3 fps_direction;
 	
 	// Lagging dudes
 	Vec3 currentPosition;
 	Vec3 currentRelative;
 	Vec3 currentTarget;
 	
-	Vec3 fps_direction;
-	
-	double yaw;
-	double pitch;
-	double roll;
 	
 	static const double head_level = 7.0;
 	

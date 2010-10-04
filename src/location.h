@@ -10,9 +10,9 @@
 struct Location
 {
 	Location():
-	x(0),
-	y(0),
-	h(0)
+		x(0),
+		y(0),
+		h(0)
 	{}
 	
 	FixedPoint x;
@@ -29,23 +29,21 @@ struct Location
 		y /= length;
 	}
 	
-	void operator*=(const FixedPoint& scalar)
-	{
-		x *= scalar;
-		y *= scalar;
-	}
-	
-	void operator += (const Location& a)
+	Location& operator += (const Location& a)
 	{
 		x += a.x;
 		y += a.y;
+		h += a.h;
+		return *this;
 	}
-	
-	void operator -= (const Location& a)
+
+
+	Location operator+(const Location& b) const
 	{
-		x -= a.x;
-		y -= a.y;
+		return Location(*this) += b;
 	}
+
+	
 };
 
 #endif

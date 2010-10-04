@@ -91,6 +91,69 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
 	}
+
+	if(unit.movingLeft() && hitGround)
+	{
+		FixedPoint scale;
+		scale.number = 150;
+		int dummy_angle = unit.angle - apomath.DEGREES_90;
+		
+		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+	}
+	if(unit.movingRight() && hitGround)
+	{
+		FixedPoint scale;
+		scale.number = 150;
+		int dummy_angle = unit.angle + apomath.DEGREES_90;
+		
+		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+	}
+
+	if(unit.weapon_cooldown == 0)
+	{
+		if(unit.shooting())
+		{
+			unit.weapon_cooldown = 100;
+
+			// TODO: Following is somewhat duplicated from Camera :G
+
+			// TODO: Fix to use some common ApoMath.
+			static ApoMath dorka;
+			if(!dorka.ready())
+				dorka.init(300);
+			
+			Location position;
+			position.x = 30;
+			position.y = 0;
+			position.h = 0;
+
+			int angle = -unit.angle;
+
+			FixedPoint cos = dorka.getCos(angle);
+			FixedPoint sin = dorka.getSin(angle);
+			
+			Location relative_position;
+			relative_position.x = cos * position.x - sin * position.y;
+			relative_position.y = sin * position.x + cos * position.y;
+			relative_position.h = position.y + unit.upangle/2; // TODO: this is dirty hack :)
+
+			Location weapon_position = unit.position;
+			weapon_position.h += 3;
+			Location projectile_spawn = unit.position + relative_position;
+
+
+			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
+				projectile_spawn.x << "," << projectile_spawn.y << "," << projectile_spawn.h << ")\n";
+			extern vector<pair<Location,Location> > LINES;
+			LINES.push_back(make_pair(weapon_position, projectile_spawn));
+		}
+	}
+	else
+	{
+		--unit.weapon_cooldown;
+	}
 	
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
