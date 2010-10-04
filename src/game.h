@@ -10,7 +10,6 @@
 #include "order.h"
 #include "playerinfo.h"
 
-
 #include "net/socket.h"
 #include "net/socket_handler.h"
 
@@ -18,24 +17,6 @@
 #include <vector>
 #include <queue>
 #include <map>
-
-
-/*
-// This is like, not quite yet finished :D
-struct Message
-{
-	enum {PLAYER_DISCONNECT=0, PLAYER_INPUT, SERVER_ORDER, SERVER_INSTANT_REACT};
-	
-	Message(int msgType, int msgFrame)
-	{
-		
-		}
-		
-		string getString();
-		
-		};
-		*/
-
 
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,

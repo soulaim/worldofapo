@@ -7,7 +7,6 @@
 using namespace std;
 
 
-
 void Game::handleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
@@ -19,13 +18,13 @@ void Game::handleServerMessage(const Order& server_msg)
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
-		cerr << "Player #" << server_msg.keyState << " has disconnected :o Erasing everything related to him!" << endl;
-		
-		view.pushMessage("Player disconnected.");
+		string viewMessage_str = "[";
+		viewMessage_str.append(Players[server_msg.keyState].name);
+		viewMessage_str.append("] has disconnected!");
+		view.pushMessage(viewMessage_str);
 		
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
-		cerr << "Erasing " << Players[server_msg.keyState].name << ", id " << server_msg.keyState << endl;
 		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
@@ -56,7 +55,6 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
-		cerr << "Setting local playerID at frame " << simulRules.currentFrame << " to value " << myID << endl;
 		view.pushMessage("got playerID!");
 		
 		if(world.units.find(myID) != world.units.end())
@@ -102,13 +100,18 @@ void Game::processClientMsgs()
 			UnitInput.push_back(tmp_order);
 		}
 
-		else if(order_type == 2)
+		else if(order_type == 2) // playerInfo message
 		{
+			cerr << "Got playerInfo message!" << endl;
 			int plrID;
 			string name;
 			ss >> plrID >> name;
 			Players[plrID].name = name;
 			cerr << plrID << " " << name << endl;
+			
+			stringstream ss_viewMsg;
+			ss_viewMsg << Players[plrID].name << " has connected!" << endl;
+			view.pushMessage(ss_viewMsg.str());
 		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)

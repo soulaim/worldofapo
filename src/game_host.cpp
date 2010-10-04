@@ -152,8 +152,10 @@ void Game::acceptConnections()
 		connectingPlayer.write(playerID_msg.str());
 		cerr << "player is expected to assume his role at frame " << (simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize) << endl;
 		
-		// send the new player info about other players
-		for(map<int, PlayerInfo>::iterator iter = Players.begin(); iter != Players.end(); iter++) {
+		// send the new player some generic info about other players
+		for(map<int, PlayerInfo>::iterator iter = Players.begin(); iter != Players.end(); iter++)
+		{
+			cerr << "sending info!" << endl;
 			stringstream playerInfo_msg;
 			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << "#";
 			connectingPlayer.write(playerInfo_msg.str());

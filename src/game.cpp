@@ -52,7 +52,7 @@ void Game::readConfig()
 	//configFile >> localPlayer.name;
 	string name;
 	char *e = getenv("USERNAME");
-	if (e)
+	if(e)
 	  name.assign(e);
 	else
 	  name = "failname";
@@ -117,16 +117,15 @@ void Game::start()
 	
 	client_tick();
 	
+	view.setTime( SDL_GetTicks() );
 	if((world.units.find(myID) != world.units.end()) && (myID >= 0))
 	{
 		world.viewTick();
-		
-		view.setTime( SDL_GetTicks() );
 		view.draw(world.models, world.lvl);
 	}
 	else
 	{
-		cerr << "looks like my unit doesnt, exist! Not really sure what to draw now :G" << endl;
+		cerr << "looks like my unit doesnt exist! Not really sure what to draw now :G" << endl;
 	}
 	
 	if(state == "menu")
