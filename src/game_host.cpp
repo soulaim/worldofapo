@@ -131,13 +131,17 @@ void Game::acceptConnections()
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 			connectingPlayer.write(iter->second.copyOrder(iter->first));
 		
+		// send new player the current state of the world:
+		for(map<int, Projectile>::iterator iter = world.projectiles.begin(); iter != world.projectiles.end(); iter++)
+			connectingPlayer.write(iter->second.copyOrder(iter->first));
+		
 		// send new player current pending orders
 		for(int i=0; i<UnitInput.size(); i++)
 			connectingPlayer.write(UnitInput[i].copyOrder());
 		
 		// tell the new player what his player ID is.
 		stringstream playerID_msg;
-		int playerID_val = world.nextUnitID();
+		int playerID_val = world.nextPlayerID();
 		
 		playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
 		connectingPlayer.write(playerID_msg.str());

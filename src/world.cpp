@@ -26,14 +26,17 @@ World::World()
 void World::init()
 {
 	cerr << "world init" << endl;
-	_unitID_next_unit = 0;
+	
+	_unitID_next_unit = 10000;
+	_playerID_next_player = 0;
+	
 	lvl.generate(50);
 	apomath.init(300);
 }
 
 void World::terminate()
 {
-	_unitID_next_unit = 0;
+	_unitID_next_unit = 10000;
 	units.clear();
 	models.clear();
 }
@@ -106,7 +109,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
 		{
-			unit.weapon_cooldown = 100;
+			unit.weapon_cooldown = 5;
 
 			// TODO: Following is somewhat duplicated from Camera :G
 
@@ -140,7 +143,8 @@ void World::tickUnit(Unit& unit, Model& model)
 //			extern vector<pair<Location,Location> > LINES;
 //			LINES.push_back(make_pair(weapon_position, projectile_direction));
 
-			int id = addProjectile(weapon_position);
+			int id = nextUnitID();
+			addProjectile(weapon_position, id);
 			Projectile& projectile = projectiles[id];
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
@@ -274,10 +278,8 @@ void World::addUnit(int id)
 	models[id].load("data/model.bones");
 }
 
-int World::addProjectile(Location& location)
+void World::addProjectile(Location& location, int id)
 {
-	int id = nextUnitID();
-
 	Vec3 position;
 	position.x = location.x.getFloat();
 	position.y = location.h.getFloat();
@@ -288,11 +290,15 @@ int World::addProjectile(Location& location)
 
 	projectiles[id].position = location;
 
-
 	cerr << "New projectile with id " << id << "\n";
-	return id;
 }
 
+int World::nextPlayerID()
+{
+	int id = _playerID_next_player;
+	_playerID_next_player++;
+	return id;
+}
 
 int World::nextUnitID()
 {

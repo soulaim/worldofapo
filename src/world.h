@@ -34,12 +34,15 @@ public:
 	void viewTick();
 	
 	void addUnit(int id);
-	int addProjectile(Location& location);
+	void addProjectile(Location& location, int);
 
 	void removeUnit(int id);
 	
 	int _unitID_next_unit;
+	int _playerID_next_player;
+	
 	int nextUnitID();
+	int nextPlayerID();
 	
 	void terminate(); // don't call this unless you mean it :D
 };

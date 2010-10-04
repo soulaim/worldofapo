@@ -171,7 +171,14 @@ void Game::processClientMsgs()
 				int unitID;
 				ss >> unitID;
 				world.addUnit(unitID);
-				ss >> world.units[unitID].angle >> world.units[unitID].upangle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number >> world.units[unitID].velocity.x.number >> world.units[unitID].velocity.y.number >> world.units[unitID].velocity.h.number >> world.units[unitID].mouseButton;
+				world.units[unitID].handleCopyOrder(ss);
+			}
+			else if(cmd == "PROJECTILE")
+			{
+				int id; ss >> id;
+				Location paska;
+				world.addProjectile(paska, id);
+				world.projectiles[id].handleCopyOrder(ss);
 			}
 			else if(cmd == "NEXT_UNIT_ID")
 			{

@@ -3,11 +3,10 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "location.h"
 #include "apomath.h"
-
-using namespace std;
 
 class Unit
 {
@@ -44,6 +43,7 @@ class Unit
 		int getMouseAction(int type);
 		
 		std::string copyOrder(int ID);
+		void handleCopyOrder(std::stringstream& ss);
 		
 		float getAngle(ApoMath&);
 		float getUpAngle(ApoMath&);

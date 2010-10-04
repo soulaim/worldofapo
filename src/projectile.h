@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "location.h"
 #include "apomath.h"
@@ -24,6 +25,8 @@ class Projectile
 		int lifetime;
 
 		bool collides(const Unit& unit) const;
+		std::string copyOrder(int);
+		void handleCopyOrder(std::stringstream& ss);
 };
 
 #endif

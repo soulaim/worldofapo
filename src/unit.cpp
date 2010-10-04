@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
+
 Unit::Unit():
 	angle(0),
 	upangle(0),
@@ -41,6 +43,11 @@ int Unit::getMouseAction(int type)
 	return (mouseButton & type);
 }
 
+
+void Unit::handleCopyOrder(stringstream& ss)
+{
+	ss >> angle >> upangle >> keyState >> position.x.number >> position.y.number >> position.h.number >> velocity.x.number >> velocity.y.number >> velocity.h.number >> mouseButton;
+}
 
 string Unit::copyOrder(int ID)
 {

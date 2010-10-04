@@ -61,7 +61,7 @@ class Graphics
 	std::map<std::string, ObjectPart> objects;
 	
 	// define some character widths in our particular font
-	vector<float> charWidth;
+	std::vector<float> charWidth;
 	
 	SDL_Surface* drawContext;
 	Camera camera;
