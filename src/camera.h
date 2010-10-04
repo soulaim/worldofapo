@@ -15,7 +15,8 @@ struct Camera
 	enum FollowMode
 	{
 		STATIC, // Camera doesn't care about unit's direction.
-		RELATIVE // Camera rotates if unit rotates.
+		RELATIVE, // Camera rotates if unit rotates.
+		FIRST_PERSON // Camera moves at unit's location
 	};
 	
 	Camera():
@@ -54,6 +55,9 @@ struct Camera
 				
 			}
 			
+			if(mode == FIRST_PERSON)
+				return currentPosition;
+			
 			// return Vec3(getTargetX(), getTargetY(), getTargetZ()) + relative_position;
 			return currentPosition;
 		}
@@ -82,14 +86,25 @@ struct Camera
 			camTarget.y = getTargetY();
 			camTarget.z = getTargetZ();
 			
-			currentRelative += (relative_position - currentRelative) * 0.03;
-			currentPosition += (Vec3(getTargetX(), getTargetY(), getTargetZ()) - currentPosition) * 0.03;
-			currentTarget   += (camTarget - currentTarget) * 0.03;
+			float multiplier = 0.04;
+			if(mode == FIRST_PERSON)
+				multiplier = 0.2;
+			
+			currentRelative += (relative_position - currentRelative) * multiplier;
+			currentPosition += (Vec3(getTargetX(), getTargetY(), getTargetZ()) - currentPosition) * multiplier;
+			currentTarget   += (camTarget - currentTarget) * multiplier;
+			
+			fps_direction = currentPosition;
+			fps_direction.x -= relative_position.x;
+			fps_direction.y  = relative_position.y;
+			fps_direction.z -= relative_position.z;
 		}
 	}
 	
 	Vec3& getCurrentTarget()
 	{
+		if(mode == FIRST_PERSON)
+			return fps_direction;
 		return currentTarget;
 	}
 	
@@ -160,6 +175,8 @@ struct Camera
 	Vec3 currentPosition;
 	Vec3 currentRelative;
 	Vec3 currentTarget;
+	
+	Vec3 fps_direction;
 	
 	double yaw;
 	double pitch;

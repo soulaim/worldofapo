@@ -198,6 +198,13 @@ void Graphics::init()
 		charWidth[symbol] = 0.26;
 	for(char symbol = 'a'; symbol <= 'z'; symbol++)
 		charWidth[symbol] = 0.19;
+	for(char symbol = '0'; symbol <= '9'; symbol++)
+		charWidth[symbol] = 0.16;
+	
+	charWidth['9'] = 0.20;
+	charWidth['8'] = 0.20;
+	charWidth['4'] = 0.20;
+	charWidth['0'] = 0.23;
 	charWidth['l'] = 0.1;
 	charWidth['r'] = 0.1;
 	charWidth['f'] = 0.1;
@@ -552,7 +559,7 @@ if(keystate & 8)
 	}
 	if(keystate & 1 << 19)
 	{
-		camera.setMode(Camera::STATIC);
+		camera.setMode(Camera::FIRST_PERSON);
 	}
 }
 
