@@ -6,6 +6,7 @@
 
 #include "location.h"
 #include "apomath.h"
+#include "unit.h"
 
 using namespace std;
 
@@ -21,6 +22,8 @@ class Projectile
 		Location position;
 
 		int lifetime;
+
+		bool collides(const Unit& unit) const;
 };
 
 #endif

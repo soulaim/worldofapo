@@ -146,15 +146,15 @@ void World::tickUnit(Unit& unit, Model& model)
 
 //			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
 //				projectile_direction.x << "," << projectile_direction.y << "," << projectile_direction.h << ")\n";
-			extern vector<pair<Location,Location> > LINES;
-			LINES.push_back(make_pair(weapon_position, projectile_direction));
+//			extern vector<pair<Location,Location> > LINES;
+//			LINES.push_back(make_pair(weapon_position, projectile_direction));
 
 			int id = addProjectile(weapon_position);
 			Projectile& projectile = projectiles[id];
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
-			projectile.velocity *= FixedPoint(1)/FixedPoint(2);
-			projectile.lifetime = 400;
+			projectile.velocity *= FixedPoint(3)/FixedPoint(1);
+			projectile.lifetime = 200;
 		}
 	}
 	else
@@ -183,12 +183,12 @@ void World::tickUnit(Unit& unit, Model& model)
 	unit.position.h += unit.velocity.h;
 }
 
-void World::tickProjectile(Projectile& projectile, Model& model)
+void World::tickProjectile(Projectile& projectile, Model& model, int id)
 {
 //	model.parts[model.root].rotation_x = projectile.getAngle(apomath);
 	model.updatePosition(projectile.position.x.getFloat(), projectile.position.h.getFloat(), projectile.position.y.getFloat());
 
-	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
+//	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
 	if(projectile.lifetime > 0)
 	{
 		projectile.position.x += projectile.velocity.x;
@@ -196,10 +196,25 @@ void World::tickProjectile(Projectile& projectile, Model& model)
 		projectile.position.h += projectile.velocity.h;
 
 		--projectile.lifetime;
+
+		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
+		{
+			Unit& unit = it->second;
+			if(projectile.collides(unit))
+			{
+				cerr << "HIT!\n";
+				unit.weapon_cooldown = 100;
+				unit.velocity.x = 0;
+				unit.velocity.y = 0;
+				unit.velocity.h = 3;
+
+				removeUnit(id);
+			}
+		}
 	}
 	else
 	{
-		// TODO: remove projectile.
+		removeUnit(id);
 	}
 }
 
@@ -239,7 +254,7 @@ void World::worldTick()
 	}
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		tickProjectile(iter->second, models[iter->first]);
+		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
 }
 
@@ -293,5 +308,12 @@ int World::nextUnitID()
 	int id = _unitID_next_unit;
 	_unitID_next_unit++;
 	return id;
+}
+
+void World::removeUnit(int id)
+{
+	units.erase(id);
+	projectiles.erase(id);
+	models.erase(id);
 }
 

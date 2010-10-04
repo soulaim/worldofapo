@@ -19,6 +19,15 @@ struct Location
 	FixedPoint y;
 	FixedPoint h;
 	
+	bool near(const Location& location, const FixedPoint& distance) const
+	{
+		FixedPoint dx = (x - location.x);
+		FixedPoint dy = (y - location.y);
+		FixedPoint dh = (h - location.h);
+
+		return dx*dx + dy*dy + dh*dh <= distance*distance;
+	}
+
 	void normalize()
 	{
 		FixedPoint length = ApoMath::sqrt(x*x + y*y + h*h);

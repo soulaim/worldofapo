@@ -14,7 +14,7 @@
 class World
 {
 	void tickUnit(Unit&, Model&);       // world frame update
-	void tickProjectile(Projectile&, Model&); // world frame update
+	void tickProjectile(Projectile&, Model&, int id); // world frame update
 	void updateModel(Model&, Unit&); // view frame update
 	
 	int heightDifference2Velocity(int h_diff);
@@ -35,6 +35,8 @@ public:
 	
 	void addUnit(int id);
 	int addProjectile(Location& location);
+
+	void removeUnit(int id);
 	
 	int _unitID_next_unit;
 	int nextUnitID();
