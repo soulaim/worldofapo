@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "location.h"
+#include "level.h"
 #include "apomath.h"
 #include "unit.h"
 
@@ -25,6 +26,7 @@ class Projectile
 		int lifetime;
 
 		bool collides(const Unit& unit) const;
+		bool collidesTerrain(Level& lvl) const;
 		std::string copyOrder(int);
 		void handleCopyOrder(std::stringstream& ss);
 };

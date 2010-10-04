@@ -7,6 +7,11 @@ bool Projectile::collides(const Unit& unit) const
 	return position.near(unit.position, FixedPoint(3)/FixedPoint(1));
 }
 
+bool Projectile::collidesTerrain(Level& lvl) const
+{
+	return position.h <= lvl.getHeight(position.x, position.y);
+}
+
 void Projectile::handleCopyOrder(stringstream& ss)
 {
 	ss >> position.x.number >> position.y.number >> position.h.number >>

@@ -6,7 +6,7 @@
 using namespace std;
 
 vector<vector<FixedPoint> > pointheight_info;
-vector<vector<int> > walls_info;
+//vector<vector<int> > walls_info;
 
 void Level::generate(int seed)
 {
@@ -110,7 +110,7 @@ float Level::estimateHeightDifference(int x, int y)
 
 
 
-FixedPoint Level::getHeight(FixedPoint& x, FixedPoint& y)
+FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& y)
 {
 	int x_index = x.getInteger() / 8;
 	int y_index = y.getInteger() / 8;

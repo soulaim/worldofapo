@@ -65,7 +65,7 @@ struct FixedPoint
 		return tmp;
 	}
 	
-	bool operator <= (const FixedPoint& a)
+	bool operator <= (const FixedPoint& a) const
 	{
 		return number <= a.number;
 	}

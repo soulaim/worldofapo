@@ -204,6 +204,11 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				unit.velocity.h = 3;
 
 				removeUnit(id);
+			} else if (projectile.collidesTerrain(lvl)) {
+				//lvl.pointheight_info[projectile.position.x.getInteger()/8][projectile.position.y.getInteger()/8].number += 10000;
+				cerr << "TERRAIN HIT\n";
+				removeUnit(id);
+
 			}
 		}
 	}
