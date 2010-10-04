@@ -18,31 +18,48 @@ Game::Game(): fps_world(0)
 	init();
 }
 
-void Game::init()
+void Game::reset()
 {
+	cerr << "Reseting client state." << endl;
+	
 	serverAllow = 0;
 	myID = -1;
 	state = "menu";
+	
+	UnitInput.clear();
+	world.terminate();
+}
+
+void Game::init()
+{
+	reset();
+	
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
 	
+	readConfig();
+	
+	userio.init();
+	
 	// load some textures.
-	// should not be done here.
-	Image img;
-	string grassFile = "data/grass.png";
-	img.loadImage(grassFile);
-	TextureHandler::getSingleton().createTexture("grass" ,img);
-	
-	string highGround = "data/highground.png";
-	img.loadImage(highGround);
-	TextureHandler::getSingleton().createTexture("highground" ,img);
-	
-	string mountain = "data/hill.png";
-	img.loadImage(mountain);
-	TextureHandler::getSingleton().createTexture("mountain" ,img);
-	
+	// should not be done here. FIX
+	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
+	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 }
 
+void Game::readConfig()
+{
+	//ifstream configFile("config.cfg");
+	//configFile >> localPlayer.name;
+	string name;
+	char *e = getenv("USERNAME");
+	if(e)
+	  name.assign(e);
+	else
+	  name = "failname";
+	localPlayer.name = name;
+}
 
 void Game::makeLocalGame()
 {
@@ -102,16 +119,23 @@ void Game::start()
 	
 	client_tick();
 	
+	view.setTime( SDL_GetTicks() );
 	if((world.units.find(myID) != world.units.end()) && (myID >= 0))
 	{
+		world.viewTick();
 		view.draw(world.models, world.lvl);
 	}
 	else
 	{
-		cerr << "looks like my unit doesnt, exist! Not really sure what to draw now :G" << endl;
+		cerr << "looks like my unit doesnt exist! Not really sure what to draw now :G" << endl;
 	}
 	
 	if(state == "menu")
+	{
+		if(myID >= 0)
+			reset();
+		
 		menuQuestions();
+	}
 }
 

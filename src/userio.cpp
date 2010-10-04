@@ -7,17 +7,27 @@ using namespace std;
 
 UserIO::UserIO()
 {
-	keyBoard = 0;
 	mouse_has_been_pressed = 0;
 	mouse_right_button = 0;
 	mouse = Coord(-1, -1);
 }
 
-int UserIO::getKeyChange()
+// this must not be called before SDL has initialized
+void UserIO::init()
 {
-	Uint8* keystate = SDL_GetKeyState(NULL);
+	emptyString = ""; // lol initialisation :D
+	keystate = SDL_GetKeyState(&numKeys);
+	keyStates.resize(numKeys, 0);
+	for(int i=0; i<numKeys; i++)
+		keyNames.push_back( SDL_GetKeyName(  SDLKey(i) ) );
+}
+
+int UserIO::getGameInput()
+{
+	checkEvents();
+	//keystate = SDL_GetKeyState(&numKeys);
 	
-	keyBoard = 0;
+	int keyBoard = 0;
 	if(keystate[SDLK_LEFT])
 		keyBoard |= 1;
 	if(keystate[SDLK_RIGHT])
@@ -67,6 +77,8 @@ int UserIO::getKeyChange()
 
 void UserIO::getMouseChange(int& x, int& y)
 {
+	checkEvents();
+	
 	x = mouseMove.x;
 	y = mouseMove.y;
 	
@@ -95,10 +107,25 @@ int UserIO::getMousePress()
 }
 
 
-string UserIO::getSingleKey()
+string& UserIO::getSingleKey()
+{
+	checkEvents();
+	for(int i=0; i<numKeys; i++)
+	{
+		if(keyStates[i] > 0)
+		{
+			keyStates[i]--;
+			return keyNames[i];
+		}
+	}
+	return emptyString;
+}
+
+int UserIO::checkEvents()
 {
 	SDL_Event event;
-	while(SDL_PollEvent( &event ))
+	
+	while( SDL_PollEvent( &event ) )
 	{
 		if(event.type == SDL_KEYDOWN)
 		{
@@ -108,27 +135,8 @@ string UserIO::getSingleKey()
 				SDL_Quit();
 				exit(0);
 			}
-			return string(SDL_GetKeyName (event.key.keysym.sym));
-		}
-	}
-	
-	return "";
-}
-
-int UserIO::checkEvents()
-{
-	SDL_Event event;
-	
-	while( SDL_PollEvent( &event ) )
-	{
-		if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-		{
-			if(event.key.keysym.sym == SDLK_ESCAPE)
-			{
-				cerr << "User pressed ESC, shutting down." << endl;
-				SDL_Quit();
-				exit(0);
-			}
+			
+			keyStates[event.key.keysym.sym] = 1;
 		}
 		
 		if( event.type == SDL_MOUSEMOTION )

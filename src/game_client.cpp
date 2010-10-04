@@ -7,7 +7,6 @@
 using namespace std;
 
 
-
 void Game::handleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
@@ -19,9 +18,14 @@ void Game::handleServerMessage(const Order& server_msg)
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
-		cerr << "Player #" << server_msg.keyState << " has disconnected :o Erasing everything related to him!" << endl;
+		string viewMessage_str = "[";
+		viewMessage_str.append(Players[server_msg.keyState].name);
+		viewMessage_str.append("] has disconnected!");
+		view.pushMessage(viewMessage_str);
+		
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
+		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
 		
@@ -31,6 +35,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		world.addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+		view.pushMessage("Hero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -50,7 +55,8 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
-		cerr << "Setting local playerID at frame " << simulRules.currentFrame << " to value " << myID << endl;
+		view.pushMessage("got playerID!");
+		
 		if(world.units.find(myID) != world.units.end())
 		{
 			cerr << "Binding camera to player " << myID << "\n";
@@ -60,12 +66,18 @@ void Game::handleServerMessage(const Order& server_msg)
 		{
 			cerr << "Failed to bind camera! :(" << endl;
 		}
+
+		stringstream ss;
+		ss << "2 " << myID << " " << localPlayer.name << "#";
+		clientSocket.write(ss.str());
 	}
 	else
 	{
 		cerr << "SERVERMESSAGEFUCK: " << server_msg.serverCommand << endl;
 	}
 }
+
+
 
 
 void Game::processClientMsgs()
@@ -87,7 +99,32 @@ void Game::processClientMsgs()
 			
 			UnitInput.push_back(tmp_order);
 		}
+		else if(order_type == 3) // chat message
+		{
+			int plrID;
+			string line;
+			
+			ss >> plrID;
+			getline(ss, line);
+			
+			stringstream chatMsg;
+			chatMsg << "<" << Players[plrID].name << "> " << line;
+			view.pushMessage(chatMsg.str());
+		}
 		
+		else if(order_type == 2) // playerInfo message
+		{
+			cerr << "Got playerInfo message!" << endl;
+			int plrID;
+			string name;
+			ss >> plrID >> name;
+			Players[plrID].name = name;
+			cerr << plrID << " " << name << endl;
+			
+			stringstream ss_viewMsg;
+			ss_viewMsg << Players[plrID].name << " has connected!" << endl;
+			view.pushMessage(ss_viewMsg.str());
+		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
 		{
@@ -127,18 +164,13 @@ void Game::processClientMsgs()
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
 			}
-			else if(cmd == "UNIT")
+			else if(cmd == "UNIT") // unit copy message
 			{
-				/*
-				* THIS IS BROKEN. UNIT ID's ARE NOT TRANSMITTED
-				* UNIT VELOCITIES ARE NOT TRANSMITTED. FIX.
-				*/
-				
 				cerr << "Creating a new unit as per instructions" << endl;
-				int unitID = world.nextUnitID(); // not safe :G
+				int unitID;
+				ss >> unitID;
 				world.addUnit(unitID);
-				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number;
-				
+				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number >> world.units[unitID].velocity.x.number >> world.units[unitID].velocity.y.number >> world.units[unitID].velocity.h.number;
 			}
 			else if(cmd == "SIMUL")
 			{
@@ -202,13 +234,65 @@ void Game::client_tick()
 		processClientMsgs();
 	}
 	
+	
+	string key = userio.getSingleKey();
+	if(key.size() != 0)
+	{
+		string nick;
+		nick.append("<");
+		nick.append(Players[myID].name);
+		nick.append("> ");
+		
+		if(key == "return")
+		{
+			client_state ^= 2;
+			if( (client_state & 2) == 0 )
+			{
+				// handle client command
+				if(clientCommand.size() > 0)
+				{
+					stringstream tmp_msg;
+					tmp_msg << "3 " << myID << " " << clientCommand << "#";
+					clientSocket.write(tmp_msg.str());
+				}
+				
+//				view.pushMessage(tmp_msg.str());
+				clientCommand = "";
+				view.setCurrentClientCommand(clientCommand);
+			}
+			else
+			{
+				view.setCurrentClientCommand(nick);
+			}
+		}
+		
+		if(client_state & 2)
+		{
+			if(key.size() == 1)
+				clientCommand.append(key);
+			
+			if(key == "backspace")
+				clientCommand = "";
+			
+			if(key == "space")
+				clientCommand.append(" ");
+			nick.append(clientCommand);
+			view.setCurrentClientCommand(nick);
+		}
+		else
+		{
+			if(key == "p")
+			{
+				
+			}
+		}
+	}
+	
+	
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.
-	if( ((state == "client") || (state_descriptor != 0)) && (client_state != 0))  
+	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
-		
-		userio.checkEvents();
-		
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
 		
@@ -227,7 +311,7 @@ void Game::client_tick()
 			
 			fps_world.insert();
 			
-			int keyState = userio.getKeyChange();
+			int keyState = userio.getGameInput();
 			int x, y;
 			
 			userio.getMouseChange(x, y);
@@ -261,7 +345,7 @@ void Game::client_tick()
 			view.updateInput(keyState, x, y);
 			
 			// run simulation for one WorldFrame
-			world.tick();
+			world.worldTick();
 			simulRules.currentFrame++;
 		}
 	}

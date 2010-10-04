@@ -8,7 +8,7 @@
 #include "ordercontainer.h"
 #include "fps_manager.h"
 #include "order.h"
-
+#include "playerinfo.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -17,24 +17,6 @@
 #include <vector>
 #include <queue>
 #include <map>
-
-
-/*
-// This is like, not quite yet finished :D
-struct Message
-{
-	enum {PLAYER_DISCONNECT=0, PLAYER_INPUT, SERVER_ORDER, SERVER_INSTANT_REACT};
-	
-	Message(int msgType, int msgFrame)
-	{
-		
-		}
-		
-		string getString();
-		
-		};
-		*/
-
 
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,
@@ -83,10 +65,15 @@ class Game
 	
 	std::vector<Order> UnitInput;
 	
+	map<int, PlayerInfo> Players;
+	PlayerInfo localPlayer;
+	
 	int state_descriptor;
 	int client_state;
 	std::string state;
+	
 	std::string menuWord;
+	std::string clientCommand;
 	
 	int serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
@@ -96,20 +83,22 @@ class Game
 	void joinInternetGame(std::string);
 	void endGame();
 	
+	void reset();
 	void init();
+	void readConfig();
+	
 	void menuQuestions();
 	
-	void processClientMsgs();
 	void acceptConnections();
+	void host_tick();
 	
 	void handleServerMessage(const Order&);
-	
-	void host_tick();
+	void processClientMsgs();
 	void client_tick();
 	
-	public:
-		Game();
-		void start();
+public:
+	Game();
+	void start();
 };
 
 

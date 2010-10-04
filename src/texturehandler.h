@@ -18,6 +18,7 @@ class TextureHandler
 		static TextureHandler& getSingleton();
 		
 		
+		unsigned createTexture(const std::string&, const std::string&);
 		unsigned createTexture(const std::string&, Image& img);
 		int bindTexture(const std::string&);
 		

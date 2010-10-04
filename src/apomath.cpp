@@ -24,6 +24,13 @@ void ApoMath::init(int size)
 	}
 }
 
+bool ApoMath::ready()
+{
+	if(sin_vals.size() > 0)
+		return true;
+	return false;
+}
+
 FixedPoint& ApoMath::getCos(int& angle)
 {
 	while(angle < 0)

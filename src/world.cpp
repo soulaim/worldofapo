@@ -31,24 +31,38 @@ void World::init()
 	apomath.init(300);
 }
 
-
-void World::tickUnit(Unit& unit)
+void World::terminate()
 {
+	_unitID_next_unit = 0;
+	units.clear();
+	models.clear();
+}
+
+
+void World::tickUnit(Unit& unit, Model& model)
+{
+	// update the information according to which the unit model will be updated from now on
+	model.parts[model.root].rotation_x = unit.getAngle(apomath);
+	model.updatePosition(unit.position.x.getFloat(), unit.position.h.getFloat(), unit.position.y.getFloat());
+	
+	// some physics & game world information
 	
 	bool hitGround = false;
 	if(unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number)
 	{
+		FixedPoint friction;
+		friction.number = 800;
+		
 		unit.position.h = lvl.getHeight(unit.position.x, unit.position.y);
 		unit.velocity.h.number = 0;
-		unit.velocity.x.number = 0;
-		unit.velocity.y.number = 0;
+		unit.velocity.x *= friction;
+		unit.velocity.y *= friction;
 		hitGround = true;
 	}
 	else
 	{
 		unit.velocity.h.number -= 35;
 	}
-	
 	
 	if(unit.keyState & 1) // if should be moving, turns left
 	{
@@ -61,15 +75,21 @@ void World::tickUnit(Unit& unit)
 	
 	if(unit.movingFront() && hitGround)
 	{
-		unit.velocity.x = apomath.getCos(unit.angle);
-		unit.velocity.y = apomath.getSin(unit.angle);
+		FixedPoint scale;
+		scale.number = 150;
+		
+		unit.velocity.x += apomath.getCos(unit.angle) * scale;
+		unit.velocity.y += apomath.getSin(unit.angle) * scale;
 	}
 	
 	
 	if(unit.movingBack() && hitGround)
 	{
-		unit.velocity.x.number = -apomath.getCos(unit.angle).number;
-		unit.velocity.y.number = -apomath.getSin(unit.angle).number;
+		FixedPoint scale;
+		scale.number = 150;
+		
+		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
+		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
 	}
 	
 	
@@ -95,8 +115,14 @@ void World::tickUnit(Unit& unit)
 
 
 void World::updateModel(Model& model, Unit& unit)
-{     
+{
+	/*
 	// deduce which animation to display
+	if(unit.position.h.number - 100 > lvl.getHeight(unit.position.x, unit.position.y).number)
+	{
+		model.setAction("jump");
+	}
+	else */
 	if(unit.keyState & 4)
 	{
 		model.setAction("walk");
@@ -108,20 +134,26 @@ void World::updateModel(Model& model, Unit& unit)
 	
 	// update state of model
 	model.tick();
-	model.parts[model.root].rotation_x = unit.getAngle(apomath);
+	
+	/*
 	model.parts[model.root].offset_x   = unit.position.x.getFloat();
 	model.parts[model.root].offset_z   = unit.position.y.getFloat();
 	model.parts[model.root].offset_y   = unit.position.h.getFloat();
+	*/
 }
 
-void World::tick()
+void World::worldTick()
 {
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
-		tickUnit(iter->second);
-	
+		tickUnit(iter->second, models[iter->first]);
+}
+
+void World::viewTick()
+{
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
 		updateModel(iter->second, units[iter->first]);
 }
+
 
 // trololol..
 void World::addUnit(int id)

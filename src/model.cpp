@@ -8,8 +8,20 @@ using namespace std;
 
 void Model::tick()
 {
+	// Smoothed out model movement. Doesnt correspond 100% to actual unit coordinates.
+	currentModelPos += (realUnitPos - currentModelPos) * 0.2;
+	
+	// animation time should be increased by the actual time difference, instead of by a constant
+	// FIX!!
 	animation_time++;
 	return;
+}
+
+void Model::updatePosition(float x, float y, float z)
+{
+	realUnitPos.x = x;
+	realUnitPos.y = y;
+	realUnitPos.z = z;
 }
 
 

@@ -1,4 +1,5 @@
 
+#include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
 
@@ -15,12 +16,121 @@ float Graphics::modelGround(Model& model)
 }
 
 
+void Graphics::pushMessage(string msg, float r, float g, float b)
+{
+	viewMessages.push_back(ViewMessage(msg, currentTime));
+}
+
+void Graphics::setTime(unsigned time)
+{
+	currentTime = time;
+}
+
+void Graphics::drawMessages()
+{
+	for(int i=0; i<viewMessages.size(); i++)
+	{
+		if(viewMessages[i].endTime < currentTime)
+		{
+			for(int k=i+1; k<viewMessages.size(); k++)
+				viewMessages[k-1] = viewMessages[k];
+			viewMessages.pop_back();
+			
+			i--;
+			continue;
+		}
+		
+		float pos_x = -0.9;
+		float pos_y = -0.82 + 0.08 * i;
+		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight);
+	}
+	
+	if(currentClientCommand.size() > 0)
+		drawString(currentClientCommand, -0.9, -0.9, 1.3, true); 
+}
+
+void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	TextureHandler::getSingleton().bindTexture("font");
+	
+	glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+	
+	float totalWidth = 0.025f;
+	for(int i=0; i<msg.size(); i++)
+		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+	
+	float x_now     = 0.0f;
+	float x_next    = pos_x + 0.05;
+	float y_bot     = pos_y;
+	float y_top     = pos_y + 0.05 * scale;
+	float edge_size = 1./16.;
+	
+	// draw a darker background box for the text if that was requested
+	if(background)
+	{
+		glDisable(GL_TEXTURE_2D);
+		glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+		glBegin(GL_QUADS);
+		glVertex3f(pos_x             , y_bot, -1);
+		glVertex3f(pos_x + totalWidth, y_bot, -1);
+		glVertex3f(pos_x + totalWidth, y_top, -1);
+		glVertex3f(pos_x             , y_top, -1);
+		glEnd();
+		glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+		glEnable(GL_TEXTURE_2D);
+	}
+	
+	float currentWidth = 0.f;
+	float lastWidth    = 0.f;
+	
+	for(int i=0; i<msg.size(); i++)
+	{
+		currentWidth = 0.05 * charWidth[msg[i]];
+		
+		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
+		x_next = x_now + 0.05f * scale;
+		
+		lastWidth = currentWidth;
+		
+		int x = msg[i] % 16;
+		int y = 15 - (msg[i] / 16);
+		
+		glBegin(GL_QUADS);
+		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
+		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
+		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
+		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(x_now , y_top, -1);
+		glEnd();
+	}
+	
+//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glDisable(GL_BLEND);
+	
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
 
 void Graphics::megaFuck()
 {
 	ObjectPart& leg = objects["LEG"];
 	ObjectPart& foot = objects["FOOT"];
 	ObjectPart& arm = objects["ARM"];
+	ObjectPart& hip = objects["HIP"];
 	
 	int num_frames = 3;
 	
@@ -62,16 +172,65 @@ void Graphics::megaFuck()
 	for(int i=0; i<4*num_frames; i++)
 		arm.animations["idle"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
 	
+	for(int i=0; i<4 * num_frames; i++)
+		hip.animations["jump"].insertAnimationState(0.f, 360.f * i / (4 * num_frames), 0.f);
+	
 }
 
 
 Graphics::Graphics()
 {
+	currentTime = 0;
 	init();
+}
+
+void Graphics::setCurrentClientCommand(string& cmd)
+{
+	currentClientCommand = cmd;
 }
 
 void Graphics::init()
 {
+	
+	charWidth.resize(255, 1.f);
+	
+	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
+		charWidth[symbol] = 0.26;
+	for(char symbol = 'a'; symbol <= 'z'; symbol++)
+		charWidth[symbol] = 0.19;
+	for(char symbol = '0'; symbol <= '9'; symbol++)
+		charWidth[symbol] = 0.16;
+	
+	charWidth['9'] = 0.20;
+	charWidth['8'] = 0.20;
+	charWidth['4'] = 0.20;
+	charWidth['0'] = 0.23;
+	charWidth['l'] = 0.1;
+	charWidth['r'] = 0.1;
+	charWidth['f'] = 0.1;
+	charWidth['!'] = 0.1;
+	charWidth['t'] = 0.15;
+	charWidth['>'] = 0.15;
+	charWidth['<'] = 0.15;
+	charWidth['i'] = 0.1;
+	charWidth['w'] = 0.25;
+	charWidth['m'] = 0.25;
+	charWidth['j'] = 0.12;
+	charWidth['o'] = 0.19;
+	charWidth['s'] = 0.12;
+	charWidth['I'] = 0.1;
+	charWidth['J'] = 0.12;
+	charWidth['.'] = 0.1;
+	charWidth[','] = 0.1;
+	charWidth[':'] = 0.1;
+	charWidth['?'] = 0.15;
+	charWidth[' '] = 0.1;
+	charWidth[']'] = 0.1;
+	charWidth['['] = 0.1;
+	charWidth[')'] = 0.1;
+	charWidth['('] = 0.1;
+	
+	
 	createWindow(); // let SDL handle this part..
 	
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
@@ -87,11 +246,13 @@ void Graphics::init()
 	glEnable(GL_COLOR_MATERIAL);
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	
+	TextureHandler::getSingleton().createTexture("font", "data/fonts/font2.png");
+	
 	// these could be stored and set somewhere else possibly
 	float angle = 45.f;
 	float ratio = 800.f / 600.f;
 	float nearP = 1.f;
-	float farP  = 100.f;
+	float farP  = 200.f;
 	
 	gluPerspective(angle,ratio,nearP,farP);
 	frustum.setCamInternals(angle,ratio,nearP,farP);
@@ -213,12 +374,17 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();                                   // Reset The View
 	
+	camera.tick();
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
 	
+	/*
 	camTarget.x = camera.getTargetX();
 	camTarget.y = camera.getTargetY();
 	camTarget.z = camera.getTargetZ();
+	*/
+	
+	camTarget = camera.getCurrentTarget();
 	
 	upVector.x = 0.f;
 	upVector.y = 1.f;
@@ -252,7 +418,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 			
 			// this is bubblegum. could maybe test each corner point of the quad.
-			float h_diff = lvl.estimateHeightDifference(x, y);
+			float h_diff = lvl.estimateHeightDifference(x, y); // estimates could be precalculated also.
 			if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
 			{
 				if(h_diff < 3500)
@@ -284,11 +450,19 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			continue;
 		}
 		
-		glTranslatef(0.0f, -modelGround(iter->second), 0.0f);
-		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
-		glTranslatef(0.0f, +modelGround(iter->second), 0.0f);
 		
+		
+		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
+		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
+		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
+	
+	
+//	drawString("Hello world! :D Random TEXT here. Just to see, if it works at all?", -0.9f, -0.7f, 1.5f, true);
+//	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
+//	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
+	
+	drawMessages();
 	
 	SDL_GL_SwapBuffers();
 	return;
@@ -385,7 +559,7 @@ if(keystate & 8)
 	}
 	if(keystate & 1 << 19)
 	{
-		camera.setMode(Camera::STATIC);
+		camera.setMode(Camera::FIRST_PERSON);
 	}
 }
 

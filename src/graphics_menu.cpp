@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+
 void Graphics::drawMenu(vector<MenuButton>& buttons)
 {
 	glMatrixMode(GL_MODELVIEW);
@@ -15,7 +17,6 @@ void Graphics::drawMenu(vector<MenuButton>& buttons)
 	glLoadIdentity();
 	
 	glClear(GL_DEPTH_BUFFER_BIT);
-	
 	glEnable(GL_TEXTURE_2D);
 	
 	for(int i=0; i<buttons.size(); i++)

@@ -10,28 +10,26 @@ Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
       VITUN TARKEA - Game mechanics.
 
       VITUN TARKEA - NPC behaviour.
-
+      
       OLISI KIVA   - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
       
       OLISI KIVA   - Animator. A separate program that allows the creation of animations for models.
-            
+      
       OLISI KIVA   - model significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
-      
-      OLISI KIVA   - Handle disconnecting players (currently crashes server :D)
-      
+            
 Mika  VITUN TARKEA - Menu UI & Menu IO
-      
-Mika  OLISI KIVA   - Apply some basic physics (velocity, acceleration, gravity) -- Jumping should maybe not be so OP
 
-Mika  OLISI KIVA   - Apply a less idiotic model for moving up & down hills
-      
-      VITUN TARKEA - Print text on screen
-      
-      OLISI KIVA   - Mechanism(s) for sending other than Player Input messages across the network (chat, pause, ..)
-      
-      
 DONE
+4.10  Mika/lolx: Mechanism(s) for sending other than Player Input messages across the network (chat, pause, ..)
+4.10  Mika: Print text on screen
+4.10  Mika: Viewmessage handling
+4.10  Mika: Centralize IO checks.
+4.10  lolx: Player informations (name, id, other stuff?)
+3.10. Pessi: Update model
+2.10. Mika: Handle disconnecting players (currently crashes server :D)
 1.10. Mika: Use server name instead of IP address for connecting
+xx.9  Mika: Apply some basic physics (velocity, acceleration, gravity)
+xx.9  Mika: Apply a less idiotic model for moving up & down hills
 30.9. Mika: Introduced some camera control and frustum culling.
 29.9. Mika: Additional networking code. Now possible to join games which have already started (although player disconnects crash the server).
 26.9. Mika: organize files. src for source files. data for data files etc. New makefile.

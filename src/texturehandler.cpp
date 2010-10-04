@@ -18,13 +18,20 @@ TextureHandler::TextureHandler()
 
 TextureHandler::~TextureHandler()
 {
-	
+	deleteAllTextures();
 }
 
 TextureHandler& TextureHandler::getSingleton()
 {
 	static TextureHandler s_TexHandler;
 	return s_TexHandler;
+}
+
+unsigned TextureHandler::createTexture(const string& name, const string& fileName)
+{
+	Image img;
+	img.loadImage(fileName);
+	return createTexture(name, img);
 }
 
 unsigned TextureHandler::createTexture(const string& name, Image& img)
@@ -49,7 +56,10 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 	
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
+	if(img.hasAlpha)
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
 	
 	img.unload();
 	

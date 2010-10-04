@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "frustum/Vec3.h"
+
 struct ModelNode
 {
 	ModelNode(): offset_x(0), offset_y(0), offset_z(0), rotation_x(0), rotation_y(0), rotation_z(0)
@@ -34,6 +36,11 @@ struct Model
 	Model():root(-1) {}
 	std::vector<ModelNode> parts;
 	int root;
+	
+	Vec3 realUnitPos;
+	Vec3 currentModelPos;
+	
+	void updatePosition(float x, float y, float z);
 	
 	void tick();
 	void load(std::string);

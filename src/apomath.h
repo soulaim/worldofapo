@@ -20,6 +20,7 @@ struct ApoMath
 	static FixedPoint sqrt(const FixedPoint& point);
 	
 	void init(int);
+	bool ready();
 };
 
 #endif

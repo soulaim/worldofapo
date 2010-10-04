@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 
+#include <vector>
 #include <string>
 #include <cstdlib>
 
@@ -17,23 +18,31 @@ struct Coord
 
 class UserIO
 {
-	int keyBoard;
+	Uint8* keystate;
+	int numKeys;
 	
 	Coord mouseMove;
 	Coord mouse;
 	int mouse_has_been_pressed;
 	int mouse_right_button;
 	
-	public:
-		
-		int getKeyChange();
-		int getMousePress();
-		Coord getMousePoint();
-		void getMouseChange(int& x, int& y);
-		
-		int checkEvents();
-		std::string getSingleKey();
-		UserIO();
+	std::vector<int> keyStates;
+	std::vector<std::string> keyNames;
+	std::string emptyString;
+public:
+	void init();
+	
+	int getGameInput();
+	
+	void getMouseChange(int& x, int& y);
+	int getMousePress();
+	
+	Coord getMousePoint();
+	
+	int checkEvents();
+	std::string& getSingleKey();
+	
+	UserIO();
 };
 
 

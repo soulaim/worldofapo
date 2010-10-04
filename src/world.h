@@ -15,25 +15,29 @@ WARNING: THIS FILE IS FULL OF SHIT
 
 class World
 {
-	void updateModel(Model&, Unit&);
+	void tickUnit(Unit&, Model&);    // world frame update
+	void updateModel(Model&, Unit&); // view frame update
+	
 	int heightDifference2Velocity(int h_diff);
 	
-	public:
-		World();
-		void init();
-		
-		std::map<int, Unit> units;   // each unit corresponds to
-		std::map<int, Model> models; // one of these BUT
-		
-		Level lvl;
-		ApoMath apomath;
-		
-		void tickUnit(Unit& unit);
-		void tick();
-		void addUnit(int id);
-		
-		int _unitID_next_unit;
-		int nextUnitID();
-		
+public:
+	World();
+	void init();
+	
+	std::map<int, Unit> units;   // each unit corresponds to
+	std::map<int, Model> models; // one of these BUT
+	
+	Level lvl;
+	ApoMath apomath;
+	
+	void worldTick();
+	void viewTick();
+	
+	void addUnit(int id);
+	
+	int _unitID_next_unit;
+	int nextUnitID();
+	
+	void terminate(); // don't call this unless you mean it :D
 };
 

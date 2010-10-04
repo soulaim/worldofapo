@@ -1,5 +1,4 @@
 
-#include "menubutton.h"
 #include "image.h"
 #include "location.h"
 
@@ -15,8 +14,10 @@
 #include "animation.h"
 #include "frustum/FrustumR.h"
 #include "camera.h"
+#include "viewmessage.h"
 
 struct Level;
+struct MenuButton;
 
 struct ObjectTri
 {
@@ -51,26 +52,42 @@ class Graphics
 	void createWindow();
 	float modelGround(Model& model);
 	
+	void drawPartsRecursive(Model&, int, int, std::string&, int);
+	void drawMessages();
+	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
+	
+	std::string currentClientCommand;
+	std::vector<ViewMessage> viewMessages;
+	std::map<std::string, ObjectPart> objects;
+	
+	// define some character widths in our particular font
+	vector<float> charWidth;
+	
 	SDL_Surface* drawContext;
 	Camera camera;
-	public:
-		
-		void bindCamera(Unit* unit);
-		void updateInput(int keystate, int mousex, int mousey);
-		
-		std::map<std::string, ObjectPart> objects;
-		void drawPartsRecursive(Model&, int, int, std::string&, int);
-		
-		void megaFuck(); // this function creates a test animation called "walk" for the test model
-		
-		void setCamera(const Camera& camera);
-		void draw(std::map<int, Model>&, Level& lvl);
-		void loadObjects(std::string);
-		
-		void drawMenu(std::vector<MenuButton>&);
-		
-		Graphics();
-		
-		FrustumR frustum;
+	
+	unsigned currentTime;
+	
+public:
+	
+	void bindCamera(Unit* unit);
+	void updateInput(int keystate, int mousex, int mousey);
+	
+	void megaFuck(); // this function creates a test animation called "walk" for the test model
+	
+	void setCamera(const Camera& camera);
+	void loadObjects(std::string);
+	
+	void pushMessage(std::string, float r = 1.0, float g = 1.0, float b = 1.0);
+	void setTime(unsigned);
+	void setCurrentClientCommand(std::string&);
+	
+	void draw(std::map<int, Model>&, Level& lvl);
+	void drawMenu(std::vector<MenuButton>&);
+	
+	Graphics();
+	
+	FrustumR frustum;
 };
+
 
