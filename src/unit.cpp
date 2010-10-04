@@ -45,7 +45,7 @@ int Unit::getMouseAction(int type)
 string Unit::copyOrder(int ID)
 {
 	stringstream hero_msg;
-	hero_msg << "-2 UNIT " << ID << " " << angle << " " << keyState << " " << position.x.number << " " << position.y.number << " " << position.h.number << " " << velocity.x.number << " " << velocity.y.number << " " << velocity.h.number << " " << mouseButton << "#";
+	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.y.number << " " << position.h.number << " " << velocity.x.number << " " << velocity.y.number << " " << velocity.h.number << " " << mouseButton << "#";
 	
 	return hero_msg.str();
 }
