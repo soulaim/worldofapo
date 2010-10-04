@@ -39,6 +39,8 @@ void Game::init()
 	
 	readConfig();
 	
+	userio.init();
+	
 	// load some textures.
 	// should not be done here. FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");

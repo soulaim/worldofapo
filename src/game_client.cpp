@@ -230,9 +230,6 @@ void Game::client_tick()
 	// is used by HOST functions. Do not interfere.
 	if( ((state == "client") || (state_descriptor != 0)) && (client_state != 0))  
 	{
-		
-		userio.checkEvents();
-		
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
 		
@@ -251,7 +248,7 @@ void Game::client_tick()
 			
 			fps_world.insert();
 			
-			int keyState = userio.getKeyChange();
+			int keyState = userio.getGameInput();
 			int x, y;
 			
 			userio.getMouseChange(x, y);
