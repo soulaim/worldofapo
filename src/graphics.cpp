@@ -429,9 +429,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 			continue;
 		}
-		
-		
-		
+
 		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		

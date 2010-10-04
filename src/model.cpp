@@ -35,7 +35,7 @@ void Model::setAction(const string& name)
 }
 
 
-void Model::load(string filename)
+void Model::load(const string& filename)
 {
 	ifstream in_file(filename.c_str());
 	while(in_file.good() && !in_file.eof())

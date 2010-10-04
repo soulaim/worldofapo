@@ -141,13 +141,20 @@ void World::tickUnit(Unit& unit, Model& model)
 
 			Location weapon_position = unit.position;
 			weapon_position.h += 3;
-			Location projectile_spawn = unit.position + relative_position;
+			Location projectile_direction = unit.position + relative_position;
 
 
-			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
-				projectile_spawn.x << "," << projectile_spawn.y << "," << projectile_spawn.h << ")\n";
+//			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
+//				projectile_direction.x << "," << projectile_direction.y << "," << projectile_direction.h << ")\n";
 			extern vector<pair<Location,Location> > LINES;
-			LINES.push_back(make_pair(weapon_position, projectile_spawn));
+			LINES.push_back(make_pair(weapon_position, projectile_direction));
+
+			int id = addProjectile(weapon_position);
+			Projectile& projectile = projectiles[id];
+			projectile.velocity = projectile_direction - weapon_position;
+			projectile.velocity.normalize();
+			projectile.velocity *= FixedPoint(1)/FixedPoint(2);
+			projectile.lifetime = 400;
 		}
 	}
 	else
@@ -176,6 +183,25 @@ void World::tickUnit(Unit& unit, Model& model)
 	unit.position.h += unit.velocity.h;
 }
 
+void World::tickProjectile(Projectile& projectile, Model& model)
+{
+//	model.parts[model.root].rotation_x = projectile.getAngle(apomath);
+	model.updatePosition(projectile.position.x.getFloat(), projectile.position.h.getFloat(), projectile.position.y.getFloat());
+
+	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
+	if(projectile.lifetime > 0)
+	{
+		projectile.position.x += projectile.velocity.x;
+		projectile.position.y += projectile.velocity.y;
+		projectile.position.h += projectile.velocity.h;
+
+		--projectile.lifetime;
+	}
+	else
+	{
+		// TODO: remove projectile.
+	}
+}
 
 void World::updateModel(Model& model, Unit& unit)
 {
@@ -207,14 +233,27 @@ void World::updateModel(Model& model, Unit& unit)
 
 void World::worldTick()
 {
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
 		tickUnit(iter->second, models[iter->first]);
+	}
+	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		tickProjectile(iter->second, models[iter->first]);
+	}
 }
 
 void World::viewTick()
 {
-	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
-		updateModel(iter->second, units[iter->first]);
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		updateModel(models[iter->first], iter->second);
+	}
+	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		models[iter->first].setAction("idle");
+		models[iter->first].tick();
+	}
 }
 
 
@@ -229,6 +268,24 @@ void World::addUnit(int id)
 	models[id].load("data/model.bones");
 }
 
+int World::addProjectile(Location& location)
+{
+	int id = nextUnitID();
+
+	Vec3 position;
+	position.x = location.x.getFloat();
+	position.y = location.h.getFloat();
+	position.z = location.y.getFloat();
+	models[id].load("data/bullet.bones");
+	models[id].realUnitPos = position;
+	models[id].currentModelPos = position;
+
+	projectiles[id].position = location;
+
+
+	cerr << "New projectile with id " << id << "\n";
+	return id;
+}
 
 
 int World::nextUnitID()
