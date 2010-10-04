@@ -52,6 +52,37 @@ void Graphics::drawMessages()
 		drawString(currentClientCommand, -0.9, -0.9, 1.3, true); 
 }
 
+void Graphics::drawCrossHair()
+{
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	TextureHandler::getSingleton().bindTexture("crosshair");
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f, +0.08f, -1);
+	glEnd();
+	
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
 void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
 {
 	glDisable(GL_DEPTH_TEST);
@@ -66,9 +97,7 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	TextureHandler::getSingleton().bindTexture("font");
 	
 	glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 	
 	float totalWidth = 0.025f;
 	for(int i=0; i<msg.size(); i++)
@@ -118,7 +147,6 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 		glEnd();
 	}
 	
-//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisable(GL_BLEND);
 	
 	glEnable(GL_DEPTH_TEST);
@@ -250,6 +278,7 @@ void Graphics::init()
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	
 	TextureHandler::getSingleton().createTexture("font", "data/fonts/font2.png");
+	TextureHandler::getSingleton().createTexture("crosshair", "data/images/crosshair.png");
 	
 	// these could be stored and set somewhere else possibly
 	float angle = 45.f;
@@ -430,6 +459,9 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 //	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
 //	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
 	
+	if(camera.isFirstPerson())
+		drawCrossHair();
+	
 	drawMessages();
 	
 	SDL_GL_SwapBuffers();
@@ -438,43 +470,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 
 void Graphics::updateInput(int keystate, int mousex, int mousey)
 {
-	if(keystate & 1 << 11)
-	{
-		camera.position = Vec3();
-	}
-	
-	if(keystate & 1 << 12)
-	{
-		camera.position.x += 1;
-	}
-	if(keystate & 1 << 13)
-	{
-		camera.position.x -= 1;
-	}
-	if(keystate & 1 << 14)
-	{
-		camera.position.y += 1;
-	}
-	if(keystate & 1 << 15)
-	{
-		camera.position.y -= 1;
-	}
-	if(keystate & 1 << 16)
-	{
-		camera.position.z += 1;
-	}
-	if(keystate & 1 << 17)
-	{
-		camera.position.z -= 1;
-	}
-	if(keystate & 1 << 18)
-	{
-		camera.setMode(Camera::RELATIVE);
-	}
-	if(keystate & 1 << 19)
-	{
-		camera.setMode(Camera::FIRST_PERSON);
-	}
+	camera.updateInput(keystate, mousex, mousey);
 }
 
 void Graphics::bindCamera(Unit* unit)

@@ -55,6 +55,7 @@ class Graphics
 	void drawPartsRecursive(Model&, int, int, std::string&, int);
 	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
+	void drawCrossHair();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
