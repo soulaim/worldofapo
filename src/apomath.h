@@ -21,6 +21,11 @@ struct ApoMath
 	
 	void init(int);
 	bool ready();
+
+
+	int DEGREES_90;
+	int DEGREES_180;
+	int DEGREES_360;
 };
 
 #endif

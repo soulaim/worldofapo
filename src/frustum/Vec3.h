@@ -1,9 +1,9 @@
-
 #ifndef _VEC3_
 #define _VEC3_
 
+#include <ostream>
 
-class Vec3  
+class Vec3
 {
 
 public:
@@ -36,5 +36,10 @@ public:
 
 };
 
+inline std::ostream& operator<<(std::ostream& out, const Vec3& vec)
+{
+	return out << "(" << vec.x << " , " << vec.y << " , " << vec.z << ")";
+}
 
 #endif
+

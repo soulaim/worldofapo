@@ -64,15 +64,6 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.h.number -= 35;
 	}
 	
-	if(unit.keyState & 1) // if should be moving, turns left
-	{
-		unit.angle += 2;
-	}
-	if(unit.keyState & 2) // if should be moving, turns right
-	{
-		unit.angle -= 2;
-	}
-	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
 		FixedPoint scale;
@@ -91,11 +82,75 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
 	}
-	
-	
-	if(unit.getMouseAction(Unit::ATTACK_BASIC))
+
+	if(unit.getKeyAction(Unit::MOVE_LEFT) && hitGround)
 	{
-		cerr << "BANG!" << endl;
+		FixedPoint scale;
+		scale.number = 150;
+		int dummy_angle = unit.angle - apomath.DEGREES_90;
+		
+		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+	}
+	if(unit.getKeyAction(Unit::MOVE_RIGHT) && hitGround)
+	{
+		FixedPoint scale;
+		scale.number = 150;
+		int dummy_angle = unit.angle + apomath.DEGREES_90;
+		
+		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+	}
+
+	if(unit.weapon_cooldown == 0)
+	{
+		if(unit.getMouseAction(Unit::ATTACK_BASIC))
+		{
+			unit.weapon_cooldown = 100;
+
+			// TODO: Following is somewhat duplicated from Camera :G
+
+			// TODO: Fix to use some common ApoMath.
+			static ApoMath dorka;
+			if(!dorka.ready())
+				dorka.init(300);
+			
+			Location position;
+			position.x = 30;
+			position.y = 0;
+			position.h = 0;
+
+			int angle = -unit.angle;
+
+			FixedPoint cos = dorka.getCos(angle);
+			FixedPoint sin = dorka.getSin(angle);
+			
+			Location relative_position;
+			relative_position.x = cos * position.x - sin * position.y;
+			relative_position.y = sin * position.x + cos * position.y;
+			relative_position.h = position.y + unit.upangle/2; // TODO: this is dirty hack :)
+
+			Location weapon_position = unit.position;
+			weapon_position.h += 3;
+			Location projectile_direction = unit.position + relative_position;
+
+
+//			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
+//				projectile_direction.x << "," << projectile_direction.y << "," << projectile_direction.h << ")\n";
+//			extern vector<pair<Location,Location> > LINES;
+//			LINES.push_back(make_pair(weapon_position, projectile_direction));
+
+			int id = addProjectile(weapon_position);
+			Projectile& projectile = projectiles[id];
+			projectile.velocity = projectile_direction - weapon_position;
+			projectile.velocity.normalize();
+			projectile.velocity *= FixedPoint(3)/FixedPoint(1);
+			projectile.lifetime = 200;
+		}
+	}
+	else
+	{
+		--unit.weapon_cooldown;
 	}
 	
 	
@@ -119,6 +174,40 @@ void World::tickUnit(Unit& unit, Model& model)
 	unit.position.h += unit.velocity.h;
 }
 
+void World::tickProjectile(Projectile& projectile, Model& model, int id)
+{
+//	model.parts[model.root].rotation_x = projectile.getAngle(apomath);
+	model.updatePosition(projectile.position.x.getFloat(), projectile.position.h.getFloat(), projectile.position.y.getFloat());
+
+//	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
+	if(projectile.lifetime > 0)
+	{
+		projectile.position.x += projectile.velocity.x;
+		projectile.position.y += projectile.velocity.y;
+		projectile.position.h += projectile.velocity.h;
+
+		--projectile.lifetime;
+
+		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
+		{
+			Unit& unit = it->second;
+			if(projectile.collides(unit))
+			{
+				cerr << "HIT!\n";
+				unit.weapon_cooldown = 100;
+				unit.velocity.x = 0;
+				unit.velocity.y = 0;
+				unit.velocity.h = 3;
+
+				removeUnit(id);
+			}
+		}
+	}
+	else
+	{
+		removeUnit(id);
+	}
+}
 
 void World::updateModel(Model& model, Unit& unit)
 {
@@ -150,14 +239,27 @@ void World::updateModel(Model& model, Unit& unit)
 
 void World::worldTick()
 {
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
 		tickUnit(iter->second, models[iter->first]);
+	}
+	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		tickProjectile(iter->second, models[iter->first], iter->first);
+	}
 }
 
 void World::viewTick()
 {
-	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
-		updateModel(iter->second, units[iter->first]);
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		updateModel(models[iter->first], iter->second);
+	}
+	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		models[iter->first].setAction("idle");
+		models[iter->first].tick();
+	}
 }
 
 
@@ -172,6 +274,24 @@ void World::addUnit(int id)
 	models[id].load("data/model.bones");
 }
 
+int World::addProjectile(Location& location)
+{
+	int id = nextUnitID();
+
+	Vec3 position;
+	position.x = location.x.getFloat();
+	position.y = location.h.getFloat();
+	position.z = location.y.getFloat();
+	models[id].load("data/bullet.bones");
+	models[id].realUnitPos = position;
+	models[id].currentModelPos = position;
+
+	projectiles[id].position = location;
+
+
+	cerr << "New projectile with id " << id << "\n";
+	return id;
+}
 
 
 int World::nextUnitID()
@@ -179,5 +299,12 @@ int World::nextUnitID()
 	int id = _unitID_next_unit;
 	_unitID_next_unit++;
 	return id;
+}
+
+void World::removeUnit(int id)
+{
+	units.erase(id);
+	projectiles.erase(id);
+	models.erase(id);
 }
 

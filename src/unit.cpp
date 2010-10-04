@@ -3,7 +3,11 @@
 #include <iostream>
 #include <sstream>
 
-Unit::Unit(): angle(0), keyState(0)
+Unit::Unit():
+	angle(0),
+	upangle(0),
+	keyState(0),
+	weapon_cooldown(0)
 {
 }
 
@@ -12,12 +16,18 @@ float Unit::getAngle(ApoMath& apomath)
 	return apomath.getRad(angle);
 }
 
+
+float Unit::getUpAngle(ApoMath& apomath)
+{
+	return apomath.getRad(upangle);
+}
+
 void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_)
 {
-	//  keyState ^= keyState_;
 	keyState = keyState_;
 	mouseButton = mouseButton_;
 	angle -= mousex_;
+	upangle -= mousey_;
 }
 
 
@@ -39,3 +49,4 @@ string Unit::copyOrder(int ID)
 	
 	return hero_msg.str();
 }
+

@@ -11,13 +11,13 @@ dep = $(obj:.o=.d)
 
 .PHONY: all clean
 
-targets = diablo
+target = bin/diablo
 
 
-all: $(targets)
+all: $(target)
 
-diablo: $(obj)
-	g++ $(obj) $(LDLIBS) -o  bin/diablo
+$(target): $(obj)
+	g++ $(obj) $(LDLIBS) -o $@
 
 $(dep): %.d: %.cpp
 	$(CXX) -MT "$(@:.d=.o) $@" -MM $(CXXFLAGS) $< > $@

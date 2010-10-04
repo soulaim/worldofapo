@@ -2,6 +2,8 @@
 #ifndef H_FIXEDPOINT
 #define H_FIXEDPOINT
 
+#include <ostream>
+
 struct FixedPoint
 {
 	FixedPoint(const FixedPoint& a):number(a.number) {}
@@ -89,6 +91,11 @@ struct FixedPoint
 		return tmp;
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& out, const FixedPoint& point)
+{
+	return out << point.getFloat();
+}
 
 #endif
 

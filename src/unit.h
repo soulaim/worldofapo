@@ -32,16 +32,21 @@ class Unit
 //		map<std::string, int> ints;
 		
 		int angle; // integer representation of the angle variable.
+		int upangle; // integer representation of how high the unit is looking.
 		int keyState; // what is the unit doing right now, represented as player keyboard input
 		int mouseButton;
+
+		int weapon_cooldown;
 		
 		void updateInput(int, int, int, int);
 		
 		int getKeyAction(int type);
 		int getMouseAction(int type);
 		
-		float getAngle(ApoMath&);
 		std::string copyOrder(int ID);
+		
+		float getAngle(ApoMath&);
+		float getUpAngle(ApoMath&);
 };
 
 #endif

@@ -10,42 +10,73 @@
 struct Location
 {
 	Location():
-	x(0),
-	y(0),
-	h(0)
+		x(0),
+		y(0),
+		h(0)
 	{}
 	
 	FixedPoint x;
 	FixedPoint y;
 	FixedPoint h;
 	
+	bool near(const Location& location, const FixedPoint& distance) const
+	{
+		FixedPoint dx = (x - location.x);
+		FixedPoint dy = (y - location.y);
+		FixedPoint dh = (h - location.h);
+
+		return dx*dx + dy*dy + dh*dh <= distance*distance;
+	}
+
 	void normalize()
 	{
-		FixedPoint length = ApoMath::sqrt(x*x + y*y);
+		FixedPoint length = ApoMath::sqrt(x*x + y*y + h*h);
 		
 		if(length.number == 0)
 			return;
 		x /= length;
 		y /= length;
+		h /= length;
 	}
-	
-	void operator*=(const FixedPoint& scalar)
+
+	Location& operator*=(const FixedPoint& scalar)
 	{
 		x *= scalar;
 		y *= scalar;
+		h *= scalar;
+		return *this;
 	}
-	
-	void operator += (const Location& a)
+
+	Location& operator+=(const Location& a)
 	{
 		x += a.x;
 		y += a.y;
+		h += a.h;
+		return *this;
 	}
-	
-	void operator -= (const Location& a)
+	Location& operator-=(const Location& a)
 	{
 		x -= a.x;
 		y -= a.y;
+		h -= a.h;
+		return *this;
+	}
+
+
+	Location operator+(const Location& b) const
+	{
+		return Location(*this) += b;
+	}
+	Location operator-(const Location& b) const
+	{
+		return Location(*this) -= b;
 	}
 };
 
+inline std::ostream& operator<<(std::ostream& out, const Location& loc)
+{
+	return out << "(" << loc.x << " , " << loc.h << " , " << loc.y << ")";
+}
+
 #endif
+

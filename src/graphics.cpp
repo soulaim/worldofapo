@@ -4,9 +4,12 @@
 #include "level.h"
 
 #include <iostream>
+#include <vector>
+#include <utility>
 
 using namespace std;
 
+vector<pair<Location,Location> > LINES;
 
 float Graphics::modelGround(Model& model)
 {
@@ -332,41 +335,6 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
-#include <cmath>
-
-/*
-void rotateCamera(const Camera& camera)
-{
-	double yaw = camera.getYaw();
-	//	cout << "YAW: " << yaw << "\n";
-	GLdouble yaw_matrix[16] = {
-		cos(yaw), -sin(yaw), 0, 0,
-	   sin(yaw), cos(yaw), 0, 0,
-	   0, 0, 1, 0,
-	   0, 0, 0, 1 };
-	   
-	   double pitch = camera.getPitch();
-	   //	cout << "PITCH: " << pitch << "\n";
-	   GLdouble pitch_matrix[16] = {
-		   cos(pitch), 0, sin(pitch), 0,
-	   0, 1, 0, 0,
-	   -sin(pitch), 0, cos(pitch), 0,
-	   0, 0, 0, 1 };
-	   
-	   double roll = camera.getRoll();
-	   //	cout << "ROLL: " << roll << "\n";
-	   GLdouble roll_matrix[16] = {
-		   1, 0, 0, 0,
-	   0, cos(roll), -sin(roll), 0,
-	   0, sin(roll), cos(roll), 0,
-	   0, 0, 0, 1 };
-	   
-	   glMultTransposeMatrixd(yaw_matrix);
-	   glMultTransposeMatrixd(pitch_matrix);
-	   glMultTransposeMatrixd(roll_matrix);
-}
-*/
-
 void Graphics::draw(map<int, Model>& models, Level& lvl)
 {
 	
@@ -433,6 +401,16 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	
+
+	for(int i = 0; i < LINES.size(); ++i)
+	{
+		Location& p1 = LINES[i].first;
+		Location& p2 = LINES[i].second;
+		glBegin(GL_LINES);
+		glVertex3f(p1.x.getFloat(), p1.h.getFloat(), p1.y.getFloat());
+		glVertex3f(p2.x.getFloat(), p2.h.getFloat(), p2.y.getFloat());
+		glEnd();
+	}
 	
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
 	{
@@ -441,9 +419,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 			continue;
 		}
-		
-		
-		
+
 		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
@@ -462,36 +438,9 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 
 void Graphics::updateInput(int keystate, int mousex, int mousey)
 {
-	if(keystate & 32)
-	{
-		camera.setYaw(camera.getYaw() + 0.05);
-	}
-	if(keystate & 64)
-	{
-		camera.setYaw(camera.getYaw() - 0.05);
-	}
-	if(keystate & 128)
-	{
-		camera.setPitch(camera.pitch + 0.05);
-	}
-	if(keystate & 256)
-	{
-		camera.setPitch(camera.pitch - 0.05);
-	}
-	if(keystate & 512)
-	{
-		camera.setRoll(camera.getRoll() + 0.05);
-	}
-	if(keystate & 1024)
-	{
-		camera.setRoll(camera.getRoll() - 0.05);
-	}
 	if(keystate & 1 << 11)
 	{
 		camera.position = Vec3();
-		camera.setYaw(0.0);
-		camera.setPitch(0.0);
-		camera.setRoll(0.0);
 	}
 	
 	if(keystate & 1 << 12)
