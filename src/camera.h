@@ -62,6 +62,11 @@ struct Camera
 		return position;
 	}
 	
+	bool isFirstPerson()
+	{
+		return (mode == FIRST_PERSON);
+	}
+	
 	void tick()
 	{
 		if(unit)
