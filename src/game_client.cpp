@@ -22,6 +22,8 @@ void Game::handleServerMessage(const Order& server_msg)
 		cerr << "Player #" << server_msg.keyState << " has disconnected :o Erasing everything related to him!" << endl;
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
+		cerr << "Erasing " << Players[server_msg.keyState].name << ", id " << server_msg.keyState << endl;
+		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
 		
@@ -60,6 +62,10 @@ void Game::handleServerMessage(const Order& server_msg)
 		{
 			cerr << "Failed to bind camera! :(" << endl;
 		}
+
+		stringstream ss;
+		ss << "2 " << myID << " " << localPlayer.name << "#";
+		clientSocket.write(ss.str());
 	}
 	else
 	{
@@ -89,7 +95,15 @@ void Game::processClientMsgs()
 			
 			UnitInput.push_back(tmp_order);
 		}
-		
+
+		else if(order_type == 2)
+		{
+			int plrID;
+			string name;
+			ss >> plrID >> name;
+			Players[plrID].name = name;
+			cerr << plrID << " " << name << endl;
+		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
 		{

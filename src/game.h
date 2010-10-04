@@ -8,6 +8,7 @@
 #include "ordercontainer.h"
 #include "fps_manager.h"
 #include "order.h"
+#include "playerinfo.h"
 
 
 #include "net/socket.h"
@@ -83,6 +84,8 @@ class Game
 	
 	std::vector<Order> UnitInput;
 	
+	map<int, PlayerInfo> Players;
+	PlayerInfo localPlayer;
 	
 	int state_descriptor;
 	int client_state;
@@ -99,6 +102,7 @@ class Game
 	
 	void reset();
 	void init();
+	void readConfig();
 	
 	void menuQuestions();
 	

@@ -117,12 +117,12 @@ void Game::acceptConnections()
 		serverSocket.accept_connection(sockets);
 		
 		// if game in progress, inform everyone else of a new connecting player TODO
-		
+		MU_Socket& connectingPlayer = sockets.sockets[sockets.nextConnection-1];
 		
 		// send new player the current simulRules state
 		stringstream simulRules_msg;
 		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
-		sockets.sockets[sockets.nextConnection-1].write(simulRules_msg.str());
+		connectingPlayer.write(simulRules_msg.str());
 		
 		// send new player the current state of the world:
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
@@ -130,7 +130,7 @@ void Game::acceptConnections()
 			stringstream hero_msg;
 			hero_msg << "-2 UNIT " << iter->first << " " << iter->second.angle << " " << iter->second.keyState << " " << iter->second.position.x.number << " " << iter->second.position.y.number << " " << iter->second.position.h.number << " " << iter->second.velocity.x.number << " " << iter->second.velocity.y.number << " " << iter->second.velocity.h.number << "#";
 			
-			sockets.sockets[sockets.nextConnection-1].write(hero_msg.str());
+			connectingPlayer.write(hero_msg.str());
 		}
 		
 		// send new player current pending orders
@@ -138,7 +138,7 @@ void Game::acceptConnections()
 		{
 			stringstream input_msg;
 			input_msg << "-4 " << UnitInput[i].frameID << " " << UnitInput[i].plr_id << " " << UnitInput[i].keyState << " " << UnitInput[i].mousex << " " << UnitInput[i].mousey << " " << UnitInput[i].serverCommand << "#";
-			sockets.sockets[sockets.nextConnection-1].write(input_msg.str());
+			connectingPlayer.write(input_msg.str());
 		}
 		
 		// tell the new player what his player ID is.
@@ -146,14 +146,21 @@ void Game::acceptConnections()
 		int playerID_val = world.nextUnitID();
 		
 		playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
-		sockets.sockets[sockets.nextConnection-1].write(playerID_msg.str());
+		connectingPlayer.write(playerID_msg.str());
 		cerr << "player is expected to assume his role at frame " << (simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize) << endl;
 		
+		// send the new player info about other players
+		for(map<int, PlayerInfo>::iterator iter = Players.begin(); iter != Players.end(); iter++) {
+			stringstream playerInfo_msg;
+			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << "#";
+			connectingPlayer.write(playerInfo_msg.str());
+		}
+
 		// send to everyone the ADDHERO msg
 		int birth_time = simulRules.currentFrame + simulRules.windowSize;
 		
 		stringstream createHero_msg;
-		sockets.sockets[sockets.nextConnection-1].last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
+		connectingPlayer.last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
 		
 		createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
 		serverMsgs.push_back(createHero_msg.str());
@@ -161,7 +168,7 @@ void Game::acceptConnections()
 		
 		stringstream clientState_msg;
 		clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
-		sockets.sockets[sockets.nextConnection-1].write(clientState_msg.str());
+		connectingPlayer.write(clientState_msg.str());
 		
 	}
 }
