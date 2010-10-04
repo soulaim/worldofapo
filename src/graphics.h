@@ -60,6 +60,9 @@ class Graphics
 	std::vector<ViewMessage> viewMessages;
 	std::map<std::string, ObjectPart> objects;
 	
+	// define some character widths in our particular font
+	vector<float> charWidth;
+	
 	SDL_Surface* drawContext;
 	Camera camera;
 	

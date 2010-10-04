@@ -62,39 +62,6 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	
 	TextureHandler::getSingleton().bindTexture("font");
 	
-	// define some character widths in our particular font
-	vector<float> charWidth;
-	charWidth.resize(255, 1.f);
-	
-	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
-		charWidth[symbol] = 0.26;
-	for(char symbol = 'a'; symbol <= 'z'; symbol++)
-		charWidth[symbol] = 0.19;
-	charWidth['l'] = 0.1;
-	charWidth['r'] = 0.1;
-	charWidth['f'] = 0.1;
-	charWidth['!'] = 0.1;
-	charWidth['t'] = 0.15;
-	charWidth['>'] = 0.15;
-	charWidth['<'] = 0.15;
-	charWidth['i'] = 0.1;
-	charWidth['w'] = 0.25;
-	charWidth['m'] = 0.25;
-	charWidth['j'] = 0.12;
-	charWidth['o'] = 0.19;
-	charWidth['s'] = 0.12;
-	charWidth['I'] = 0.1;
-	charWidth['J'] = 0.12;
-	charWidth['.'] = 0.1;
-	charWidth[','] = 0.1;
-	charWidth[':'] = 0.1;
-	charWidth['?'] = 0.15;
-	charWidth[' '] = 0.1;
-	charWidth[']'] = 0.1;
-	charWidth['['] = 0.1;
-	charWidth[')'] = 0.1;
-	charWidth['('] = 0.1;
-	
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -224,6 +191,39 @@ void Graphics::setCurrentClientCommand(string& cmd)
 
 void Graphics::init()
 {
+	
+	charWidth.resize(255, 1.f);
+	
+	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
+		charWidth[symbol] = 0.26;
+	for(char symbol = 'a'; symbol <= 'z'; symbol++)
+		charWidth[symbol] = 0.19;
+	charWidth['l'] = 0.1;
+	charWidth['r'] = 0.1;
+	charWidth['f'] = 0.1;
+	charWidth['!'] = 0.1;
+	charWidth['t'] = 0.15;
+	charWidth['>'] = 0.15;
+	charWidth['<'] = 0.15;
+	charWidth['i'] = 0.1;
+	charWidth['w'] = 0.25;
+	charWidth['m'] = 0.25;
+	charWidth['j'] = 0.12;
+	charWidth['o'] = 0.19;
+	charWidth['s'] = 0.12;
+	charWidth['I'] = 0.1;
+	charWidth['J'] = 0.12;
+	charWidth['.'] = 0.1;
+	charWidth[','] = 0.1;
+	charWidth[':'] = 0.1;
+	charWidth['?'] = 0.15;
+	charWidth[' '] = 0.1;
+	charWidth[']'] = 0.1;
+	charWidth['['] = 0.1;
+	charWidth[')'] = 0.1;
+	charWidth['('] = 0.1;
+	
+	
 	createWindow(); // let SDL handle this part..
 	
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
