@@ -1,6 +1,6 @@
 #include "camera.h"
 
-const double head_level = 7.0;
+const double head_level = 6.0;
 
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),

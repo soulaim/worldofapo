@@ -2,3 +2,5 @@
 *.o
 *~
 bin/diablo
+*.swp
+

@@ -131,11 +131,12 @@ void World::tickUnit(Unit& unit, Model& model)
 			Location relative_position;
 			relative_position.x = cos * position.x - sin * position.y;
 			relative_position.y = sin * position.x + cos * position.y;
-			relative_position.h = position.y + unit.upangle/2; // TODO: this is dirty hack :)
+			relative_position.h = unit.upangle/2; // TODO: this is dirty hack :)
 
 			Location weapon_position = unit.position;
-			weapon_position.h += 3;
 			Location projectile_direction = unit.position + relative_position;
+			weapon_position.h += 4;
+			projectile_direction.h += 4;
 
 
 //			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
