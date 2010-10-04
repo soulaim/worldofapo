@@ -209,13 +209,6 @@ void Game::processClientMsgs()
 }
 
 
-
-
-
-
-
-
-
 void Game::client_tick()
 {
 
@@ -237,38 +230,18 @@ void Game::client_tick()
 	
 	
 	string key = userio.getSingleKey();
+	
 	if(key.size() != 0)
 	{
-		string nick;
-		nick.append("<");
-		nick.append(Players[myID].name);
-		nick.append("> ");
-		
 		if(key == "return")
-		{
 			client_state ^= 2;
-			if( (client_state & 2) == 0 )
-			{
-				// handle client command
-				if(clientCommand.size() > 0)
-				{
-					stringstream tmp_msg;
-					tmp_msg << "3 " << myID << " " << clientCommand << "#";
-					clientSocket.write(tmp_msg.str());
-				}
-				
-//				view.pushMessage(tmp_msg.str());
-				clientCommand = "";
-				view.setCurrentClientCommand(clientCommand);
-			}
-			else
-			{
-				view.setCurrentClientCommand(nick);
-			}
-		}
-		
 		if(client_state & 2)
 		{
+			string nick;
+			nick.append("<");
+			nick.append(Players[myID].name);
+			nick.append("> ");
+			
 			if(key.size() == 1)
 				clientCommand.append(key);
 			
@@ -282,13 +255,33 @@ void Game::client_tick()
 		}
 		else
 		{
-			if(key == "p")
-			{
+			
+			if(key == "return") {
+				// handle client command
+				if(clientCommand.size() > 0)
+				{
+					stringstream tmp_msg;
+					tmp_msg << "3 " << myID << " " << clientCommand << "#";
+					clientSocket.write(tmp_msg.str());
+				}
 				
+				//				view.pushMessage(tmp_msg.str());
+				clientCommand = "";
+				view.setCurrentClientCommand(clientCommand);
+			}
+			
+			if(key == "g")
+			{
+				SDL_WM_GrabInput(SDL_GRAB_ON);
+				SDL_ShowCursor(0);
+			}
+			if(key == "r")
+			{
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				SDL_ShowCursor(1);
 			}
 		}
 	}
-	
 	
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.
@@ -313,6 +306,9 @@ void Game::client_tick()
 			fps_world.insert();
 			
 			int keyState = userio.getGameInput();
+			if (client_state & 2)
+				keyState = 0;
+				
 			int x, y;
 			
 			userio.getMouseChange(x, y);

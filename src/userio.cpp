@@ -136,17 +136,6 @@ int UserIO::checkEvents()
 				exit(0);
 			}
 			
-			if(event.key.keysym.sym == SDLK_g)
-			{
-				SDL_WM_GrabInput(SDL_GRAB_ON);
-				SDL_ShowCursor(0);
-			}
-			if(event.key.keysym.sym == SDLK_r)
-			{
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-				SDL_ShowCursor(1);
-			}
-			
 			keyStates[event.key.keysym.sym] = 1;
 		}
 		
