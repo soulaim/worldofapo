@@ -48,7 +48,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	// some physics & game world information
 	
 	bool hitGround = false;
-	if(unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number)
+	if( (unit.velocity.h.number <= 100) && (unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number) )
 	{
 		FixedPoint friction;
 		friction.number = 800;

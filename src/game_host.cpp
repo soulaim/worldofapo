@@ -127,10 +127,6 @@ void Game::acceptConnections()
 		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
 		connectingPlayer.write(simulRules_msg.str());
 		
-		stringstream nextUnit_msg;
-		nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
-		connectingPlayer.write(nextUnit_msg.str());
-		
 		// send new player the current state of the world:
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 			connectingPlayer.write(iter->second.copyOrder(iter->first));
@@ -165,6 +161,10 @@ void Game::acceptConnections()
 		createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
 		serverMsgs.push_back(createHero_msg.str());
 		cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << endl;
+		
+		stringstream nextUnit_msg;
+		nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
+		connectingPlayer.write(nextUnit_msg.str());
 		
 		stringstream clientState_msg;
 		clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
