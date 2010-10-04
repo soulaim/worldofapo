@@ -37,6 +37,8 @@ void Game::init()
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
 	
+	readConfig();
+	
 	// load some textures.
 	// should not be done here. FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -44,6 +46,18 @@ void Game::init()
 	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 }
 
+void Game::readConfig()
+{
+	//ifstream configFile("config.cfg");
+	//configFile >> localPlayer.name;
+	string name;
+	char *e = getenv("USERNAME");
+	if (e)
+	  name.assign(e);
+	else
+	  name = "failname";
+	localPlayer.name = name;
+}
 
 void Game::makeLocalGame()
 {
