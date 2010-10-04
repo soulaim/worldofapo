@@ -127,6 +127,10 @@ void Game::acceptConnections()
 		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
 		connectingPlayer.write(simulRules_msg.str());
 		
+		stringstream nextUnit_msg;
+		nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
+		connectingPlayer.write(nextUnit_msg.str());
+		
 		// send new player the current state of the world:
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 			connectingPlayer.write(iter->second.copyOrder(iter->first));

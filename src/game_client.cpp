@@ -173,6 +173,10 @@ void Game::processClientMsgs()
 				world.addUnit(unitID);
 				ss >> world.units[unitID].angle >> world.units[unitID].keyState >> world.units[unitID].position.x.number >> world.units[unitID].position.y.number >> world.units[unitID].position.h.number >> world.units[unitID].velocity.x.number >> world.units[unitID].velocity.y.number >> world.units[unitID].velocity.h.number;
 			}
+			else if(cmd == "NEXT_UNIT_ID")
+			{
+				ss >> world._unitID_next_unit;
+			}
 			else if(cmd == "SIMUL")
 			{
 				cerr << "Set simulRules to instructed state" << endl;
