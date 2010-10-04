@@ -20,6 +20,7 @@ public:
 		FIRST_PERSON // Camera moves at unit's location
 	};
 
+
 	Camera();
 	Vec3& getCurrentTarget();
 	Vec3 getPosition() const;
@@ -27,6 +28,7 @@ public:
 
 	void bind(Unit* unit, FollowMode mode);
 	void setMode(FollowMode mode);
+	bool isFirstPerson() const;
 	void updateInput(int keystate, int mousex, int mousey);
 
 private:

@@ -93,6 +93,11 @@ void Camera::setMode(FollowMode mode)
 	this->mode = mode;
 }
 
+bool Camera::isFirstPerson() const
+{
+	return mode == FIRST_PERSON;
+}
+
 void Camera::updateInput(int keystate, int mousex, int mousey)
 {
 	if(keystate & 1 << 11)
