@@ -99,7 +99,19 @@ void Game::processClientMsgs()
 			
 			UnitInput.push_back(tmp_order);
 		}
-
+		else if(order_type == 3) // chat message
+		{
+			int plrID;
+			string line;
+			
+			ss >> plrID;
+			getline(ss, line);
+			
+			stringstream chatMsg;
+			chatMsg << "<" << Players[plrID].name << "> " << line;
+			view.pushMessage(chatMsg.str());
+		}
+		
 		else if(order_type == 2) // playerInfo message
 		{
 			cerr << "Got playerInfo message!" << endl;
@@ -223,12 +235,63 @@ void Game::client_tick()
 	}
 	
 	
-	
+	string key = userio.getSingleKey();
+	if(key.size() != 0)
+	{
+		string nick;
+		nick.append("<");
+		nick.append(Players[myID].name);
+		nick.append("> ");
+		
+		if(key == "return")
+		{
+			client_state ^= 2;
+			if( (client_state & 2) == 0 )
+			{
+				// handle client command
+				if(clientCommand.size() > 0)
+				{
+					stringstream tmp_msg;
+					tmp_msg << "3 " << myID << " " << clientCommand << "#";
+					clientSocket.write(tmp_msg.str());
+				}
+				
+//				view.pushMessage(tmp_msg.str());
+				clientCommand = "";
+				view.setCurrentClientCommand(clientCommand);
+			}
+			else
+			{
+				view.setCurrentClientCommand(nick);
+			}
+		}
+		
+		if(client_state & 2)
+		{
+			if(key.size() == 1)
+				clientCommand.append(key);
+			
+			if(key == "backspace")
+				clientCommand = "";
+			
+			if(key == "space")
+				clientCommand.append(" ");
+			nick.append(clientCommand);
+			view.setCurrentClientCommand(nick);
+		}
+		else
+		{
+			if(key == "p")
+			{
+				
+			}
+		}
+	}
 	
 	
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.
-	if( ((state == "client") || (state_descriptor != 0)) && (client_state != 0))  
+	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());

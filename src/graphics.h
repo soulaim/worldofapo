@@ -56,6 +56,7 @@ class Graphics
 	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	
+	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
 	std::map<std::string, ObjectPart> objects;
 	
@@ -76,6 +77,7 @@ public:
 	
 	void pushMessage(std::string, float r = 1.0, float g = 1.0, float b = 1.0);
 	void setTime(unsigned);
+	void setCurrentClientCommand(std::string&);
 	
 	void draw(std::map<int, Model>&, Level& lvl);
 	void drawMenu(std::vector<MenuButton>&);

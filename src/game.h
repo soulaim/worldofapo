@@ -71,7 +71,9 @@ class Game
 	int state_descriptor;
 	int client_state;
 	std::string state;
+	
 	std::string menuWord;
+	std::string clientCommand;
 	
 	int serverAllow;
 	StateInfo simulRules; // rules for running the simulation.

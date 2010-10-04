@@ -66,10 +66,13 @@ void Game::host_tick()
 	}
 	
 	static int allow = 1;
-	if(userio.getSingleKey() == "return")
+	
+	/*
+	if(userio.getSingleKey() == "p")
 	{
 		allow ^= 1;
 	}
+	*/
 	
 	if(minAllowed < 5)
 		minAllowed = 5;

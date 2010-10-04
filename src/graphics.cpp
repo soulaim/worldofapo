@@ -41,9 +41,12 @@ void Graphics::drawMessages()
 		}
 		
 		float pos_x = -0.9;
-		float pos_y = -0.9 + 0.08 * i;
+		float pos_y = -0.82 + 0.08 * i;
 		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight);
 	}
+	
+	if(currentClientCommand.size() > 0)
+		drawString(currentClientCommand, -0.9, -0.9, 1.3, true); 
 }
 
 void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
@@ -212,6 +215,11 @@ Graphics::Graphics()
 {
 	currentTime = 0;
 	init();
+}
+
+void Graphics::setCurrentClientCommand(string& cmd)
+{
+	currentClientCommand = cmd;
 }
 
 void Graphics::init()
