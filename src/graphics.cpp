@@ -438,43 +438,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 
 void Graphics::updateInput(int keystate, int mousex, int mousey)
 {
-	if(keystate & 1 << 11)
-	{
-		camera.position = Vec3();
-	}
-	
-	if(keystate & 1 << 12)
-	{
-		camera.position.x += 1;
-	}
-	if(keystate & 1 << 13)
-	{
-		camera.position.x -= 1;
-	}
-	if(keystate & 1 << 14)
-	{
-		camera.position.y += 1;
-	}
-	if(keystate & 1 << 15)
-	{
-		camera.position.y -= 1;
-	}
-	if(keystate & 1 << 16)
-	{
-		camera.position.z += 1;
-	}
-	if(keystate & 1 << 17)
-	{
-		camera.position.z -= 1;
-	}
-	if(keystate & 1 << 18)
-	{
-		camera.setMode(Camera::RELATIVE);
-	}
-	if(keystate & 1 << 19)
-	{
-		camera.setMode(Camera::FIRST_PERSON);
-	}
+	camera.updateInput(keystate, mousex, mousey);
 }
 
 void Graphics::bindCamera(Unit* unit)
