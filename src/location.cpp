@@ -66,5 +66,8 @@ FixedPoint Location::length() const
 	return (x * x + y * y + z * z).squareRoot();
 }
 
-
+std::ostream& operator<<(std::ostream& out, const Location& loc)
+{
+	return out << "(" << loc.x << "," << loc.y << "," << loc.z << ")";
+}
 

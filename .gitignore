@@ -3,4 +3,5 @@
 *~
 bin/diablo
 *.swp
-bin/*.log
+*.log
+
