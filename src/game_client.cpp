@@ -1,6 +1,9 @@
 
 #include "game.h"
 
+// for debugging
+#include "logger.h"
+
 #include <sstream>
 #include <algorithm>
 
@@ -277,7 +280,6 @@ void Game::client_tick()
 					clientSocket.write(tmp_msg.str());
 				}
 				
-				//				view.pushMessage(tmp_msg.str());
 				clientCommand = "";
 				view.setCurrentClientCommand(clientCommand);
 			}
@@ -334,12 +336,15 @@ void Game::client_tick()
 				clientSocket.write(msg);
 			}
 			
+			Logger log;
 			// update commands of player controlled characters
-			// for(int i=0; i<simulRules.numPlayers; i++)
 			while(UnitInput.back().frameID == simulRules.currentFrame)
 			{
 				Order tmp = UnitInput.back();
 				UnitInput.pop_back();
+				
+				// log all processed game data affecting commands in the order of processing
+				log.print(tmp.copyOrder());
 				
 				if(tmp.plr_id == -1)
 				{
@@ -349,6 +354,8 @@ void Game::client_tick()
 				
 				world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButton);
 			}
+			
+			log.print("\n");
 			
 			view.updateInput(keyState, x, y);
 			

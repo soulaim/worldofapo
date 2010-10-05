@@ -4,8 +4,13 @@
 
 #include <ostream>
 
+// for square root message only
+#include <iostream>
+
 struct FixedPoint
 {
+	long long number;
+	
 	FixedPoint(const FixedPoint& a):number(a.number) {}
 	FixedPoint(int a):number(a * 1000) {}
 	FixedPoint():number(0) {}
@@ -31,8 +36,6 @@ struct FixedPoint
 		tmp.number *= (tmp.number < 0)?-1:1;
 		return tmp;
 	}
-	
-	int number;
 	
 	void operator += (const FixedPoint& a)
 	{
@@ -105,6 +108,22 @@ struct FixedPoint
 		tmp /= a;
 		return tmp;
 	}
+	
+	FixedPoint squareRoot()
+	{
+		if(number < 0)
+		{
+			std::cerr << "You are asking a square root of a negative number. Fuck you." << std::endl;
+			return FixedPoint(0);
+		}
+		
+		// approximates the square root quite nicely
+		FixedPoint currentVal = *this / FixedPoint(2);
+		for(int i=0; i<30; i++)
+			currentVal = (currentVal + *this / currentVal) / FixedPoint(2);
+		return currentVal;
+	}
+	
 };
 
 inline std::ostream& operator<<(std::ostream& out, const FixedPoint& point)

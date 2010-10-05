@@ -49,12 +49,10 @@ void World::tickUnit(Unit& unit, Model& model)
 	model.updatePosition(unit.position.x.getFloat(), unit.position.h.getFloat(), unit.position.y.getFloat());
 	
 	// some physics & game world information
-	
 	bool hitGround = false;
-	if( (unit.velocity.h.number <= 100) && (unit.position.h.number - 100 <= lvl.getHeight(unit.position.x, unit.position.y).number) )
+	if( (unit.velocity.h + unit.position.h) <= lvl.getHeight(unit.position.x, unit.position.y) )
 	{
-		FixedPoint friction;
-		friction.number = 800;
+		FixedPoint friction = FixedPoint(88) / FixedPoint(100);
 		
 		unit.position.h = lvl.getHeight(unit.position.x, unit.position.y);
 		unit.velocity.h.number = 0;
@@ -69,9 +67,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
-		FixedPoint scale;
-		scale.number = 150;
-		
+		FixedPoint scale = FixedPoint(10) / FixedPoint(100);
 		unit.velocity.x += apomath.getCos(unit.angle) * scale;
 		unit.velocity.y += apomath.getSin(unit.angle) * scale;
 	}
@@ -79,17 +75,14 @@ void World::tickUnit(Unit& unit, Model& model)
 	
 	if(unit.getKeyAction(Unit::MOVE_BACK) && hitGround)
 	{
-		FixedPoint scale;
-		scale.number = 150;
-		
+		FixedPoint scale = FixedPoint(6) / FixedPoint(100);
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
 	}
 
 	if(unit.getKeyAction(Unit::MOVE_LEFT) && hitGround)
 	{
-		FixedPoint scale;
-		scale.number = 150;
+		FixedPoint scale = FixedPoint(8) / FixedPoint(100);
 		int dummy_angle = unit.angle - apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
@@ -97,8 +90,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	}
 	if(unit.getKeyAction(Unit::MOVE_RIGHT) && hitGround)
 	{
-		FixedPoint scale;
-		scale.number = 150;
+		FixedPoint scale = FixedPoint(8) / FixedPoint(100);
 		int dummy_angle = unit.angle + apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
@@ -134,6 +126,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	}
 
 
+	// TODO: THIS SHOULD DEFINITELY NOT LOOK SO FUCKING UGLY
 	if(unit.weapon_cooldown == 0)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
@@ -185,7 +178,12 @@ void World::tickUnit(Unit& unit, Model& model)
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
 			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
-			projectile.lifetime = 200;
+			
+			projectile.position.x += projectile.velocity.x;
+			projectile.position.y += projectile.velocity.y;
+			projectile.position.h += projectile.velocity.h;
+			
+			projectile.lifetime = 50;
 		}
 	}
 	else
@@ -267,7 +265,7 @@ void World::updateModel(Model& model, Unit& unit)
 		model.setAction("jump");
 	}
 	else */
-	if(unit.keyState & 4)
+	if(unit.getKeyAction(Unit::MOVE_FRONT | Unit::MOVE_BACK | Unit::MOVE_LEFT | Unit::MOVE_RIGHT))
 	{
 		model.setAction("walk");
 	}
@@ -278,12 +276,6 @@ void World::updateModel(Model& model, Unit& unit)
 	
 	// update state of model
 	model.tick();
-	
-	/*
-	model.parts[model.root].offset_x   = unit.position.x.getFloat();
-	model.parts[model.root].offset_z   = unit.position.y.getFloat();
-	model.parts[model.root].offset_y   = unit.position.h.getFloat();
-	*/
 }
 
 void World::worldTick()
@@ -292,6 +284,7 @@ void World::worldTick()
 	{
 		tickUnit(iter->second, models[iter->first]);
 	}
+	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		tickProjectile(iter->second, models[iter->first], iter->first);
@@ -304,6 +297,7 @@ void World::viewTick()
 	{
 		updateModel(models[iter->first], iter->second);
 	}
+	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		models[iter->first].setAction("idle");
@@ -316,8 +310,8 @@ void World::viewTick()
 void World::addUnit(int id)
 {
 	units[id] = Unit();
-	units[id].position.x.number = 50000;
-	units[id].position.y.number = 50000;
+	units[id].position.x = FixedPoint(50);
+	units[id].position.y = FixedPoint(50);
 	
 	models[id] = Model();
 	models[id].load("data/model.bones");
@@ -329,6 +323,7 @@ void World::addProjectile(Location& location, int id)
 	position.x = location.x.getFloat();
 	position.y = location.h.getFloat();
 	position.z = location.y.getFloat();
+	
 	models[id].load("data/bullet.bones");
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
