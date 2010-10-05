@@ -57,6 +57,13 @@ struct FixedPoint
 		tmp -= *this;
 		return tmp;
 	}
+
+	FixedPoint operator -() const
+	{
+		FixedPoint tmp(*this);
+		tmp.number = -tmp.number;
+		return tmp;
+	}
 	
 	FixedPoint operator * (const FixedPoint& a) const
 	{

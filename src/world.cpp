@@ -31,7 +31,7 @@ void World::init()
 	_playerID_next_player = 0;
 	
 	lvl.generate(50);
-	apomath.init(300);
+	apomath.init(3000);
 }
 
 void World::terminate()
@@ -116,22 +116,28 @@ void World::tickUnit(Unit& unit, Model& model)
 			// TODO: Fix to use some common ApoMath.
 			static ApoMath dorka;
 			if(!dorka.ready())
-				dorka.init(300);
-			
+				dorka.init(3000);
+
 			Location position;
 			position.x = 30;
 			position.y = 0;
 			position.h = 0;
 
 			int angle = -unit.angle;
+			int upangle = unit.upangle;
 
 			FixedPoint cos = dorka.getCos(angle);
 			FixedPoint sin = dorka.getSin(angle);
+			FixedPoint upcos = dorka.getCos(upangle);
+			FixedPoint upsin = dorka.getSin(upangle);
 			
 			Location relative_position;
-			relative_position.x = cos * position.x - sin * position.y;
-			relative_position.y = sin * position.x + cos * position.y;
-			relative_position.h = unit.upangle/2; // TODO: this is dirty hack :)
+			FixedPoint x = position.x;
+			FixedPoint y = position.h;
+			FixedPoint z = position.y;
+			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
+			relative_position.y = sin * upcos * x + cos * z + sin * upsin * y;
+			relative_position.h =      -upsin * x           +       upcos * y;
 
 			Location weapon_position = unit.position;
 			Location projectile_direction = unit.position + relative_position;

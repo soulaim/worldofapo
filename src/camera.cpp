@@ -43,15 +43,22 @@ void Camera::tick()
 		// TODO: Fix to use some common ApoMath.
 		static ApoMath dorka;
 		if(!dorka.ready())
-			dorka.init(300);
+			dorka.init(3000);
 		
 		double cos = dorka.getCos(unit->angle).getFloat();
 		double sin = dorka.getSin(unit->angle).getFloat();
-		
+
+		double upsin = dorka.getSin(unit->upangle).getFloat();
+		double upcos = dorka.getCos(unit->upangle).getFloat();
+
+		double x = position.x;
+		double y = position.y;
+		double z = position.z;
+
 		Vec3 relative_position;
-		relative_position.x = cos * position.x - sin * position.z;
-		relative_position.z = sin * position.x + cos * position.z;
-		relative_position.y = position.y - unit->upangle/2; // TODO: this is dirty hack :)
+		relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
+		relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
+		relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
 
 		Vec3 camTarget;
 		if(unit)

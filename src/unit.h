@@ -46,7 +46,6 @@ class Unit
 		void handleCopyOrder(std::stringstream& ss);
 		
 		float getAngle(ApoMath&);
-		float getUpAngle(ApoMath&);
 };
 
 #endif
