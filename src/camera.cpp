@@ -60,6 +60,10 @@ void Camera::tick()
 		relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
 		relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
 
+		if (mode == RELATIVE && relative_position.y < -head_level/2) {
+			relative_position.y = -head_level/2;
+		}
+
 		Vec3 camTarget;
 		if(unit)
 		{
