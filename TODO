@@ -20,6 +20,7 @@ Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
 Mika  VITUN TARKEA - Menu UI & Menu IO
 
 DONE
+5.10  Sami: Added some chat functionality.
 4.10  Mika/lolx: Mechanism(s) for sending other than Player Input messages across the network (chat, pause, ..)
 4.10  Mika: Print text on screen
 4.10  Mika: Viewmessage handling
