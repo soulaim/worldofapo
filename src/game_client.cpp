@@ -222,7 +222,6 @@ void Game::processClientMsgs()
 
 void Game::client_tick()
 {
-
 	// check if we have new msgs from the server.
 	if(clientSocket.readyToRead() == 1)
 	{
@@ -246,6 +245,8 @@ void Game::client_tick()
 	{
 		if(key == "return")
 			client_state ^= 2;
+		if(key == "f11")
+			view.toggleFullscreen();
 		if(client_state & 2)
 		{
 			string nick;
@@ -281,15 +282,15 @@ void Game::client_tick()
 				view.setCurrentClientCommand(clientCommand);
 			}
 			
-			if(key == "g")
-			{
-				SDL_WM_GrabInput(SDL_GRAB_ON);
-				SDL_ShowCursor(0);
-			}
-			if(key == "r")
-			{
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-				SDL_ShowCursor(1);
+			if(key == "g") {
+				if (client_state & 4) {
+					SDL_WM_GrabInput(SDL_GRAB_OFF);
+					SDL_ShowCursor(1);
+				} else {
+					SDL_WM_GrabInput(SDL_GRAB_ON);
+					SDL_ShowCursor(0);
+				}
+				client_state ^= 4;
 			}
 		}
 	}
@@ -319,7 +320,6 @@ void Game::client_tick()
 			int keyState = userio.getGameInput();
 			if (client_state & 2)
 				keyState = 0;
-				
 			int x, y;
 			
 			userio.getMouseChange(x, y);

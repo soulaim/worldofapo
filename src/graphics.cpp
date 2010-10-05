@@ -478,3 +478,8 @@ void Graphics::bindCamera(Unit* unit)
 	camera.bind(unit, Camera::RELATIVE);
 }
 
+void Graphics::toggleFullscreen()
+{
+	SDL_WM_ToggleFullScreen(drawContext);
+}
+

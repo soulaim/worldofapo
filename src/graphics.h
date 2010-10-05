@@ -85,6 +85,8 @@ public:
 	
 	void draw(std::map<int, Model>&, Level& lvl);
 	void drawMenu(std::vector<MenuButton>&);
+
+	void toggleFullscreen();
 	
 	Graphics();
 	

@@ -148,7 +148,6 @@ int UserIO::checkEvents()
 				SDL_Quit();
 				exit(0);
 			}
-			
 			keyStates[event.key.keysym.sym] = 1;
 		}
 		
