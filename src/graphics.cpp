@@ -44,7 +44,7 @@ void Graphics::drawMessages()
 		}
 		
 		float pos_x = -0.9;
-		float pos_y = -0.82 + 0.08 * i;
+		float pos_y = -0.82 + 0.08 * ( viewMessages.size() - (i+1) );
 		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight);
 	}
 	
@@ -281,7 +281,7 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("crosshair", "data/images/crosshair.png");
 	
 	// these could be stored and set somewhere else possibly
-	float angle = 45.f;
+	float angle = 100.f;
 	float ratio = 800.f / 600.f;
 	float nearP = 1.f;
 	float farP  = 200.f;
@@ -453,11 +453,6 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
-	
-	
-//	drawString("Hello world! :D Random TEXT here. Just to see, if it works at all?", -0.9f, -0.7f, 1.5f, true);
-//	drawString("Trolololol. Pessi tekee jotai hyodyllista :]]", -0.9f, -0.6f, 1.5f, false);
-//	drawString("<Apodus> eiss voivv.. :D", -0.9f, -0.5f, 1.9f, true);
 	
 	if(camera.isFirstPerson())
 		drawCrossHair();
