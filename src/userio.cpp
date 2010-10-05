@@ -23,7 +23,6 @@ void UserIO::init()
 int UserIO::getGameInput()
 {
 	checkEvents();
-	//keystate = SDL_GetKeyState(&numKeys);
 	
 	int keyBoard = 0;
 	if(keystate[SDLK_a])

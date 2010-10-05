@@ -52,3 +52,28 @@ Location Location::operator-(const Location& b) const
 {
 	return Location(*this) -= b;
 }
+
+
+Location Location::crossProduct(const Location& b) const
+{
+	Location result;
+	result.x = h * b.y  -  y * b.h;
+	result.h = y * b.x  -  x * b.y;
+	result.y = x * b.h  -  h * b.x;
+	return result;
+}
+
+FixedPoint Location::dotProduct(const Location& b) const
+{
+	FixedPoint result;
+	result = x * b.x + h * b.h + y * b.y;
+	return result;
+}
+
+FixedPoint Location::length() const
+{
+	return (x * x + h * h + y * y).squareRoot();
+}
+
+
+
