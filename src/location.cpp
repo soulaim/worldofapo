@@ -4,27 +4,27 @@ bool Location::near(const Location& location, const FixedPoint& distance) const
 {
 	FixedPoint dx = (x - location.x);
 	FixedPoint dy = (y - location.y);
-	FixedPoint dh = (h - location.h);
+	FixedPoint dz = (z - location.z);
 
-	return dx*dx + dy*dy + dh*dh <= distance*distance;
+	return dx*dx + dy*dy + dz*dz <= distance*distance;
 }
 
 void Location::normalize()
 {
-	FixedPoint length = ApoMath::sqrt(x*x + y*y + h*h);
+	FixedPoint length = ApoMath::sqrt(x*x + y*y + z*z);
 	
 	if(length.number == 0)
 		return;
 	x /= length;
 	y /= length;
-	h /= length;
+	z /= length;
 }
 
 Location& Location::operator*=(const FixedPoint& scalar)
 {
 	x *= scalar;
 	y *= scalar;
-	h *= scalar;
+	z *= scalar;
 	return *this;
 }
 
@@ -32,14 +32,14 @@ Location& Location::operator+=(const Location& a)
 {
 	x += a.x;
 	y += a.y;
-	h += a.h;
+	z += a.z;
 	return *this;
 }
 Location& Location::operator-=(const Location& a)
 {
 	x -= a.x;
 	y -= a.y;
-	h -= a.h;
+	z -= a.z;
 	return *this;
 }
 
@@ -57,22 +57,22 @@ Location Location::operator-(const Location& b) const
 Location Location::crossProduct(const Location& b) const
 {
 	Location result;
-	result.x = h * b.y  -  y * b.h;
-	result.h = y * b.x  -  x * b.y;
-	result.y = x * b.h  -  h * b.x;
+	result.x = y * b.z  -  z * b.y;
+	result.y = z * b.x  -  x * b.z;
+	result.z = x * b.y  -  y * b.x;
 	return result;
 }
 
 FixedPoint Location::dotProduct(const Location& b) const
 {
 	FixedPoint result;
-	result = x * b.x + h * b.h + y * b.y;
+	result = x * b.x + y * b.y + z * b.z;
 	return result;
 }
 
 FixedPoint Location::length() const
 {
-	return (x * x + h * h + y * y).squareRoot();
+	return (x * x + y * y + z * z).squareRoot();
 }
 
 

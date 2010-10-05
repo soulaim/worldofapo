@@ -12,12 +12,12 @@ struct Location
 	Location():
 		x(0),
 		y(0),
-		h(0)
+		z(0)
 	{}
 	
 	FixedPoint x;
 	FixedPoint y;
-	FixedPoint h;
+	FixedPoint z;
 	
 	bool near(const Location& location, const FixedPoint& distance) const;
 	void normalize();

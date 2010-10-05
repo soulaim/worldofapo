@@ -46,30 +46,30 @@ void World::tickUnit(Unit& unit, Model& model)
 {
 	// update the information according to which the unit model will be updated from now on
 	model.parts[model.root].rotation_x = unit.getAngle(apomath);
-	model.updatePosition(unit.position.x.getFloat(), unit.position.h.getFloat(), unit.position.y.getFloat());
+	model.updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	
 	// some physics & game world information
 	bool hitGround = false;
-	if( (unit.velocity.h + unit.position.h) <= lvl.getHeight(unit.position.x, unit.position.y) )
+	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
 		FixedPoint friction = FixedPoint(88) / FixedPoint(100);
 		
-		unit.position.h = lvl.getHeight(unit.position.x, unit.position.y);
-		unit.velocity.h.number = 0;
+		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
+		unit.velocity.y.number = 0;
 		unit.velocity.x *= friction;
-		unit.velocity.y *= friction;
+		unit.velocity.z *= friction;
 		hitGround = true;
 	}
 	else
 	{
-		unit.velocity.h.number -= 35;
+		unit.velocity.y.number -= 35;
 	}
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
 		FixedPoint scale = FixedPoint(10) / FixedPoint(100);
 		unit.velocity.x += apomath.getCos(unit.angle) * scale;
-		unit.velocity.y += apomath.getSin(unit.angle) * scale;
+		unit.velocity.z += apomath.getSin(unit.angle) * scale;
 	}
 	
 	
@@ -77,7 +77,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		FixedPoint scale = FixedPoint(6) / FixedPoint(100);
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
-		unit.velocity.y -= apomath.getSin(unit.angle) * scale;
+		unit.velocity.z -= apomath.getSin(unit.angle) * scale;
 	}
 
 	if(unit.getKeyAction(Unit::MOVE_LEFT) && hitGround)
@@ -86,7 +86,7 @@ void World::tickUnit(Unit& unit, Model& model)
 		int dummy_angle = unit.angle - apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 	}
 	if(unit.getKeyAction(Unit::MOVE_RIGHT) && hitGround)
 	{
@@ -94,7 +94,7 @@ void World::tickUnit(Unit& unit, Model& model)
 		int dummy_angle = unit.angle + apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 	}
 
 	if(unit.leap_cooldown == 0)
@@ -106,8 +106,8 @@ void World::tickUnit(Unit& unit, Model& model)
 			int dummy_angle = unit.angle - apomath.DEGREES_90;
 			
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-			unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
-			unit.velocity.h += FixedPoint(450) / FixedPoint(1000);
+			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
 			unit.leap_cooldown = 60;
 		}
 		if(unit.getKeyAction(Unit::LEAP_RIGHT) && hitGround)
@@ -115,8 +115,8 @@ void World::tickUnit(Unit& unit, Model& model)
 			int dummy_angle = unit.angle + apomath.DEGREES_90;
 			
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-			unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
-			unit.velocity.h += FixedPoint(450) / FixedPoint(1000);
+			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
 			unit.leap_cooldown = 60;
 		}
 	}
@@ -142,8 +142,8 @@ void World::tickUnit(Unit& unit, Model& model)
 
 			Location position;
 			position.x = 30;
+			position.z = 0;
 			position.y = 0;
-			position.h = 0;
 
 			int angle = -unit.angle;
 			int upangle = unit.upangle;
@@ -155,16 +155,16 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			Location relative_position;
 			FixedPoint x = position.x;
-			FixedPoint y = position.h;
-			FixedPoint z = position.y;
+			FixedPoint y = position.y;
+			FixedPoint z = position.z;
 			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-			relative_position.y = sin * upcos * x + cos * z + sin * upsin * y;
-			relative_position.h =      -upsin * x           +       upcos * y;
+			relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
+			relative_position.y =      -upsin * x           +       upcos * y;
 
 			Location weapon_position = unit.position;
 			Location projectile_direction = unit.position + relative_position;
-			weapon_position.h += 4;
-			projectile_direction.h += 4;
+			weapon_position.y += 4;
+			projectile_direction.y += 4;
 
 
 //			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
@@ -180,8 +180,8 @@ void World::tickUnit(Unit& unit, Model& model)
 			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
 			
 			projectile.position.x += projectile.velocity.x;
+			projectile.position.z += projectile.velocity.z;
 			projectile.position.y += projectile.velocity.y;
-			projectile.position.h += projectile.velocity.h;
 			
 			projectile.lifetime = 50;
 		}
@@ -193,39 +193,39 @@ void World::tickUnit(Unit& unit, Model& model)
 	
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
-	FixedPoint reference_y = unit.position.y + unit.velocity.y;
-	FixedPoint reference_h = lvl.getHeight(reference_x, reference_y);
-	FixedPoint h_diff = reference_h - unit.position.h;
+	FixedPoint reference_z = unit.position.z + unit.velocity.z;
+	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
+	FixedPoint y_diff = reference_y - unit.position.y;
 	
-	FixedPoint hh_val = heightDifference2Velocity(h_diff);
+	FixedPoint yy_val = heightDifference2Velocity(y_diff);
 
 	if(!hitGround)
 	{
-		hh_val = FixedPoint(1);
+		yy_val = FixedPoint(1);
 	}
 
-	unit.position.y += unit.velocity.y * hh_val;
-	unit.position.x += unit.velocity.x * hh_val;
+	unit.position.z += unit.velocity.z * yy_val;
+	unit.position.x += unit.velocity.x * yy_val;
 	
 	if(unit.getKeyAction(Unit::JUMP) && hitGround)
 	{
-		unit.velocity.h = FixedPoint(900) / FixedPoint(1000);
+		unit.velocity.y = FixedPoint(900) / FixedPoint(1000);
 	}
 
-	unit.position.h += unit.velocity.h;
+	unit.position.y += unit.velocity.y;
 }
 
 void World::tickProjectile(Projectile& projectile, Model& model, int id)
 {
 //	model.parts[model.root].rotation_x = projectile.getAngle(apomath);
-	model.updatePosition(projectile.position.x.getFloat(), projectile.position.h.getFloat(), projectile.position.y.getFloat());
+	model.updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 
 //	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
 	if(projectile.lifetime > 0)
 	{
 		projectile.position.x += projectile.velocity.x;
+		projectile.position.z += projectile.velocity.z;
 		projectile.position.y += projectile.velocity.y;
-		projectile.position.h += projectile.velocity.h;
 
 		--projectile.lifetime;
 
@@ -237,8 +237,8 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				cerr << "HIT!\n";
 				unit.weapon_cooldown = 100;
 				unit.velocity.x = 0;
-				unit.velocity.y = 0;
-				unit.velocity.h = 3;
+				unit.velocity.z = 0;
+				unit.velocity.y = 3;
 
 				removeUnit(id);
 			}
@@ -311,7 +311,7 @@ void World::addUnit(int id)
 {
 	units[id] = Unit();
 	units[id].position.x = FixedPoint(50);
-	units[id].position.y = FixedPoint(50);
+	units[id].position.z = FixedPoint(50);
 	
 	models[id] = Model();
 	models[id].load("data/model.bones");
@@ -321,8 +321,8 @@ void World::addProjectile(Location& location, int id)
 {
 	Vec3 position;
 	position.x = location.x.getFloat();
-	position.y = location.h.getFloat();
-	position.z = location.y.getFloat();
+	position.y = location.y.getFloat();
+	position.z = location.z.getFloat();
 	
 	models[id].load("data/bullet.bones");
 	models[id].realUnitPos = position;

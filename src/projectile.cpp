@@ -9,20 +9,20 @@ bool Projectile::collides(const Unit& unit) const
 
 bool Projectile::collidesTerrain(Level& lvl) const
 {
-	return position.h <= lvl.getHeight(position.x, position.y);
+	return position.y <= lvl.getHeight(position.x, position.z);
 }
 
 void Projectile::handleCopyOrder(stringstream& ss)
 {
-	ss >> position.x.number >> position.y.number >> position.h.number >>
-	velocity.x.number >> velocity.y.number >> velocity.h.number >>
+	ss >> position.x.number >> position.z.number >> position.y.number >>
+	velocity.x.number >> velocity.z.number >> velocity.y.number >>
 	lifetime;
 }
 
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << position.x.number << " " << position.y.number << " " << position.h.number << " " << velocity.x.number << " " << velocity.y.number << " " << velocity.h.number << " " << lifetime << "#";
+	projectile_msg << "-2 PROJECTILE " << ID << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << lifetime << "#";
 	
 	return projectile_msg.str();
 }

@@ -436,8 +436,8 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		Location& p1 = LINES[i].first;
 		Location& p2 = LINES[i].second;
 		glBegin(GL_LINES);
-		glVertex3f(p1.x.getFloat(), p1.h.getFloat(), p1.y.getFloat());
-		glVertex3f(p2.x.getFloat(), p2.h.getFloat(), p2.y.getFloat());
+		glVertex3f(p1.x.getFloat(), p1.y.getFloat(), p1.z.getFloat());
+		glVertex3f(p2.x.getFloat(), p2.y.getFloat(), p2.z.getFloat());
 		glEnd();
 	}
 	

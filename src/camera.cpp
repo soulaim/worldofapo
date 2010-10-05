@@ -68,8 +68,8 @@ void Camera::tick()
 		if(unit)
 		{
 			camTarget.x = unit->position.x.getFloat();
-			camTarget.y = unit->position.h.getFloat() + head_level;
-			camTarget.z = unit->position.y.getFloat();
+			camTarget.y = unit->position.y.getFloat() + head_level;
+			camTarget.z = unit->position.z.getFloat();
 		}
 		else
 		{

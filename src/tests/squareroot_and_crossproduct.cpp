@@ -13,18 +13,18 @@ int main()
 	
 	Location a;
 	a.x = 0;
-	a.h = 1;
-	a.y = 2;
+	a.y = 1;
+	a.z = 2;
 	
 	Location b;
 	b.x = 1;
-	b.h = 5;
-	b.y = 9;
+	b.y = 5;
+	b.z = 9;
 	
 	Location cp = a.crossProduct(b);
-	cerr << "cross product = (" << cp.x.getFloat() << ", " << cp.h.getFloat() << ", " << cp.y.getFloat() << ")" << endl;
+	cerr << "cross product = (" << cp.x.getFloat() << ", " << cp.y.getFloat() << ", " << cp.z.getFloat() << ")" << endl;
 	cp = b.crossProduct(a);
-	cerr << "cross product = (" << cp.x.getFloat() << ", " << cp.h.getFloat() << ", " << cp.y.getFloat() << ")" << endl;
+	cerr << "cross product = (" << cp.x.getFloat() << ", " << cp.y.getFloat() << ", " << cp.z.getFloat() << ")" << endl;
 	cerr << "dot product = " << a.dotProduct(b).getFloat() << endl;
 	
 	return 1;
