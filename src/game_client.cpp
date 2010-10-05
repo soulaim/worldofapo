@@ -260,8 +260,8 @@ void Game::client_tick()
 			if(key.size() == 1)
 				clientCommand.append(key);
 			
-			if(key == "backspace")
-				clientCommand = "";
+			if(key == "backspace" && clientCommand.size() > 0)
+				clientCommand.resize(clientCommand.size()-1);
 			
 			if(key == "space")
 				clientCommand.append(" ");
