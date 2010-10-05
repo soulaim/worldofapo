@@ -250,6 +250,7 @@ void Game::client_tick()
 			client_state ^= 2;
 		if(key == "f11")
 			view.toggleFullscreen();
+
 		if(client_state & 2)
 		{
 			string nick;
@@ -262,6 +263,12 @@ void Game::client_tick()
 			
 			if(key == "backspace" && clientCommand.size() > 0)
 				clientCommand.resize(clientCommand.size()-1);
+
+			if(key == "escape") {
+				client_state ^= 2;
+				clientCommand = "";
+				nick = "";
+			}
 			
 			if(key == "space")
 				clientCommand.append(" ");
@@ -282,6 +289,13 @@ void Game::client_tick()
 				
 				clientCommand = "";
 				view.setCurrentClientCommand(clientCommand);
+			}
+
+			if(key == "escape")
+			{
+				cerr << "User pressed ESC, shutting down." << endl;
+				SDL_Quit();
+				exit(0);
 			}
 			
 			if(key == "g") {
