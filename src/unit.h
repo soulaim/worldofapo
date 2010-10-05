@@ -14,10 +14,13 @@ class Unit
 		
 		enum
 		{
-			MOVE_FRONT   = 4,
-			MOVE_BACK    = 8,
 			MOVE_LEFT    = 1,
 			MOVE_RIGHT   = 2,
+			MOVE_FRONT   = 4,
+			MOVE_BACK    = 8,
+			JUMP         = 16,
+			LEAP_LEFT    = 32,
+			LEAP_RIGHT   = 64,
 			ATTACK_BASIC = 1
 		};
 		
@@ -36,6 +39,7 @@ class Unit
 		int mouseButton;
 
 		int weapon_cooldown;
+		int leap_cooldown;
 		
 		void updateInput(int, int, int, int);
 		

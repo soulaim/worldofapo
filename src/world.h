@@ -17,7 +17,7 @@ class World
 	void tickProjectile(Projectile&, Model&, int id); // world frame update
 	void updateModel(Model&, Unit&); // view frame update
 	
-	int heightDifference2Velocity(int h_diff);
+	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
 	
 public:
 	World();

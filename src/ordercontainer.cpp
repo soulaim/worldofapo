@@ -28,7 +28,7 @@ void OrderContainer::insert(string msg_part)
 		return;
 	}
 	
-	for(int i=0; i<msg_part.size(); i++)
+	for(size_t i = 0; i < msg_part.size(); ++i)
 	{
 		if(msg_part[i] == '#')
 		{

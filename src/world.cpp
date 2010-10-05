@@ -5,16 +5,16 @@
 
 using namespace std;
 
-int World::heightDifference2Velocity(int h_diff)
+FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 {
 	// no restrictions for moving downhill
-	if(h_diff > -100)
-		return 1000;
+	if(h_diff > FixedPoint(-1)/FixedPoint(10))
+		return 1;
 	
-	if(h_diff < -1000)
+	if(h_diff < FixedPoint(-1))
 		return 0;
 	
-	return 1000 + h_diff;
+	return FixedPoint(1) + h_diff;
 }
 
 
@@ -105,11 +105,40 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
 	}
 
+	if(unit.leap_cooldown == 0)
+	{
+		FixedPoint scale;
+		scale.number = 950;
+		if(unit.getKeyAction(Unit::LEAP_LEFT) && hitGround)
+		{
+			int dummy_angle = unit.angle - apomath.DEGREES_90;
+			
+			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+			unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.h += FixedPoint(450) / FixedPoint(1000);
+			unit.leap_cooldown = 60;
+		}
+		if(unit.getKeyAction(Unit::LEAP_RIGHT) && hitGround)
+		{
+			int dummy_angle = unit.angle + apomath.DEGREES_90;
+			
+			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
+			unit.velocity.y -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.h += FixedPoint(450) / FixedPoint(1000);
+			unit.leap_cooldown = 60;
+		}
+	}
+	else
+	{
+		--unit.leap_cooldown;
+	}
+
+
 	if(unit.weapon_cooldown == 0)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
 		{
-			unit.weapon_cooldown = 5;
+			unit.weapon_cooldown = 50;
 
 			// TODO: Following is somewhat duplicated from Camera :G
 
@@ -155,7 +184,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			Projectile& projectile = projectiles[id];
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
-			projectile.velocity *= FixedPoint(3)/FixedPoint(1);
+			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
 			projectile.lifetime = 200;
 		}
 	}
@@ -170,18 +199,21 @@ void World::tickUnit(Unit& unit, Model& model)
 	FixedPoint reference_h = lvl.getHeight(reference_x, reference_y);
 	FixedPoint h_diff = reference_h - unit.position.h;
 	
-	int h_val = heightDifference2Velocity(h_diff.number);
+	FixedPoint hh_val = heightDifference2Velocity(h_diff);
+
 	if(!hitGround)
 	{
-		h_val = 1000;
+		hh_val = FixedPoint(1);
 	}
+
+	unit.position.y += unit.velocity.y * hh_val;
+	unit.position.x += unit.velocity.x * hh_val;
 	
-	unit.position.y.number += unit.velocity.y.number * h_val / 1000;
-	unit.position.x.number += unit.velocity.x.number * h_val / 1000;
-	
-	if( (unit.keyState & 16) && hitGround)
-		unit.velocity.h.number = 900;
-	
+	if(unit.getKeyAction(Unit::JUMP) && hitGround)
+	{
+		unit.velocity.h = FixedPoint(900) / FixedPoint(1000);
+	}
+
 	unit.position.h += unit.velocity.h;
 }
 
@@ -211,11 +243,12 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				unit.velocity.h = 3;
 
 				removeUnit(id);
-			} else if (projectile.collidesTerrain(lvl)) {
+			}
+			else if(projectile.collidesTerrain(lvl))
+			{
 				//lvl.pointheight_info[projectile.position.x.getInteger()/8][projectile.position.y.getInteger()/8].number += 10000;
-				cerr << "TERRAIN HIT\n";
+//				cerr << "TERRAIN HIT\n";
 				removeUnit(id);
-
 			}
 		}
 	}
@@ -302,7 +335,7 @@ void World::addProjectile(Location& location, int id)
 
 	projectiles[id].position = location;
 
-	cerr << "New projectile with id " << id << "\n";
+//	cerr << "New projectile with id " << id << "\n";
 }
 
 int World::nextPlayerID()
