@@ -179,10 +179,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			projectile.velocity.normalize();
 			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
 			
-			projectile.position.x += projectile.velocity.x;
-			projectile.position.z += projectile.velocity.z;
-			projectile.position.y += projectile.velocity.y;
-			
+			projectile.tick();
 			projectile.lifetime = 50;
 		}
 	}
@@ -217,17 +214,13 @@ void World::tickUnit(Unit& unit, Model& model)
 
 void World::tickProjectile(Projectile& projectile, Model& model, int id)
 {
-//	model.parts[model.root].rotation_x = projectile.getAngle(apomath);
-	model.updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
+	// model.parts[model.root].rotation_x = projectile.getAngle(apomath);
+	model.updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
 
-//	cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
+	// cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
 	if(projectile.lifetime > 0)
 	{
-		projectile.position.x += projectile.velocity.x;
-		projectile.position.z += projectile.velocity.z;
-		projectile.position.y += projectile.velocity.y;
-
-		--projectile.lifetime;
+		projectile.tick();
 
 		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
 		{
@@ -328,7 +321,7 @@ void World::addProjectile(Location& location, int id)
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
 
-	projectiles[id].position = location;
+	projectiles[id].curr_position = location;
 
 //	cerr << "New projectile with id " << id << "\n";
 }

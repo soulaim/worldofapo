@@ -1,20 +1,36 @@
+
 #include "projectile.h"
+#include "algorithms.h"
 
 using namespace std;
 
 bool Projectile::collides(const Unit& unit) const
 {
-	return position.near(unit.position, FixedPoint(3)/FixedPoint(1));
+	FixedPoint lengthVal = pointInLinesegment(curr_position, prev_position, unit.position);
+	FixedPoint distance;
+	if(lengthVal > FixedPoint(0) && lengthVal < FixedPoint(1))
+		distance = (unit.position - curr_position).crossProduct(unit.position - prev_position).length() / (prev_position - curr_position).length();
+	else
+		distance = (curr_position - unit.position).length();
+	
+	return distance <= (FixedPoint(3)/FixedPoint(1));
 }
 
 bool Projectile::collidesTerrain(Level& lvl) const
 {
-	return position.y <= lvl.getHeight(position.x, position.z);
+	return curr_position.y <= lvl.getHeight(curr_position.x, curr_position.z);
+}
+
+void Projectile::tick()
+{
+	prev_position = curr_position;
+	curr_position += velocity;
+	--lifetime;
 }
 
 void Projectile::handleCopyOrder(stringstream& ss)
 {
-	ss >> position.x.number >> position.z.number >> position.y.number >>
+	ss >> curr_position.x.number >> curr_position.z.number >> curr_position.y.number >>
 	velocity.x.number >> velocity.z.number >> velocity.y.number >>
 	lifetime;
 }
@@ -22,7 +38,7 @@ void Projectile::handleCopyOrder(stringstream& ss)
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << lifetime << "#";
+	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x.number << " " << curr_position.z.number << " " << curr_position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << lifetime << "#";
 	
 	return projectile_msg.str();
 }

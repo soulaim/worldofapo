@@ -1,14 +1,5 @@
 #include "location.h"
 
-bool Location::near(const Location& location, const FixedPoint& distance) const
-{
-	FixedPoint dx = (x - location.x);
-	FixedPoint dy = (y - location.y);
-	FixedPoint dz = (z - location.z);
-
-	return dx*dx + dy*dy + dz*dz <= distance*distance;
-}
-
 void Location::normalize()
 {
 	FixedPoint length = ApoMath::sqrt(x*x + y*y + z*z);

@@ -19,7 +19,6 @@ struct Location
 	FixedPoint y;
 	FixedPoint z;
 	
-	bool near(const Location& location, const FixedPoint& distance) const;
 	void normalize();
 	Location& operator*=(const FixedPoint& scalar);
 	Location& operator+=(const Location&);

@@ -21,10 +21,13 @@ class Projectile
 		}
 
 		Location velocity;
-		Location position;
-
+		Location curr_position;
+		Location prev_position;
+		
 		int lifetime;
-
+		
+		void tick();
+		
 		bool collides(const Unit& unit) const;
 		bool collidesTerrain(Level& lvl) const;
 		std::string copyOrder(int);
