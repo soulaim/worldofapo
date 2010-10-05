@@ -1,7 +1,5 @@
-
 #include "userio.h"
 #include <iostream>
-
 
 using namespace std;
 
@@ -38,9 +36,9 @@ int UserIO::getGameInput()
 		keyBoard |= 8;
 	if(keystate[SDLK_SPACE])
 		keyBoard |= 16;
-	if(keystate[SDLK_INSERT])
+	if(keystate[SDLK_q])
 		keyBoard |= 32;
-	if(keystate[SDLK_DELETE])
+	if(keystate[SDLK_e])
 		keyBoard |= 64;
 	if(keystate[SDLK_HOME])
 		keyBoard |= 128;
@@ -81,10 +79,10 @@ int UserIO::getGameInput()
 		keyBoard |= 1<<22;
 	if(keystate[SDLK_s])
 		keyBoard |= 1<<23;
-*/
 	if(keystate[SDLK_e])
 		keyBoard |= 1<<24;
-	
+*/
+
 	return keyBoard;
 }
 
