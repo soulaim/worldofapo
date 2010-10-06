@@ -16,6 +16,11 @@ Vec3& Camera::getCurrentTarget()
 	return currentTarget;
 }
 
+void Camera::setLevel(Level lvl)
+{
+	level = lvl;
+}
+
 Vec3 Camera::getPosition() const
 {
 	if(unit)
@@ -40,56 +45,10 @@ void Camera::tick()
 {
 	if(unit)
 	{
-		// TODO: Fix to use some common ApoMath.
-		static ApoMath dorka;
-		if(!dorka.ready())
-			dorka.init(3000);
-		
-		double cos = dorka.getCos(unit->angle).getFloat();
-		double sin = dorka.getSin(unit->angle).getFloat();
-
-		double upsin = dorka.getSin(unit->upangle).getFloat();
-		double upcos = dorka.getCos(unit->upangle).getFloat();
-
-		double x = position.x;
-		double y = position.y;
-		double z = position.z;
-
-		Vec3 relative_position;
-		relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-		relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-		relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
-
-		if (mode == RELATIVE && relative_position.y < -head_level/2) {
-			relative_position.y = -head_level/2;
-		}
-
-		Vec3 camTarget;
-		if(unit)
-		{
-			camTarget.x = unit->position.x.getFloat();
-			camTarget.y = unit->position.y.getFloat() + head_level;
-			camTarget.z = unit->position.z.getFloat();
-		}
-		else
-		{
-			camTarget.x = position.x - 50.0;
-			camTarget.y = position.y;
-			camTarget.z = position.z;
-		}
-		
-		float multiplier = 0.04;
-		if(mode == FIRST_PERSON)
-			multiplier = 0.2;
-		
-		currentRelative += (relative_position - currentRelative) * multiplier;
-		currentPosition += (camTarget - currentPosition) * multiplier;
-		currentTarget   += (camTarget - currentTarget) * multiplier;
-		
-		fps_direction = currentPosition;
-		fps_direction.x -= relative_position.x;
-		fps_direction.y -= relative_position.y;
-		fps_direction.z -= relative_position.z;
+		if (mode == RELATIVE)
+			relativeTick();
+		else if (mode == FIRST_PERSON)
+			fpsTick();
 	}
 }
 
@@ -150,3 +109,97 @@ void Camera::updateInput(int keystate, int mousex, int mousey)
 	}
 }
 
+void Camera::fpsTick()
+{
+	// TODO: Fix to use some common ApoMath.
+	static ApoMath dorka;
+	if(!dorka.ready())
+		dorka.init(3000);
+	
+	double cos = dorka.getCos(unit->angle).getFloat();
+	double sin = dorka.getSin(unit->angle).getFloat();
+
+	double upsin = dorka.getSin(unit->upangle).getFloat();
+	double upcos = dorka.getCos(unit->upangle).getFloat();
+
+	double x = position.x;
+	double y = position.y;
+	double z = position.z;
+
+	Vec3 relative_position;
+	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
+	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
+	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
+
+	Vec3 camTarget;
+	camTarget.x = unit->position.x.getFloat();
+	camTarget.y = unit->position.y.getFloat() + head_level;
+	camTarget.z = unit->position.z.getFloat();
+	
+	currentPosition += (camTarget - currentPosition) * 0.2;
+	
+	fps_direction = currentPosition;
+	fps_direction.x -= relative_position.x;
+	fps_direction.y -= relative_position.y;
+	fps_direction.z -= relative_position.z;
+}
+
+void Camera::relativeTick()
+{
+	// TODO: Fix to use some common ApoMath.
+	static ApoMath dorka;
+	if(!dorka.ready())
+		dorka.init(3000);
+	
+	double cos = dorka.getCos(unit->angle).getFloat();
+	double sin = dorka.getSin(unit->angle).getFloat();
+
+	double upsin = dorka.getSin(unit->upangle).getFloat();
+	double upcos = dorka.getCos(unit->upangle).getFloat();
+
+	double x = position.x;
+	double y = position.y;
+	double z = position.z;
+
+	Vec3 relative_position;
+	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
+	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
+	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
+
+	Vec3 camTarget;
+	camTarget.x = unit->position.x.getFloat();
+	camTarget.y = unit->position.y.getFloat() + head_level;
+	camTarget.z = unit->position.z.getFloat();
+	
+	float multiplier = 0.04;
+	
+	currentRelative += (relative_position - currentRelative) * multiplier;
+	currentPosition += (camTarget - currentPosition) * multiplier;
+	currentTarget   += (camTarget - currentTarget) * multiplier;
+
+	FixedPoint camX;
+	camX.number = currentRelative.x * 1000;
+	FixedPoint camZ;
+	camZ.number = currentRelative.z * 1000;
+	float tmp_y = level.getHeight(camX, camZ).getFloat() + 2.f;
+
+	if (currentRelative.y < tmp_y) {
+		currentRelative.y = tmp_y;
+	}
+}
+
+void Camera::zoomIn()
+{
+	if (mode == RELATIVE)
+	{
+		// do;
+	}
+}
+
+void Camera::zoomOut()
+{
+	if (mode == RELATIVE)
+	{
+		// do;
+	}
+}

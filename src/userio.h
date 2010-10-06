@@ -25,6 +25,8 @@ class UserIO
 	Coord mouse;
 	int mouse_has_been_pressed;
 	int mouse_right_button;
+	int wheel_has_been_scrolled_up;
+	int wheel_has_been_scrolled_down;
 	
 	std::vector<int> keyStates;
 	std::vector<std::string> keyNames;
@@ -36,6 +38,7 @@ public:
 	
 	void getMouseChange(int& x, int& y);
 	int getMousePress();
+	int getMouseWheelScrolled();
 	
 	Coord getMousePoint();
 	

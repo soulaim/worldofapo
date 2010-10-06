@@ -87,6 +87,9 @@ public:
 	void drawMenu(std::vector<MenuButton>&);
 
 	void toggleFullscreen();
+
+	void mouseUp();
+	void mouseDown();
 	
 	Graphics();
 	

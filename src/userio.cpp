@@ -116,6 +116,20 @@ int UserIO::getMousePress()
 	return 0;
 }
 
+int UserIO::getMouseWheelScrolled()
+{
+	if(wheel_has_been_scrolled_up)
+	{
+		wheel_has_been_scrolled_up = 0;
+		return 1;
+	}
+	if(wheel_has_been_scrolled_down)
+	{
+		wheel_has_been_scrolled_down = 0;
+		return 2;
+	}
+	return 0;
+}
 
 string& UserIO::getSingleKey()
 {
@@ -170,6 +184,16 @@ int UserIO::checkEvents()
 			{
 				mouse = Coord(event.button.x, event.button.y);
 				mouse_right_button = 1;
+			}
+
+			if( event.button.button == SDL_BUTTON_WHEELUP )
+			{
+				wheel_has_been_scrolled_up = 1;
+			}
+
+			if( event.button.button == SDL_BUTTON_WHEELDOWN )
+			{
+				wheel_has_been_scrolled_down = 1;
 			}
 			
 		}

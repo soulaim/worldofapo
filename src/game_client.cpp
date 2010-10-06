@@ -243,6 +243,8 @@ void Game::client_tick()
 	
 	
 	string key = userio.getSingleKey();
+
+	camera_handling();
 	
 	if(key.size() != 0)
 	{
@@ -381,3 +383,11 @@ void Game::client_tick()
 	
 }
 
+void Game::camera_handling()
+{
+	int wheel_status = userio.getMouseWheelScrolled();
+	if (wheel_status == 1)
+		view.mouseUp();
+	if (wheel_status == 2)
+		view.mouseDown();
+}
