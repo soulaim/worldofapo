@@ -12,12 +12,12 @@ void Game::menuQuestions()
 	// load images & create textures
 	vector<MenuButton> buttons;
 	
-	buttons.push_back(MenuButton("host", "data/menu/host.png"));
-	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
+	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+	buttons.push_back(MenuButton("host", "data/menu/host.png"));
 	
-	buttons[0].selected = 1;
-	int selected = 0;
+	int selected = 2;
+	buttons[selected].selected = 1;
 	
 	while(1)
 	{
@@ -61,6 +61,7 @@ void Game::menuQuestions()
 				if(buttons[selected].name == "host")
 				{
 					makeLocalGame();
+					break;
 				}
 				
 				if(buttons[selected].name == "connect")
@@ -82,8 +83,16 @@ void Game::menuQuestions()
 						{
 							if(key_hostname.size() == 1)
 								hostName.append(key_hostname);
+
+							if(key_hostname == "escape")
+								break;
+
 							if(key_hostname == "backspace")
-								hostName = "";
+							{
+								if(hostName.size() > 0)
+									hostName.resize(hostName.size()-1);
+							}
+
 							if(key_hostname == "return")
 							{
 								joinInternetGame(hostName);
@@ -102,7 +111,6 @@ void Game::menuQuestions()
 					exit(0);
 				}
 				
-				break;
 			}
 			
 		}
