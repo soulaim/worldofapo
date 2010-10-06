@@ -324,19 +324,17 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 					}
 				}
 				
-				// is this safe? removing a unit inside an iteration of the data structure?
-				removeUnit(id);
+				deadUnits.push_back(id);
 			}
 			else if(projectile.collidesTerrain(lvl))
 			{
-				// is this safe? removing a unit inside an iteration of the data structure?
-				removeUnit(id);
+				deadUnits.push_back(id);
 			}
 		}
 	}
 	else
 	{
-		removeUnit(id);
+		deadUnits.push_back(id);
 	}
 }
 
