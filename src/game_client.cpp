@@ -17,7 +17,11 @@ void Game::handleServerMessage(const Order& server_msg)
 		client_state = 0;
 		cerr << "Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
-	
+	else if(server_msg.serverCommand == 10)
+	{
+		view.pushMessage("<Server> Creating a MONSTER! :D  Lol");
+		world.addUnit(world.nextUnitID(), false);
+	}
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
@@ -252,6 +256,14 @@ void Game::client_tick()
 			view.toggleFullscreen();
 		if(key == "f10")
 			view.toggleLightingStatus();
+		if(key == "p")
+		{
+			if(state == "host")
+			{
+				// send spawn monster message
+				serverSendMonsterSpawn();
+			}
+		}
 		
 		if(client_state & 2)
 		{
@@ -376,7 +388,7 @@ void Game::client_tick()
 			view.updateInput(keyState, x, y);
 			
 			// run simulation for one WorldFrame
-			world.worldTick();
+			world.worldTick(simulRules.currentFrame);
 			simulRules.currentFrame++;
 		}
 	}

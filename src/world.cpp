@@ -17,6 +17,60 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return FixedPoint(1) + h_diff;
 }
 
+void World::generateInput_RabidAlien(Unit& unit)
+{
+	FixedPoint bestDistance = FixedPoint(1000);
+	int unitID = -1;
+	
+	
+	// find the nearest human controlled unit
+	for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
+	{
+		if(it->second.controllerTypeID == Unit::HUMAN_INPUT) // MMM!! MAYBE I CAN GO KILL THIS PLAYER ?:DD
+		{
+			FixedPoint tmp_dist = (it->second.position - unit.position).length();
+			if( tmp_dist < bestDistance )
+				bestDistance = tmp_dist;
+			unitID = it->first;
+		}
+	}
+	
+	// if no nearby human controlled unit was found, sleep
+	if(unitID == -1)
+	{
+		// nothing interesting going on, disable unit.
+		unit.updateInput(0, 0, 0, 0);
+		return;
+	}
+	
+	if(bestDistance < FixedPoint(2))
+	{
+		// DEVOUR!
+		cerr << "RABID ALIEN DEVOURING HUMAN PLAYER!! OM NOM NOM!" << endl;
+	}
+	
+	// turn towards the human unit until facing him. then RUSH FORWARD!
+	Location direction = units[unitID].position - unit.position;
+	direction.normalize();
+	
+	Location myDirection;
+	myDirection.z = apomath.getSin(unit.angle);
+	myDirection.x = apomath.getCos(unit.angle);
+	
+	FixedPoint error = (myDirection.x - direction.x) * (myDirection.x - direction.x) + (myDirection.z - direction.z) * (myDirection.z - direction.z);
+	
+	int keyState = 0;
+	int mousex = 0, mousey = 0;
+	
+	mousex = error.number / 20;
+	keyState |= Unit::MOVE_FRONT;
+	
+	if( (currentWorldFrame % 140) < 20)
+		keyState |= Unit::JUMP;
+	
+	unit.updateInput(keyState, mousex, mousey, 0);
+}
+
 
 World::World()
 {
@@ -44,6 +98,11 @@ void World::terminate()
 
 void World::tickUnit(Unit& unit, Model& model)
 {
+	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
+	{
+		generateInput_RabidAlien(unit);
+	}
+	
 	// update the information according to which the unit model will be updated from now on
 	model.parts[model.root].rotation_x = unit.getAngle(apomath);
 	model.updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
@@ -131,7 +190,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
 		{
-			unit.weapon_cooldown = 50;
+			unit.weapon_cooldown = 5;
 
 			// TODO: Following is somewhat duplicated from Camera :G
 
@@ -271,8 +330,9 @@ void World::updateModel(Model& model, Unit& unit)
 	model.tick();
 }
 
-void World::worldTick()
+void World::worldTick(int tickCount)
 {
+	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		tickUnit(iter->second, models[iter->first]);
@@ -300,7 +360,7 @@ void World::viewTick()
 
 
 // trololol..
-void World::addUnit(int id)
+void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
 	units[id].position.x = FixedPoint(50);
@@ -308,6 +368,9 @@ void World::addUnit(int id)
 	
 	models[id] = Model();
 	models[id].load("data/model.bones");
+	
+	if(!playerCharacter)
+		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 }
 
 void World::addProjectile(Location& location, int id)

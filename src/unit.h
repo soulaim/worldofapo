@@ -21,8 +21,12 @@ class Unit
 			JUMP         = 16,
 			LEAP_LEFT    = 32,
 			LEAP_RIGHT   = 64,
-			ATTACK_BASIC = 1
+			ATTACK_BASIC = 1,
+			
+			HUMAN_INPUT = 0,
+			AI_RABID_ALIEN = 1
 		};
+		
 		
 		Unit();
 		
@@ -33,6 +37,8 @@ class Unit
 //		map<std::string, Location> vectors;
 //		map<std::string, int> ints;
 		
+		int controllerTypeID;
+		
 		int angle; // integer representation of the angle variable.
 		int upangle; // integer representation of how high the unit is looking.
 		int keyState; // what is the unit doing right now, represented as player keyboard input
@@ -42,7 +48,6 @@ class Unit
 		int leap_cooldown;
 		
 		void updateInput(int, int, int, int);
-		
 		int getKeyAction(int type);
 		int getMouseAction(int type);
 		

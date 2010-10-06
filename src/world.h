@@ -18,6 +18,8 @@ class World
 	void updateModel(Model&, Unit&); // view frame update
 	
 	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
+	void generateInput_RabidAlien(Unit& unit);
+	int currentWorldFrame;
 	
 public:
 	World();
@@ -30,10 +32,10 @@ public:
 	Level lvl;
 	ApoMath apomath;
 	
-	void worldTick();
+	void worldTick(int tickCount);
 	void viewTick();
 	
-	void addUnit(int id);
+	void addUnit(int id, bool player = true);
 	void addProjectile(Location& location, int);
 
 	void removeUnit(int id);

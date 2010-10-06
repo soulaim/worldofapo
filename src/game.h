@@ -75,6 +75,7 @@ class Game
 	std::string menuWord;
 	std::string clientCommand;
 	
+	void serverSendMonsterSpawn();
 	int serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
 	int myID;

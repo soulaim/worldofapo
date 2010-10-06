@@ -3,6 +3,13 @@
 
 using namespace std;
 
+void Game::serverSendMonsterSpawn()
+{
+	stringstream tmp_msg;
+	tmp_msg << "-1 " << (serverAllow+1) << " 10" << "#";
+	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
+		target->second.write(tmp_msg.str());
+}
 
 void Game::host_tick()
 {
@@ -65,30 +72,20 @@ void Game::host_tick()
 			minAllowed = target->second.last_order;
 	}
 	
-	static int allow = 1;
 	
-	/*
-	if(userio.getSingleKey() == "p")
-	{
-		allow ^= 1;
-	}
-	*/
 	
 	if(minAllowed < 5)
 		minAllowed = 5;
 	
 	if( (minAllowed != ~0) && (minAllowed > serverAllow) )
 	{
-		if(allow == 1)
-		{
-			stringstream allowSimulation_msg;
-			allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
-			
-			// cerr << "minAllowed: " << minAllowed << ", serverAllow: " << serverAllow << endl;
-			
-			serverAllow = minAllowed;
-			serverMsgs.push_back(allowSimulation_msg.str());
-		}
+		stringstream allowSimulation_msg;
+		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
+		
+		// cerr << "minAllowed: " << minAllowed << ", serverAllow: " << serverAllow << endl;
+		
+		serverAllow = minAllowed;
+		serverMsgs.push_back(allowSimulation_msg.str());
 	}
 	
 	if((state_descriptor == 0) && (sockets.sockets.size() > 0))
