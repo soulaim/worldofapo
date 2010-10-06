@@ -116,13 +116,7 @@ struct FixedPoint
 	
 	FixedPoint squareRoot()
 	{
-		if(number < 0)
-		{
-			std::cerr << "You are asking a square root of a negative number. Fuck you." << std::endl;
-			return FixedPoint(0);
-		}
-		
-		if(number == 0)
+		if(number < 2)
 			return FixedPoint(0);
 		
 		// approximates the square root quite nicely

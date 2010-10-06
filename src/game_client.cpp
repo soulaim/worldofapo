@@ -58,6 +58,13 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 		sort(UnitInput.begin(), UnitInput.end());
+		
+		// if i'm the host, request a player name for this hero.
+		if(state == "host")
+		{
+			serverSendRequestPlayerNameMessage(server_msg.keyState);
+		}
+		
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
@@ -73,10 +80,6 @@ void Game::handleServerMessage(const Order& server_msg)
 		{
 			cerr << "Failed to bind camera! :(" << endl;
 		}
-
-		stringstream ss;
-		ss << "2 " << myID << " " << localPlayer.name << "#";
-		clientSocket.write(ss.str());
 	}
 	else
 	{
@@ -135,11 +138,12 @@ void Game::processClientMsgs()
 			
 			// set unit's name to match the players
 			if(world.units.find(plrID) == world.units.end())
-			{
 				cerr << "GOT playerInfo MESSAGE TOO SOON :G WHAT HAPPENS NOW??" << endl;
-			}
 			else
+			{
+				cerr << "Assigning player identity (name) to corresponding unit." << endl;
 				world.units[plrID].name = Players[plrID].name;
+			}
 		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
@@ -179,6 +183,13 @@ void Game::processClientMsgs()
 				
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
+			}
+			else if(cmd == "GIVE_NAME") // request player name message
+			{
+				cerr << "Server wants to know my identity now. Sending: " << localPlayer.name << endl;
+				stringstream ss;
+				ss << "2 " << myID << " " << localPlayer.name << "#";
+				clientSocket.write(ss.str());
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
