@@ -203,3 +203,23 @@ void Camera::zoomOut()
 		// do;
 	}
 }
+
+float Camera::getXrot()
+{
+	if(unit)
+	{
+		return unit->angle;
+	}
+	
+	return 0.f;
+}
+
+float Camera::getYrot()
+{
+	if(unit)
+	{
+		return unit->upangle;
+	}
+	
+	return 0.f;
+}

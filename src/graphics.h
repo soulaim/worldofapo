@@ -1,6 +1,7 @@
 
 #include "image.h"
 #include "location.h"
+#include "particle.h"
 
 #include <vector>
 #include <map>
@@ -49,6 +50,8 @@ class Graphics
 	GLfloat m[16]; // storage for OGL ModelView matrix
 	
 	void init();
+	void initLight();
+	
 	void createWindow();
 	float modelGround(Model& model);
 	
@@ -59,6 +62,7 @@ class Graphics
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
+	std::vector<Particle> viewParticles;
 	std::map<std::string, ObjectPart> objects;
 	
 	// define some character widths in our particular font
@@ -86,10 +90,15 @@ public:
 	void draw(std::map<int, Model>&, Level& lvl);
 	void drawMenu(std::vector<MenuButton>&);
 
+	void toggleLightingStatus();
 	void toggleFullscreen();
 
 	void mouseUp();
 	void mouseDown();
+	void tick();
+	
+	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b);
+	void depthSortParticles(Vec3&);
 	
 	Graphics();
 	

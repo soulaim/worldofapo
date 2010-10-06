@@ -10,7 +10,8 @@ Unit::Unit():
 	upangle(0),
 	keyState(0),
 	weapon_cooldown(0),
-	leap_cooldown(0)
+	leap_cooldown(0),
+	controllerTypeID(HUMAN_INPUT)
 {
 }
 
@@ -53,13 +54,13 @@ int Unit::getMouseAction(int type)
 
 void Unit::handleCopyOrder(stringstream& ss)
 {
-	ss >> angle >> upangle >> keyState >> position.x.number >> position.z.number >> position.y.number >> velocity.x.number >> velocity.z.number >> velocity.y.number >> mouseButton >> weapon_cooldown >> leap_cooldown;
+	ss >> angle >> upangle >> keyState >> position.x.number >> position.z.number >> position.y.number >> velocity.x.number >> velocity.z.number >> velocity.y.number >> mouseButton >> weapon_cooldown >> leap_cooldown >> controllerTypeID;
 }
 
 string Unit::copyOrder(int ID)
 {
 	stringstream hero_msg;
-	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << mouseButton << " " << weapon_cooldown << " " << leap_cooldown << "#";
+	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << mouseButton << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << "#";
 	
 	return hero_msg.str();
 }

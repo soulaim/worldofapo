@@ -27,6 +27,9 @@ public:
 	Vec3 getPosition() const;
 	void tick();
 
+	float getXrot();
+	float getYrot();
+	
 	void bind(Unit* unit, FollowMode mode);
 	void setMode(FollowMode mode);
 	bool isFirstPerson() const;

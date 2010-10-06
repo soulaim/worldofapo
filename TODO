@@ -1,4 +1,14 @@
 TODO:
+      LUKEMISTA:
+      Index:    http://www.opengl.org/sdk/docs/tutorials/
+      Index:    http://www.opengl.org/sdk/docs/tutorials/Lighthouse3D/
+      Index:    http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/
+      Terrain:  http://www.gamedev.net/reference/articles/article1817.asp
+      Picking:  http://www.lighthouse3d.com/opengl/picking/
+      Model loading: http://www.spacesimulator.net/wiki/index.php/Tutorials:3ds_Loader
+      
+      Collision detection: http://www.gamasutra.com/view/feature/3190/advanced_collision_detection_.php?page=2
+
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
       VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
