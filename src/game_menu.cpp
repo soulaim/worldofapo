@@ -17,9 +17,10 @@ void Game::menuQuestions()
 	buttons.push_back(MenuButton("host", "data/menu/host.png"));
 	
 	int selected = 2;
+	bool dont_exit = true;
 	buttons[selected].selected = 1;
 	
-	while(1)
+	while(dont_exit)
 	{
 		view.drawMenu(buttons);
 		
@@ -61,7 +62,7 @@ void Game::menuQuestions()
 				if(buttons[selected].name == "host")
 				{
 					makeLocalGame();
-					break;
+					dont_exit = false;
 				}
 				
 				if(buttons[selected].name == "connect")
@@ -85,7 +86,9 @@ void Game::menuQuestions()
 								hostName.append(key_hostname);
 
 							if(key_hostname == "escape")
+							{
 								break;
+							}
 
 							if(key_hostname == "backspace")
 							{
@@ -96,6 +99,7 @@ void Game::menuQuestions()
 							if(key_hostname == "return")
 							{
 								joinInternetGame(hostName);
+								dont_exit = false;
 								break;
 							}
 							
