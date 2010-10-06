@@ -150,3 +150,23 @@ void Camera::updateInput(int keystate, int mousex, int mousey)
 	}
 }
 
+
+float Camera::getXrot()
+{
+	if(unit)
+	{
+		return unit->angle;
+	}
+	
+	return 0.f;
+}
+
+float Camera::getYrot()
+{
+	if(unit)
+	{
+		return unit->upangle;
+	}
+	
+	return 0.f;
+}

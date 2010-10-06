@@ -250,7 +250,9 @@ void Game::client_tick()
 			client_state ^= 2;
 		if(key == "f11")
 			view.toggleFullscreen();
-
+		if(key == "f10")
+			view.toggleLightingStatus();
+		
 		if(client_state & 2)
 		{
 			string nick;
