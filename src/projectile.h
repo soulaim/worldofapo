@@ -24,8 +24,8 @@ class Projectile
 		Location curr_position;
 		Location prev_position;
 		
+		int owner;
 		int lifetime;
-		
 		void tick();
 		
 		bool collides(const Unit& unit) const;

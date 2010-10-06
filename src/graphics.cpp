@@ -12,6 +12,25 @@ using namespace std;
 
 vector<pair<Location,Location> > LINES;
 
+void Graphics::setLocalPlayerName(const std::string& name)
+{
+	plr_name = name;
+}
+
+void Graphics::setLocalPlayerHP(const int life)
+{
+	stringstream ss;
+	ss << life;
+	health = ss.str();
+}
+
+void Graphics::drawStatusBar()
+{
+	stringstream ss;
+	ss << plr_name << ": " << health;
+	drawString(ss.str(), -0.9, 0.9, 2.0, true);
+}
+
 float Graphics::modelGround(Model& model)
 {
 	// :G
@@ -29,7 +48,7 @@ void Graphics::depthSortParticles(Vec3& d)
 
 void Graphics::initLight()
 {
-
+	lightsActive = false;
 	GLfloat	global_ambient[ 4 ]	= {0.01f, 0.01f,  0.01f, 1.0f};
 	GLfloat	light0ambient[ 4 ]	= {0.2f, 0.2f,  0.2f, 1.0f};
 	GLfloat	light0diffuse[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
@@ -50,7 +69,6 @@ void Graphics::initLight()
 
 void Graphics::toggleLightingStatus()
 {
-	static bool lightsActive = false;
 	if(lightsActive)
 		glDisable(GL_LIGHTING);
 	else
@@ -94,6 +112,7 @@ void Graphics::setTime(unsigned time)
 
 void Graphics::drawMessages()
 {
+	glDisable(GL_LIGHTING);
 	for(int i=0; i<viewMessages.size(); i++)
 	{
 		if(viewMessages[i].endTime < currentTime)
@@ -112,11 +131,15 @@ void Graphics::drawMessages()
 	}
 	
 	if(currentClientCommand.size() > 0)
-		drawString(currentClientCommand, -0.9, -0.9, 1.3, true); 
+		drawString(currentClientCommand, -0.9, -0.9, 1.3, true);
+	
+	if(lightsActive)
+		glEnable(GL_LIGHTING);
 }
 
 void Graphics::drawCrossHair()
 {
+	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_MODELVIEW);
@@ -129,7 +152,7 @@ void Graphics::drawCrossHair()
 	TextureHandler::getSingleton().bindTexture("crosshair");
 	
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
@@ -144,10 +167,14 @@ void Graphics::drawCrossHair()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	
+	if(lightsActive)
+		glEnable(GL_LIGHTING);
 }
 
 void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
 {
+	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_MODELVIEW);
@@ -178,10 +205,10 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 		glBegin(GL_QUADS);
-		glVertex3f(pos_x             , y_bot, -1);
-		glVertex3f(pos_x + totalWidth, y_bot, -1);
-		glVertex3f(pos_x + totalWidth, y_top, -1);
-		glVertex3f(pos_x             , y_top, -1);
+		glVertex3f(pos_x - 0.01 * scale , y_bot, -1);
+		glVertex3f(pos_x + totalWidth    , y_bot, -1);
+		glVertex3f(pos_x + totalWidth    , y_top, -1);
+		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
 		glEnd();
 		glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 		glEnable(GL_TEXTURE_2D);
@@ -217,6 +244,9 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	
+	if(lightsActive)
+		glEnable(GL_LIGHTING);
 }
 
 void Graphics::megaFuck()
@@ -583,6 +613,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		drawCrossHair();
 	
 	drawMessages();
+	drawStatusBar();
 	
 	SDL_GL_SwapBuffers();
 	return;

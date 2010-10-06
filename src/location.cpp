@@ -1,5 +1,14 @@
 #include "location.h"
 
+
+Location Location::operator*(const FixedPoint& scalar)
+{
+	Location tmp = *this;
+	tmp *= scalar;
+	return tmp;
+}
+
+
 void Location::normalize()
 {
 	FixedPoint length = (x*x + y*y + z*z).squareRoot();
