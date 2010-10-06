@@ -50,6 +50,8 @@ public:
 	
 	int nextUnitID();
 	int nextPlayerID();
+
+	int show_errors;
 	
 	void terminate(); // don't call this unless you mean it :D
 };

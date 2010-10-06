@@ -152,6 +152,7 @@ void World::init()
 	
 	lvl.generate(50);
 	apomath.init(3000);
+	show_errors = 0;
 }
 
 void World::terminate()
@@ -441,7 +442,7 @@ void World::worldTick(int tickCount)
 	deadUnits.clear();
 	
 	
-	if((currentWorldFrame % 200) == 0)
+	if(show_errors && (currentWorldFrame % 200) == 0)
 	{
 
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)

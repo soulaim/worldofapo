@@ -285,6 +285,8 @@ void Game::client_tick()
 				serverSendMonsterSpawn();
 			}
 		}
+		if(key == "f9")
+			world.show_errors ^= 1;
 		
 		if(client_state & 2)
 		{
