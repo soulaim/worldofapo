@@ -7,6 +7,9 @@
 // for square root message only
 #include <iostream>
 
+// for debugging
+#include <cassert>
+
 struct FixedPoint
 {
 	long long number;
@@ -98,6 +101,8 @@ struct FixedPoint
 	
 	void operator /= (const FixedPoint& a)
 	{
+		assert(a.number != 0);
+		
 		number *= 1000;
 		number /= a.number;
 	}
@@ -116,6 +121,9 @@ struct FixedPoint
 			std::cerr << "You are asking a square root of a negative number. Fuck you." << std::endl;
 			return FixedPoint(0);
 		}
+		
+		if(number == 0)
+			return FixedPoint(0);
 		
 		// approximates the square root quite nicely
 		FixedPoint currentVal = *this / FixedPoint(2);

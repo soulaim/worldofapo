@@ -134,7 +134,12 @@ void Game::processClientMsgs()
 			view.pushMessage(ss_viewMsg.str());
 			
 			// set unit's name to match the players
-			world.units[plrID].name = Players[plrID].name;
+			if(world.units.find(plrID) == world.units.end())
+			{
+				cerr << "GOT playerInfo MESSAGE TOO SOON :G WHAT HAPPENS NOW??" << endl;
+			}
+			else
+				world.units[plrID].name = Players[plrID].name;
 		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
