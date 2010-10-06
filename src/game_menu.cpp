@@ -7,19 +7,18 @@ using namespace std;
 
 void Game::menuQuestions()
 {
-	cerr << "Entering menu" << endl;
-	
 	// load images & create textures
 	vector<MenuButton> buttons;
 	
-	buttons.push_back(MenuButton("host", "data/menu/host.png"));
-	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
+	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+	buttons.push_back(MenuButton("host", "data/menu/host.png"));
 	
-	buttons[0].selected = 1;
-	int selected = 0;
+	int selected = 2;
+	int dont_exit = 1;
+	buttons[selected].selected = 1;
 	
-	while(1)
+	while(dont_exit)
 	{
 		view.drawMenu(buttons);
 		
@@ -30,85 +29,43 @@ void Game::menuQuestions()
 			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
 			continue;
 		}
-		else
+		else if(key == "down")
 		{
-			cerr << "  pressed key: \"" << key << "\"" << endl;
-			
-			if(key == "down")
+			buttons[selected].selected = 0;
+			if(selected == 0)
+				selected = buttons.size() - 1;
+			else
+				selected--;
+			buttons[selected].selected = 1;
+		}
+		else if(key == "up")
+		{
+			buttons[selected].selected = 0;
+			if(selected == (buttons.size()-1))
+				selected = 0;
+			else
+				selected++;
+			buttons[selected].selected = 1;
+		}
+		else if(key == "return")
+		{
+			if(buttons[selected].name == "host")
 			{
-				buttons[selected].selected = 0;
-				if(selected == 0)
-					selected = buttons.size() - 1;
-				else
-					selected--;
-				buttons[selected].selected = 1;
+				makeLocalGame();
+				dont_exit = 0;
 			}
-			
-			if(key == "up")
+			else if(buttons[selected].name == "connect")
 			{
-				buttons[selected].selected = 0;
-				if(selected == (buttons.size()-1))
-					selected = 0;
-				else
-					selected++;
-				buttons[selected].selected = 1;
+				// ask for host name and connect.
+				dont_exit = connectMenu();
 			}
-			
-			
-			
-			if(key == "return")
+			else if(buttons[selected].name == "exit")
 			{
-				if(buttons[selected].name == "host")
-				{
-					makeLocalGame();
-				}
-				
-				if(buttons[selected].name == "connect")
-				{
-					// ask for host name and connect.
-					cerr << "Type the name of the host machine: " << endl;
-					string hostName = "";
-					
-					while(true)
-					{
-						string key_hostname = userio.getSingleKey();
-						
-						if(key_hostname == "")
-						{
-							SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
-							continue;
-						}
-						else
-						{
-							if(key_hostname.size() == 1)
-								hostName.append(key_hostname);
-							if(key_hostname == "backspace")
-								hostName = "";
-							if(key_hostname == "return")
-							{
-								joinInternetGame(hostName);
-								break;
-							}
-							
-							cerr << "Current input: \"" << hostName << "\"" << endl;
-						}
-					}
-				}
-				
-				if(buttons[selected].name == "exit")
-				{
-					cerr << "user selected EXIT from the menu, awesome." << endl;
-					SDL_Quit();
-					exit(0);
-				}
-				
-				break;
+				SDL_Quit();
+				exit(0);
 			}
-			
 		}
 	}
-	
-	cerr << "Exiting menu" << endl;
 	
 	for(int i=0; i<buttons.size(); i++)
 	{
@@ -116,4 +73,41 @@ void Game::menuQuestions()
 	}
 	
 	return;
+}
+
+int Game::connectMenu()
+{
+	cerr << "Type the name of the host machine: " << endl;
+	string hostName = "";
+	
+	while(true)
+	{
+		string key_hostname = userio.getSingleKey();
+		
+		if(key_hostname == "")
+		{
+			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+			continue;
+		}
+		else if(key_hostname.size() == 1)
+		{
+			hostName.append(key_hostname);
+		}
+		else if(key_hostname == "escape")
+		{
+			cerr << "Out from connecting" << endl;
+			return 1;
+		}
+		else if(key_hostname == "backspace")
+		{
+			if(hostName.size() > 0)
+				hostName.resize(hostName.size()-1);
+		}
+		else if(key_hostname == "return")
+		{
+			joinInternetGame(hostName);
+			return 0;
+		}
+		cerr << "Current input: \"" << hostName << "\"" << endl;
+	}
 }

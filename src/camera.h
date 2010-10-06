@@ -7,6 +7,7 @@
 #include "location.h"
 #include "unit.h"
 #include "frustum/Vec3.h"
+#include "level.h"
 
 #include <iostream>
 
@@ -33,10 +34,15 @@ public:
 	void setMode(FollowMode mode);
 	bool isFirstPerson() const;
 	void updateInput(int keystate, int mousex, int mousey);
+	void fixHeight(float h);
+	void zoomIn();
+	void zoomOut();
+	void setLevel(Level lvl);
 
 private:
 	Vec3 position;
 	Vec3 fps_direction;
+	Level level;
 
 	// Lagging dudes
 	Vec3 currentPosition;
@@ -45,6 +51,9 @@ private:
 
 	Unit* unit;
 	FollowMode mode;
+
+	void fpsTick();
+	void relativeTick();
 };
 
 #endif

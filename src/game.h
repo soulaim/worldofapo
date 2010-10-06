@@ -96,6 +96,8 @@ class Game
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 	void client_tick();
+	void camera_handling();
+	int connectMenu();
 	
 public:
 	Game();

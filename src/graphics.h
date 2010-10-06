@@ -100,6 +100,9 @@ public:
 	
 	void toggleLightingStatus();
 	void toggleFullscreen();
+
+	void mouseUp();
+	void mouseDown();
 	void tick();
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b);

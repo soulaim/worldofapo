@@ -471,11 +471,12 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();                                   // Reset The View
 	
+	camera.setLevel(lvl);
 	camera.tick();
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
 	camTarget = camera.getCurrentTarget();
-	
+
 	upVector.x = 0.f;
 	upVector.y = 1.f;
 	upVector.z = 0.f;
@@ -670,3 +671,12 @@ void Graphics::toggleFullscreen()
 	SDL_WM_ToggleFullScreen(drawContext);
 }
 
+void Graphics::mouseUp()
+{
+	camera.zoomIn();
+}
+
+void Graphics::mouseDown()
+{
+	camera.zoomOut();
+}
