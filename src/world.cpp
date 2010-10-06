@@ -201,15 +201,32 @@ void World::tickUnit(Unit& unit, Model& model)
 		yy_val = FixedPoint(1);
 	}
 
-	unit.position.z += unit.velocity.z * yy_val;
-	unit.position.x += unit.velocity.x * yy_val;
-	
 	if(unit.getKeyAction(Unit::JUMP) && hitGround)
 	{
 		unit.velocity.y = FixedPoint(900) / FixedPoint(1000);
 	}
 
+
+	unit.position.z += unit.velocity.z * yy_val;
+	unit.position.x += unit.velocity.x * yy_val;
 	unit.position.y += unit.velocity.y;
+
+	if(unit.position.x < 0)
+	{
+		unit.position.x = 0;
+	}
+	if(unit.position.x > lvl.max_x())
+	{
+		unit.position.x = lvl.max_x();
+	}
+	if(unit.position.z < 0)
+	{
+		unit.position.z = 0;
+	}
+	if(unit.position.z > lvl.max_z())
+	{
+		unit.position.z = lvl.max_z();
+	}
 }
 
 void World::tickProjectile(Projectile& projectile, Model& model, int id)

@@ -15,6 +15,9 @@ struct Level
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& y);
 	
 	float estimateHeightDifference(int x, int y);
+
+	int max_x() const;
+	int max_z() const;
 };
 
 #endif

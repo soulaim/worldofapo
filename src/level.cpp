@@ -12,10 +12,10 @@ void Level::generate(int seed)
 {
 	srand(seed);
 	pointheight_info.resize(101);
-	for(int i=0; i<static_cast<int>(pointheight_info.size()); i++)
+	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
 		pointheight_info[i].resize( 101 );
-		for(int k=0; k<static_cast<int>(pointheight_info[i].size()); k++)
+		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 		{
 			pointheight_info[i][k].number = 3000;
 		}
@@ -138,4 +138,14 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& y)
 }
 
 
+
+int Level::max_x() const
+{
+	return pointheight_info.size() * 8 - 8;
+}
+
+int Level::max_z() const
+{
+	return pointheight_info.front().size() * 8 - 8;
+}
 
