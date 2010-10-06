@@ -17,6 +17,18 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return FixedPoint(1) + h_diff;
 }
 
+
+void World::resolveUnitCollision(Unit& a, Unit& b)
+{
+	Location direction = (a.position - b.position);
+	direction.normalize();
+	direction *= FixedPoint(200, true);
+	
+	a.velocity += direction;
+	b.velocity -= direction;
+}
+
+
 void World::generateInput_RabidAlien(Unit& unit)
 {
 	FixedPoint bestDistance = FixedPoint(1000);
@@ -70,12 +82,12 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
 	
-	if( (currentWorldFrame % 140) < 20)
+	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
 	{
 		keyState |= Unit::JUMP;
 	}
 	
-	if( (currentWorldFrame % 140) > 100 )
+	if( ((currentWorldFrame + unit.birthTime) % 140) > 100 )
 	{
 		mousebutton = 1;
 	}
@@ -135,6 +147,16 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		unit.velocity.y.number -= 35;
 	}
+	
+	// do something about unit to unit collisions
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if(iter->second.id == unit.id)
+			continue;
+		if((iter->second.position - unit.position).length() < FixedPoint(2))
+			resolveUnitCollision(unit, iter->second);
+	}
+	
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
@@ -301,22 +323,44 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 			Unit& unit = it->second;
 			if(projectile.collides(unit))
 			{
-				cerr << "HIT!\n";
-				unit.hitpoints -= 170; // bullet does SEVENTEEN DAMAGE (we need some kind of weapon definitions)
+				bool shooterIsMonster = false;
+				if(units.find(projectile.owner) != units.end())
+					shooterIsMonster = !units[projectile.owner].human();
+				
+				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+				if(!unit.human() && shooterIsMonster)
+				{
+					deadUnits.push_back(id);
+					continue;
+				}
+				
+				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
 				unit.velocity += projectile.velocity * FixedPoint(130, true);
 				
 				if(unit.hitpoints < 1)
 				{
 					stringstream msg;
-					msg << unit.name << " has been killed by " << units[projectile.owner].name << "!";
+					string killer = "an unknown entity";
+					
+					if(units.find(projectile.owner) != units.end())
+						killer = units[projectile.owner].name;
+					
+					msg << unit.name << " has been killed by " << killer << "!";
 					worldMessages.push_back(msg.str());
 					
 					if(unit.human())
 					{
 						unit.hitpoints = 1000;
+						
+						// respawn player to random location
+						unit.position.x = (3  * currentWorldFrame) % 100;
+						unit.position.z = (17 * currentWorldFrame) % 100;
+						unit.position.y = 50;
+						
+						// stop any movement, let the player drop down to the field.
 						unit.velocity.x = 0;
 						unit.velocity.z = 0;
-						unit.velocity.y = 3;
+						unit.velocity.y = 0;
 					}
 					else
 					{
@@ -404,6 +448,8 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].position.x = FixedPoint(50);
 	units[id].position.z = FixedPoint(50);
 	units[id].id = id;
+	
+	units[id].birthTime = currentWorldFrame;
 	
 	models[id] = Model();
 	models[id].load("data/model.bones");

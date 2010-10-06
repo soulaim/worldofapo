@@ -49,6 +49,7 @@ class Unit
 		int leap_cooldown;
 		
 		int id;
+		int birthTime;
 		std::string name;
 		
 		void setName(const std::string&);

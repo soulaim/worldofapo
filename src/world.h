@@ -20,6 +20,7 @@ class World
 	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
 	void generateInput_RabidAlien(Unit& unit);
 	int currentWorldFrame;
+	void resolveUnitCollision(Unit& a, Unit& b);
 	
 public:
 	World();
