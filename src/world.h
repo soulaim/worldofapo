@@ -17,10 +17,11 @@ class World
 	void tickProjectile(Projectile&, Model&, int id); // world frame update
 	void updateModel(Model&, Unit&); // view frame update
 	
+	int currentWorldFrame;
 	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
 	void generateInput_RabidAlien(Unit& unit);
-	int currentWorldFrame;
 	void resolveUnitCollision(Unit& a, Unit& b);
+	void doDeathFor(Unit& unit, int causeOfDeath);
 	
 public:
 	World();
