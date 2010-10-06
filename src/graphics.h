@@ -59,6 +59,7 @@ class Graphics
 	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawCrossHair();
+	void drawStatusBar();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -68,12 +69,19 @@ class Graphics
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
 	
+	std::string health;
+	std::string plr_name;
+	
 	SDL_Surface* drawContext;
 	Camera camera;
 	
 	unsigned currentTime;
+	bool lightsActive;
 	
 public:
+	
+	void setLocalPlayerName(const std::string&);
+	void setLocalPlayerHP(const int);
 	
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate, int mousex, int mousey);
@@ -89,7 +97,7 @@ public:
 	
 	void draw(std::map<int, Model>&, Level& lvl);
 	void drawMenu(std::vector<MenuButton>&);
-
+	
 	void toggleLightingStatus();
 	void toggleFullscreen();
 
@@ -101,7 +109,6 @@ public:
 	void depthSortParticles(Vec3&);
 	
 	Graphics();
-	
 	FrustumR frustum;
 };
 

@@ -38,6 +38,7 @@ class Unit
 //		map<std::string, int> ints;
 		
 		int controllerTypeID;
+		int hitpoints;
 		
 		int angle; // integer representation of the angle variable.
 		int upangle; // integer representation of how high the unit is looking.
@@ -47,9 +48,15 @@ class Unit
 		int weapon_cooldown;
 		int leap_cooldown;
 		
+		int id;
+		std::string name;
+		
+		void setName(const std::string&);
+		
 		void updateInput(int, int, int, int);
 		int getKeyAction(int type);
 		int getMouseAction(int type);
+		bool human();
 		
 		std::string copyOrder(int ID);
 		void handleCopyOrder(std::stringstream& ss);

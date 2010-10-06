@@ -32,12 +32,15 @@ public:
 	Level lvl;
 	ApoMath apomath;
 	
+	std::vector<std::string> worldMessages;
+	std::vector<int> deadUnits;
+	
 	void worldTick(int tickCount);
 	void viewTick();
 	
 	void addUnit(int id, bool player = true);
 	void addProjectile(Location& location, int);
-
+	
 	void removeUnit(int id);
 	
 	int _unitID_next_unit;

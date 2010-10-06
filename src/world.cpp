@@ -22,7 +22,6 @@ void World::generateInput_RabidAlien(Unit& unit)
 	FixedPoint bestDistance = FixedPoint(1000);
 	int unitID = -1;
 	
-	
 	// find the nearest human controlled unit
 	for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
 	{
@@ -30,8 +29,10 @@ void World::generateInput_RabidAlien(Unit& unit)
 		{
 			FixedPoint tmp_dist = (it->second.position - unit.position).length();
 			if( tmp_dist < bestDistance )
+			{
 				bestDistance = tmp_dist;
-			unitID = it->first;
+				unitID = it->first;
+			}
 		}
 	}
 	
@@ -47,6 +48,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	{
 		// DEVOUR!
 		cerr << "RABID ALIEN DEVOURING HUMAN PLAYER!! OM NOM NOM!" << endl;
+		units[unitID].hitpoints -= 10; // devouring does TEN damage!
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
@@ -61,14 +63,24 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	int keyState = 0;
 	int mousex = 0, mousey = 0;
+	int mousebutton = 0;
 	
-	mousex = error.number / 20;
+	mousex = error.number / 4;
 	keyState |= Unit::MOVE_FRONT;
 	
-	if( (currentWorldFrame % 140) < 20)
-		keyState |= Unit::JUMP;
+	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
 	
-	unit.updateInput(keyState, mousex, mousey, 0);
+	if( (currentWorldFrame % 140) < 20)
+	{
+		keyState |= Unit::JUMP;
+	}
+	
+	if( (currentWorldFrame % 140) > 100 )
+	{
+		mousebutton = 1;
+	}
+	
+	unit.updateInput(keyState, mousex, mousey, mousebutton);
 }
 
 
@@ -204,7 +216,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			position.z = 0;
 			position.y = 0;
 
-			int angle = -unit.angle;
+			int angle   = -unit.angle;
 			int upangle = unit.upangle;
 
 			FixedPoint cos = dorka.getCos(angle);
@@ -233,10 +245,13 @@ void World::tickUnit(Unit& unit, Model& model)
 
 			int id = nextUnitID();
 			addProjectile(weapon_position, id);
+			
 			Projectile& projectile = projectiles[id];
+			
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
 			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
+			projectile.owner = unit.id;
 			
 			projectile.tick();
 			projectile.lifetime = 50;
@@ -287,17 +302,34 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 			if(projectile.collides(unit))
 			{
 				cerr << "HIT!\n";
-				unit.weapon_cooldown = 100;
-				unit.velocity.x = 0;
-				unit.velocity.z = 0;
-				unit.velocity.y = 3;
-
+				unit.hitpoints -= 170; // bullet does SEVENTEEN DAMAGE (we need some kind of weapon definitions)
+				unit.velocity += projectile.velocity * FixedPoint(130, true);
+				
+				if(unit.hitpoints < 1)
+				{
+					stringstream msg;
+					msg << unit.name << " has been killed by " << units[projectile.owner].name << "!";
+					worldMessages.push_back(msg.str());
+					
+					if(unit.human())
+					{
+						unit.hitpoints = 1000;
+						unit.velocity.x = 0;
+						unit.velocity.z = 0;
+						unit.velocity.y = 3;
+					}
+					else
+					{
+						deadUnits.push_back(unit.id);
+					}
+				}
+				
+				// is this safe? removing a unit inside an iteration of the data structure?
 				removeUnit(id);
 			}
 			else if(projectile.collidesTerrain(lvl))
 			{
-				//lvl.pointheight_info[projectile.position.x.getInteger()/8][projectile.position.y.getInteger()/8].number += 10000;
-//				cerr << "TERRAIN HIT\n";
+				// is this safe? removing a unit inside an iteration of the data structure?
 				removeUnit(id);
 			}
 		}
@@ -342,6 +374,14 @@ void World::worldTick(int tickCount)
 	{
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
+	
+	for(int i = 0; i < deadUnits.size(); i++)
+	{
+		removeUnit(deadUnits[i]);
+	}
+	
+	deadUnits.clear();
+	
 }
 
 void World::viewTick()
@@ -365,12 +405,17 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id] = Unit();
 	units[id].position.x = FixedPoint(50);
 	units[id].position.z = FixedPoint(50);
+	units[id].id = id;
 	
 	models[id] = Model();
 	models[id].load("data/model.bones");
 	
+	
 	if(!playerCharacter)
+	{
+		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
+	}
 }
 
 void World::addProjectile(Location& location, int id)
@@ -385,7 +430,8 @@ void World::addProjectile(Location& location, int id)
 	models[id].currentModelPos = position;
 
 	projectiles[id].curr_position = location;
-
+	projectiles[id].owner = id;
+	
 //	cerr << "New projectile with id " << id << "\n";
 }
 

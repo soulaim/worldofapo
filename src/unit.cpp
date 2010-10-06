@@ -11,8 +11,22 @@ Unit::Unit():
 	keyState(0),
 	weapon_cooldown(0),
 	leap_cooldown(0),
-	controllerTypeID(HUMAN_INPUT)
+	controllerTypeID(HUMAN_INPUT),
+	hitpoints(1000)
 {
+}
+
+
+void Unit::setName(const string& newName)
+{
+	name = newName;
+}
+
+bool Unit::human()
+{
+	if(controllerTypeID == HUMAN_INPUT)
+		return true;
+	return false;
 }
 
 float Unit::getAngle(ApoMath& apomath)
