@@ -11,6 +11,12 @@ void Game::serverSendMonsterSpawn()
 		target->second.write(tmp_msg.str());
 }
 
+void Game::serverSendRequestPlayerNameMessage(int player_id)
+{
+	cerr << "Sending a request to the new player to identify himself!" << endl;
+	sockets.sockets[player_id].write("-2 GIVE_NAME#");
+}
+
 void Game::host_tick()
 {
 	acceptConnections();

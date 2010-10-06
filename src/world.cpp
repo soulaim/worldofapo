@@ -20,6 +20,7 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 
 void World::resolveUnitCollision(Unit& a, Unit& b)
 {
+	
 	Location direction = (a.position - b.position);
 	direction.normalize();
 	direction *= FixedPoint(200, true);
@@ -473,6 +474,12 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 	}
+	else
+	{
+		units[id].name = "Unknown Player";
+		units[id].controllerTypeID = Unit::HUMAN_INPUT;
+	}
+	
 }
 
 void World::addProjectile(Location& location, int id)
