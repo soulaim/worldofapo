@@ -12,7 +12,7 @@ struct FixedPoint
 	long long number;
 	
 	FixedPoint(const FixedPoint& a):number(a.number) {}
-	FixedPoint(int a):number(a * 1000) {}
+	FixedPoint(const int a, bool isFloat = false):number(isFloat?a:(a * 1000)) {}
 	FixedPoint():number(0) {}
 	
 	float getFloat() const

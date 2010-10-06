@@ -21,6 +21,7 @@ class TextureHandler
 		unsigned createTexture(const std::string&, const std::string&);
 		unsigned createTexture(const std::string&, Image& img);
 		int bindTexture(const std::string&);
+		unsigned getTextureID(const std::string&);
 		
 		void deleteTexture(const std::string&);
 		void deleteAllTextures();

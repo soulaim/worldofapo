@@ -1,6 +1,7 @@
 
 #include "image.h"
 #include "location.h"
+#include "particle.h"
 
 #include <vector>
 #include <map>
@@ -49,6 +50,8 @@ class Graphics
 	GLfloat m[16]; // storage for OGL ModelView matrix
 	
 	void init();
+	void initLight();
+	
 	void createWindow();
 	float modelGround(Model& model);
 	
@@ -56,20 +59,29 @@ class Graphics
 	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawCrossHair();
+	void drawStatusBar();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
+	std::vector<Particle> viewParticles;
 	std::map<std::string, ObjectPart> objects;
 	
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
 	
+	std::string health;
+	std::string plr_name;
+	
 	SDL_Surface* drawContext;
 	Camera camera;
 	
 	unsigned currentTime;
+	bool lightsActive;
 	
 public:
+	
+	void setLocalPlayerName(const std::string&);
+	void setLocalPlayerHP(const int);
 	
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate, int mousex, int mousey);
@@ -85,11 +97,15 @@ public:
 	
 	void draw(std::map<int, Model>&, Level& lvl);
 	void drawMenu(std::vector<MenuButton>&);
-
+	
+	void toggleLightingStatus();
 	void toggleFullscreen();
+	void tick();
+	
+	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b);
+	void depthSortParticles(Vec3&);
 	
 	Graphics();
-	
 	FrustumR frustum;
 };
 

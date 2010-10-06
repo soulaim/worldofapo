@@ -17,7 +17,11 @@ void Game::handleServerMessage(const Order& server_msg)
 		client_state = 0;
 		cerr << "Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
-	
+	else if(server_msg.serverCommand == 10)
+	{
+		view.pushMessage("<Server> Creating a MONSTER! :D  Lol");
+		world.addUnit(world.nextUnitID(), false);
+	}
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
@@ -128,6 +132,9 @@ void Game::processClientMsgs()
 			stringstream ss_viewMsg;
 			ss_viewMsg << Players[plrID].name << " has connected!" << endl;
 			view.pushMessage(ss_viewMsg.str());
+			
+			// set unit's name to match the players
+			world.units[plrID].name = Players[plrID].name;
 		}
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
@@ -250,7 +257,17 @@ void Game::client_tick()
 			client_state ^= 2;
 		if(key == "f11")
 			view.toggleFullscreen();
-
+		if(key == "f10")
+			view.toggleLightingStatus();
+		if(key == "p")
+		{
+			if(state == "host")
+			{
+				// send spawn monster message
+				serverSendMonsterSpawn();
+			}
+		}
+		
 		if(client_state & 2)
 		{
 			string nick;
@@ -318,6 +335,17 @@ void Game::client_tick()
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
 		
+		// deliver any world message events to graphics structure, and erase them from world data.
+		for(int i=0; i<world.worldMessages.size(); i++)
+			view.pushMessage(world.worldMessages[i]);
+		world.worldMessages.clear();
+		
+		if(myID != -1)
+		{
+			view.setLocalPlayerName(Players[myID].name);
+			view.setLocalPlayerHP(world.units[myID].hitpoints);
+		}
+		
 		// handle any server commands intended for this frame
 		while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
 		{
@@ -374,7 +402,7 @@ void Game::client_tick()
 			view.updateInput(keyState, x, y);
 			
 			// run simulation for one WorldFrame
-			world.worldTick();
+			world.worldTick(simulRules.currentFrame);
 			simulRules.currentFrame++;
 		}
 	}

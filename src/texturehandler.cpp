@@ -34,6 +34,15 @@ unsigned TextureHandler::createTexture(const string& name, const string& fileNam
 	return createTexture(name, img);
 }
 
+
+unsigned TextureHandler::getTextureID(const std::string& name)
+{
+	if(textureExists(name))
+		return textures[name];
+	glGenTextures(1, &(textures[name]));
+	return textures[name];
+}
+
 unsigned TextureHandler::createTexture(const string& name, Image& img)
 {
 	if(img.data == 0)

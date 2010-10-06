@@ -25,6 +25,7 @@ struct Location
 	Location& operator-=(const Location&);
 	Location operator+(const Location&) const;
 	Location operator-(const Location&) const;
+	Location operator*(const FixedPoint& scalar);
 	
 	Location crossProduct(const Location&) const;
 	FixedPoint dotProduct(const Location& b) const;
