@@ -17,6 +17,46 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return FixedPoint(1) + h_diff;
 }
 
+void World::doDeathFor(Unit& unit, int causeOfDeath)
+{
+	stringstream msg;
+	string killer = "an unknown entity";
+	
+	if(units.find(causeOfDeath) != units.end())
+		killer = units[causeOfDeath].name;
+	
+	vector<string> killWords;
+	vector<string> afterWords;
+	killWords.push_back(" slaughtered "); afterWords.push_back("!");
+	killWords.push_back(" made "); afterWords.push_back(" his bitch!");
+	killWords.push_back(" has balls of steel! ("); afterWords.push_back(" is a casualty)");
+	killWords.push_back(" owned "); afterWords.push_back("'s ass!");
+	killWords.push_back(" ravaged "); afterWords.push_back(" inside out!");
+	killWords.push_back(" dominated "); afterWords.push_back("!");
+	
+	int i = currentWorldFrame % killWords.size();
+	msg << killer << killWords[i] << unit.name << afterWords[i];
+	worldMessages.push_back(msg.str());
+	
+	if(unit.human())
+	{
+		unit.hitpoints = 1000;
+		
+		// respawn player to random location
+		unit.position.x = (3  * currentWorldFrame) % 100;
+		unit.position.z = (17 * currentWorldFrame) % 100;
+		unit.position.y = 50;
+		
+		// stop any movement, let the player drop down to the field.
+		unit.velocity.x = 0;
+		unit.velocity.z = 0;
+		unit.velocity.y = 0;
+	}
+	else
+	{
+		deadUnits.push_back(unit.id);
+	}
+}
 
 void World::resolveUnitCollision(Unit& a, Unit& b)
 {
@@ -57,11 +97,12 @@ void World::generateInput_RabidAlien(Unit& unit)
 		return;
 	}
 	
-	if(bestDistance < FixedPoint(2))
+	if(bestDistance < FixedPoint(3))
 	{
 		// DEVOUR!
-		cerr << "RABID ALIEN DEVOURING HUMAN PLAYER!! OM NOM NOM!" << endl;
-		units[unitID].hitpoints -= 10; // devouring does TEN damage!
+		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
+		if(units[unitID].hitpoints < 1)
+			doDeathFor(units[unitID], unit.id);
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
@@ -341,33 +382,7 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				
 				if(unit.hitpoints < 1)
 				{
-					stringstream msg;
-					string killer = "an unknown entity";
-					
-					if(units.find(projectile.owner) != units.end())
-						killer = units[projectile.owner].name;
-					
-					msg << unit.name << " has been killed by " << killer << "!";
-					worldMessages.push_back(msg.str());
-					
-					if(unit.human())
-					{
-						unit.hitpoints = 1000;
-						
-						// respawn player to random location
-						unit.position.x = (3  * currentWorldFrame) % 100;
-						unit.position.z = (17 * currentWorldFrame) % 100;
-						unit.position.y = 50;
-						
-						// stop any movement, let the player drop down to the field.
-						unit.velocity.x = 0;
-						unit.velocity.z = 0;
-						unit.velocity.y = 0;
-					}
-					else
-					{
-						deadUnits.push_back(unit.id);
-					}
+					doDeathFor(unit, projectile.owner);
 				}
 				
 				deadUnits.push_back(id);

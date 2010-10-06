@@ -16,7 +16,7 @@ public:
 	{
 	}
 	
-	ViewMessage(std::string& msg, unsigned time): msgContent(msg), startTime(time), endTime(time + 5000), scale(1.5f), hilight(false)
+	ViewMessage(std::string& msg, unsigned time): msgContent(msg), startTime(time), endTime(time + 10000), scale(1.5f), hilight(false)
 	{
 	}
 	

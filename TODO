@@ -1,13 +1,12 @@
 TODO:
-      LUKEMISTA:
-      Index:    http://www.opengl.org/sdk/docs/tutorials/
-      Index:    http://www.opengl.org/sdk/docs/tutorials/Lighthouse3D/
-      Index:    http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/
-      Terrain:  http://www.gamedev.net/reference/articles/article1817.asp
-      Picking:  http://www.lighthouse3d.com/opengl/picking/
-      Model loading: http://www.spacesimulator.net/wiki/index.php/Tutorials:3ds_Loader
+MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. FIX.
       
-      Collision detection: http://www.gamasutra.com/view/feature/3190/advanced_collision_detection_.php?page=2
+      OLISI KIVA   - Better handling of debug messages during gameplay.
+      
+      OLISI KIVA   - Smarter enemy behaviour
+      VITUN TARKEA - NPC behaviour.
+
+!!    VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
 
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
@@ -15,11 +14,9 @@ TODO:
 
 Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
 
-      VITUN TARKEA - Collision detection (the constraints for this problem are still open)
+      OLISI KIVA   - Smart object to object collision detection. ( meaning better than O(n^2) )
 
       VITUN TARKEA - Game mechanics.
-
-      VITUN TARKEA - NPC behaviour.
       
       OLISI KIVA   - function to class Model, which returns the current height of the model (eg. the y-value of the lowest position of the model in its local context)
       
@@ -27,7 +24,16 @@ Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
       
       OLISI KIVA   - model significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
             
-Mika  VITUN TARKEA - Menu UI & Menu IO
+Mika/Sami  VITUN TARKEA - Menu UI & Menu IO
+
+LUKEMISTA:
+Index:    http://www.opengl.org/sdk/docs/tutorials/
+Index:    http://www.opengl.org/sdk/docs/tutorials/Lighthouse3D/
+Index:    http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/
+Terrain:  http://www.gamedev.net/reference/articles/article1817.asp
+Picking:  http://www.lighthouse3d.com/opengl/picking/
+Model loading: http://www.spacesimulator.net/wiki/index.php/Tutorials:3ds_Loader
+Collision detection: http://www.gamasutra.com/view/feature/3190/advanced_collision_detection_.php?page=2
 
 DONE
 5.10  Sami: Added some chat functionality.
