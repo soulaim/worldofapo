@@ -97,6 +97,7 @@ class Game
 	void processClientMsgs();
 	void client_tick();
 	void camera_handling();
+	int connectMenu();
 	
 public:
 	Game();
