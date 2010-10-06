@@ -424,6 +424,18 @@ void World::worldTick(int tickCount)
 	
 	deadUnits.clear();
 	
+	
+	if((currentWorldFrame % 200) == 0)
+	{
+
+		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+		{
+			stringstream msg;
+			msg << currentWorldFrame << ": " << iter->second.name << " (" << iter->first << "): " << iter->second.position.x.getFloat() << ", " << iter->second.position.z.getFloat();
+			worldMessages.push_back(msg.str());
+		}
+	}
+	
 }
 
 void World::viewTick()
