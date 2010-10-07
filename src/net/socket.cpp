@@ -130,8 +130,11 @@ int MU_Socket::socket_init()
 
 int MU_Socket::write(const string& msg)
 {
-	//	cerr << "Writing data to socket.. " << endl;
-	
+	if(!alive)
+	{
+		cerr << "TRYING TO WRITE TO A DEAD SOCKET!! NOT A GOOD IDEA MAYBE?? well fuck you user, i'll just not do that :/" << endl;
+		return 0;
+	}
 	
 	const char* c_msg = msg.c_str();
 	int total_length = msg.size();
@@ -142,7 +145,15 @@ int MU_Socket::write(const string& msg)
 		
 		// err???  MAYBE SHOULD HANDLE THIS CASE??
 		if(data_sent < 0)
+		{
+			cerr << "network write failed :DD" << endl;
 			return 0; // failed
+		}
+		
+		if(data_sent == 0)
+		{
+			cerr << "no data was written to socket?? :O  wtf? gonna try again.." << endl;
+		}
 		
 		total_length -= data_sent;
 		c_msg += data_sent;
