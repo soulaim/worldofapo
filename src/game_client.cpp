@@ -352,7 +352,10 @@ void Game::client_tick()
 	// is used by HOST functions. Do not interfere.
 	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
+
 		view.setZombiesLeft(world.getZombies());
+		update_kills();
+		view.setLocalPlayerKills(Players[myID].kills);
 
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
@@ -449,6 +452,13 @@ void Game::client_tick()
 		}
 	}
 	
+}
+
+void Game::update_kills() {
+	while(!world.kills.empty()) {
+		Players[world.kills.back()].kills++;
+		world.kills.pop_back();
+	}
 }
 
 void Game::camera_handling()

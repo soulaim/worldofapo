@@ -56,6 +56,7 @@ public:
 	std::vector<std::string> worldMessages;
 	std::vector<int> deadUnits;
 	std::vector<WorldEvent> events;
+	std::vector<int> kills;
 	
 	void worldTick(int tickCount);
 	void viewTick();
