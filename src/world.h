@@ -58,6 +58,8 @@ public:
 	std::vector<WorldEvent> events;
 	std::vector<int> kills;
 	std::vector<int> deaths;
+
+	std::vector<Location> humanPositions();
 	
 	void worldTick(int tickCount);
 	void viewTick();

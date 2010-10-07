@@ -399,6 +399,12 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				if(units.find(projectile.owner) != units.end())
 					shooterIsMonster = !units[projectile.owner].human();
 				
+				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+				if(!unit.human() && shooterIsMonster)
+				{
+					deadUnits.push_back(id);
+					continue;
+				}
 				
 				// save this information for later use.
 				WorldEvent event;
@@ -408,13 +414,6 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				event.velocity.y.number = 200;
 				events.push_back(event);
 				
-				
-				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-				if(!unit.human() && shooterIsMonster)
-				{
-					deadUnits.push_back(id);
-					continue;
-				}
 				
 				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
 				unit.velocity += projectile.velocity * FixedPoint(10, true);
@@ -583,4 +582,15 @@ int World::getZombies()
 			count++;
 	}
 	return count;
+}
+
+std::vector<Location> World::humanPositions()
+{
+	std::vector<Location> positions;
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if (iter->second.human())
+			positions.push_back(iter->second.position);
+	}
+	return positions;
 }

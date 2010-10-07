@@ -82,6 +82,7 @@ class Graphics
 	unsigned currentTime;
 	bool lightsActive;
 	int zombieCount;
+	std::vector<Location> humanPositions;
 	
 public:
 	
@@ -116,6 +117,9 @@ public:
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
+
+	void drawMinimap();
+	void setHumanPositions(std::vector<Location>);
 	
 	Graphics();
 	FrustumR frustum;
