@@ -355,7 +355,9 @@ void Game::client_tick()
 
 		view.setZombiesLeft(world.getZombies());
 		update_kills();
+		update_deaths();
 		view.setLocalPlayerKills(Players[myID].kills);
+		view.setLocalPlayerDeaths(Players[myID].deaths);
 
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
@@ -370,13 +372,13 @@ void Game::client_tick()
 		{
 			WorldEvent& event = world.events[i];
 			if(event.type == World::DAMAGE_BULLET)
-				view.genParticles(event.position, event.velocity, 4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 			else if(event.type == World::DAMAGE_DEVOUR)
-				view.genParticles(event.position, event.velocity, 9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 			else if(event.type == World::DEATH_ENEMY)
-				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
 			else if(event.type == World::DEATH_PLAYER)
-				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 			else
 				cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
 		}
@@ -458,6 +460,13 @@ void Game::update_kills() {
 	while(!world.kills.empty()) {
 		Players[world.kills.back()].kills++;
 		world.kills.pop_back();
+	}
+}
+
+void Game::update_deaths() {
+	while(!world.deaths.empty()) {
+		Players[world.deaths.back()].deaths++;
+		world.deaths.pop_back();
 	}
 }
 

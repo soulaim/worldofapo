@@ -72,6 +72,7 @@ class Graphics
 	std::vector<float> charWidth;
 	
 	std::string kills;
+	std::string deaths;
 	std::string health;
 	std::string plr_name;
 	
@@ -93,7 +94,8 @@ public:
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
 
 	void setZombiesLeft(int);
-	void setLocalPlayerKills(const int kills);
+	void setLocalPlayerKills(const int k);
+	void setLocalPlayerDeaths(const int d);
 	
 	void setCamera(const Camera& camera);
 	void loadObjects(std::string);

@@ -22,17 +22,19 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	stringstream msg;
 	string killer = "an unknown entity";
 	
+	deaths.push_back(unit.id);
 	if(units.find(causeOfDeath) != units.end()) {
 		killer = units[causeOfDeath].name;
-		if (units[causeOfDeath].human())
+		if (units[causeOfDeath].human()) {
 			kills.push_back(causeOfDeath);
+		}
 	}
 	
 	vector<string> killWords;
 	vector<string> afterWords;
 	killWords.push_back(" slaughtered "); afterWords.push_back("!");
 	killWords.push_back(" made "); afterWords.push_back(" his bitch!");
-	killWords.push_back(" has balls of steel! ("); afterWords.push_back(" is a casualty)");
+	killWords.push_back(" has balls of steel! "); afterWords.push_back(" is a casualty");
 	killWords.push_back(" owned "); afterWords.push_back("'s ass!");
 	killWords.push_back(" ravaged "); afterWords.push_back(" inside out!");
 	killWords.push_back(" dominated "); afterWords.push_back("!");
@@ -415,7 +417,7 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				}
 				
 				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-				unit.velocity += projectile.velocity * FixedPoint(130, true);
+				unit.velocity += projectile.velocity * FixedPoint(10, true);
 				
 				if(unit.hitpoints < 1)
 				{
