@@ -248,6 +248,9 @@ void Game::processClientMsgs()
 
 void Game::client_tick()
 {
+
+	view.setZombiesLeft(world.getZombies());
+
 	// check if we have new msgs from the server.
 	if(clientSocket.readyToRead() == 1)
 	{

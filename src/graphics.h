@@ -60,6 +60,7 @@ class Graphics
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawCrossHair();
 	void drawStatusBar();
+	void drawZombiesLeft();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -77,6 +78,7 @@ class Graphics
 	
 	unsigned currentTime;
 	bool lightsActive;
+	int zombieCount;
 	
 public:
 	
@@ -87,6 +89,7 @@ public:
 	void updateInput(int keystate, int mousex, int mousey);
 	
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
+	void setZombiesLeft(int);
 	
 	void setCamera(const Camera& camera);
 	void loadObjects(std::string);

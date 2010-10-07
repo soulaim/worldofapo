@@ -31,6 +31,13 @@ void Graphics::drawStatusBar()
 	drawString(ss.str(), -0.9, 0.9, 2.0, true);
 }
 
+void Graphics::drawZombiesLeft()
+{
+	stringstream zz;
+	zz << "Zombies left: " << zombieCount;
+	drawString(zz.str(), 0.5, 0.9, 1.5, true);
+}
+
 float Graphics::modelGround(Model& model)
 {
 	// :G
@@ -305,6 +312,7 @@ void Graphics::megaFuck()
 Graphics::Graphics()
 {
 	currentTime = 0;
+	zombieCount = 0;
 	init();
 }
 
@@ -617,7 +625,8 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	
 	drawMessages();
 	drawStatusBar();
-	
+	drawZombiesLeft();
+
 	SDL_GL_SwapBuffers();
 	return;
 }
@@ -650,7 +659,7 @@ void Graphics::tick()
 	velocity.x.number = 100;
 	velocity.y.number = 900;
 	velocity.z.number = 0;
-	
+
 	
 	genParticles(position, velocity, 1, 0.5, 0, 0, 0);
 	
@@ -681,4 +690,9 @@ void Graphics::mouseUp()
 void Graphics::mouseDown()
 {
 	camera.zoomOut();
+}
+
+void Graphics::setZombiesLeft(int count)
+{
+	zombieCount = count;
 }
