@@ -328,80 +328,76 @@ void Game::handle_some_client_input()
 
 	string key = userio.getSingleKey();
 	
-	if(key.size() != 0)
+	if(key.size() == 0)
+		return;
+
+	if(key == "return")
+		client_state ^= 2;
+	else if(key == "f11")
+		view.toggleFullscreen();
+	else if(key == "f10")
+		view.toggleLightingStatus();
+	else if(key == "p" && state == "host")
 	{
-		if(key == "return")
-			client_state ^= 2;
-		if(key == "f11")
-			view.toggleFullscreen();
-		if(key == "f10")
-			view.toggleLightingStatus();
-		if(key == "p")
-		{
-			if(state == "host")
-			{
-				// send spawn monster message
-				serverSendMonsterSpawn();
-			}
-		}
-		if(key == "f9")
-			world.show_errors ^= 1;
+		// send spawn monster message
+		serverSendMonsterSpawn();
+	}
+	else if(key == "f9")
+		world.show_errors ^= 1;
+
+	if(client_state & 2) // chat message
+	{
+		string nick;
+		nick.append("<");
+		nick.append(Players[myID].name);
+		nick.append("> ");
 		
-		if(client_state & 2)
-		{
-			string nick;
-			nick.append("<");
-			nick.append(Players[myID].name);
-			nick.append("> ");
-			
-			if(key.size() == 1)
-				clientCommand.append(key);
-			
-			if(key == "backspace" && clientCommand.size() > 0)
-				clientCommand.resize(clientCommand.size()-1);
+		if(key.size() == 1)
+			clientCommand.append(key);
+		
+		else if(key == "backspace" && clientCommand.size() > 0)
+			clientCommand.resize(clientCommand.size()-1);
 
-			if(key == "escape") {
-				client_state ^= 2;
-				clientCommand = "";
-				nick = "";
-			}
-			
-			if(key == "space")
-				clientCommand.append(" ");
-			nick.append(clientCommand);
-			view.setCurrentClientCommand(nick);
+		else if(key == "escape") {
+			client_state ^= 2;
+			clientCommand = "";
+			nick = "";
 		}
-		else
-		{
-			
-			if(key == "return") {
-				// handle client command
-				if(clientCommand.size() > 0)
-				{
-					stringstream tmp_msg;
-					tmp_msg << "3 " << myID << " " << clientCommand << "#";
-					clientSocket.write(tmp_msg.str());
-				}
-				
-				clientCommand = "";
-				view.setCurrentClientCommand(clientCommand);
-			}
-
-			if(key == "escape")
+		
+		else if(key == "space")
+			clientCommand.append(" ");
+		nick.append(clientCommand);
+		view.setCurrentClientCommand(nick);
+	}
+	else
+	{
+		
+		if(key == "return") { // handle client command
+			if(clientCommand.size() > 0)
 			{
-				cerr << "User pressed ESC, shutting down." << endl;
-				SDL_Quit();
-				exit(0);
+				stringstream tmp_msg;
+				tmp_msg << "3 " << myID << " " << clientCommand << "#";
+				clientSocket.write(tmp_msg.str());
 			}
 			
-			if(key == "g") {
-				if (client_state & 4) {
-					enableGrab();
-				} else {
-					disableGrab();
-				}
-				client_state ^= 4;
+			clientCommand = "";
+			view.setCurrentClientCommand(clientCommand);
+		}
+
+		if(key == "escape")
+		{
+			cerr << "User pressed ESC, shutting down." << endl;
+			SDL_Quit();
+			exit(0);
+		}
+		
+		if(key == "g") {
+			if (client_state & 4) {
+				enableGrab();
+			} else {
+				disableGrab();
 			}
+			client_state ^= 4;
 		}
 	}
 }
