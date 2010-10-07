@@ -370,13 +370,13 @@ void Game::client_tick()
 		{
 			WorldEvent& event = world.events[i];
 			if(event.type == World::DAMAGE_BULLET)
-				view.genParticles(event.position, event.velocity, 4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 			else if(event.type == World::DAMAGE_DEVOUR)
-				view.genParticles(event.position, event.velocity, 9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 			else if(event.type == World::DEATH_ENEMY)
-				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
 			else if(event.type == World::DEATH_PLAYER)
-				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 			else
 				cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
 		}
