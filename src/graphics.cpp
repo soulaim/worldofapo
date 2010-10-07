@@ -76,7 +76,7 @@ void Graphics::toggleLightingStatus()
 	lightsActive = !lightsActive;
 }
 
-void Graphics::genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b)
+void Graphics::genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b)
 {
 	for(int i=0; i<num; i++)
 	{
@@ -90,9 +90,11 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		p.max_life = 70;
 		p.cur_life = 70;
 		
-		p.r = (rand() % 255)  + 255 / 560.;
-		p.g = ((rand() % 255) + 255) / 560.;
-		p.b = (rand() % 255) / 700.;
+		p.r = r;
+		p.g = g;
+		p.b = b;
+		
+		p.scale = scale;
 		
 		viewParticles.push_back(p);
 	}
@@ -569,6 +571,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	depthSortParticles(direction_vector);
 	
 	TextureHandler::getSingleton().bindTexture("particle");
+	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -591,11 +594,13 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		glRotatef(x_angle, 0.0, 1.0, 0.0);
 		glRotatef(y_angle, 1.0, 0.0, 0.0);
 		
+		float s = viewParticles[i].scale;
+		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f, -1.5f, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f, -1.5f, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f, +1.5f, 0.0f);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f, +1.5f, 0.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
 		glEnd();
 		
 		glRotatef(-y_angle, 1.0, 0.0, 0.0);
@@ -609,7 +614,8 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-	
+	if(lightsActive)
+		glDisable(GL_LIGHTING);
 	
 	
 	if(camera.isFirstPerson())
@@ -652,7 +658,7 @@ void Graphics::tick()
 	velocity.z.number = 0;
 	
 	
-	genParticles(position, velocity, 1, 0.5, 0, 0, 0);
+	genParticles(position, velocity, 1, 0.5, 1.0, 0.9, 0.2, 0.2);
 	
 	for(int i=0; i<viewParticles.size(); i++)
 	{

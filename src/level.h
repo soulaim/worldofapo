@@ -14,6 +14,7 @@ struct Level
 	
 	void generate(int);
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& y);
+	Location getRandomLocation(int);
 	
 	float estimateHeightDifference(int x, int y);
 	

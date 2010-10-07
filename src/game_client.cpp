@@ -360,11 +360,30 @@ void Game::client_tick()
 			view.pushMessage(world.worldMessages[i]);
 		world.worldMessages.clear();
 		
+		// handle any world events <-> graphics structure
+		for(int i=0; i<world.events.size(); i++)
+		{
+			WorldEvent& event = world.events[i];
+			if(event.type == World::DAMAGE_BULLET)
+				view.genParticles(event.position, event.velocity, 4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+			else if(event.type == World::DAMAGE_DEVOUR)
+				view.genParticles(event.position, event.velocity, 9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+			else if(event.type == World::DEATH_ENEMY)
+				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+			else if(event.type == World::DEATH_PLAYER)
+				view.genParticles(event.position, event.velocity, 30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+			else
+				cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
+		}
+		world.events.clear();
+		
+		
 		if(myID != -1)
 		{
 			view.setLocalPlayerName(Players[myID].name);
 			view.setLocalPlayerHP(world.units[myID].hitpoints);
 		}
+		
 		
 		// handle any server commands intended for this frame
 		while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
@@ -373,6 +392,7 @@ void Game::client_tick()
 			UnitInput.pop_back();
 			handleServerMessage(server_command);
 		}
+		
 		
 		if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
 		{
