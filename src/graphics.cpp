@@ -130,7 +130,7 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 }
 
 
-void Graphics::pushMessage(string msg, float r, float g, float b)
+void Graphics::pushMessage(const string& msg, float r, float g, float b)
 {
 	viewMessages.push_back(ViewMessage(msg, currentTime));
 }
@@ -339,7 +339,7 @@ Graphics::Graphics()
 	init();
 }
 
-void Graphics::setCurrentClientCommand(string& cmd)
+void Graphics::setCurrentClientCommand(const string& cmd)
 {
 	currentClientCommand = cmd;
 }
@@ -696,6 +696,7 @@ void Graphics::draw(map<int, Model>& models)
 {
 	startDrawing();
 	drawModels(models);
+	drawMessages();
 	SDL_GL_SwapBuffers();
 }
 

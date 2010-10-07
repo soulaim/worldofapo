@@ -43,7 +43,7 @@ struct Model
 	void updatePosition(float x, float y, float z);
 	
 	void tick();
-	void load(const std::string& );
+	bool load(const std::string& );
 	void setAction(const std::string&);
 	
 };
