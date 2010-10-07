@@ -1,4 +1,10 @@
 TODO:
+      OLISI KIVA   - Art content (sounds, music, models, animations, textures, effects..)
+
+      OLISI KIVA   - Sound system
+
+      OLISI KIVA   - Minimap
+
       OLISI KIVA   - Weapon definitions
 
       OLISI KIVA   - Ability to cast light in areas (flares)
@@ -11,6 +17,8 @@ MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. F
       VITUN TARKEA - NPC behaviour.
 
 !!    VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
+
+      VITUN TARKEA - Connecting to active games results in randomly getting out of sync. Why? (if starts in sync, stays in sync)
 
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
