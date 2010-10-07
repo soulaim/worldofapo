@@ -6,13 +6,13 @@
 using namespace std;
 
 Unit::Unit():
+	controllerTypeID(HUMAN_INPUT),
+	hitpoints(1000),
 	angle(0),
 	upangle(0),
 	keyState(0),
 	weapon_cooldown(0),
-	leap_cooldown(0),
-	controllerTypeID(HUMAN_INPUT),
-	hitpoints(1000)
+	leap_cooldown(0)
 {
 }
 
@@ -31,7 +31,7 @@ bool Unit::human()
 
 float Unit::getAngle(ApoMath& apomath)
 {
-	return apomath.getRad(angle);
+	return apomath.getDegrees(angle);
 }
 
 void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_)
@@ -40,19 +40,16 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_
 	mouseButton = mouseButton_;
 	angle -= mousex_;
 
-	// FIX TODO FIX TODO FIX ZOMG FFS TROLOLOLOLOL
-	static ApoMath dorka2; // TODO: EIS VOISOASDIASD;
-	dorka2.init(3000);
-	upangle += dorka2.DEGREES_180; // Prevent going full circles when moving camera up or down.
+	ApoMath math;
+	upangle += math.DEGREES_180; // Prevent going full circles when moving camera up or down.
 
 	upangle -= mousey_;
 
-	if(upangle < dorka2.DEGREES_180+5)
-		upangle = dorka2.DEGREES_180+5;
-	if(upangle > dorka2.DEGREES_360-6)
-		upangle = dorka2.DEGREES_360-6;
-	upangle -= dorka2.DEGREES_180;
-//	cerr << "upangle:" << upangle << "\n";
+	if(upangle < math.DEGREES_180+5)
+		upangle = math.DEGREES_180+5;
+	if(upangle > math.DEGREES_360-6)
+		upangle = math.DEGREES_360-6;
+	upangle -= math.DEGREES_180;
 }
 
 

@@ -112,16 +112,13 @@ void Camera::updateInput(int keystate, int mousex, int mousey)
 
 void Camera::fpsTick()
 {
-	// TODO: Fix to use some common ApoMath.
-	static ApoMath dorka;
-	if(!dorka.ready())
-		dorka.init(3000);
+	ApoMath math;
 	
-	double cos = dorka.getCos(unit->angle).getFloat();
-	double sin = dorka.getSin(unit->angle).getFloat();
+	double cos = math.getCos(unit->angle).getFloat();
+	double sin = math.getSin(unit->angle).getFloat();
 
-	double upsin = dorka.getSin(unit->upangle).getFloat();
-	double upcos = dorka.getCos(unit->upangle).getFloat();
+	double upsin = math.getSin(unit->upangle).getFloat();
+	double upcos = math.getCos(unit->upangle).getFloat();
 
 	double x = position.x;
 	double y = position.y;
@@ -147,16 +144,13 @@ void Camera::fpsTick()
 
 void Camera::relativeTick()
 {
-	// TODO: Fix to use some common ApoMath.
-	static ApoMath dorka;
-	if(!dorka.ready())
-		dorka.init(3000);
+	ApoMath math;
 	
-	double cos = dorka.getCos(unit->angle).getFloat();
-	double sin = dorka.getSin(unit->angle).getFloat();
+	double cos = math.getCos(unit->angle).getFloat();
+	double sin = math.getSin(unit->angle).getFloat();
 
-	double upsin = dorka.getSin(unit->upangle).getFloat();
-	double upcos = dorka.getCos(unit->upangle).getFloat();
+	double upsin = math.getSin(unit->upangle).getFloat();
+	double upcos = math.getCos(unit->upangle).getFloat();
 
 	double x = position.x;
 	double y = position.y;

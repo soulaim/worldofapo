@@ -187,7 +187,6 @@ void World::init()
 	_playerID_next_player = 0;
 	
 	lvl.generate(50);
-	apomath.init(3000);
 	show_errors = 0;
 }
 
@@ -311,11 +310,6 @@ void World::tickUnit(Unit& unit, Model& model)
 
 			// TODO: Following is somewhat duplicated from Camera :G
 
-			// TODO: Fix to use some common ApoMath.
-			static ApoMath dorka;
-			if(!dorka.ready())
-				dorka.init(3000);
-
 			Location position;
 			position.x = 30;
 			position.z = 0;
@@ -324,10 +318,10 @@ void World::tickUnit(Unit& unit, Model& model)
 			int angle   = -unit.angle;
 			int upangle = unit.upangle;
 
-			FixedPoint cos = dorka.getCos(angle);
-			FixedPoint sin = dorka.getSin(angle);
-			FixedPoint upcos = dorka.getCos(upangle);
-			FixedPoint upsin = dorka.getSin(upangle);
+			FixedPoint cos = apomath.getCos(angle);
+			FixedPoint sin = apomath.getSin(angle);
+			FixedPoint upcos = apomath.getCos(upangle);
+			FixedPoint upsin = apomath.getSin(upangle);
 			
 			Location relative_position;
 			FixedPoint x = position.x;

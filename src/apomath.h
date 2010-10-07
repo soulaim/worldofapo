@@ -9,23 +9,26 @@
 
 struct ApoMath
 {
-	std::vector<FixedPoint> sin_vals;
-	std::vector<FixedPoint> cos_vals;
-	std::vector<float> rad_vals;
-	
-	FixedPoint& getCos(int& angle);
-	FixedPoint& getSin(int& angle);
-	float getRad(int& angle); // actually returns the degrees, not the rads. for openGL.
-	
+private:
+	static std::vector<FixedPoint> sin_vals;
+	static std::vector<FixedPoint> cos_vals;
+	static std::vector<float> degree_vals;
+
+public:
+	FixedPoint& getCos(int& angle) const;
+	FixedPoint& getSin(int& angle) const;
+	float getDegrees(int& angle) const;
+
 	static FixedPoint sqrt(const FixedPoint& point);
-	
+
+	ApoMath();
 	void init(int);
-	bool ready();
+	bool ready() const;
 
 
-	int DEGREES_90;
-	int DEGREES_180;
-	int DEGREES_360;
+	static int DEGREES_90;
+	static int DEGREES_180;
+	static int DEGREES_360;
 };
 
 #endif

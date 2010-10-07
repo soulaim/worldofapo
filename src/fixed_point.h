@@ -114,7 +114,7 @@ struct FixedPoint
 		return tmp;
 	}
 	
-	FixedPoint squareRoot()
+	FixedPoint squareRoot() const
 	{
 		if(number < 2)
 			return FixedPoint(0);
