@@ -72,6 +72,8 @@ public:
 	int nextPlayerID();
 
 	int show_errors;
+
+	int getZombies();
 	
 	void terminate(); // don't call this unless you mean it :D
 };

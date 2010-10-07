@@ -248,6 +248,7 @@ void Game::processClientMsgs()
 
 void Game::client_tick()
 {
+
 	// check if we have new msgs from the server.
 	if(clientSocket.readyToRead() == 1)
 	{
@@ -352,6 +353,8 @@ void Game::client_tick()
 	// is used by HOST functions. Do not interfere.
 	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
+		view.setZombiesLeft(world.getZombies());
+
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
 		

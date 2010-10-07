@@ -569,3 +569,13 @@ void World::removeUnit(int id)
 	models.erase(id);
 }
 
+int World::getZombies()
+{
+	int count = 0;
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if (!iter->second.human())
+			count++;
+	}
+	return count;
+}
