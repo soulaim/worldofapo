@@ -53,15 +53,21 @@ class Graphics
 	void initLight();
 	
 	void createWindow();
-	float modelGround(Model& model);
+	float modelGround(const Model& model);
 	
-	void drawPartsRecursive(Model&, int, int, std::string&, int);
+	void startDrawing();
+	void drawPartsRecursive(Model&, int, int, const std::string&, int);
 	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
+	void drawLevel(const Level&);
+	void drawModels(std::map<int, Model>& models);
+	void drawDebugLines();
 	void drawCrossHair();
 	void drawStatusBar();
 	void drawZombiesLeft();
 	void drawBanner();
+	void drawParticles();
+	void drawHUD();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -105,7 +111,8 @@ public:
 	void setTime(unsigned);
 	void setCurrentClientCommand(std::string&);
 	
-	void draw(std::map<int, Model>&, Level& lvl);
+	void draw(std::map<int, Model>&, const Level& lvl);
+	void draw(std::map<int, Model>&);
 	void drawMenu(std::vector<MenuButton>&);
 	
 	void toggleLightingStatus();

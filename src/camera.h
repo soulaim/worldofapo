@@ -37,12 +37,12 @@ public:
 	void fixHeight(float h);
 	void zoomIn();
 	void zoomOut();
-	void setLevel(Level lvl);
+	void setLevel(const Level* lvl);
 
 private:
 	Vec3 position;
 	Vec3 fps_direction;
-	Level level;
+	const Level* level;
 
 	// Lagging dudes
 	Vec3 currentPosition;

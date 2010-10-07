@@ -5,7 +5,8 @@ const double head_level = 6.0;
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),
 	unit(0),
-	mode(RELATIVE)
+	mode(RELATIVE),
+	level(0)
 {
 }
 
@@ -16,7 +17,7 @@ Vec3& Camera::getCurrentTarget()
 	return currentTarget;
 }
 
-void Camera::setLevel(Level lvl)
+void Camera::setLevel(const Level* lvl)
 {
 	level = lvl;
 }
@@ -181,10 +182,13 @@ void Camera::relativeTick()
 	camX.number = currentRelative.x * 1000;
 	FixedPoint camZ;
 	camZ.number = currentRelative.z * 1000;
-	float tmp_y = level.getHeight(camX, camZ).getFloat() + 2.f;
+	if(level)
+	{
+		float tmp_y = level->getHeight(camX, camZ).getFloat() + 2.f;
 
-	if (currentRelative.y < tmp_y) {
-		currentRelative.y = tmp_y;
+		if (currentRelative.y < tmp_y) {
+			currentRelative.y = tmp_y;
+		}
 	}
 }
 
