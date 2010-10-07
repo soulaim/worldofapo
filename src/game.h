@@ -95,14 +95,12 @@ class Game
 	void acceptConnections();
 	void host_tick();
 	
+	void handleWorldEvents();
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 	void client_tick();
 	void camera_handling();
 	int connectMenu();
-
-	void update_kills();
-	void update_deaths();
 	
 	void enableGrab();
 	void disableGrab();

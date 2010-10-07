@@ -503,8 +503,15 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
 	glLoadIdentity();                                   // Reset The View
 	
-	camera.setLevel(lvl);
 	camera.tick();
+	
+	Vec3 camStartPos = camera.getPosition();
+	FixedPoint camX = camStartPos.x * 1000;
+	FixedPoint camZ = camStartPos.z * 1000;
+	
+	float cam_min_y = lvl.getHeight(camX, camZ).getFloat() + 2.f;
+	camera.setAboveGround(cam_min_y);
+	
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
 	camTarget = camera.getCurrentTarget();
@@ -729,27 +736,49 @@ void Graphics::drawMinimap()
 {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-	//glEnable(GL_TEXTURE_2D);
+	
 	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 	
 	glTranslatef(0.0f,0.0f, -1.0f);
 	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+	glBegin(GL_QUADS);
+	glVertex3f(0.60f , -0.97f, 0.f);
+	glVertex3f(0.97f , -0.97f, 0.f);
+	glVertex3f(0.97f , -0.60f, 0.f);
+	glVertex3f(0.60f , -0.60f, 0.f);
+	glEnd();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+	
+	
 	glColor3f(0, 0, 1.0f);
 	glPointSize(5.0f);
 
 	glBegin(GL_POINTS);
+	
 	for(std::vector<Location>::iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
 	{
-		glVertex2f(0.7 + (0.3*(float)iter->x.getInteger())/800, -0.7 - (0.3*(float)iter->z.getInteger())/800);
+		glVertex3f(0.6 + (0.37*(float)iter->x.getInteger())/800, -0.97 + (0.37*(float)iter->z.getInteger())/800, 0.f);
 	}
+	
 	glEnd();
+	
 	glPopMatrix();
-
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	if(lightsActive)
 		glEnable(GL_LIGHTING);
-
 }
 
 void Graphics::setHumanPositions(std::vector<Location> positions)

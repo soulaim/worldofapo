@@ -9,6 +9,61 @@
 
 using namespace std;
 
+void Game::handleWorldEvents()
+{
+	if(myID != -1)
+	{
+		view.setLocalPlayerName(Players[myID].name);
+		view.setLocalPlayerHP(world.units[myID].hitpoints);
+	}
+	
+	view.setZombiesLeft(world.getZombies());
+	view.setHumanPositions(world.humanPositions());
+	
+	// deliver any world message events to graphics structure, and erase them from world data.
+	for(int i=0; i<world.worldMessages.size(); i++)
+		view.pushMessage(world.worldMessages[i]);
+	world.worldMessages.clear();
+	
+	// handle any world events <-> graphics structure
+	for(int i=0; i<world.events.size(); i++)
+	{
+		WorldEvent& event = world.events[i];
+		if(event.type == World::DAMAGE_BULLET)
+			view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+		else if(event.type == World::DAMAGE_DEVOUR)
+			view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+		else if(event.type == World::DEATH_ENEMY)
+			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+		else if(event.type == World::DEATH_PLAYER)
+			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+		else
+			cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
+		
+		if(event.type == World::DEATH_ENEMY)
+		{
+			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+			{
+					Players[event.actor_id].kills++;
+			}
+		}
+		
+		if(event.type == World::DEATH_PLAYER)
+		{
+			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				Players[event.actor_id].kills++;
+			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
+				Players[event.target_id].deaths++;
+		}
+		
+	}
+	world.events.clear();
+	
+	view.setLocalPlayerKills(Players[myID].kills);
+	view.setLocalPlayerDeaths(Players[myID].deaths);
+	
+}
+
 
 void Game::handleServerMessage(const Order& server_msg)
 {
@@ -125,11 +180,14 @@ void Game::processClientMsgs()
 		else if(order_type == 2) // playerInfo message
 		{
 			cerr << "Got playerInfo message!" << endl;
-			int plrID;
+			int plrID, kills, deaths;
 			string name;
-			ss >> plrID >> name;
+			ss >> plrID >> name >> kills >> deaths;
 			Players[plrID].name = name;
-			cerr << plrID << " " << name << endl;
+			Players[plrID].kills = kills;
+			Players[plrID].deaths = deaths;
+			
+			cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
 			
 			stringstream ss_viewMsg;
 			ss_viewMsg << Players[plrID].name << " has connected!" << endl;
@@ -187,7 +245,7 @@ void Game::processClientMsgs()
 			{
 				cerr << "Server wants to know my identity now. Sending: " << localPlayer.name << endl;
 				stringstream ss;
-				ss << "2 " << myID << " " << localPlayer.name << "#";
+				ss << "2 " << myID << " " << localPlayer.name << " 0 0#";
 				clientSocket.write(ss.str());
 			}
 			else if(cmd == "UNIT") // unit copy message
@@ -349,46 +407,9 @@ void Game::client_tick()
 	// is used by HOST functions. Do not interfere.
 	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
-
-		view.setZombiesLeft(world.getZombies());
-		view.setHumanPositions(world.humanPositions());
-		update_kills();
-		update_deaths();
-		view.setLocalPlayerKills(Players[myID].kills);
-		view.setLocalPlayerDeaths(Players[myID].deaths);
-
+		
 		// this is acceptable because the size is guaranteed to be insignificantly small
 		sort(UnitInput.begin(), UnitInput.end());
-		
-		// deliver any world message events to graphics structure, and erase them from world data.
-		for(int i=0; i<world.worldMessages.size(); i++)
-			view.pushMessage(world.worldMessages[i]);
-		world.worldMessages.clear();
-		
-		// handle any world events <-> graphics structure
-		for(int i=0; i<world.events.size(); i++)
-		{
-			WorldEvent& event = world.events[i];
-			if(event.type == World::DAMAGE_BULLET)
-				view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
-			else if(event.type == World::DAMAGE_DEVOUR)
-				view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
-			else if(event.type == World::DEATH_ENEMY)
-				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
-			else if(event.type == World::DEATH_PLAYER)
-				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
-			else
-				cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
-		}
-		world.events.clear();
-		
-		
-		if(myID != -1)
-		{
-			view.setLocalPlayerName(Players[myID].name);
-			view.setLocalPlayerHP(world.units[myID].hitpoints);
-		}
-		
 		
 		// handle any server commands intended for this frame
 		while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
@@ -401,6 +422,8 @@ void Game::client_tick()
 		
 		if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
 		{
+			handleWorldEvents();
+			
 			if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 				cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 			
@@ -452,20 +475,6 @@ void Game::client_tick()
 		}
 	}
 	
-}
-
-void Game::update_kills() {
-	while(!world.kills.empty()) {
-		Players[world.kills.back()].kills++;
-		world.kills.pop_back();
-	}
-}
-
-void Game::update_deaths() {
-	while(!world.deaths.empty()) {
-		Players[world.deaths.back()].deaths++;
-		world.deaths.pop_back();
-	}
 }
 
 void Game::camera_handling()

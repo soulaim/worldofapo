@@ -62,6 +62,7 @@ class Graphics
 	void drawStatusBar();
 	void drawZombiesLeft();
 	void drawBanner();
+	void drawMinimap();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -118,7 +119,7 @@ public:
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 
-	void drawMinimap();
+	
 	void setHumanPositions(std::vector<Location>);
 	
 	Graphics();
