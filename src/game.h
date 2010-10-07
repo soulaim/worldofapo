@@ -17,6 +17,7 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <set>
 
 
 // information regarding how much of the simulation is allowed to play now,
@@ -66,8 +67,11 @@ class Game
 	
 	std::vector<Order> UnitInput;
 	
-	map<int, PlayerInfo> Players;
+	std::map<int, PlayerInfo> Players;
 	PlayerInfo localPlayer;
+	
+	// TODO ALERT FIX TROLOLOL
+	std::set<std::string> inTransitMessages;
 	
 	int state_descriptor;
 	int client_state;
