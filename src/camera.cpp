@@ -28,7 +28,7 @@ Vec3 Camera::getPosition() const
 	{
 		if(mode == RELATIVE)
 		{
-			return currentRelative;
+			return currentPosition + currentRelative;
 		}
 		
 		if(mode == FIRST_PERSON)
