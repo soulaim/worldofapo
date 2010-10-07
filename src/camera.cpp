@@ -181,17 +181,23 @@ void Camera::relativeTick()
 
 void Camera::zoomIn()
 {
-	if (mode == RELATIVE)
+	if(mode == RELATIVE)
 	{
-		// do;
+		if(position.length() > 1.0)
+		{
+			position *= 2.0/3.0;
+		}
 	}
 }
 
 void Camera::zoomOut()
 {
-	if (mode == RELATIVE)
+	if(mode == RELATIVE)
 	{
-		// do;
+		if(position.length() < 100.0)
+		{
+			position *= 3.0/2.0;
+		}
 	}
 }
 

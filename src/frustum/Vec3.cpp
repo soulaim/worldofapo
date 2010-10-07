@@ -6,119 +6,108 @@
 
 using namespace std;
 
-Vec3::Vec3(float x, float y, float z)
+Vec3::Vec3(float xx, float yy, float zz):
+	x(xx),
+	y(yy),
+	z(zz)
 {
-
-	this->x = x;
-	this->y = y;
-	this->z = z;
-
 }
 
-Vec3::Vec3(const Vec3 &v) {
-
-	x = v.x;
-	y = v.y;
-	z = v.z;
-
+Vec3::Vec3(const Vec3 &v):
+	x(v.x),
+	y(v.y),
+	z(v.z)
+{
 }
 
-
-Vec3::Vec3() {
-
-	x = 0;
-	y = 0;
-	z = 0;
-
+Vec3::Vec3():
+	x(0.0f),
+	y(0.0f),
+	z(0.0f)
+{
 }
 
 
 Vec3::~Vec3()
 {
-
 }
 
+Vec3& Vec3::operator=(const Vec3& v)
+{
+	x = v.x;
+	y = v.y;
+	z = v.z;
+	return *this;
+}
 
-Vec3& Vec3::operator += (const Vec3 &v)
+Vec3& Vec3::operator+=(const Vec3 &v)
 {
 	x += v.x;
 	y += v.y;
 	z += v.z;
-	
+	return *this;
+}
+
+Vec3& Vec3::operator-=(const Vec3 &v)
+{
+	x -= v.x;
+	y -= v.y;
+	z -= v.z;
+	return *this;
+}
+
+Vec3& Vec3::operator*=(float t)
+{
+	x *= t;
+	y *= t;
+	z *= t;
+	return *this;
+}
+
+Vec3& Vec3::operator/=(float t)
+{
+	x /= t;
+	y /= t;
+	z /= t;
 	return *this;
 }
 
 
 Vec3 Vec3::operator+(const Vec3 &v) const
 {
-
-	Vec3 res;
-
-	res.x = x + v.x;
-	res.y = y + v.y;
-	res.z = z + v.z;
-
-	return(res);
+	return Vec3(*this) += v;
 }
 
 Vec3 Vec3::operator-(const Vec3 &v) const
 {
-
-	Vec3 res;
-
-	res.x = x - v.x;
-	res.y = y - v.y;
-	res.z = z - v.z;
-
-	return(res);
+	return Vec3(*this) -= v;
 }
+
+Vec3 Vec3::operator*(float t) const
+{
+	return Vec3(*this) *= t;
+}
+
+Vec3 Vec3::operator/(float t) const
+{
+	return Vec3(*this) /= t;
+}
+
+
 
 Vec3 Vec3::operator-(void) const
 {
-
-	Vec3 res;
-
-	res.x = -x;
-	res.y = -y;
-	res.z = -z;
-
-	return(res);
+	return Vec3(-x, -y, -z);
 }
 
 // cross product
 Vec3 Vec3::operator*(const Vec3 &v) const
 {
-
 	Vec3 res;
 
 	res.x = y * v.z - z * v.y;
 	res.y = z * v.x - x * v.z;
 	res.z = x * v.y - y * v.x;
-
-	return (res);
-}
-
-Vec3 Vec3::operator*(float t) const
-{
-
-	Vec3 res;
-
-	res.x = x * t;
-	res.y = y * t;
-	res.z = z * t;
-
-	return (res);
-}
-
-
-Vec3 Vec3::operator/(float t) const
-{
-
-	Vec3 res;
-
-	res.x = x / t;
-	res.y = y / t;
-	res.z = z / t;
 
 	return (res);
 }
@@ -146,14 +135,6 @@ void Vec3::normalize() {
 float Vec3::innerProduct(const Vec3 &v) {
 
 	return (x * v.x + y * v.y + z * v.z);
-}
-
-Vec3& Vec3::operator=(const Vec3& v)
-{
-	x = v.x;
-	y = v.y;
-	z = v.z;
-	return *this;
 }
 
 void Vec3::set(float x,float y, float z) {
