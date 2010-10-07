@@ -33,29 +33,44 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	killWords.push_back(" owned "); afterWords.push_back("'s ass!");
 	killWords.push_back(" ravaged "); afterWords.push_back(" inside out!");
 	killWords.push_back(" dominated "); afterWords.push_back("!");
+	killWords.push_back(" demonstrated to "); afterWords.push_back(" the art of .. spanking!");
+	killWords.push_back(" has knocked "); afterWords.push_back(" out cold!");
+	killWords.push_back(" defiled "); afterWords.push_back("'s remains!");
+	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
+	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
 	
 	int i = currentWorldFrame % killWords.size();
 	msg << killer << killWords[i] << unit.name << afterWords[i];
 	worldMessages.push_back(msg.str());
 	
+	WorldEvent event;
+	event.position = unit.position;
+	event.position.y.number += 2000;
+	event.velocity.y.number = 200;
+	
 	if(unit.human())
 	{
+		event.type = DEATH_PLAYER;
+		
+		// reset player hitpoints
 		unit.hitpoints = 1000;
 		
 		// respawn player to random location
-		unit.position.x = (3  * currentWorldFrame) % 100;
-		unit.position.z = (17 * currentWorldFrame) % 100;
-		unit.position.y = 50;
+		unit.position = lvl.getRandomLocation(currentWorldFrame);
 		
-		// stop any movement, let the player drop down to the field.
+		// stop any movement, let the player drop down to the field of battle.
 		unit.velocity.x = 0;
 		unit.velocity.z = 0;
 		unit.velocity.y = 0;
 	}
 	else
 	{
+		event.type = DEATH_ENEMY;
 		deadUnits.push_back(unit.id);
 	}
+	
+	// store the event information for later use.
+	events.push_back(event);
 }
 
 void World::resolveUnitCollision(Unit& a, Unit& b)
@@ -97,12 +112,21 @@ void World::generateInput_RabidAlien(Unit& unit)
 		return;
 	}
 	
+	// if close enough, do damage by DEVOURING
 	if(bestDistance < FixedPoint(3))
 	{
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
 		if(units[unitID].hitpoints < 1)
 			doDeathFor(units[unitID], unit.id);
+		
+		// save this information for later use.
+		WorldEvent event;
+		event.type = DAMAGE_DEVOUR;
+		event.position = units[unitID].position;
+		event.position.y.number += 2000;
+		event.velocity.y.number = 900;
+		events.push_back(event);
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
@@ -369,6 +393,16 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				bool shooterIsMonster = false;
 				if(units.find(projectile.owner) != units.end())
 					shooterIsMonster = !units[projectile.owner].human();
+				
+				
+				// save this information for later use.
+				WorldEvent event;
+				event.type = DAMAGE_BULLET;
+				event.position = unit.position;
+				event.position.y.number += 2000;
+				event.velocity.y.number = 200;
+				events.push_back(event);
+				
 				
 				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
 				if(!unit.human() && shooterIsMonster)

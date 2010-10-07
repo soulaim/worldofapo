@@ -46,6 +46,7 @@ class Particle
 	}
 	
 	float depthVal;
+	float scale;
 	float r;
 	float g;
 	float b;

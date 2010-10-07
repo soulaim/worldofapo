@@ -40,6 +40,7 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_
 	mouseButton = mouseButton_;
 	angle -= mousex_;
 
+	// FIX TODO FIX TODO FIX ZOMG FFS TROLOLOLOLOL
 	static ApoMath dorka2; // TODO: EIS VOISOASDIASD;
 	dorka2.init(3000);
 	upangle += dorka2.DEGREES_180; // Prevent going full circles when moving camera up or down.

@@ -108,7 +108,7 @@ public:
 	void mouseDown();
 	void tick();
 	
-	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b);
+	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 	
 	Graphics();
