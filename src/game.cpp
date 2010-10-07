@@ -28,6 +28,7 @@ void Game::reset()
 	
 	UnitInput.clear();
 	world.terminate();
+	enableGrab(); // FIXME: find better place
 }
 
 void Game::init()

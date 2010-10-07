@@ -244,7 +244,6 @@ void Game::processClientMsgs()
 	clientOrders.orders.clear();
 }
 
-
 void Game::client_tick()
 {
 
@@ -337,11 +336,9 @@ void Game::client_tick()
 			
 			if(key == "g") {
 				if (client_state & 4) {
-					SDL_WM_GrabInput(SDL_GRAB_OFF);
-					SDL_ShowCursor(1);
+					enableGrab();
 				} else {
-					SDL_WM_GrabInput(SDL_GRAB_ON);
-					SDL_ShowCursor(0);
+					disableGrab();
 				}
 				client_state ^= 4;
 			}
@@ -477,4 +474,16 @@ void Game::camera_handling()
 		view.mouseUp();
 	if (wheel_status == 2)
 		view.mouseDown();
+}
+
+void Game::enableGrab()
+{
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+	SDL_ShowCursor(0);
+}
+
+void Game::disableGrab()
+{
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+	SDL_ShowCursor(1);
 }

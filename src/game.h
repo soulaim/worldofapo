@@ -103,6 +103,9 @@ class Game
 
 	void update_kills();
 	void update_deaths();
+	
+	void enableGrab();
+	void disableGrab();
 public:
 	Game();
 	void start();

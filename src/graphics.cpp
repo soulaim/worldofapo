@@ -74,7 +74,7 @@ void Graphics::depthSortParticles(Vec3& d)
 
 void Graphics::initLight()
 {
-	lightsActive = false;
+	lightsActive = true;
 	GLfloat	global_ambient[ 4 ]	= {0.01f, 0.01f,  0.01f, 1.0f};
 	GLfloat	light0ambient[ 4 ]	= {0.2f, 0.2f,  0.2f, 1.0f};
 	GLfloat	light0diffuse[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
