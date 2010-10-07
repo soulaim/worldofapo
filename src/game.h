@@ -108,7 +108,7 @@ class Game
 
 	void check_messages_from_server();
 	void handleClientLocalInput();
-	void client_tick_everything_fuck_or_something();
+	void client_tick_local();
 	void process_game_input();
 	
 	void enableGrab();
