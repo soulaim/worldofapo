@@ -100,7 +100,9 @@ class Game
 	void client_tick();
 	void camera_handling();
 	int connectMenu();
-	
+
+	void update_kills();
+	void update_deaths();
 public:
 	Game();
 	void start();

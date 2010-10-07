@@ -11,6 +11,14 @@
 #include "level.h"
 #include "apomath.h"
 
+struct WorldEvent
+{
+	int type;
+	
+	Location position;
+	Location velocity;
+};
+
 class World
 {
 	void tickUnit(Unit&, Model&);       // world frame update
@@ -24,6 +32,16 @@ class World
 	void doDeathFor(Unit& unit, int causeOfDeath);
 	
 public:
+	
+	// identifications for event where we want to do some SFX
+	enum
+	{
+		DAMAGE_BULLET,
+		DAMAGE_DEVOUR,
+		DEATH_PLAYER,
+		DEATH_ENEMY
+	};
+	
 	World();
 	void init();
 	
@@ -34,8 +52,12 @@ public:
 	Level lvl;
 	ApoMath apomath;
 	
+	// should just reserve a little bit of memory for these guys. if they release memory every time they are cleared, is inefficient.
 	std::vector<std::string> worldMessages;
 	std::vector<int> deadUnits;
+	std::vector<WorldEvent> events;
+	std::vector<int> kills;
+	std::vector<int> deaths;
 	
 	void worldTick(int tickCount);
 	void viewTick();
@@ -50,6 +72,10 @@ public:
 	
 	int nextUnitID();
 	int nextPlayerID();
+
+	int show_errors;
+
+	int getZombies();
 	
 	void terminate(); // don't call this unless you mean it :D
 };

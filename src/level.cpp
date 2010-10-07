@@ -6,6 +6,15 @@
 
 using namespace std;
 
+Location Level::getRandomLocation(int seed)
+{
+	Location result;
+	result.x = ((3  * seed) % 100) * 8;
+	result.z = ((17 * seed) % 100) * 8;
+	result.y = FixedPoint(100);
+	return result;
+}
+
 
 void Level::firstPassNormals()
 {

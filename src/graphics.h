@@ -60,6 +60,8 @@ class Graphics
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawCrossHair();
 	void drawStatusBar();
+	void drawZombiesLeft();
+	void drawBanner();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -69,6 +71,8 @@ class Graphics
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
 	
+	std::string kills;
+	std::string deaths;
 	std::string health;
 	std::string plr_name;
 	
@@ -77,6 +81,7 @@ class Graphics
 	
 	unsigned currentTime;
 	bool lightsActive;
+	int zombieCount;
 	
 public:
 	
@@ -87,6 +92,10 @@ public:
 	void updateInput(int keystate, int mousex, int mousey);
 	
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
+
+	void setZombiesLeft(int);
+	void setLocalPlayerKills(const int k);
+	void setLocalPlayerDeaths(const int d);
 	
 	void setCamera(const Camera& camera);
 	void loadObjects(std::string);
@@ -105,7 +114,7 @@ public:
 	void mouseDown();
 	void tick();
 	
-	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float r, float g, float b);
+	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 	
 	Graphics();

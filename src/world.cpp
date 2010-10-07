@@ -22,40 +22,60 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	stringstream msg;
 	string killer = "an unknown entity";
 	
-	if(units.find(causeOfDeath) != units.end())
+	deaths.push_back(unit.id);
+	if(units.find(causeOfDeath) != units.end()) {
 		killer = units[causeOfDeath].name;
+		if (units[causeOfDeath].human()) {
+			kills.push_back(causeOfDeath);
+		}
+	}
 	
 	vector<string> killWords;
 	vector<string> afterWords;
 	killWords.push_back(" slaughtered "); afterWords.push_back("!");
 	killWords.push_back(" made "); afterWords.push_back(" his bitch!");
-	killWords.push_back(" has balls of steel! ("); afterWords.push_back(" is a casualty)");
+	killWords.push_back(" has balls of steel! "); afterWords.push_back(" is a casualty");
 	killWords.push_back(" owned "); afterWords.push_back("'s ass!");
 	killWords.push_back(" ravaged "); afterWords.push_back(" inside out!");
 	killWords.push_back(" dominated "); afterWords.push_back("!");
+	killWords.push_back(" demonstrated to "); afterWords.push_back(" the art of .. spanking!");
+	killWords.push_back(" has knocked "); afterWords.push_back(" out cold!");
+	killWords.push_back(" defiled "); afterWords.push_back("'s remains!");
+	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
+	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
 	
 	int i = currentWorldFrame % killWords.size();
 	msg << killer << killWords[i] << unit.name << afterWords[i];
 	worldMessages.push_back(msg.str());
 	
+	WorldEvent event;
+	event.position = unit.position;
+	event.position.y.number += 2000;
+	event.velocity.y.number = 200;
+	
 	if(unit.human())
 	{
+		event.type = DEATH_PLAYER;
+		
+		// reset player hitpoints
 		unit.hitpoints = 1000;
 		
 		// respawn player to random location
-		unit.position.x = (3  * currentWorldFrame) % 100;
-		unit.position.z = (17 * currentWorldFrame) % 100;
-		unit.position.y = 50;
+		unit.position = lvl.getRandomLocation(currentWorldFrame);
 		
-		// stop any movement, let the player drop down to the field.
+		// stop any movement, let the player drop down to the field of battle.
 		unit.velocity.x = 0;
 		unit.velocity.z = 0;
 		unit.velocity.y = 0;
 	}
 	else
 	{
+		event.type = DEATH_ENEMY;
 		deadUnits.push_back(unit.id);
 	}
+	
+	// store the event information for later use.
+	events.push_back(event);
 }
 
 void World::resolveUnitCollision(Unit& a, Unit& b)
@@ -97,12 +117,21 @@ void World::generateInput_RabidAlien(Unit& unit)
 		return;
 	}
 	
+	// if close enough, do damage by DEVOURING
 	if(bestDistance < FixedPoint(3))
 	{
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
 		if(units[unitID].hitpoints < 1)
 			doDeathFor(units[unitID], unit.id);
+		
+		// save this information for later use.
+		WorldEvent event;
+		event.type = DAMAGE_DEVOUR;
+		event.position = units[unitID].position;
+		event.position.y.number += 2000;
+		event.velocity.y.number = 900;
+		events.push_back(event);
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
@@ -152,6 +181,7 @@ void World::init()
 	
 	lvl.generate(50);
 	apomath.init(3000);
+	show_errors = 0;
 }
 
 void World::terminate()
@@ -393,8 +423,17 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 					continue;
 				}
 				
+				// save this information for later use.
+				WorldEvent event;
+				event.type = DAMAGE_BULLET;
+				event.position = unit.position;
+				event.position.y.number += 2000;
+				event.velocity.y.number = 200;
+				events.push_back(event);
+				
+				
 				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-				unit.velocity += projectile.velocity * FixedPoint(130, true);
+				unit.velocity += projectile.velocity * FixedPoint(10, true);
 				
 				if(unit.hitpoints < 1)
 				{
@@ -458,7 +497,7 @@ void World::worldTick(int tickCount)
 	deadUnits.clear();
 	
 	
-	if((currentWorldFrame % 200) == 0)
+	if(show_errors && (currentWorldFrame % 200) == 0)
 	{
 
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
@@ -551,3 +590,13 @@ void World::removeUnit(int id)
 	models.erase(id);
 }
 
+int World::getZombies()
+{
+	int count = 0;
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if (!iter->second.human())
+			count++;
+	}
+	return count;
+}

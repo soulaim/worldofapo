@@ -9,6 +9,7 @@ using namespace std;
 
 void Graphics::drawMenu(vector<MenuButton>& buttons)
 {
+	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -46,5 +47,9 @@ void Graphics::drawMenu(vector<MenuButton>& buttons)
 	glPopMatrix();
 	
 	SDL_GL_SwapBuffers();
+	
+	if(lightsActive)
+		glEnable(GL_LIGHTING);
+	
 	return;
 }

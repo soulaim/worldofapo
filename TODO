@@ -1,4 +1,14 @@
 TODO:
+      OLISI KIVA   - Art content (sounds, music, models, animations, textures, effects..)
+
+      OLISI KIVA   - Sound system
+
+      OLISI KIVA   - Minimap
+
+      OLISI KIVA   - Weapon definitions
+
+      OLISI KIVA   - Ability to cast light in areas (flares)
+
 MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. FIX.
       
       OLISI KIVA   - Better handling of debug messages during gameplay.
@@ -7,6 +17,8 @@ MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. F
       VITUN TARKEA - NPC behaviour.
 
 !!    VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
+
+      VITUN TARKEA - Connecting to active games results in randomly getting out of sync. Why? (if starts in sync, stays in sync)
 
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
@@ -36,6 +48,11 @@ Model loading: http://www.spacesimulator.net/wiki/index.php/Tutorials:3ds_Loader
 Collision detection: http://www.gamasutra.com/view/feature/3190/advanced_collision_detection_.php?page=2
 
 DONE
+7.10  Mika: Fixed normal calculations for level surfaces, lighting is not as ridiculous as it was.
+7.10  Mika: Added health indicator for local player
+7.10  Mika: Added kill messages.
+7.10  Mika: Fixed de-sync bug, caused by untimely deletion of projectiles/units
+7.10  Mika: Added AI controlled enemies
 5.10  Sami: Added some chat functionality.
 4.10  Mika/lolx: Mechanism(s) for sending other than Player Input messages across the network (chat, pause, ..)
 4.10  Mika: Print text on screen
