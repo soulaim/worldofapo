@@ -22,10 +22,12 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	stringstream msg;
 	string killer = "an unknown entity";
 	
+	deaths.push_back(unit.id);
 	if(units.find(causeOfDeath) != units.end()) {
 		killer = units[causeOfDeath].name;
-		if (units[causeOfDeath].human())
+		if (units[causeOfDeath].human()) {
 			kills.push_back(causeOfDeath);
+		}
 	}
 	
 	vector<string> killWords;

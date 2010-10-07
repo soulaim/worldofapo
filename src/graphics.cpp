@@ -31,10 +31,17 @@ void Graphics::setLocalPlayerKills(const int k)
 	kills = ss.str();
 }
 
+void Graphics::setLocalPlayerDeaths(const int d)
+{
+	stringstream ss;
+	ss << d;
+	deaths = ss.str();
+}
+
 void Graphics::drawStatusBar()
 {
 	stringstream ss;
-	ss << plr_name << ": " << health << " kills: " << kills;
+	ss << plr_name << " hp: " << health << " k/d: " << kills << "/" << deaths;
 	drawString(ss.str(), -0.9, 0.9, 2.0, true);
 }
 
@@ -372,7 +379,8 @@ void Graphics::init()
 	charWidth['('] = 0.1;
 	charWidth['\''] = 0.1;
 	charWidth['-'] = 0.1;
-	
+	charWidth['|'] = 0.1;
+	charWidth['/'] = 0.1;
 	
 	createWindow(); // let SDL handle this part..
 	
