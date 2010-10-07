@@ -69,6 +69,7 @@ class Graphics
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
 	
+	std::string kills;
 	std::string health;
 	std::string plr_name;
 	
@@ -87,6 +88,7 @@ public:
 	void updateInput(int keystate, int mousex, int mousey);
 	
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
+	void setLocalPlayerKills(const int kills);
 	
 	void setCamera(const Camera& camera);
 	void loadObjects(std::string);

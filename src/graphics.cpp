@@ -24,10 +24,17 @@ void Graphics::setLocalPlayerHP(const int life)
 	health = ss.str();
 }
 
+void Graphics::setLocalPlayerKills(const int k)
+{
+	stringstream ss;
+	ss << k;
+	kills = ss.str();
+}
+
 void Graphics::drawStatusBar()
 {
 	stringstream ss;
-	ss << plr_name << ": " << health;
+	ss << plr_name << ": " << health << " kills: " << kills;
 	drawString(ss.str(), -0.9, 0.9, 2.0, true);
 }
 
@@ -682,3 +689,4 @@ void Graphics::mouseDown()
 {
 	camera.zoomOut();
 }
+
