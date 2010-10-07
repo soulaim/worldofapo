@@ -4,6 +4,7 @@
 #include "level.h"
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -54,7 +55,7 @@ void Graphics::drawZombiesLeft()
 {
 	stringstream zz;
 	zz << "Zombies left: " << zombieCount;
-	drawString(zz.str(), 0.5, 0.9, 1.5, true);
+	drawString(zz.str(), 0.2, 0.9, 1.5, true);
 }
 
 float Graphics::modelGround(const Model& model)
@@ -336,6 +337,7 @@ Graphics::Graphics()
 {
 	currentTime = 0;
 	zombieCount = 0;
+	world_ticks = 0;
 	init();
 }
 
@@ -630,6 +632,33 @@ void Graphics::drawParticles()
 	
 }
 
+void Graphics::drawFPS()
+{
+	static int last_time = SDL_GetTicks();
+	static double fps = 0;
+	static double world_fps = 0;
+	static int frames = 0;
+	++frames;
+	int time_now = SDL_GetTicks();
+	int time_since_last = time_now - last_time;
+	if(time_since_last > 500)
+	{
+		fps = 1000.0 * frames / time_since_last;
+		world_fps = 1000.0 * world_ticks/ time_since_last;
+		frames = 0;
+		world_ticks = 0;
+		last_time = time_now;
+	}
+
+
+	stringstream ss1;
+	ss1 << "FPS: " << fixed << setprecision(2) << fps;
+	stringstream ss2;
+	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
+	drawString(ss1.str(), 0.7, 0.9, 1.5, true);
+	drawString(ss2.str(), 0.7, 0.8, 1.5, true);
+}
+
 void Graphics::drawHUD()
 {
 	if(camera.isFirstPerson())
@@ -643,6 +672,7 @@ void Graphics::drawHUD()
 	drawZombiesLeft();
 	drawBanner();
 	drawStats();
+	drawFPS();
 }
 
 void Graphics::updateCamera(const Level& lvl)
@@ -709,6 +739,12 @@ void Graphics::updateInput(int keystate, int mousex, int mousey)
 void Graphics::bindCamera(Unit* unit)
 {
 	camera.bind(unit, Camera::RELATIVE);
+}
+
+void Graphics::world_tick()
+{
+	// Don't draw anything here!
+	++world_ticks;
 }
 
 void Graphics::tick()
