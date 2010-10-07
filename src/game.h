@@ -107,7 +107,7 @@ class Game
 	void update_deaths();
 
 	void check_messages_from_server();
-	void handle_some_client_input();
+	void handleClientLocalInput();
 	void client_tick_everything_fuck_or_something();
 	void process_game_input();
 	

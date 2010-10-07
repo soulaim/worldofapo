@@ -324,7 +324,7 @@ void Game::check_messages_from_server()
 	}
 }
 
-void Game::handle_some_client_input()
+void Game::handleClientLocalInput()
 {
 	camera_handling();
 
@@ -454,8 +454,6 @@ void Game::process_game_input()
 
 void Game::client_tick_everything_fuck_or_something()
 {
-	handleWorldEvents();
-	
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
 	
@@ -478,6 +476,8 @@ void Game::client_tick_everything_fuck_or_something()
 		// run simulation for one WorldFrame
 		world.worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
+		
+		handleWorldEvents();
 	}
 }
 
