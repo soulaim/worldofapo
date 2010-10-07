@@ -57,6 +57,7 @@ public:
 	std::vector<int> deadUnits;
 	std::vector<WorldEvent> events;
 	std::vector<int> kills;
+	std::vector<int> deaths;
 	
 	void worldTick(int tickCount);
 	void viewTick();
