@@ -61,6 +61,7 @@ class Graphics
 	void drawCrossHair();
 	void drawStatusBar();
 	void drawZombiesLeft();
+	void drawBanner();
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;

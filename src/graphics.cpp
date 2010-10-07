@@ -38,6 +38,11 @@ void Graphics::drawStatusBar()
 	drawString(ss.str(), -0.9, 0.9, 2.0, true);
 }
 
+void Graphics::drawBanner()
+{
+	drawString("World of Apo, alpha build 715517");
+}
+
 void Graphics::drawZombiesLeft()
 {
 	stringstream zz;
@@ -639,6 +644,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	drawMessages();
 	drawStatusBar();
 	drawZombiesLeft();
+	drawBanner();
 
 	SDL_GL_SwapBuffers();
 	return;
