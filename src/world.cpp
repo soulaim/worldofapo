@@ -52,8 +52,10 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	worldMessages.push_back(msg.str());
 	
 	WorldEvent event;
+	
 	event.target_id = target_id;
 	event.actor_id  = actor_id;
+	
 	event.position = unit.position;
 	event.position.y.number += 2000;
 	event.velocity.y.number = 200;

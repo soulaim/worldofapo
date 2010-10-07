@@ -42,6 +42,7 @@ void Game::handleWorldEvents()
 		
 		if(event.type == World::DEATH_ENEMY)
 		{
+			cerr << "ENEMY DEATH EVENT: KILLER ID = " << event.actor_id << endl;
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
 					Players[event.actor_id].kills++;
@@ -50,6 +51,7 @@ void Game::handleWorldEvents()
 		
 		if(event.type == World::DEATH_PLAYER)
 		{
+			cerr << "PLAYER DEATH EVENT: KILLER ID = " << event.actor_id << ", DEATH ID = " << event.target_id << endl;
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				Players[event.actor_id].kills++;
 			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
@@ -57,8 +59,8 @@ void Game::handleWorldEvents()
 		}
 		
 	}
-	world.events.clear();
 	
+	world.events.clear();
 	view.setLocalPlayerKills(Players[myID].kills);
 	view.setLocalPlayerDeaths(Players[myID].deaths);
 	
@@ -389,6 +391,10 @@ void Game::handle_some_client_input()
 
 			if(key == "escape")
 			{
+				// shutdown the connection first, so the others can continue playing in peace.
+				clientSocket.closeConnection();
+				
+				// then proceed with local shutdown.
 				cerr << "User pressed ESC, shutting down." << endl;
 				SDL_Quit();
 				exit(0);
@@ -451,41 +457,10 @@ void Game::process_game_input()
 
 void Game::client_tick_everything_fuck_or_something()
 {
-	view.setZombiesLeft(world.getZombies());
-	view.setHumanPositions(world.humanPositions());
-	view.setLocalPlayerKills(Players[myID].kills);
-	view.setLocalPlayerDeaths(Players[myID].deaths);
-
+	handleWorldEvents();
+	
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
-	
-	// deliver any world message events to graphics structure, and erase them from world data.
-	for(int i=0; i<world.worldMessages.size(); i++)
-		view.pushMessage(world.worldMessages[i]);
-	world.worldMessages.clear();
-	
-	// handle any world events <-> graphics structure
-	for(int i=0; i<world.events.size(); i++)
-	{
-		WorldEvent& event = world.events[i];
-		if(event.type == World::DAMAGE_BULLET)
-			view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
-		else if(event.type == World::DAMAGE_DEVOUR)
-			view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
-		else if(event.type == World::DEATH_ENEMY)
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
-		else if(event.type == World::DEATH_PLAYER)
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
-		else
-			cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
-	}
-	world.events.clear();
-	
-	if(myID != -1)
-	{
-		view.setLocalPlayerName(Players[myID].name);
-		view.setLocalPlayerHP(world.units[myID].hitpoints);
-	}
 	
 	// handle any server commands intended for this frame
 	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
@@ -501,7 +476,6 @@ void Game::client_tick_everything_fuck_or_something()
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 		
 		fps_world.insert();
-		
 		process_game_input();
 
 		// run simulation for one WorldFrame
