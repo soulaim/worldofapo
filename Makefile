@@ -1,5 +1,5 @@
 CXXFLAGS = -Wall -O3 -std=c++98 
-LDLIBS = -lSDL -lGL -lGLU -lpng
+LDLIBS = -lSDL -lSDL_mixer -lGL -lGLU -lpng
 #-lSDL_mixer
 CC = g++
 

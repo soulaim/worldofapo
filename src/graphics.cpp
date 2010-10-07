@@ -74,7 +74,7 @@ void Graphics::depthSortParticles(Vec3& d)
 
 void Graphics::initLight()
 {
-	lightsActive = false;
+	lightsActive = true;
 	GLfloat	global_ambient[ 4 ]	= {0.01f, 0.01f,  0.01f, 1.0f};
 	GLfloat	light0ambient[ 4 ]	= {0.2f, 0.2f,  0.2f, 1.0f};
 	GLfloat	light0diffuse[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
@@ -651,6 +651,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	
 	drawMessages();
 	drawStatusBar();
+	drawMinimap();
 	drawZombiesLeft();
 	drawBanner();
 
@@ -722,4 +723,36 @@ void Graphics::mouseDown()
 void Graphics::setZombiesLeft(int count)
 {
 	zombieCount = count;
+}
+
+void Graphics::drawMinimap()
+{
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_TEXTURE_2D);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glTranslatef(0.0f,0.0f, -1.0f);
+	
+	glColor3f(0, 0, 1.0f);
+	glPointSize(5.0f);
+
+	glBegin(GL_POINTS);
+	for(std::vector<Location>::iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
+	{
+		glVertex2f(0.7 + (0.3*(float)iter->x.getInteger())/800, -0.7 - (0.3*(float)iter->z.getInteger())/800);
+	}
+	glEnd();
+	glPopMatrix();
+
+	if(lightsActive)
+		glEnable(GL_LIGHTING);
+
+}
+
+void Graphics::setHumanPositions(std::vector<Location> positions)
+{
+	humanPositions = positions;
 }

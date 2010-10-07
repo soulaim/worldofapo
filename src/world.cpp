@@ -600,3 +600,14 @@ int World::getZombies()
 	}
 	return count;
 }
+
+std::vector<Location> World::humanPositions()
+{
+	std::vector<Location> positions;
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if (iter->second.human())
+			positions.push_back(iter->second.position);
+	}
+	return positions;
+}
