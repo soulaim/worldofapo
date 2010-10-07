@@ -227,7 +227,6 @@ void Game::handleWorldEvents()
 		
 		if(event.type == World::DEATH_ENEMY)
 		{
-			cerr << "ENEMY DEATH EVENT: KILLER ID = " << event.actor_id << endl;
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
 					Players[event.actor_id].kills++;
@@ -236,7 +235,6 @@ void Game::handleWorldEvents()
 		
 		if(event.type == World::DEATH_PLAYER)
 		{
-			cerr << "PLAYER DEATH EVENT: KILLER ID = " << event.actor_id << ", DEATH ID = " << event.target_id << endl;
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				Players[event.actor_id].kills++;
 			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())

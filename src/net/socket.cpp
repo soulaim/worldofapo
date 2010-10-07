@@ -139,9 +139,12 @@ int MU_Socket::write(const string& msg)
 	while(total_length != 0)
 	{
 		int data_sent = send(sock, c_msg, total_length, 0);
+		
+		// err???  MAYBE SHOULD HANDLE THIS CASE??
 		if(data_sent < 0)
 			return 0; // failed
-			total_length -= data_sent;
+		
+		total_length -= data_sent;
 		c_msg += data_sent;
 	}
 	
