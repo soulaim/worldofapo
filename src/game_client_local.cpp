@@ -201,7 +201,7 @@ void Game::handleWorldEvents()
 		view.setLocalPlayerName(Players[myID].name);
 		view.setLocalPlayerHP(world.units[myID].hitpoints);
 	}
-	
+
 	view.setZombiesLeft(world.getZombies());
 	view.setHumanPositions(world.humanPositions());
 	

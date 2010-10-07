@@ -49,6 +49,7 @@ void Game::init()
 	
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
+	view.setPlayerInfo(&Players);
 	
 	readConfig();
 	

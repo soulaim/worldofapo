@@ -642,6 +642,7 @@ void Graphics::drawHUD()
 	drawMinimap();
 	drawZombiesLeft();
 	drawBanner();
+	drawStats();
 }
 
 void Graphics::updateCamera(const Level& lvl)
@@ -816,8 +817,26 @@ void Graphics::drawMinimap()
 		glEnable(GL_LIGHTING);
 }
 
+void Graphics::drawStats()
+{
+	int i = 0;
+	for(map<int, PlayerInfo>::iterator iter = Players->begin(); iter != Players->end(); iter++)
+	{
+		if (iter->first < 0)
+		  continue;
+		stringstream line;
+		line << iter->second.name << " " << iter->second.kills << "/" << iter->second.deaths;
+		drawString(line.str(), -0.8f, 0.8f-(i*0.05), 1.0f);
+		i++;
+	}
+}
+
 void Graphics::setHumanPositions(std::vector<Location> positions)
 {
 	humanPositions = positions;
 }
 
+void Graphics::setPlayerInfo(map<int,PlayerInfo> *pInfo)
+{
+	Players = pInfo;
+}

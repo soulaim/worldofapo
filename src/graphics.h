@@ -16,6 +16,7 @@
 #include "frustum/FrustumR.h"
 #include "camera.h"
 #include "viewmessage.h"
+#include "playerinfo.h"
 
 struct Level;
 struct MenuButton;
@@ -84,6 +85,7 @@ class Graphics
 	std::string deaths;
 	std::string health;
 	std::string plr_name;
+	std::map<int, PlayerInfo>* Players;
 	
 	SDL_Surface* drawContext;
 	Camera camera;
@@ -97,6 +99,7 @@ public:
 	
 	void setLocalPlayerName(const std::string&);
 	void setLocalPlayerHP(const int);
+	void setPlayerInfo(std::map<int,PlayerInfo>* pInfo);
 	
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate, int mousex, int mousey);
@@ -116,6 +119,7 @@ public:
 	
 	void draw(std::map<int, Model>&, const Level& lvl);
 	void draw(std::map<int, Model>&);
+	void drawStats();
 	void drawMenu(std::vector<MenuButton>&);
 	
 	void toggleLightingStatus();
