@@ -85,6 +85,7 @@ class Graphics
 	bool lightsActive;
 	
 public:
+	friend class Editor;
 	
 	void setLocalPlayerName(const std::string&);
 	void setLocalPlayerHP(const int);
@@ -95,11 +96,11 @@ public:
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
 	
 	void setCamera(const Camera& camera);
-	void loadObjects(std::string);
+	bool loadObjects(const std::string&);
 	
-	void pushMessage(std::string, float r = 1.0, float g = 1.0, float b = 1.0);
+	void pushMessage(const std::string&, float r = 1.0, float g = 1.0, float b = 1.0);
 	void setTime(unsigned);
-	void setCurrentClientCommand(std::string&);
+	void setCurrentClientCommand(const std::string&);
 	
 	void draw(std::map<int, Model>&, const Level& lvl);
 	void draw(std::map<int, Model>&);
