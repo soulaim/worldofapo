@@ -6,9 +6,14 @@
 #include <sstream>
 #include <algorithm>
 
+#include <SDL/SDL_mixer.h>
+
 using namespace std;
 
 
+
+Mix_Music *music = NULL;
+void musicDone();
 
 Game::Game(): fps_world(0)
 {
@@ -34,6 +39,13 @@ void Game::reset()
 void Game::init()
 {
 	reset();
+
+	SDL_Init(SDL_INIT_AUDIO);
+	Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, (short) MIX_DEFAULT_FORMAT, 2, 1024);
+
+	music = Mix_LoadMUS("data/theme.ogg");
+	Mix_PlayMusic(music, -1);
+	Mix_HookMusicFinished(musicDone);
 	
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
@@ -47,6 +59,14 @@ void Game::init()
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
 	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
 	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+}
+
+void musicDone()
+{
+	Mix_HaltMusic();
+	Mix_FreeMusic(music);
+	Mix_CloseAudio();
+	music = NULL;
 }
 
 void Game::readConfig()

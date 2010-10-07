@@ -17,11 +17,15 @@ struct Level
 	Location getRandomLocation(int);
 	
 	float estimateHeightDifference(int x, int y);
-	
-private: 
+
+	int max_x() const;
+	int max_z() const;
+
+private:
 	// dont use these!! ffs!
 	Location estimateNormal(int x, int y);
 	void firstPassNormals();
 };
 
 #endif
+
