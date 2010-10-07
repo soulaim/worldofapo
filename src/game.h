@@ -96,6 +96,7 @@ class Game
 	void acceptConnections();
 	void host_tick();
 	
+	void handleWorldEvents();
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 	void client_tick();

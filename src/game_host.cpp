@@ -78,8 +78,6 @@ void Game::host_tick()
 			minAllowed = target->second.last_order;
 	}
 	
-	
-	
 	if(minAllowed < 5)
 		minAllowed = 5;
 	
@@ -87,8 +85,6 @@ void Game::host_tick()
 	{
 		stringstream allowSimulation_msg;
 		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
-		
-		// cerr << "minAllowed: " << minAllowed << ", serverAllow: " << serverAllow << endl;
 		
 		serverAllow = minAllowed;
 		serverMsgs.push_back(allowSimulation_msg.str());
@@ -107,7 +103,7 @@ void Game::host_tick()
 	for(int k=0; k < static_cast<int>(serverMsgs.size()); k++)
 		for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
 			i->second.write(serverMsgs[k]);
-		serverMsgs.clear();
+	serverMsgs.clear();
 }
 
 
@@ -155,7 +151,7 @@ void Game::acceptConnections()
 		{
 			cerr << "sending info!" << endl;
 			stringstream playerInfo_msg;
-			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << "#";
+			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << " " << iter->second.kills << " " << iter->second.deaths << "#";
 			connectingPlayer.write(playerInfo_msg.str());
 		}
 

@@ -5,8 +5,7 @@ const double head_level = 6.0;
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),
 	unit(0),
-	mode(RELATIVE),
-	level(0)
+	mode(RELATIVE)
 {
 }
 
@@ -17,9 +16,10 @@ Vec3& Camera::getCurrentTarget()
 	return currentTarget;
 }
 
-void Camera::setLevel(const Level* lvl)
+void Camera::setAboveGround(float min_cam_y)
 {
-	level = lvl;
+	if (currentRelative.y < min_cam_y)
+		currentRelative.y = min_cam_y;
 }
 
 Vec3 Camera::getPosition() const
@@ -177,19 +177,6 @@ void Camera::relativeTick()
 	currentRelative += (relative_position - currentRelative) * multiplier;
 	currentPosition += (camTarget - currentPosition) * multiplier;
 	currentTarget   += (camTarget - currentTarget) * multiplier;
-
-	FixedPoint camX;
-	camX.number = currentRelative.x * 1000;
-	FixedPoint camZ;
-	camZ.number = currentRelative.z * 1000;
-	if(level)
-	{
-		float tmp_y = level->getHeight(camX, camZ).getFloat() + 2.f;
-
-		if (currentRelative.y < tmp_y) {
-			currentRelative.y = tmp_y;
-		}
-	}
 }
 
 void Camera::zoomIn()
@@ -227,3 +214,4 @@ float Camera::getYrot()
 	
 	return 0.f;
 }
+

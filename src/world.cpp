@@ -22,12 +22,15 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	stringstream msg;
 	string killer = "an unknown entity";
 	
-	deaths.push_back(unit.id);
-	if(units.find(causeOfDeath) != units.end()) {
+	int actor_id  = -1;
+	int target_id = -1;
+	
+	target_id = unit.id;
+	
+	if(units.find(causeOfDeath) != units.end())
+	{
 		killer = units[causeOfDeath].name;
-		if (units[causeOfDeath].human()) {
-			kills.push_back(causeOfDeath);
-		}
+		actor_id = units[causeOfDeath].id;
 	}
 	
 	vector<string> killWords;
@@ -49,6 +52,8 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	worldMessages.push_back(msg.str());
 	
 	WorldEvent event;
+	event.target_id = target_id;
+	event.actor_id  = actor_id;
 	event.position = unit.position;
 	event.position.y.number += 2000;
 	event.velocity.y.number = 200;
@@ -187,8 +192,12 @@ void World::init()
 void World::terminate()
 {
 	_unitID_next_unit = 10000;
+	
+	
+	
 	units.clear();
 	models.clear();
+	projectiles.clear();
 }
 
 

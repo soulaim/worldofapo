@@ -68,6 +68,9 @@ class Graphics
 	void drawBanner();
 	void drawParticles();
 	void drawHUD();
+	void drawMinimap();
+
+	void updateCamera(const Level&);
 	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
@@ -125,11 +128,10 @@ public:
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 
-	void drawMinimap();
+	
 	void setHumanPositions(std::vector<Location>);
 	
 	Graphics();
 	FrustumR frustum;
 };
-
 
