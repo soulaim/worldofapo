@@ -19,6 +19,7 @@ void Game::serverSendRequestPlayerNameMessage(int player_id)
 
 void Game::host_tick()
 {
+	
 	acceptConnections();
 	
 	// if there's any data to be read from clients, then read it
@@ -40,9 +41,16 @@ void Game::host_tick()
 		
 		for(int k=0; k<static_cast<int>(i->second.msgs.size()); k++)
 		{
+			// write these to IN TRANSIT data structure
+			inTransitMessages.insert(i->second.msgs[k]);
+			
 			i->second.msgs[k].append("#");
 			for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
-				target->second.write(i->second.msgs[k]);
+			{
+				// dont write to disconnected players
+				if(target->second.alive)
+					target->second.write(i->second.msgs[k]);
+			}
 			
 			// keep track of last frames for which orders have been received.
 			stringstream ss(i->second.msgs[k]);
@@ -54,8 +62,6 @@ void Game::host_tick()
 				int order_player_id, frame;
 				ss >> order_player_id >> frame;
 				i->second.last_order = frame;
-				
-				// cerr << "FINISHED MESSAGE (" << frame << "): " << i->second.msgs[k] << endl;
 			}
 		}
 		i->second.msgs.clear();
@@ -63,7 +69,6 @@ void Game::host_tick()
 	
 	if(leaver != -1) // there is a leaver!!
 	{
-		// TODO
 		stringstream discCommand;
 		discCommand << -1 << " " << (sockets.sockets[leaver].last_order + 1) << " 100 " << leaver << "#";
 		serverMsgs.push_back( discCommand.str() );
@@ -112,19 +117,46 @@ void Game::host_tick()
 
 void Game::acceptConnections()
 {
+	// This might be a better way to do it..?
+	
+		// first: tell everyone to pause.
+		
+		// second: accept connection.
+		
+		// third: execute main loop until 500ms has passed
+		
+		// fourth: send world information to connecting player
+		
+		// fifth: send start command to all players
+	
+	
+	// another option:
+	
+		// write all server's sent messages to a vector.
+
+		// when local player receives a command, he erases the first command from server's sent messages.
+	
+		// when a player connects, server sends also those commands that are stored in the vector "in transit messages"
+	
+	
 	// accept any incoming connections
 	if(serverSocket.readyToRead() == 1)
 	{
+		
 		cerr << "looks like someone is connecting :O" << endl;
 		serverSocket.accept_connection(sockets);
 		
 		// if game in progress, inform everyone else of a new connecting player TODO
 		MU_Socket& connectingPlayer = sockets.sockets[sockets.nextConnection-1];
 		
-		// send new player the current simulRules state
-		stringstream simulRules_msg;
-		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
-		connectingPlayer.write(simulRules_msg.str());
+		
+		for(set<string>::iterator iter = inTransitMessages.begin(); iter != inTransitMessages.end(); iter++)
+		{
+			string msg = (*iter);
+			msg.append("#");
+			connectingPlayer.write(msg);
+		}
+		
 		
 		// send new player the current state of the world:
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
@@ -169,6 +201,12 @@ void Game::acceptConnections()
 		nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
 		connectingPlayer.write(nextUnit_msg.str());
 		
+		// Now that all game info has been sent, can send messages to allow the client to start his own simulation.
+		stringstream simulRules_msg;
+		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
+		connectingPlayer.write(simulRules_msg.str());
+		
+		// go!
 		stringstream clientState_msg;
 		clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
 		connectingPlayer.write(clientState_msg.str());
