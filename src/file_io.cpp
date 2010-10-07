@@ -8,9 +8,13 @@
 using namespace std;
 
 
-void Graphics::loadObjects(string object_filename)
+bool Graphics::loadObjects(const string& object_filename)
 {
 	ifstream object_file(object_filename.c_str());
+	if(!object_file)
+	{
+		return false;
+	}
 	
 	string current_part = "default";
 	while(object_file.good() && !object_file.eof())
@@ -53,5 +57,6 @@ void Graphics::loadObjects(string object_filename)
 			objects[current_part].end_z = z;
 		}
 	}
+	return true;
 }
 

@@ -7,8 +7,8 @@
 #include <string>
 #include <fstream>
 
-#include "game.h"
-#include "logger.h"
+#include "../game.h"
+#include "../logger.h"
 
 using namespace std;
 

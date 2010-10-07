@@ -35,9 +35,14 @@ void Model::setAction(const string& name)
 }
 
 
-void Model::load(const string& filename)
+bool Model::load(const string& filename)
 {
 	ifstream in_file(filename.c_str());
+	if(!in_file)
+	{
+		return false;
+	}
+
 	while(in_file.good() && !in_file.eof())
 	{
 		string cmd, father, child, wirename;
@@ -76,5 +81,6 @@ void Model::load(const string& filename)
 			parts.push_back(node);
 		}
 	}
+	return true;
 }
 
