@@ -354,6 +354,7 @@ void Game::client_tick()
 	{
 
 		view.setZombiesLeft(world.getZombies());
+		view.setHumanPositions(world.humanPositions());
 		update_kills();
 		update_deaths();
 		view.setLocalPlayerKills(Players[myID].kills);
