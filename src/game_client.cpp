@@ -19,7 +19,6 @@ void Game::handleServerMessage(const Order& server_msg)
 	}
 	else if(server_msg.serverCommand == 10)
 	{
-		view.pushMessage("<Server> Creating a MONSTER! :D  Lol");
 		world.addUnit(world.nextUnitID(), false);
 	}
 	
