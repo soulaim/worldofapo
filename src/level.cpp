@@ -61,7 +61,7 @@ Location Level::estimateNormal(int x, int z)
 	return result;
 }
 
-float Level::estimateHeightDifference(int x, int y)
+float Level::estimateHeightDifference(int x, int y) const
 {
 	float min = 10000000;
 	float max = 0;
@@ -92,7 +92,7 @@ float Level::estimateHeightDifference(int x, int y)
 	return max - min;
 }
 
-FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z)
+FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
 	int x_index = x.getInteger() / 8;
 	int z_index = z.getInteger() / 8;

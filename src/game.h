@@ -98,6 +98,11 @@ class Game
 	void client_tick();
 	void camera_handling();
 	int connectMenu();
+
+	void check_messages_from_server();
+	void handle_some_client_input();
+	void client_tick_everything_fuck_or_something();
+	void process_game_input();
 	
 public:
 	Game();

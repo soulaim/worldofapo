@@ -13,9 +13,9 @@ struct Level
 	std::vector<std::vector<Location> > normals;
 	
 	void generate(int);
-	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& y);
+	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& y) const;
 	
-	float estimateHeightDifference(int x, int y);
+	float estimateHeightDifference(int x, int y) const;
 
 	int max_x() const;
 	int max_z() const;

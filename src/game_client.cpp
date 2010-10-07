@@ -89,7 +89,7 @@ void Game::handleServerMessage(const Order& server_msg)
 
 void Game::processClientMsgs()
 {
-	for(int i=0; i<static_cast<int>(clientOrders.orders.size()); i++)
+	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{
 		stringstream ss(clientOrders.orders[i]);
 		
@@ -145,8 +145,10 @@ void Game::processClientMsgs()
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.serverCommand;
 			
-			for(int i=0; i<UnitInput.size(); i++)
+			for(size_t i = 0; i < UnitInput.size(); ++i)
+			{
 				cerr << "(" << UnitInput[i].frameID << ", " << UnitInput[i].plr_id << ")" << endl;
+			}
 			
 			cerr << "GOT A SERVER MESSAGE: " << tmp_order.serverCommand << " " << tmp_order.frameID << "(current frame: " << simulRules.currentFrame << ", allowed frame: " << simulRules.allowedFrame << ")" << endl;
 			
@@ -229,29 +231,11 @@ void Game::processClientMsgs()
 	clientOrders.orders.clear();
 }
 
-
-void Game::client_tick()
+void Game::handle_some_client_input()
 {
-	// check if we have new msgs from the server.
-	if(clientSocket.readyToRead() == 1)
-	{
-		string msg = clientSocket.read();
-		
-		if(msg.size() == 0)
-		{
-			clientSocket.closeConnection();
-			cerr << "Client connection has died. :(" << endl;
-			state = "menu";
-		}
-		
-		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
-		processClientMsgs();
-	}
-	
-	
-	string key = userio.getSingleKey();
-
 	camera_handling();
+
+	string key = userio.getSingleKey();
 	
 	if(key.size() != 0)
 	{
@@ -329,86 +313,123 @@ void Game::client_tick()
 			}
 		}
 	}
+}
+
+void Game::check_messages_from_server()
+{
+	if(clientSocket.readyToRead() == 1)
+	{
+		string msg = clientSocket.read();
+		
+		if(msg.size() == 0)
+		{
+			clientSocket.closeConnection();
+			cerr << "Client connection has died. :(" << endl;
+			state = "menu";
+		}
+		
+		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
+		processClientMsgs();
+	}
 	
+}
+
+void Game::process_game_input()
+{
+	int keyState = userio.getGameInput();
+	if (client_state & 2)
+		keyState = 0;
+	int x, y;
+	
+	userio.getMouseChange(x, y);
+	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
+	
+	if(myID >= 0)
+	{
+		stringstream inputMsg;
+		string msg;
+		inputMsg << "1 " << myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
+		msg = inputMsg.str();
+		clientSocket.write(msg);
+	}
+
+	Logger log;
+	// update commands of player controlled characters
+	while(UnitInput.back().frameID == simulRules.currentFrame)
+	{
+		Order tmp = UnitInput.back();
+		UnitInput.pop_back();
+		
+		// log all processed game data affecting commands in the order of processing
+		log.print(tmp.copyOrder());
+		
+		if(tmp.plr_id == -1)
+		{
+			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
+			break;
+		}
+		
+		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButton);
+	}
+	
+	log.print("\n");
+	
+	view.updateInput(keyState, x, y);
+}
+
+void Game::client_tick_everything_fuck_or_something()
+{
+	// this is acceptable because the size is guaranteed to be insignificantly small
+	sort(UnitInput.begin(), UnitInput.end());
+	
+	// deliver any world message events to graphics structure, and erase them from world data.
+	for(size_t i = 0; i < world.worldMessages.size(); ++i)
+	{
+		view.pushMessage(world.worldMessages[i]);
+	}
+	world.worldMessages.clear();
+	
+	if(myID != -1)
+	{
+		view.setLocalPlayerName(Players[myID].name);
+		view.setLocalPlayerHP(world.units[myID].hitpoints);
+	}
+	
+	// handle any server commands intended for this frame
+	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
+	{
+		Order server_command = UnitInput.back();
+		UnitInput.pop_back();
+		handleServerMessage(server_command);
+	}
+	
+	if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
+	{
+		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
+			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+		
+		fps_world.insert();
+		
+		process_game_input();
+
+		// run simulation for one WorldFrame
+		world.worldTick(simulRules.currentFrame);
+		simulRules.currentFrame++;
+	}
+}
+
+void Game::client_tick()
+{
+	check_messages_from_server();
+	handle_some_client_input();
+
+
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.
 	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
 	{
-		// this is acceptable because the size is guaranteed to be insignificantly small
-		sort(UnitInput.begin(), UnitInput.end());
-		
-		// deliver any world message events to graphics structure, and erase them from world data.
-		for(int i=0; i<world.worldMessages.size(); i++)
-			view.pushMessage(world.worldMessages[i]);
-		world.worldMessages.clear();
-		
-		if(myID != -1)
-		{
-			view.setLocalPlayerName(Players[myID].name);
-			view.setLocalPlayerHP(world.units[myID].hitpoints);
-		}
-		
-		// handle any server commands intended for this frame
-		while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
-		{
-			Order server_command = UnitInput.back();
-			UnitInput.pop_back();
-			handleServerMessage(server_command);
-		}
-		
-		if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
-		{
-			if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
-				cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
-			
-			fps_world.insert();
-			
-			int keyState = userio.getGameInput();
-			if (client_state & 2)
-				keyState = 0;
-			int x, y;
-			
-			userio.getMouseChange(x, y);
-			int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
-			
-			if(myID >= 0)
-			{
-				stringstream inputMsg;
-				string msg;
-				inputMsg << "1 " << myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
-				msg = inputMsg.str();
-				clientSocket.write(msg);
-			}
-			
-			Logger log;
-			// update commands of player controlled characters
-			while(UnitInput.back().frameID == simulRules.currentFrame)
-			{
-				Order tmp = UnitInput.back();
-				UnitInput.pop_back();
-				
-				// log all processed game data affecting commands in the order of processing
-				log.print(tmp.copyOrder());
-				
-				if(tmp.plr_id == -1)
-				{
-					cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
-					break;
-				}
-				
-				world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButton);
-			}
-			
-			log.print("\n");
-			
-			view.updateInput(keyState, x, y);
-			
-			// run simulation for one WorldFrame
-			world.worldTick(simulRules.currentFrame);
-			simulRules.currentFrame++;
-		}
+		client_tick_everything_fuck_or_something();
 	}
-	
 }
 
 void Game::camera_handling()
@@ -419,3 +440,4 @@ void Game::camera_handling()
 	if (wheel_status == 2)
 		view.mouseDown();
 }
+

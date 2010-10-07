@@ -31,7 +31,7 @@ void Graphics::drawStatusBar()
 	drawString(ss.str(), -0.9, 0.9, 2.0, true);
 }
 
-float Graphics::modelGround(Model& model)
+float Graphics::modelGround(const Model& model)
 {
 	// :G
 	
@@ -40,8 +40,10 @@ float Graphics::modelGround(Model& model)
 
 void Graphics::depthSortParticles(Vec3& d)
 {
-	for(int i=0; i<viewParticles.size(); i++)
+	for(size_t i = 0; i < viewParticles.size(); ++i)
+	{
 		viewParticles[i].updateDepthVal(d);
+	}
 	sort(viewParticles.begin(), viewParticles.end());
 }
 
@@ -113,11 +115,11 @@ void Graphics::setTime(unsigned time)
 void Graphics::drawMessages()
 {
 	glDisable(GL_LIGHTING);
-	for(int i=0; i<viewMessages.size(); i++)
+	for(size_t i = 0; i < viewMessages.size(); ++i)
 	{
 		if(viewMessages[i].endTime < currentTime)
 		{
-			for(int k=i+1; k<viewMessages.size(); k++)
+			for(size_t k = i+1; k < viewMessages.size(); ++k)
 				viewMessages[k-1] = viewMessages[k];
 			viewMessages.pop_back();
 			
@@ -190,7 +192,7 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	float totalWidth = 0.025f;
-	for(int i=0; i<msg.size(); i++)
+	for(size_t i = 0; i < msg.size(); ++i)
 		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
 	
 	float x_now     = 0.0f;
@@ -217,7 +219,7 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
 	
-	for(int i=0; i<msg.size(); i++)
+	for(size_t i = 0; i < msg.size(); ++i)
 	{
 		currentWidth = 0.05 * charWidth[msg[i]];
 		
@@ -412,7 +414,7 @@ void Graphics::createWindow()
 	}
 }
 
-void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, string& animation, int animation_state)
+void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, const string& animation, int animation_state)
 {
 	glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
 	
@@ -461,34 +463,8 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
-void Graphics::draw(map<int, Model>& models, Level& lvl)
+void Graphics::drawLevel(const Level& lvl)
 {
-	
-	glMatrixMode(GL_MODELVIEW);
-	
-	
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-	glLoadIdentity();                                   // Reset The View
-	
-	camera.setLevel(lvl);
-	camera.tick();
-	Vec3 camPos, camTarget, upVector;
-	camPos = camera.getPosition();
-	camTarget = camera.getCurrentTarget();
-
-	upVector.x = 0.f;
-	upVector.y = 1.f;
-	upVector.z = 0.f;
-	
-	glLoadIdentity();
-	gluLookAt(camPos.x, camPos.y, camPos.z,
-			  camTarget.x, camTarget.y, camTarget.z,
-			  upVector.x, upVector.y, upVector.z);
-			  
-	frustum.setCamDef(camPos, camTarget, upVector);
-	
-	
 	glEnable(GL_TEXTURE_2D);
 	int multiplier = 8;
 	
@@ -536,9 +512,11 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
-	
+}
 
-	for(int i = 0; i < LINES.size(); ++i)
+void Graphics::drawDebugLines()
+{
+	for(size_t i = 0; i < LINES.size(); ++i)
 	{
 		Location& p1 = LINES[i].first;
 		Location& p2 = LINES[i].second;
@@ -547,8 +525,11 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		glVertex3f(p2.x.getFloat(), p2.y.getFloat(), p2.z.getFloat());
 		glEnd();
 	}
-	
-	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); iter++)
+}
+
+void Graphics::drawModels(map<int, Model>& models)
+{
+	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		if(iter->second.root < 0)
 		{
@@ -560,9 +541,10 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
-	
-	
-	
+}
+
+void Graphics::drawParticles()
+{
 	Vec3 direction_vector = camera.getCurrentTarget() - camera.getPosition();
 	depthSortParticles(direction_vector);
 	
@@ -573,7 +555,7 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	
 	glPushMatrix();
 	
-	for(int i=0; i<viewParticles.size(); i++)
+	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		float px = viewParticles[i].pos.x.getFloat();
 		float py = viewParticles[i].pos.y.getFloat();
@@ -607,17 +589,63 @@ void Graphics::draw(map<int, Model>& models, Level& lvl)
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-	
-	
-	
+}
+
+void Graphics::drawHUD()
+{
 	if(camera.isFirstPerson())
+	{
 		drawCrossHair();
-	
+	}
+
 	drawMessages();
 	drawStatusBar();
+}
+
+void Graphics::startDrawing()
+{
+	glMatrixMode(GL_MODELVIEW);
 	
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+	glLoadIdentity();                                   // Reset The View
+
+	Vec3 camPos, camTarget, upVector;
+	camPos = camera.getPosition();
+	camTarget = camera.getCurrentTarget();
+
+	upVector.x = 0.f;
+	upVector.y = 1.f;
+	upVector.z = 0.f;
+	
+	glLoadIdentity();
+	gluLookAt(camPos.x, camPos.y, camPos.z,
+			  camTarget.x, camTarget.y, camTarget.z,
+			  upVector.x, upVector.y, upVector.z);
+			  
+	frustum.setCamDef(camPos, camTarget, upVector);
+}
+
+void Graphics::draw(map<int, Model>& models, const Level& lvl)
+{
+	camera.setLevel(&lvl);
+
+	startDrawing();
+
+	drawLevel(lvl);
+	drawDebugLines();
+	drawModels(models);
+	drawParticles();
+	drawHUD();
+
 	SDL_GL_SwapBuffers();
-	return;
+}
+
+void Graphics::draw(map<int, Model>& models)
+{
+	startDrawing();
+	drawModels(models);
+	SDL_GL_SwapBuffers();
 }
 
 void Graphics::updateInput(int keystate, int mousex, int mousey)
@@ -632,7 +660,9 @@ void Graphics::bindCamera(Unit* unit)
 
 void Graphics::tick()
 {
-	GLfloat	lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	camera.tick();
+
+	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Vec3 camPos = camera.getPosition();
 	lightPos[0] = camPos.x;
 	lightPos[1] = camPos.y;
@@ -652,7 +682,7 @@ void Graphics::tick()
 	
 	genParticles(position, velocity, 1, 0.5, 0, 0, 0);
 	
-	for(int i=0; i<viewParticles.size(); i++)
+	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		viewParticles[i].decrementLife();
 		if(!viewParticles[i].alive())
@@ -680,3 +710,4 @@ void Graphics::mouseDown()
 {
 	camera.zoomOut();
 }
+
