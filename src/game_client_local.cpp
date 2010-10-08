@@ -8,6 +8,34 @@
 using namespace std;
 
 
+void Game::playSound(const string& name, Location& position)
+{
+	// play sounds!
+	if(myID != -1)
+	{
+		Location reference_point = world.units[myID].position;
+		
+		FixedPoint distance = (reference_point - position).length();
+		
+		if(distance < FixedPoint(1))
+			distance = FixedPoint(1);
+		
+		
+		// play local player's unit's sound effect
+		if(name == "walk")
+		{
+			if(simulRules.currentFrame % 15 == 0)
+				soundsystem.playEffect(name, distance.getFloat(), 100000);
+		}
+		else
+		{
+			soundsystem.playEffect(name, distance.getFloat(), 100000);
+		}
+		
+	}
+}
+
+
 void Game::camera_handling()
 {
 	int wheel_status = userio.getMouseWheelScrolled();
@@ -59,33 +87,9 @@ void Game::client_tick_local()
 		
 		handleWorldEvents();
 		
-		// play sounds!
-		if(myID != -1)
-		{
-			Location reference_point = world.units[myID].position;
-			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-			{
-				FixedPoint distance = (reference_point - iter->second.position).length();
-				if(distance > FixedPoint(10 * 8))
-					continue;
-				
-				if(distance < FixedPoint(1))
-					distance = FixedPoint(1);
-				
-				
-				// play local player's unit's sound effect
-				if(iter->second.soundInfo == "walk")
-				{
-					if(simulRules.currentFrame % 15 == 0)
-						soundsystem.playEffect(iter->second.soundInfo, distance.getFloat(), 100000);
-				}
-				else
-				{
-					soundsystem.playEffect(iter->second.soundInfo, distance.getFloat(), 100000);
-				}
-				
-			}
-		}
+		
+		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
+			playSound(iter->second.soundInfo, iter->second.position);
 	}
 }
 
@@ -248,11 +252,17 @@ void Game::handleWorldEvents()
 		else if(event.type == World::DAMAGE_DEVOUR)
 			view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 		else if(event.type == World::DEATH_ENEMY)
+		{
+			playSound("alien_death", event.position);
 			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+		}
 		else if(event.type == World::DEATH_PLAYER)
+		{
+			playSound("player_death", event.position);
 			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+		}
 		else
-			cerr << "UNKOWN WORLD EVENT OCCURRED" << endl;
+			cerr << "UNKNOWN WORLD EVENT OCCURRED" << endl;
 		
 		if(event.type == World::DEATH_ENEMY)
 		{

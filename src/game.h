@@ -117,6 +117,9 @@ class Game
 	void client_tick_local();
 	void process_game_input();
 	
+	// fully 3D single channel sounds! :DD
+	void playSound(const string& name, Location& position);
+	
 	void enableGrab();
 	void disableGrab();
 public:
