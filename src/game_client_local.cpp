@@ -97,7 +97,7 @@ void Game::process_game_input()
 			break;
 		}
 		
-		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButton);
+		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 	log.print("\n");

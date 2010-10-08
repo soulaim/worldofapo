@@ -34,10 +34,10 @@ float Unit::getAngle(ApoMath& apomath)
 	return apomath.getRad(angle);
 }
 
-void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButton_)
+void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons_)
 {
 	keyState = keyState_;
-	mouseButton = mouseButton_;
+	mouseButtons = mouseButtons_;
 	angle -= mousex_;
 
 	// FIX TODO FIX TODO FIX ZOMG FFS TROLOLOLOLOL
@@ -63,13 +63,13 @@ int Unit::getKeyAction(int type)
 
 int Unit::getMouseAction(int type)
 {
-	return (mouseButton & type);
+	return (mouseButtons & type);
 }
 
 
 void Unit::handleCopyOrder(stringstream& ss)
 {
-	ss >> angle >> upangle >> keyState >> position.x.number >> position.z.number >> position.y.number >> velocity.x.number >> velocity.z.number >> velocity.y.number >> mouseButton >> weapon_cooldown >> leap_cooldown >> controllerTypeID >> hitpoints >> birthTime >> id;
+	ss >> angle >> upangle >> keyState >> position.x.number >> position.z.number >> position.y.number >> velocity.x.number >> velocity.z.number >> velocity.y.number >> mouseButtons >> weapon_cooldown >> leap_cooldown >> controllerTypeID >> hitpoints >> birthTime >> id;
 	
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);
@@ -78,7 +78,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 string Unit::copyOrder(int ID)
 {
 	stringstream hero_msg;
-	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << mouseButton << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << " " << hitpoints << " " << birthTime << " " << id << " ";
+	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << " " << hitpoints << " " << birthTime << " " << id << " ";
 	
 	// name must be the last element.
 	hero_msg << name << "#";

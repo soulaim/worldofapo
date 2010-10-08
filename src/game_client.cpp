@@ -112,7 +112,7 @@ void Game::processClientMsgs()
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.keyState;
 			ss >> tmp_order.mousex >> tmp_order.mousey;
-			ss >> tmp_order.mouseButton;
+			ss >> tmp_order.mouseButtons;
 			
 			UnitInput.push_back(tmp_order);
 		}
@@ -244,7 +244,7 @@ void Game::processClientMsgs()
 		{
 			cerr << "Got a copy of an old message" << endl;
 			Order tmp_order;
-			ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButton;
+			ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButtons;
 			UnitInput.push_back(tmp_order);
 		}
 		else

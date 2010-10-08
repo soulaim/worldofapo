@@ -7,7 +7,7 @@
 
 struct Order
 {
-	Order(): frameID(0), plr_id(0), keyState(0), mousex(0), mousey(0), serverCommand(0), mouseButton(0) {}
+	Order(): frameID(0), plr_id(0), keyState(0), mousex(0), mousey(0), serverCommand(0), mouseButtons(0) {}
 	
 	int frameID;
 	int plr_id;
@@ -16,7 +16,7 @@ struct Order
 	int mousex;
 	int mousey;
 	int serverCommand;
-	int mouseButton;
+	int mouseButtons;
 	
 	bool operator < (const Order& a) const
 	{
@@ -28,7 +28,7 @@ struct Order
 	std::string copyOrder()
 	{
 		std::stringstream input_msg;
-		input_msg << "-4 " << frameID << " " << plr_id << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButton << "#";
+		input_msg << "-4 " << frameID << " " << plr_id << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << "#";
 		return input_msg.str();
 	}
 };
