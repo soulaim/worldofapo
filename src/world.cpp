@@ -322,8 +322,8 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
 		{
+			unit.weapon_cooldown = 2;
 			unit.soundInfo = "shoot";
-			unit.weapon_cooldown = 5;
 
 			// TODO: Following is somewhat duplicated from Camera :G
 

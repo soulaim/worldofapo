@@ -5,8 +5,7 @@ using namespace std;
 
 UserIO::UserIO()
 {
-	mouse_has_been_pressed = 0;
-	mouse_right_button = 0;
+	mouseButtons = 0;
 	mouse = Coord(-1, -1);
 }
 
@@ -106,17 +105,7 @@ Coord UserIO::getMousePoint()
 
 int UserIO::getMousePress()
 {
-	if(mouse_has_been_pressed)
-	{
-		mouse_has_been_pressed = 0;
-		return 1;
-	}
-	else if(mouse_right_button)
-	{
-		mouse_right_button = 0;
-		return 2;
-	}
-	return 0;
+	return mouseButtons;
 }
 
 int UserIO::getMouseWheelScrolled()
@@ -179,14 +168,14 @@ int UserIO::checkEvents()
 			if( event.button.button == SDL_BUTTON_LEFT )
 			{
 				mouse = Coord(event.button.x, event.button.y);
-				mouse_has_been_pressed = 1;
+				mouseButtons |= 1;
 			}
 			
 			//If the right mouse button was released
 			if( event.button.button == SDL_BUTTON_RIGHT )
 			{
 				mouse = Coord(event.button.x, event.button.y);
-				mouse_right_button = 1;
+				mouseButtons |= 2;
 			}
 
 			if( event.button.button == SDL_BUTTON_WHEELUP )
@@ -199,6 +188,19 @@ int UserIO::checkEvents()
 				wheel_has_been_scrolled_down = 1;
 			}
 			
+		}
+		else if( event.type == SDL_MOUSEBUTTONUP )
+		{
+			if( event.button.button == SDL_BUTTON_LEFT )
+			{
+				mouse = Coord(event.button.x, event.button.y);
+				mouseButtons &= ~0 ^ 1;
+			}
+			if( event.button.button == SDL_BUTTON_RIGHT )
+			{
+				mouse = Coord(event.button.x, event.button.y);
+				mouseButtons &= ~0 ^ 2;
+			}
 		}
 	}
 	
