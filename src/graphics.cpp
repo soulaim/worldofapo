@@ -425,7 +425,7 @@ void Graphics::init()
 
 void Graphics::createWindow()
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	

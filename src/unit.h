@@ -33,6 +33,8 @@ class Unit
 		Location velocity;
 		Location position;
 		
+		std::string soundInfo;
+		
 		// This should really be done soon.
 //		map<std::string, Location> vectors;
 //		map<std::string, int> ints;

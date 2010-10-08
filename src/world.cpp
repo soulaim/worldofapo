@@ -210,6 +210,8 @@ void World::tickUnit(Unit& unit, Model& model)
 		generateInput_RabidAlien(unit);
 	}
 	
+	unit.soundInfo = "";
+	
 	// update the information according to which the unit model will be updated from now on
 	model.parts[model.root].rotation_x = unit.getAngle(apomath);
 	model.updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
@@ -218,6 +220,8 @@ void World::tickUnit(Unit& unit, Model& model)
 	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
+		if(unit.velocity.y < FixedPoint(-400, true))
+			unit.soundInfo = "jump_land";
 		FixedPoint friction = FixedPoint(88) / FixedPoint(100);
 		
 		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
@@ -237,7 +241,12 @@ void World::tickUnit(Unit& unit, Model& model)
 		if(iter->second.id == unit.id)
 			continue;
 		if((iter->second.position - unit.position).length() < FixedPoint(2))
+		{
 			resolveUnitCollision(unit, iter->second);
+			
+			// dont activate this until the sound actually exists, if ever.
+			//unit.soundInfo = "unitbump";
+		}
 	}
 	
 	
@@ -272,6 +281,9 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 	}
+	
+	if(unit.getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (unit.soundInfo == ""))
+		unit.soundInfo = "walk";
 
 	if(unit.leap_cooldown == 0)
 	{
@@ -285,6 +297,8 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
 			unit.leap_cooldown = 60;
+			
+			unit.soundInfo = "leap";
 		}
 		if(unit.getKeyAction(Unit::LEAP_RIGHT) && hitGround)
 		{
@@ -294,6 +308,8 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
 			unit.leap_cooldown = 60;
+			
+			unit.soundInfo = "leap";
 		}
 	}
 	else
@@ -307,6 +323,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		if(unit.getMouseAction(Unit::ATTACK_BASIC))
 		{
+			unit.soundInfo = "shoot";
 			unit.weapon_cooldown = 5;
 
 			// TODO: Following is somewhat duplicated from Camera :G
@@ -382,14 +399,29 @@ void World::tickUnit(Unit& unit, Model& model)
 
 	if(unit.getKeyAction(Unit::JUMP) && hitGround)
 	{
-		unit.velocity.y = FixedPoint(900) / FixedPoint(1000);
+		unit.soundInfo = "jump";
+		unit.velocity.y = lvl.getJumpPower(unit.position.x, unit.position.z) * FixedPoint(900, true);
 	}
-
-
+	
+	/*
+	// EISS VOIVVV :GG
+	Location xz_movement = unit.velocity;
+	xz_movement.y = 0;
+	xz_movement.normalize();
+	
+	// terrain bump on xz-plane
+	if( (unit.velocity.y + unit.position.y + FixedPoint(600, true) ) <= lvl.getHeight(unit.position.x + xz_movement.x, unit.position.z + xz_movement.z) )
+	{
+		unit.velocity.z = 0;
+		unit.velocity.x = 0;
+	}
+	*/
+	
 	unit.position.z += unit.velocity.z * yy_val;
 	unit.position.x += unit.velocity.x * yy_val;
 	unit.position.y += unit.velocity.y;
 
+	
 	if(unit.position.x < 0)
 	{
 		unit.position.x = 0;
@@ -510,7 +542,6 @@ void World::worldTick(int tickCount)
 	
 	if(show_errors && (currentWorldFrame % 200) == 0)
 	{
-
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 		{
 			stringstream msg;

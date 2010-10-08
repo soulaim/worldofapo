@@ -9,6 +9,7 @@
 #include "fps_manager.h"
 #include "order.h"
 #include "playerinfo.h"
+#include "gamesound.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -54,6 +55,7 @@ class Game
 	World world;
 	UserIO userio;
 	Graphics view;
+	GameSound soundsystem;
 	
 	MU_Socket serverSocket; // for hosting games
 	MU_Socket clientSocket; // for connecting to all games (also local games)
