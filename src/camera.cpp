@@ -86,10 +86,13 @@ bool Camera::isFirstPerson() const
 
 void Camera::updateInput(int keystate, int mousex, int mousey)
 {
+	// f11? dont fuck up everything permanently, when the user makes the mistake of trying this button out..
+	/*
 	if(keystate & 1 << 11)
 	{
 		position = Vec3();
 	}
+	*/
 	
 	if(keystate & 1 << 12)
 	{

@@ -83,8 +83,8 @@ void Game::host_tick()
 			minAllowed = target->second.last_order;
 	}
 	
-	if(minAllowed < 5)
-		minAllowed = 5;
+	if(minAllowed < simulRules.windowSize)
+		minAllowed = simulRules.windowSize;
 	
 	if( (minAllowed != ~0) && (minAllowed > serverAllow) )
 	{
