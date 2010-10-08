@@ -1,6 +1,5 @@
-CXXFLAGS = -Wall -O0 -std=c++98 -g
+CXXFLAGS = -Wall -O3 -std=c++98
 LDLIBS = -lSDL -lSDL_mixer -lGL -lGLU -lpng
-#-lSDL_mixer
 CXX = g++
 
 DIRS = src src/net src/frustum
@@ -9,6 +8,10 @@ target1 = bin/diablo
 target2 = bin/editor
 
 all: $(target1) $(target2)
+
+prof: CXXFLAGS += -pg
+prof: LDLIBS += -pg
+prof: $(target1)
 
 obj1 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/main,   $(wildcard $(dir)/*.cpp)))
 obj2 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/editor, $(wildcard $(dir)/*.cpp)))

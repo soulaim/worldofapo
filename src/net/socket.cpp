@@ -45,9 +45,14 @@ int MU_Socket::readyToRead()
 	/* Create a descriptor set containing our server socket.  */
 	FD_ZERO(&fds);
 	FD_SET(sock, &fds);
-	rc = select(sock+1, &fds, NULL, NULL, &timeout);
+
+	rc = EINTR;
+	while(rc == EINTR)
+	{
+		rc = select(sock+1, &fds, NULL, NULL, &timeout);
+	}
 	
-	if(rc==-1)
+	if(rc == -1)
 	{
 		perror("select failed");
 		return -1;

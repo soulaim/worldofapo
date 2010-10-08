@@ -5,4 +5,5 @@ bin/diablo
 bin/editor
 *.swp
 *.log
+gmon.out
 
