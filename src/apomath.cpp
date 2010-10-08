@@ -5,10 +5,26 @@
 
 using namespace std;
 
+
+std::vector<FixedPoint> ApoMath::sin_vals;
+std::vector<FixedPoint> ApoMath::cos_vals;
+std::vector<float> ApoMath::degree_vals;
+
+int ApoMath::DEGREES_90;
+int ApoMath::DEGREES_180;
+int ApoMath::DEGREES_360;
+
+ApoMath::ApoMath()
+{
+	init(3000);
+}
+
 void ApoMath::init(int size)
 {
-	if(sin_vals.size() > 0)
+	if(ready())
+	{
 		return;
+	}
 
 	DEGREES_90 = size / 4;
 	DEGREES_180 = size / 2;
@@ -18,56 +34,52 @@ void ApoMath::init(int size)
 	{
 		int sin_val = 1000 * sin(2 * 3.14159265 * i / size);
 		int cos_val = 1000 * cos(2 * 3.14159265 * i / size);
-		float radian  = 360. * i / size;
+		float degree = 360. * i / size;
 		
-		//    cerr << sin_val << " " << cos_val << " " << radian << endl;
+		//cerr << sin_val << " " << cos_val << " " << degree << endl;
 		
-		sin_vals.push_back(FixedPoint()); sin_vals.back().number = sin_val;
-		cos_vals.push_back(FixedPoint()); cos_vals.back().number = cos_val;
-		rad_vals.push_back(radian);
+		sin_vals.push_back(FixedPoint(sin_val, true));
+		cos_vals.push_back(FixedPoint(cos_val, true));
+		degree_vals.push_back(degree);
 	}
+
+	cerr << "ApoMath initialized with size " << size << "\n";
 }
 
-bool ApoMath::ready()
+bool ApoMath::ready() const
 {
-	if(sin_vals.size() > 0)
-		return true;
-	return false;
+	return !sin_vals.empty();
 }
 
-FixedPoint& ApoMath::getCos(int& angle)
+FixedPoint& ApoMath::getCos(int& angle) const
 {
 	while(angle < 0)
 		angle += sin_vals.size();
-	while(angle >= sin_vals.size())
+	while(unsigned(angle) >= sin_vals.size())
 		angle -= sin_vals.size();
 	return sin_vals[angle];
 }
 
-FixedPoint& ApoMath::getSin(int& angle)
+FixedPoint& ApoMath::getSin(int& angle) const
 {
 	while(angle < 0)
 		angle += sin_vals.size();
-	while(angle >= sin_vals.size())
+	while(unsigned(angle) >= sin_vals.size())
 		angle -= sin_vals.size();
-	return cos_vals[angle];  
+	return cos_vals[angle];
 }
 
-float ApoMath::getRad(int& angle)
+float ApoMath::getDegrees(int& angle) const
 {
 	while(angle < 0)
 		angle += sin_vals.size();
-	while(angle >= sin_vals.size())
+	while(unsigned(angle) >= sin_vals.size())
 		angle -= sin_vals.size();
-	return rad_vals[angle];
+	return degree_vals[angle];
 }
 
 FixedPoint ApoMath::sqrt(const FixedPoint& x)
 {
-	// sqrt(x*1000)*1000 = sqrt(x)/sqrt(1000)*1000
-	// TODO: Need portable implementation.
-	FixedPoint ret;
-	ret.number = int(std::sqrt(x.number) * 1000.0 / std::sqrt(1000.0));
-	return ret;
+	return x.squareRoot();
 }
 

@@ -162,16 +162,7 @@ void Game::processClientMsgs()
 			tmp_order.plr_id = -1;
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.serverCommand;
-			
-			for(size_t i = 0; i < UnitInput.size(); ++i)
-			{
-				cerr << "(" << UnitInput[i].frameID << ", " << UnitInput[i].plr_id << ")" << endl;
-			}
-			
-			cerr << "GOT A SERVER MESSAGE: " << tmp_order.serverCommand << " " << tmp_order.frameID << "(current frame: " << simulRules.currentFrame << ", allowed frame: " << simulRules.allowedFrame << ")" << endl;
-			
 			ss >> tmp_order.keyState;
-			
 			UnitInput.push_back(tmp_order);
 		}
 		

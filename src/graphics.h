@@ -70,6 +70,7 @@ class Graphics
 	void drawParticles();
 	void drawHUD();
 	void drawMinimap();
+	void drawFPS();
 
 	void updateCamera(const Level&);
 	
@@ -90,6 +91,7 @@ class Graphics
 	SDL_Surface* drawContext;
 	Camera camera;
 	
+	int world_ticks;
 	unsigned currentTime;
 	bool lightsActive;
 	int zombieCount;
@@ -129,12 +131,13 @@ public:
 	void mouseUp();
 	void mouseDown();
 	void tick();
+	void world_tick();
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 
 	
-	void setHumanPositions(std::vector<Location>);
+	void setHumanPositions(const std::vector<Location>&);
 	
 	Graphics();
 	FrustumR frustum;

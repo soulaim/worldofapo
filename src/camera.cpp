@@ -18,8 +18,14 @@ Vec3& Camera::getCurrentTarget()
 
 void Camera::setAboveGround(float min_cam_y)
 {
-	if (currentRelative.y < min_cam_y)
-		currentRelative.y = min_cam_y;
+	if(mode == RELATIVE)
+	{
+		//std::cerr << min_cam_y << "\n";
+		if(currentPosition.y + currentRelative.y < min_cam_y)
+		{
+			currentRelative.y = min_cam_y - currentPosition.y;
+		}
+	}
 }
 
 Vec3 Camera::getPosition() const
@@ -112,16 +118,13 @@ void Camera::updateInput(int keystate, int mousex, int mousey)
 
 void Camera::fpsTick()
 {
-	// TODO: Fix to use some common ApoMath.
-	static ApoMath dorka;
-	if(!dorka.ready())
-		dorka.init(3000);
+	ApoMath math;
 	
-	double cos = dorka.getCos(unit->angle).getFloat();
-	double sin = dorka.getSin(unit->angle).getFloat();
+	double cos = math.getCos(unit->angle).getFloat();
+	double sin = math.getSin(unit->angle).getFloat();
 
-	double upsin = dorka.getSin(unit->upangle).getFloat();
-	double upcos = dorka.getCos(unit->upangle).getFloat();
+	double upsin = math.getSin(unit->upangle).getFloat();
+	double upcos = math.getCos(unit->upangle).getFloat();
 
 	double x = position.x;
 	double y = position.y;
@@ -147,16 +150,13 @@ void Camera::fpsTick()
 
 void Camera::relativeTick()
 {
-	// TODO: Fix to use some common ApoMath.
-	static ApoMath dorka;
-	if(!dorka.ready())
-		dorka.init(3000);
+	ApoMath math;
 	
-	double cos = dorka.getCos(unit->angle).getFloat();
-	double sin = dorka.getSin(unit->angle).getFloat();
+	double cos = math.getCos(unit->angle).getFloat();
+	double sin = math.getSin(unit->angle).getFloat();
 
-	double upsin = dorka.getSin(unit->upangle).getFloat();
-	double upcos = dorka.getCos(unit->upangle).getFloat();
+	double upsin = math.getSin(unit->upangle).getFloat();
+	double upcos = math.getCos(unit->upangle).getFloat();
 
 	double x = position.x;
 	double y = position.y;
@@ -181,17 +181,23 @@ void Camera::relativeTick()
 
 void Camera::zoomIn()
 {
-	if (mode == RELATIVE)
+	if(mode == RELATIVE)
 	{
-		// do;
+		if(position.length() > 1.0)
+		{
+			position *= 2.0/3.0;
+		}
 	}
 }
 
 void Camera::zoomOut()
 {
-	if (mode == RELATIVE)
+	if(mode == RELATIVE)
 	{
-		// do;
+		if(position.length() < 100.0)
+		{
+			position *= 3.0/2.0;
+		}
 	}
 }
 

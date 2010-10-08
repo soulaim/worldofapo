@@ -57,6 +57,34 @@ void Game::client_tick_local()
 		simulRules.currentFrame++;
 		
 		handleWorldEvents();
+		
+		// play sounds!
+		if(myID != -1)
+		{
+			Location reference_point = world.units[myID].position;
+			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
+			{
+				FixedPoint distance = (reference_point - iter->second.position).length();
+				if(distance > FixedPoint(10 * 8))
+					continue;
+				
+				if(distance < FixedPoint(1))
+					distance = FixedPoint(1);
+				
+				
+				// play local player's unit's sound effect
+				if(iter->second.soundInfo == "walk")
+				{
+					if(simulRules.currentFrame % 15 == 0)
+						soundsystem.playEffect(iter->second.soundInfo, distance.getFloat(), 100000);
+				}
+				else
+				{
+					soundsystem.playEffect(iter->second.soundInfo, distance.getFloat(), 100000);
+				}
+				
+			}
+		}
 	}
 }
 

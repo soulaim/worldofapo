@@ -38,13 +38,24 @@ void Editor::init()
 
 void Editor::start()
 {
-	tick();
+	int ticks = SDL_GetTicks();
+	static int last_tick = -999999;
 
-	view.setTime( SDL_GetTicks() );
+	int time_since_last = ticks - last_tick;
+	int time_between_ticks = 1000/60;
+	if(time_since_last >= time_between_ticks)
+	{
+		last_tick = ticks;
 
-	view.tick();
-
-	view.draw(models);
+		tick();
+		view.setTime( ticks );
+		view.tick();
+		view.draw(models);
+	}
+	else
+	{
+		SDL_Delay(time_between_ticks - time_since_last);
+	}
 }
 
 void Editor::tick()
@@ -214,8 +225,15 @@ void Editor::handle_input()
 	int keystate = userio.getGameInput();
 	int x, y;
 	userio.getMouseChange(x, y);
-
-//	cerr << "keystate: " << keystate << "\n";
+	int wheel_status = userio.getMouseWheelScrolled();
+	if(wheel_status == 1)
+	{
+		view.mouseUp();
+	}
+	if(wheel_status == 2)
+	{
+		view.mouseDown();
+	}
 	view.updateInput(keystate, x, y);
 	dummy.updateInput(0, x, y, 0);
 }

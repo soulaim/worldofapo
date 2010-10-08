@@ -52,7 +52,7 @@ bool Model::load(const string& filename)
 		if(cmd == "CHILD")
 		{
 			in_file >> father >> child >> wirename >> osx >> osy >> osz;
-			for(int i=0; i<parts.size(); i++)
+			for(size_t i = 0; i < parts.size(); ++i)
 			{
 				if(parts[i].name == father)
 				{
