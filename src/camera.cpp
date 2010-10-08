@@ -18,8 +18,14 @@ Vec3& Camera::getCurrentTarget()
 
 void Camera::setAboveGround(float min_cam_y)
 {
-	if (currentRelative.y < min_cam_y)
-		currentRelative.y = min_cam_y;
+	if(mode == RELATIVE)
+	{
+		//std::cerr << min_cam_y << "\n";
+		if(currentPosition.y + currentRelative.y < min_cam_y)
+		{
+			currentRelative.y = min_cam_y - currentPosition.y;
+		}
+	}
 }
 
 Vec3 Camera::getPosition() const

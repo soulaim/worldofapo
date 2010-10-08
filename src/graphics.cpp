@@ -678,10 +678,10 @@ void Graphics::drawHUD()
 void Graphics::updateCamera(const Level& lvl)
 {
 	Vec3 camStartPos = camera.getPosition();
-	FixedPoint camX = camStartPos.x * 1000;
-	FixedPoint camZ = camStartPos.z * 1000;
+	FixedPoint camX = camStartPos.x;
+	FixedPoint camZ = camStartPos.z;
 	
-	float cam_min_y = lvl.getHeight(camX, camZ).getFloat() + 2.f;
+	float cam_min_y = lvl.getHeight(camX, camZ).getFloat() + 3.f;
 	camera.setAboveGround(cam_min_y);
 }
 
