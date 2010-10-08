@@ -9,6 +9,8 @@
 
 struct Level
 {
+	Level();
+	
 	std::vector<std::vector<FixedPoint> > pointheight_info;
 	std::vector<std::vector<Location> > normals;
 	
@@ -16,6 +18,7 @@ struct Level
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& y) const;
 	Location getRandomLocation(int);
 	
+	FixedPoint getJumpPower(FixedPoint& x, FixedPoint& z);
 	float estimateHeightDifference(int x, int y) const;
 
 	int max_x() const;
@@ -23,6 +26,7 @@ struct Level
 
 private:
 	// dont use these!! ffs!
+	Location unitVectorUp;
 	Location estimateNormal(int x, int y);
 	void firstPassNormals();
 };

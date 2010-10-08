@@ -6,6 +6,13 @@
 
 using namespace std;
 
+Level::Level()
+{
+	unitVectorUp.x = FixedPoint(0);
+	unitVectorUp.y = FixedPoint(1);
+	unitVectorUp.z = FixedPoint(0);
+}
+
 Location Level::getRandomLocation(int seed)
 {
 	Location result;
@@ -31,9 +38,9 @@ void Level::firstPassNormals()
 	{
 		for(int z=0; z<pointheight_info[x].size(); z++)
 		{
-			if(x < 0 || x > static_cast<int>(pointheight_info.size()) -2)
+			if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 2)
 				continue;
-			if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) -2)
+			if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
 				continue;
 			
 			normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1) + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
@@ -46,9 +53,9 @@ Location Level::estimateNormal(int x, int z)
 {
 	Location result;
 	result.y = 1;
-	if(x < 0 || x > static_cast<int>(pointheight_info.size()) -2)
+	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 2)
 		return result;
-	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) -2)
+	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
 		return result;
 	
 	Location a;
@@ -111,10 +118,10 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	int x_desimal = x.getDesimal() + (x.getInteger() & 7) * 1000;
 	int z_desimal = z.getDesimal() + (z.getInteger() & 7) * 1000;
 	
-	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) -2)
-		return FixedPoint(0);
-	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) -2)
-		return FixedPoint(0);
+	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(1);
+	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(1);
 	
 	FixedPoint A = pointheight_info[x_index][z_index];
 	FixedPoint B = pointheight_info[x_index+1][z_index];
@@ -212,12 +219,34 @@ void Level::generate(int seed)
 		}
 	}
 	
+	
+	// create bounding mountains
+	for(int i=0; i<pointheight_info.size(); i++)
+	{
+		pointheight_info[i][0].number = 80000;
+		pointheight_info[0][i].number = 80000;
+		pointheight_info[i][ pointheight_info[i].size()-1 ].number = 80000;
+		pointheight_info[pointheight_info.size()-1][i].number = 80000;
+	}
+	
+	
 	firstPassNormals(); // calculate level normals
 	
 }
 
 
-
+FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
+{
+	int x_index = x.getInteger() / 8;
+	int z_index = z.getInteger() / 8;
+	
+	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(500, true);
+	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(500, true);
+	
+	return normals[x_index][z_index].dotProduct(unitVectorUp);
+}
 
 
 int Level::max_x() const
