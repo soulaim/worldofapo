@@ -80,3 +80,13 @@ std::ostream& operator<<(std::ostream& out, const Location& loc)
 	return out << "(" << loc.x << "," << loc.y << "," << loc.z << ")";
 }
 
+bool operator==(const Location& a, const Location& b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+bool operator!=(const Location& a, const Location& b)
+{
+	return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+

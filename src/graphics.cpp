@@ -598,8 +598,8 @@ void Graphics::drawParticles()
 		
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 		
-		float x_angle = camera.getXrot() / 3000 * 360;
-		float y_angle = camera.getYrot() / 3000 * 360 + 90;
+		float x_angle = camera.getXrot();
+		float y_angle = camera.getYrot() + 90.0f;
 		
 		glTranslatef(px, py, pz);
 		
@@ -817,31 +817,40 @@ void Graphics::drawMinimap()
 	glPushMatrix();
 	glLoadIdentity();
 	
-	glTranslatef(0.0f,0.0f, -1.0f);
+	glTranslatef(0.0f, 0.0f, -1.0f);
+
+	glTranslatef(0.78f, -0.78f, 0.0f);
+	glRotatef(-camera.getXrot(), 0.0f, 0.0f, 1.0f);
+	glTranslatef(-0.78f, 0.78f, 0.0f);
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
-	glVertex3f(0.60f , -0.97f, 0.f);
-	glVertex3f(0.97f , -0.97f, 0.f);
-	glVertex3f(0.97f , -0.60f, 0.f);
-	glVertex3f(0.60f , -0.60f, 0.f);
+	glVertex3f(0.60f, -0.96f, 0.f);
+	glVertex3f(0.96f, -0.96f, 0.f);
+	glVertex3f(0.96f, -0.60f, 0.f);
+	glVertex3f(0.60f, -0.60f, 0.f);
 	glEnd();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	
-	
-	glColor3f(0, 0, 1.0f);
-	glPointSize(5.0f);
+	glPointSize(4.0f);
 
 	glBegin(GL_POINTS);
-	
-	for(std::vector<Location>::iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
+	for(std::vector<Location>::const_iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
 	{
-		glVertex3f(0.6 + (0.37*(float)iter->x.getInteger())/800, -0.97 + (0.37*(float)iter->z.getInteger())/800, 0.f);
+		const Location& loc = *iter;
+		const Location& unitPos = camera.getUnitPosition();
+		if(loc == unitPos)
+		{
+			glColor3f(1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			glColor3f(0.0f, 0.0f, 1.0f);
+		}
+		glVertex3f(0.96f - (0.37*loc.x.getFloat())/800.0f, -0.96f + (0.37*loc.z.getFloat())/800.0f, 0.f);
 	}
-	
 	glEnd();
 	
 	glPopMatrix();

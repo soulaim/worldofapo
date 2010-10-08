@@ -25,6 +25,8 @@ public:
 	Camera();
 	Vec3& getCurrentTarget();
 	Vec3 getPosition() const;
+	Location getUnitPosition() const;
+
 	void tick();
 
 	float getXrot();

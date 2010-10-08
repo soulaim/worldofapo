@@ -32,6 +32,9 @@ struct Location
 	FixedPoint length() const;
 };
 
+bool operator==(const Location&, const Location&);
+bool operator!=(const Location&, const Location&);
+
 std::ostream& operator<<(std::ostream& out, const Location& loc);
 
 #endif

@@ -28,6 +28,15 @@ void Camera::setAboveGround(float min_cam_y)
 	}
 }
 
+Location Camera::getUnitPosition() const
+{
+	if(unit)
+	{
+		return unit->position;
+	}
+	return Location();
+}
+
 Vec3 Camera::getPosition() const
 {
 	if(unit)
@@ -205,7 +214,7 @@ float Camera::getXrot()
 {
 	if(unit)
 	{
-		return unit->angle;
+		return ApoMath().getDegrees(unit->angle);
 	}
 	
 	return 0.f;
@@ -215,7 +224,7 @@ float Camera::getYrot()
 {
 	if(unit)
 	{
-		return unit->upangle;
+		return ApoMath().getDegrees(unit->upangle);
 	}
 	
 	return 0.f;

@@ -23,6 +23,7 @@ class Editor
 	void tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
+	void saveModel(const std::string& file);
 	void handle_command(const std::string& command);
 
 	std::map<int, Model> models;

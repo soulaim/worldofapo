@@ -65,6 +65,11 @@ void Editor::tick()
 //	cerr << view.camera.getPosition() << "\n";
 }
 
+void Editor::saveModel(const string& file)
+{
+
+}
+
 void Editor::loadObjects(const string& file)
 {
 	string pathed_file = "data/" + file;
