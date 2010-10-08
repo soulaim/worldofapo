@@ -10,12 +10,19 @@
 // for debugging
 #include <cassert>
 
+struct keijo
+{
+	double a;
+	int b;
+	float c;
+};
+
 struct FixedPoint
 {
 	long long number;
 	
 	FixedPoint(const FixedPoint& a):number(a.number) {}
-	FixedPoint(const int a, bool isFloat = false):number(isFloat?a:(a * 1000)) {}
+	FixedPoint(const int a, const int b = 1):number( (a * 1000) / b ) {}
 	FixedPoint():number(0) {}
 	
 	float getFloat() const

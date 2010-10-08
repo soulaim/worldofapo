@@ -8,7 +8,7 @@ using namespace std;
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 {
 	// no restrictions for moving downhill
-	if(h_diff > FixedPoint(-1)/FixedPoint(10))
+	if(h_diff > FixedPoint(-1, 10))
 		return 1;
 	
 	if(h_diff < FixedPoint(-1))
@@ -90,7 +90,7 @@ void World::resolveUnitCollision(Unit& a, Unit& b)
 	
 	Location direction = (a.position - b.position);
 	direction.normalize();
-	direction *= FixedPoint(200, true);
+	direction *= FixedPoint(1, 5);
 	
 	a.velocity += direction;
 	b.velocity -= direction;
@@ -167,6 +167,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	if( ((currentWorldFrame + unit.birthTime) % 140) > 100 )
 	{
+		mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
 		mousebutton = 1;
 	}
 	
@@ -219,9 +220,9 @@ void World::tickUnit(Unit& unit, Model& model)
 	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
-		if(unit.velocity.y < FixedPoint(-400, true))
+		if(unit.velocity.y < FixedPoint(-4, 10))
 			unit.soundInfo = "jump_land";
-		FixedPoint friction = FixedPoint(88) / FixedPoint(100);
+		FixedPoint friction = FixedPoint(88, 100);
 		
 		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
 		unit.velocity.y.number = 0;
@@ -251,7 +252,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
-		FixedPoint scale = FixedPoint(10) / FixedPoint(100);
+		FixedPoint scale = FixedPoint(10, 100);
 		unit.velocity.x += apomath.getCos(unit.angle) * scale;
 		unit.velocity.z += apomath.getSin(unit.angle) * scale;
 	}
@@ -259,14 +260,14 @@ void World::tickUnit(Unit& unit, Model& model)
 	
 	if(unit.getKeyAction(Unit::MOVE_BACK) && hitGround)
 	{
-		FixedPoint scale = FixedPoint(6) / FixedPoint(100);
+		FixedPoint scale = FixedPoint(6, 100);
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.z -= apomath.getSin(unit.angle) * scale;
 	}
 
 	if(unit.getKeyAction(Unit::MOVE_LEFT) && hitGround)
 	{
-		FixedPoint scale = FixedPoint(8) / FixedPoint(100);
+		FixedPoint scale = FixedPoint(8, 100);
 		int dummy_angle = unit.angle - apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
@@ -274,7 +275,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	}
 	if(unit.getKeyAction(Unit::MOVE_RIGHT) && hitGround)
 	{
-		FixedPoint scale = FixedPoint(8) / FixedPoint(100);
+		FixedPoint scale = FixedPoint(8, 100);
 		int dummy_angle = unit.angle + apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
@@ -294,7 +295,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
-			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
+			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 60;
 			
 			// unit.soundInfo = "leap";
@@ -305,7 +306,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
-			unit.velocity.y += FixedPoint(450) / FixedPoint(1000);
+			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 60;
 			
 			// unit.soundInfo = "leap";
@@ -366,7 +367,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
-			projectile.velocity *= FixedPoint(10)/FixedPoint(1);
+			projectile.velocity *= FixedPoint(10, 1);
 			projectile.owner = unit.id;
 			
 			projectile.tick();
@@ -394,7 +395,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	if(unit.getKeyAction(Unit::JUMP) && hitGround)
 	{
 		unit.soundInfo = "jump";
-		unit.velocity.y = lvl.getJumpPower(unit.position.x, unit.position.z) * FixedPoint(900, true);
+		unit.velocity.y = FixedPoint(900, 1000);
 	}
 	
 	/*
@@ -404,7 +405,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	xz_movement.normalize();
 	
 	// terrain bump on xz-plane
-	if( (unit.velocity.y + unit.position.y + FixedPoint(600, true) ) <= lvl.getHeight(unit.position.x + xz_movement.x, unit.position.z + xz_movement.z) )
+	if( (unit.velocity.y + unit.position.y + FixedPoint(600, 1000) ) <= lvl.getHeight(unit.position.x + xz_movement.x, unit.position.z + xz_movement.z) )
 	{
 		unit.velocity.z = 0;
 		unit.velocity.x = 0;
@@ -470,7 +471,7 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				
 				
 				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-				unit.velocity += projectile.velocity * FixedPoint(10, true);
+				unit.velocity += projectile.velocity * FixedPoint(1, 100);
 				
 				if(unit.hitpoints < 1)
 				{

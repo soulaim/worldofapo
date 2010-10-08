@@ -500,6 +500,8 @@ void Graphics::setCamera(const Camera& cam)
 void Graphics::drawLevel(const Level& lvl)
 {
 	glEnable(GL_TEXTURE_2D);
+	// TextureHandler::getSingleton().bindTexture("grass");
+	
 	int multiplier = 8;
 	
 	Vec3 semiAverage;
@@ -514,20 +516,22 @@ void Graphics::drawLevel(const Level& lvl)
 			semiAverage.z = multiplier * (y + 0.5f);
 			semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 			
-			Location n = lvl.normals[x][y];
+			Location n = lvl.getNormal(x, y);
 			glNormal3f(-n.x.getFloat(), n.y.getFloat(), -n.z.getFloat());
 			
-			// this is bubblegum. could maybe test each corner point of the quad.
-			float h_diff = lvl.estimateHeightDifference(x, y); // estimates could be precalculated also.
+			// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
+			float h_diff = lvl.getHeightDifference(x, y).getFloat();
 			if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
 			{
-				glEnable(GL_TEXTURE_2D);
+				/* swapping the active texture wildly should be avoided */
+				
 				if(h_diff < 3500)
 					TextureHandler::getSingleton().bindTexture("grass");
 				else if(h_diff < 10000)
 					TextureHandler::getSingleton().bindTexture("highground");
 				else
 					TextureHandler::getSingleton().bindTexture("mountain");
+				
 				
 				Vec3 A(multiplier * x, lvl.pointheight_info[x][y].getFloat(), multiplier * y);
 				Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][y].getFloat(), multiplier * y);

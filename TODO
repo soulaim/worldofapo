@@ -1,4 +1,6 @@
 TODO:
+      OLISI KIVA   - Windows binary
+
       OLISI KIVA   - Improve the FPS! Precalculate stuff for drawing the level! Dont swap the texture all the fucking time! (Square root is less accurate now (saves about 66% time there))
       
       OLISI KIVA   - Figure out something else to do than shooting (and the interaction methods to do that)

@@ -24,7 +24,7 @@ int main()
 
 	assert(ApoMath::sqrt(FixedPoint(4)).getInteger() == 2);
 	assert(ApoMath::sqrt(FixedPoint(1)).getInteger() == 1);
-	assert((ApoMath::sqrt(FixedPoint(1)/FixedPoint(4)) * FixedPoint(2)).getInteger() == 1);
+	assert((ApoMath::sqrt(FixedPoint(1, 4)) * FixedPoint(2)).getInteger() == 1);
 }
 
 
