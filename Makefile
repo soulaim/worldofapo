@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -O0 -std=c++98 -g
+CXXFLAGS = -Wall -O3 -std=c++98
 LDLIBS = -lSDL -lSDL_mixer -lGL -lGLU -lpng
 #-lSDL_mixer
 CXX = g++

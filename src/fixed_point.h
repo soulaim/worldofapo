@@ -129,7 +129,7 @@ struct FixedPoint
 		
 		// approximates the square root quite nicely
 		FixedPoint currentVal = *this / FixedPoint(2);
-		for(int i=0; i<30; i++)
+		for(int i=0; i<10; i++)
 			currentVal = (currentVal + *this / currentVal) / FixedPoint(2);
 		return currentVal;
 	}
