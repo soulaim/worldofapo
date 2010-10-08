@@ -505,10 +505,33 @@ void Graphics::drawLevel(const Level& lvl)
 	int multiplier = 8;
 	
 	Vec3 semiAverage;
+	
+	for(int i=0; i<3; i++)
+	{
+		if(i==0)
+			TextureHandler::getSingleton().bindTexture("grass");
+		else if(i == 1)
+			TextureHandler::getSingleton().bindTexture("highground");
+		else if(i == 2)
+			TextureHandler::getSingleton().bindTexture("mountain");
 	for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
 	{
 		for(size_t y=0; y < lvl.pointheight_info[x].size()-1; y++)
 		{
+			// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
+			FixedPoint h_diff = lvl.getHeightDifference(x, y);
+			int lololol = -1;
+			if(h_diff < FixedPoint(35, 10))
+				lololol = 0;
+			else if(h_diff < FixedPoint(10))
+				lololol = 1;
+			else
+				lololol = 2;
+			
+			if(lololol != i)
+				continue;
+			
+			
 			FixedPoint fpx; fpx.number = multiplier * (1000 * x + 500);
 			FixedPoint fpy; fpy.number = multiplier * (1000 * y + 500);
 			
@@ -519,18 +542,9 @@ void Graphics::drawLevel(const Level& lvl)
 			Location n = lvl.getNormal(x, y);
 			glNormal3f(-n.x.getFloat(), n.y.getFloat(), -n.z.getFloat());
 			
-			// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
-			float h_diff = lvl.getHeightDifference(x, y).getFloat();
-			if(frustum.sphereInFrustum(semiAverage, h_diff + multiplier * 1.f) != FrustumR::OUTSIDE)
+			if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 			{
 				/* swapping the active texture wildly should be avoided */
-				
-				if(h_diff < 3500)
-					TextureHandler::getSingleton().bindTexture("grass");
-				else if(h_diff < 10000)
-					TextureHandler::getSingleton().bindTexture("highground");
-				else
-					TextureHandler::getSingleton().bindTexture("mountain");
 				
 				
 				Vec3 A(multiplier * x, lvl.pointheight_info[x][y].getFloat(), multiplier * y);
@@ -546,6 +560,7 @@ void Graphics::drawLevel(const Level& lvl)
 				glEnd();
 			}
 		}
+	}
 	}
 	
 	glDisable(GL_TEXTURE_2D);
