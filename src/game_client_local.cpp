@@ -55,6 +55,7 @@ void Game::client_tick_local()
 		// run simulation for one WorldFrame
 		world.worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
+		view.world_tick();
 		
 		handleWorldEvents();
 		
