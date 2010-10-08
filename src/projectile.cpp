@@ -13,7 +13,7 @@ bool Projectile::collides(const Unit& unit) const
 	else
 		distance = (curr_position - unit.position).length();
 	
-	return distance <= (FixedPoint(3)/FixedPoint(1));
+	return distance <= FixedPoint(3, 1);
 }
 
 bool Projectile::collidesTerrain(Level& lvl) const

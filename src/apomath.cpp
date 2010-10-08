@@ -38,8 +38,8 @@ void ApoMath::init(int size)
 		
 		//cerr << sin_val << " " << cos_val << " " << degree << endl;
 		
-		sin_vals.push_back(FixedPoint(sin_val, true));
-		cos_vals.push_back(FixedPoint(cos_val, true));
+		sin_vals.push_back(FixedPoint(sin_val, 1000));
+		cos_vals.push_back(FixedPoint(cos_val, 1000));
 		degree_vals.push_back(degree);
 	}
 

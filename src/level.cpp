@@ -8,9 +8,30 @@ using namespace std;
 
 Level::Level()
 {
+	fpZero = FixedPoint(0);
+	
 	unitVectorUp.x = FixedPoint(0);
 	unitVectorUp.y = FixedPoint(1);
 	unitVectorUp.z = FixedPoint(0);
+	
+	
+	pointheight_info.resize(101);
+	for(size_t i = 0; i < pointheight_info.size(); ++i)
+	{
+		pointheight_info[i].resize( 101 );
+		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
+		{
+			pointheight_info[i][k] = FixedPoint(3);
+		}
+	}
+	
+	normals.resize(pointheight_info.size());
+	for(size_t i = 0; i < normals.size(); ++i)
+		normals[i].resize(pointheight_info[i].size(), Location());
+	
+	h_diff.resize(pointheight_info.size());
+	for(size_t i = 0; i < normals.size(); ++i)
+		h_diff[i].resize(pointheight_info[i].size(), FixedPoint(0));
 }
 
 Location Level::getRandomLocation(int seed)
@@ -22,37 +43,60 @@ Location Level::getRandomLocation(int seed)
 	return result;
 }
 
+void Level::updateHeight(int x, int z, FixedPoint h)
+{
+	
+	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 1)
+	{
+		cerr << "updateHeight called with improper parameters" << endl;
+		return;
+	}
+	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 1)
+	{
+		cerr << "updateHeight called with improper parameters" << endl;
+		return;
+	}
+	
+	pointheight_info[x][z] = h;
+	
+	updateNormal(x, z);
+	updateNormal(x+1, z);
+	updateNormal(x-1, z);
+	updateNormal(x, z+1);
+	updateNormal(x, z-1);
+	updateNormal(x+1, z+1);
+	updateNormal(x-1, z+1);
+	updateNormal(x+1, z-1);
+	updateNormal(x-1, z-1);
+	
+	updateHeightDifference(x, z);
+	updateHeightDifference(x+1, z);
+	updateHeightDifference(x-1, z);
+	updateHeightDifference(x, z+1);
+	updateHeightDifference(x, z-1);
+	updateHeightDifference(x+1, z+1);
+	updateHeightDifference(x-1, z+1);
+	updateHeightDifference(x+1, z-1);
+	updateHeightDifference(x-1, z-1);
+}
 
-void Level::firstPassNormals()
+void Level::updateNormal(int x, int z)
 {
 	Location result;
 	result.y = 1;
 	
-	normals.resize(pointheight_info.size());
-	for(size_t i = 0; i < normals.size(); ++i)
-	{
-		normals[i].resize(pointheight_info[i].size(), Location());
-	}
+	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 1)
+		return;
+	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 1)
+		return;
 	
-	for(int x=0; x<pointheight_info.size(); x++)
-	{
-		for(int z=0; z<pointheight_info[x].size(); z++)
-		{
-			if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 2)
-				continue;
-			if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
-				continue;
-			
-			normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1) + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
-			normals[x][z].normalize();
-		}
-	}
+	normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1) + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
+	normals[x][z].normalize();
 }
 
 Location Level::estimateNormal(int x, int z)
 {
 	Location result;
-	result.y = 1;
 	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 2)
 		return result;
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
@@ -77,6 +121,15 @@ Location Level::estimateNormal(int x, int z)
 	result.normalize();
 	
 	return result;
+}
+
+void Level::updateHeightDifference(int x, int z)
+{
+	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 2)
+		return;
+	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
+		return;
+	h_diff[x][z] = estimateHeightDifference(x, z);
 }
 
 float Level::estimateHeightDifference(int x, int y) const
@@ -109,6 +162,47 @@ float Level::estimateHeightDifference(int x, int y) const
 	
 	return max - min;
 }
+
+
+
+const FixedPoint& Level::getHeightDifference(FixedPoint& x, FixedPoint& z) const
+{
+	int x_index = x.getInteger() / 8;
+	int z_index = z.getInteger() / 8;
+	
+	// These checks should not have to be necessary
+	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+		return fpZero;
+	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+		return fpZero;
+	
+	return h_diff[x_index][z_index];
+}
+
+const FixedPoint& Level::getHeightDifference(int x_index, int z_index) const
+{
+	// These checks should not have to be necessary
+	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(0);
+	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+		return FixedPoint(0);
+	return h_diff[x_index][z_index];
+}
+
+const Location& Level::getNormal(FixedPoint& x, FixedPoint& z) const
+{
+	int x_index = x.getInteger() / 8;
+	int z_index = z.getInteger() / 8;
+	return normals[x_index][z_index];
+}
+
+const Location& Level::getNormal(int x_index, int z_index) const
+{
+	return normals[x_index][z_index];
+}
+
+
+
 
 FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
@@ -159,23 +253,14 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 
 
-
-
-
-
-
 void Level::generate(int seed)
 {
 	srand(seed);
-	pointheight_info.resize(101);
-	for(size_t i = 0; i < pointheight_info.size(); ++i)
-	{
-		pointheight_info[i].resize( 101 );
-		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
-		{
-			pointheight_info[i][k].number = 3000;
-		}
-	}
+	
+	for(int i=0; i<pointheight_info.size(); i++)
+		for(int k=0; k<pointheight_info[i].size(); k++)
+			updateHeight(i, k, FixedPoint(0));
+	
 	
 	// create long walls
 	for(int i=0; i<150; i++)
@@ -186,14 +271,9 @@ void Level::generate(int seed)
 		
 		for(int k=0; k<15; k++)
 		{
-			pointheight_info[x_p][y_p].number = 28000;
+			updateHeight(x_p, y_p, FixedPoint(28));
 			x_p += (rand() % 3) - 1;
 			y_p += (rand() % 3) - 1;
-			
-			if(x_p < 0 || x_p >= pointheight_info.size())
-				break;
-			if(y_p < 0 || y_p >= pointheight_info[x_p].size())
-				break;
 		}
 	}
 	
@@ -203,19 +283,15 @@ void Level::generate(int seed)
 		
 		int x_p = rand() % pointheight_info.size();
 		int y_p = rand() % pointheight_info[x_p].size();
-		int height = 3000;
+		FixedPoint height = 3;
 		
 		for(int k=0; k<10; k++)
 		{
-			height += 1000;
-			pointheight_info[x_p][y_p].number = height;
+			height += 1;
+			updateHeight(x_p, y_p, height);
+			
 			x_p += (rand() % 3) - 1;
 			y_p += (rand() % 3) - 1;
-			
-			if(x_p < 0 || x_p >= pointheight_info.size())
-				break;
-			if(y_p < 0 || y_p >= pointheight_info[x_p].size())
-				break;
 		}
 	}
 	
@@ -223,15 +299,12 @@ void Level::generate(int seed)
 	// create bounding mountains
 	for(int i=0; i<pointheight_info.size(); i++)
 	{
-		pointheight_info[i][0].number = 80000;
-		pointheight_info[0][i].number = 80000;
-		pointheight_info[i][ pointheight_info[i].size()-1 ].number = 80000;
-		pointheight_info[pointheight_info.size()-1][i].number = 80000;
+		updateHeight(i, 0, FixedPoint(80));
+		updateHeight(0, i, FixedPoint(80));
+		updateHeight(i, pointheight_info[i].size()-1, FixedPoint(80));
+		updateHeight(pointheight_info.size()-1, i, FixedPoint(80));
 	}
-	
-	
-	firstPassNormals(); // calculate level normals
-	
+
 }
 
 
@@ -241,9 +314,9 @@ FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
 	int z_index = z.getInteger() / 8;
 	
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(500, true);
+		return FixedPoint(1, 2);
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(500, true);
+		return FixedPoint(1, 2);
 	
 	return normals[x_index][z_index].dotProduct(unitVectorUp);
 }

@@ -1,13 +1,19 @@
 TODO:
-      OLISI KIVA   - Better minimap. Convey player info (local player, team id, hitpoints, etc).
+      OLISI KIVA   - Windows binary
+
+      OLISI KIVA   - Improve the FPS! Precalculate stuff for drawing the level! Dont swap the texture all the fucking time! (Square root is less accurate now (saves about 66% time there))
+      
+      OLISI KIVA   - Figure out something else to do than shooting (and the interaction methods to do that)
+
+DaeD  OLISI KIVA   - Better minimap. Convey player info (local player, team id, hitpoints, etc).
       
       OLISI KIVA   - Transfer 
 
       OLISI KIVA   - Art content (sounds, music, models, animations, textures, effects..)
 
-      OLISI KIVA   - Sound system
+Mika  OLISI KIVA   - Sound system
 
-      OLISI KIVA   - Minimap
+Sami/Lolx/Topi  OLISI KIVA   - Minimap
 
       OLISI KIVA   - Weapon definitions
 
