@@ -20,7 +20,7 @@ void Graphics::drawMenu(vector<MenuButton>& buttons)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 	
-	for(int i=0; i<buttons.size(); i++)
+	for(size_t i = 0; i < buttons.size(); ++i)
 	{
 		if(buttons[i].selected == 1)
 			glColor3f(1.0f, 1.0f, 1.0f);

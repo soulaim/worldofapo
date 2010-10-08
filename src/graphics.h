@@ -137,7 +137,7 @@ public:
 	void depthSortParticles(Vec3&);
 
 	
-	void setHumanPositions(std::vector<Location>);
+	void setHumanPositions(const std::vector<Location>&);
 	
 	Graphics();
 	FrustumR frustum;

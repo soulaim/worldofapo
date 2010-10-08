@@ -22,8 +22,10 @@ void Level::firstPassNormals()
 	result.y = 1;
 	
 	normals.resize(pointheight_info.size());
-	for(int i=0; i<normals.size(); i++)
+	for(size_t i = 0; i < normals.size(); ++i)
+	{
 		normals[i].resize(pointheight_info[i].size(), Location());
+	}
 	
 	for(int x=0; x<pointheight_info.size(); x++)
 	{

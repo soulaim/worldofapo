@@ -22,7 +22,7 @@ MU_Socket::MU_Socket()
 	socket_init();
 }
 
-MU_Socket::MU_Socket(string& ip, int port)
+MU_Socket::MU_Socket(const string& ip, int port)
 {
 	//	cerr << "Constructing a new socket and connecting.. " << endl;
 	socket_init();
@@ -82,7 +82,7 @@ int MU_Socket::setnonblocking()
 	return 1;
 }
 
-int MU_Socket::conn_init(string& host, int port)
+int MU_Socket::conn_init(const string& host, int port)
 {
 	//	cerr << "Connecting to server.. " << endl;
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -177,7 +177,7 @@ string MU_Socket::read()
 	return string(read_buffer);
 }
 
-int MU_Socket::push_message(string msg)
+int MU_Socket::push_message(const string& msg)
 {
 	
 	int last_break = -1;

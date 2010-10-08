@@ -868,7 +868,7 @@ void Graphics::drawStats()
 	}
 }
 
-void Graphics::setHumanPositions(std::vector<Location> positions)
+void Graphics::setHumanPositions(const std::vector<Location>& positions)
 {
 	humanPositions = positions;
 }

@@ -4,9 +4,9 @@
 
 using namespace std;
 
-void Animation::getAnimationState(int aniIndex, float& xrot, float& yrot, float& zrot)
+void Animation::getAnimationState(size_t aniIndex, float& xrot, float& yrot, float& zrot) const
 {
-	unsigned size = rot_x.size();
+	size_t size = rot_x.size();
 	
 	if(size == 0)
 	{
@@ -17,12 +17,11 @@ void Animation::getAnimationState(int aniIndex, float& xrot, float& yrot, float&
 	xrot = rot_x[ aniIndex % size ];
 	yrot = rot_y[ aniIndex % size ];
 	zrot = rot_z[ aniIndex % size ];
-	return;
 }
 
-void Animation::setAnimationState(int aniIndex, float xrot, float yrot, float zrot)
+void Animation::setAnimationState(size_t aniIndex, float xrot, float yrot, float zrot)
 {
-	unsigned size = rot_x.size();
+	size_t size = rot_x.size();
 	
 	if(size <= aniIndex)
 	{
@@ -35,7 +34,6 @@ void Animation::setAnimationState(int aniIndex, float xrot, float yrot, float zr
 	rot_x[ aniIndex ] = xrot;
 	rot_y[ aniIndex ] = yrot;
 	rot_z[ aniIndex ] = zrot;
-	return;
 }
 
 void Animation::insertAnimationState(float x, float y, float z)
@@ -43,10 +41,9 @@ void Animation::insertAnimationState(float x, float y, float z)
 	rot_x.push_back(x);
 	rot_y.push_back(y);
 	rot_z.push_back(z);
-	return;
 }
 
-int Animation::getSize()
+size_t Animation::getSize() const
 {
 	return rot_x.size();
 }

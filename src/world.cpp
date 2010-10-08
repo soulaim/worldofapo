@@ -494,7 +494,7 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
 	
-	for(int i = 0; i < deadUnits.size(); i++)
+	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
 		removeUnit(deadUnits[i]);
 	}

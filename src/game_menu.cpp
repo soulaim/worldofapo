@@ -14,7 +14,7 @@ void Game::menuQuestions()
 	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	buttons.push_back(MenuButton("host", "data/menu/host.png"));
 	
-	int selected = 2;
+	size_t selected = 2;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
 	

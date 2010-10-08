@@ -7,9 +7,9 @@ class Animation
 	std::vector<float> rot_y;
 	std::vector<float> rot_z;
 	public:
-		void getAnimationState(int, float&, float&, float&);
+		void getAnimationState(size_t, float&, float&, float&) const;
 		void insertAnimationState(float, float, float);
-		void setAnimationState(int, float, float, float);
-		int getSize();
+		void setAnimationState(size_t, float, float, float);
+		size_t getSize() const;
 };
 
