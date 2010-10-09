@@ -4,7 +4,7 @@
 
 using namespace std;
 
-/* http://www.3dkingdoms.com/weekly/weekly.php?a=3 */
+// from http://www.3dkingdoms.com/weekly/weekly.php?a=3
 int Projectile::GetIntersection(FixedPoint fDst1, FixedPoint fDst2, Location P1, Location P2, Location &Hit) {
 	if ( (fDst1 * fDst2) >= 0.0f) return 0;
 	if ( fDst1 == fDst2) return 0;
@@ -21,7 +21,6 @@ int Projectile::InBox(Location Hit, Location B1, Location B2, const int Axis)
 }
 
 // returns true if line (L1, L2) intersects with the box (B1, B2)
-// returns intersection point in Hit
 int Projectile::CheckLineBox(Location B1, Location B2, Location L1, Location L2)
 {
 	if (L2.x < B1.x && L1.x < B1.x) return false;
@@ -50,7 +49,6 @@ bool Projectile::collides(const Unit& unit)
 {
 	return CheckLineBox(unit.hitbox_bot(), unit.hitbox_top(), curr_position, prev_position);
 }
-
 
 bool Projectile::collidesTerrain(Level& lvl) const
 {
