@@ -22,12 +22,13 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	unsigned int rowbytes;         /* raw bytes at row n in image */
 	
 	image_data = NULL;
-	int i;
+	unsigned long i;
 	png_bytepp row_pointers = NULL;
 	
 	/* Open the file. */
 	infile = fopen(file, "rb");
-	if (!infile) {
+	if(!infile)
+	{
 		return 0;
 	}
 	
@@ -37,9 +38,9 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	*/
 	
 	/* Check for the 8-byte signature */
-	fread(sig, 1, 8, infile);
-	
-	if (!png_check_sig((unsigned char *) sig, 8)) {
+	size_t ret = fread(sig, 1, 8, infile);
+	if(ret != 8 || !png_check_sig((unsigned char *) sig, 8))
+	{
 		fclose(infile);
 		return 0;
 	}

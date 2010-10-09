@@ -257,8 +257,8 @@ void Level::generate(int seed)
 {
 	srand(seed);
 	
-	for(int i=0; i<pointheight_info.size(); i++)
-		for(int k=0; k<pointheight_info[i].size(); k++)
+	for(size_t i = 0; i < pointheight_info.size(); ++i)
+		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 			updateHeight(i, k, FixedPoint(0));
 	
 	
@@ -297,7 +297,7 @@ void Level::generate(int seed)
 	
 	
 	// create bounding mountains
-	for(int i=0; i<pointheight_info.size(); i++)
+	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
 		updateHeight(i, 0, FixedPoint(80));
 		updateHeight(0, i, FixedPoint(80));

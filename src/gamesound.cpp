@@ -45,6 +45,8 @@ int GameSound::end_music()
 		Mix_FreeMusic(game_sound_music);
 	game_sound_music = 0;
 	game_over = true;
+
+	return 1;
 }
 
 int GameSound::init()

@@ -239,12 +239,14 @@ void Game::handleWorldEvents()
 	view.setHumanPositions(world.humanPositions());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
-	for(int i=0; i<world.worldMessages.size(); i++)
+	for(size_t i = 0; i < world.worldMessages.size(); ++i)
+	{
 		view.pushMessage(world.worldMessages[i]);
+	}
 	world.worldMessages.clear();
 	
 	// handle any world events <-> graphics structure
-	for(int i=0; i<world.events.size(); i++)
+	for(size_t i = 0; i < world.events.size(); ++i)
 	{
 		WorldEvent& event = world.events[i];
 		if(event.type == World::DAMAGE_BULLET)

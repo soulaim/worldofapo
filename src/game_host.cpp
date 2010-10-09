@@ -76,7 +76,7 @@ void Game::host_tick()
 		sockets.erase_id(leaver);
 	}
 	
-	unsigned minAllowed = ~0;
+	unsigned minAllowed = UINT_MAX;
 	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
 	{
 		if(target->second.last_order < minAllowed)
@@ -86,7 +86,7 @@ void Game::host_tick()
 	if(minAllowed < simulRules.windowSize)
 		minAllowed = simulRules.windowSize;
 	
-	if( (minAllowed != ~0) && (minAllowed > serverAllow) )
+	if( (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
 	{
 		stringstream allowSimulation_msg;
 		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
@@ -167,7 +167,7 @@ void Game::acceptConnections()
 			connectingPlayer.write(iter->second.copyOrder(iter->first));
 		
 		// send new player current pending orders
-		for(int i=0; i<UnitInput.size(); i++)
+		for(size_t i = 0; i < UnitInput.size(); ++i)
 			connectingPlayer.write(UnitInput[i].copyOrder());
 		
 		// tell the new player what his player ID is.

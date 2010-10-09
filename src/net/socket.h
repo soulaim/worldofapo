@@ -49,7 +49,7 @@ class MU_Socket
 		std::string write_buffer;
 		
 		bool alive;
-		int last_order;
+		unsigned last_order;
 };
 
 #endif

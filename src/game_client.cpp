@@ -47,7 +47,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		cerr << "Creating dummy input for new hero." << endl;
 		
 		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-		for(int frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; frame++)
+		for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
 		{
 			Order dummy_order;
 			dummy_order.plr_id = server_msg.keyState;

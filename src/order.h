@@ -9,7 +9,7 @@ struct Order
 {
 	Order(): frameID(0), plr_id(0), keyState(0), mousex(0), mousey(0), serverCommand(0), mouseButtons(0) {}
 	
-	int frameID;
+	unsigned frameID;
 	int plr_id;
 	
 	int keyState;
@@ -25,7 +25,7 @@ struct Order
 		return frameID > a.frameID;
 	}
 	
-	std::string copyOrder()
+	std::string copyOrder() const
 	{
 		std::stringstream input_msg;
 		input_msg << "-4 " << frameID << " " << plr_id << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << "#";

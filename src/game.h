@@ -26,7 +26,7 @@
 // frame skips, window sizes..
 struct StateInfo
 {
-	StateInfo():windowSize(5), frameSkip(1), currentFrame(0), numPlayers(0)
+	StateInfo(): windowSize(5), frameSkip(1), currentFrame(0), numPlayers(0)
 	{
 		reset();
 	}
@@ -40,11 +40,11 @@ struct StateInfo
 		numPlayers = 0;
 	}
 	
-	int windowSize;
-	int frameSkip;
-	int currentFrame;
-	int allowedFrame;
-	int numPlayers;
+	unsigned windowSize;
+	unsigned frameSkip;
+	unsigned currentFrame;
+	unsigned allowedFrame;
+	unsigned numPlayers;
 };
 
 
@@ -85,7 +85,7 @@ class Game
 	void serverSendMonsterSpawn();
 	void serverSendRequestPlayerNameMessage(int player_id);
 	
-	int serverAllow;
+	unsigned serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
 	int myID;
 	
