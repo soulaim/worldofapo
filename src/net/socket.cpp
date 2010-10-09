@@ -184,36 +184,34 @@ string MU_Socket::read()
 
 int MU_Socket::push_message(const string& msg)
 {
-	
-	int last_break = -1;
-	for(unsigned i=0; i<msg.size(); i++)
+	if(!msg.empty() && !order.empty() && msg[0] == '#')
+	{
+		msgs.push_back(order);
+		order = "";
+	}
+	size_t msg_start = 0;
+	for(size_t i = 0; i < msg.size(); ++i)
 	{
 		if(msg[i] == '#')
 		{
-			if(last_break+1 > i-1)
+			if(i == msg_start)
 			{
-				last_break = i;
+				msg_start = i + 1;
 				continue;
 			}
 			
-			if(last_break == -1)
-			{
-				order.append(msg.substr(last_break+1, i - (last_break+1) ) );
-				msgs.push_back(order);
-				order = "";
-			}
-			else
-			{
-				msgs.push_back(msg.substr(last_break+1, i - (last_break+1) ));
-			}
+			msgs.push_back(order + msg.substr(msg_start, i - msg_start));
+			order = "";
 			
-			last_break = i;
+			msg_start = i + 1;
 		}
 	}
 	
-	if(last_break+1 <= msg.size()-1)
-		order.append(msg.substr(last_break+1, msg.size() - (last_break+1) ));
-	
+	if(msg_start <= msg.size()-1)
+	{
+		order += msg.substr(msg_start);
+	}
+
 	return msgs.size();
 }
 
