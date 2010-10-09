@@ -333,7 +333,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			position.z = 0;
 			position.y = 0;
 
-			int angle   = -unit.angle;
+			int angle   = unit.angle;
 			int upangle = unit.upangle;
 
 			FixedPoint cos = apomath.getCos(angle);

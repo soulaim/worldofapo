@@ -121,10 +121,12 @@ public:
 	void setTime(unsigned);
 	void setCurrentClientCommand(const std::string&);
 	
-	void draw(std::map<int, Model>&, const Level& lvl);
+	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units);
 	void draw(std::map<int, Model>&);
 	void drawStats();
 	void drawMenu(std::vector<MenuButton>&);
+
+	void drawHitboxes(const std::map<int,Unit>& units);
 	
 	void toggleLightingStatus();
 	void toggleFullscreen();

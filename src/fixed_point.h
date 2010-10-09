@@ -19,10 +19,12 @@ struct keijo
 
 struct FixedPoint
 {
+	static const FixedPoint ZERO;
+
 	long long number;
 	
 	FixedPoint(const FixedPoint& a):number(a.number) {}
-	FixedPoint(const int a, const int b = 1):number( (a * 1000) / b ) {}
+	FixedPoint(int a, int b = 1):number( (a * 1000) / b ) {}
 	FixedPoint():number(0) {}
 	
 	float getFloat() const
@@ -59,16 +61,15 @@ struct FixedPoint
 		return tmp;
 	}
 	
-	void operator -= (const FixedPoint& a)
+	FixedPoint& operator -= (const FixedPoint& a)
 	{
 		number -= a.number;
+		return *this;
 	}
 	
 	FixedPoint operator - (const FixedPoint& a) const
 	{
-		FixedPoint tmp(a);
-		tmp -= *this;
-		return tmp;
+		return FixedPoint(*this) -= a;
 	}
 
 	FixedPoint operator -() const

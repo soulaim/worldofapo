@@ -83,3 +83,13 @@ string Unit::copyOrder(int ID)
 	return hero_msg.str();
 }
 
+Location Unit::hitbox_top() const
+{
+	return Location(position.x+1, position.y+6, position.z+1);
+}
+
+Location Unit::hitbox_bot() const
+{
+	return Location(position.x-1, position.y, position.z-1);
+}
+

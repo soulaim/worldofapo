@@ -9,11 +9,9 @@
 
 struct Location
 {
-	Location():
-		x(0),
-		y(0),
-		z(0)
-	{}
+
+	Location();
+	Location(const FixedPoint& a, const FixedPoint& b, const FixedPoint& c);
 	
 	FixedPoint x;
 	FixedPoint y;

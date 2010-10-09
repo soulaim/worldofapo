@@ -32,6 +32,7 @@ class Unit
 		
 		Location velocity;
 		Location position;
+
 		
 		std::string soundInfo;
 		
@@ -65,6 +66,10 @@ class Unit
 		void handleCopyOrder(std::stringstream& ss);
 		
 		float getAngle(ApoMath&);
+
+		Location hitbox_top() const;
+		Location hitbox_bot() const;
+
 };
 
 #endif
