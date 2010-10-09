@@ -129,7 +129,7 @@ void Level::updateHeightDifference(int x, int z)
 		return;
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
 		return;
-	h_diff[x][z] = estimateHeightDifference(x, z);
+	h_diff[x][z] = FixedPoint(estimateHeightDifference(x, z));
 }
 
 float Level::estimateHeightDifference(int x, int y) const
@@ -183,9 +183,9 @@ const FixedPoint& Level::getHeightDifference(int x_index, int z_index) const
 {
 	// These checks should not have to be necessary
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(0);
+		return FixedPoint::ZERO;
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(0);
+		return FixedPoint::ZERO;
 	return h_diff[x_index][z_index];
 }
 
@@ -283,11 +283,11 @@ void Level::generate(int seed)
 		
 		int x_p = rand() % pointheight_info.size();
 		int y_p = rand() % pointheight_info[x_p].size();
-		FixedPoint height = 3;
+		FixedPoint height = FixedPoint(3);
 		
 		for(int k=0; k<10; k++)
 		{
-			height += 1;
+			height += FixedPoint(1);
 			updateHeight(x_p, y_p, height);
 			
 			x_p += (rand() % 3) - 1;

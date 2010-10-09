@@ -132,7 +132,7 @@ void Game::start()
 	{
 		world.viewTick();
 		view.tick();
-		view.draw(world.models, world.lvl);
+		view.draw(world.models, world.lvl, world.units);
 	}
 	else
 	{

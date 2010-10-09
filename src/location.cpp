@@ -1,5 +1,18 @@
 #include "location.h"
 
+Location::Location():
+	x(0),
+	y(0),
+	z(0)
+{
+}
+
+Location::Location(const FixedPoint& a, const FixedPoint& b, const FixedPoint& c):
+	x(a),
+	y(b),
+	z(c)
+{
+}
 
 Location Location::operator*(const FixedPoint& scalar)
 {
@@ -7,7 +20,6 @@ Location Location::operator*(const FixedPoint& scalar)
 	tmp *= scalar;
 	return tmp;
 }
-
 
 void Location::normalize()
 {

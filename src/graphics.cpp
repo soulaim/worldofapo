@@ -682,8 +682,8 @@ void Graphics::drawHUD()
 void Graphics::updateCamera(const Level& lvl)
 {
 	Vec3 camStartPos = camera.getPosition();
-	FixedPoint camX = camStartPos.x;
-	FixedPoint camZ = camStartPos.z;
+	FixedPoint camX = FixedPoint(camStartPos.x);
+	FixedPoint camZ = FixedPoint(camStartPos.z);
 	
 	float cam_min_y = lvl.getHeight(camX, camZ).getFloat() + 3.f;
 	camera.setAboveGround(cam_min_y);
@@ -712,7 +712,7 @@ void Graphics::startDrawing()
 	frustum.setCamDef(camPos, camTarget, upVector);
 }
 
-void Graphics::draw(map<int, Model>& models, const Level& lvl)
+void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units)
 {
 	updateCamera(lvl);
 
@@ -720,6 +720,7 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl)
 
 	drawLevel(lvl);
 	drawDebugLines();
+	drawHitboxes(units);
 	drawModels(models);
 	drawParticles();
 	drawHUD();
@@ -762,10 +763,7 @@ void Graphics::tick()
 	lightPos[2] = camPos.z;
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	
-	Location position;
-	position.x = 0;
-	position.y = 5;
-	position.z = 0;
+	Location position(FixedPoint(0),FixedPoint(5),FixedPoint(0));
 	
 	Location velocity;
 	velocity.x.number = 100;
@@ -889,4 +887,42 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 void Graphics::setPlayerInfo(map<int,PlayerInfo> *pInfo)
 {
 	Players = pInfo;
+}
+
+void Graphics::drawHitboxes(const std::map<int,Unit>& units) {
+	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
+	{
+		const Unit& u = iter->second;
+		const Location& top = u.hitbox_top();
+		const Location& bot = u.hitbox_bot();
+
+		glBegin(GL_LINES);
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+		glEnd();
+	}
 }

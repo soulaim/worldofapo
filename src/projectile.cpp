@@ -4,6 +4,7 @@
 
 using namespace std;
 
+/*
 bool Projectile::collides(const Unit& unit) const
 {
 	FixedPoint lengthVal = pointInLinesegment(curr_position, prev_position, unit.position);
@@ -15,6 +16,16 @@ bool Projectile::collides(const Unit& unit) const
 	
 	return distance <= FixedPoint(3, 1);
 }
+*/
+
+bool Projectile::collides(const Unit& unit) const
+{
+	Location top = unit.hitbox_top();
+	Location bot = unit.hitbox_bot();
+	return (curr_position.x < top.x && curr_position.y < top.y && curr_position.z < top.z
+	    && curr_position.x > bot.x && curr_position.y > bot.y && curr_position.z > bot.z);
+}
+
 
 bool Projectile::collidesTerrain(Level& lvl) const
 {
