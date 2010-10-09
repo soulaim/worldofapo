@@ -1,4 +1,3 @@
-
 #include "editor.h"
 #include "../texturehandler.h"
 
@@ -19,21 +18,20 @@ Editor::Editor()
 
 void Editor::init()
 {
-//	view.loadObjects("data/parts.dat");
-//	view.megaFuck(); // blah..
-	
+	editing_single_part = false;
+	selected_part = 0;
 	userio.init();
-	
-	// load some textures.
-	// should not be done here. FIX
-	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
-	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
-	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+
+//	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+//	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
+//	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 
 	view.bindCamera(&dummy);
 
 	handle_command("load objects parts.dat");
 	handle_command("load model model.bones");
+
+//	view.megaFuck();
 }
 
 void Editor::start()
@@ -103,6 +101,8 @@ void Editor::loadObjects(const string& file)
 	{
 		view.pushMessage("Success", GREEN);
 		objectsName = file;
+		selected_part = 0;
+		editing_single_part = false;
 	}
 	else
 	{
@@ -119,6 +119,8 @@ void Editor::loadModel(const string& file)
 	bool ok = model.load(pathed_file);
 	if(ok)
 	{
+		selected_part = 0;
+		editing_single_part = false;
 		models[0] = model;
 		view.pushMessage("Success", GREEN);
 		modelName = file;
@@ -129,6 +131,32 @@ void Editor::loadModel(const string& file)
 	}
 }
 
+void Editor::move_part(double dx, double dy, double dz)
+{
+	if(models[0].parts.size() <= selected_part)
+	{
+		view.pushMessage("Failed to move part, no selected part", WHITE);
+	}
+
+	ModelNode modelnode = models[0].parts[selected_part];
+	modelnode.offset_x += dx;
+	modelnode.offset_y += dy;
+	modelnode.offset_z += dz;
+}
+
+void Editor::select_part(const string& part)
+{
+	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	{
+		if(models[0].parts[i].name == part)
+		{
+			selected_part = i;
+			view.pushMessage("Selected part " + part, GREEN);
+			return;
+		}
+	}
+	view.pushMessage("Failed to select part " + part, RED);
+}
 
 void Editor::handle_command(const string& command)
 {
@@ -139,12 +167,12 @@ void Editor::handle_command(const string& command)
 	string second_word;
 	string third_word;
 	ss >> first_word;
-	ss >> second_word;
-	ss >> third_word;
 
 
 	if(first_word == "load")
 	{
+		ss >> second_word;
+		ss >> third_word;
 		if(second_word == "objects")
 		{
 			loadObjects(third_word);
@@ -153,6 +181,19 @@ void Editor::handle_command(const string& command)
 		{
 			loadModel(third_word);
 		}
+	}
+	else if(first_word == "move")
+	{
+		double dx = 0.0;
+		double dy = 0.0;
+		double dz = 0.0;
+		ss >> dx >> dy >> dz;
+		move_part(dx,dy,dz);
+	}
+	else if(first_word == "select")
+	{
+		ss >> second_word;
+		select_part(second_word);
 	}
 }
 
