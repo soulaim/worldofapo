@@ -116,6 +116,7 @@ public:
 	
 	void setCamera(const Camera& camera);
 	bool loadObjects(const std::string&);
+	bool saveObjects(const std::string&);
 	
 	void pushMessage(const std::string&, float r = 1.0, float g = 1.0, float b = 1.0);
 	void setTime(unsigned);

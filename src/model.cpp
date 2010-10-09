@@ -1,10 +1,9 @@
-
-
 #include "model.h"
 #include <fstream>
+#include <queue>
+#include <iomanip>
 
 using namespace std;
-
 
 void Model::tick()
 {
@@ -82,5 +81,33 @@ bool Model::load(const string& filename)
 		}
 	}
 	return true;
+}
+
+bool Model::save(const string& filename) const
+{
+	ofstream out(filename.c_str());
+	if(!out)
+	{
+		return false;
+	}
+
+	out << "ROOT " << parts[root].name << " " << parts[root].wireframe << "\n";
+
+	queue<size_t> to_be_printed;
+	to_be_printed.push(root);
+	while(!to_be_printed.empty())
+	{
+		size_t current = to_be_printed.front();
+		to_be_printed.pop();
+
+		for(size_t i = 0; i < parts[current].children.size(); ++i)
+		{
+			to_be_printed.push(i);
+			out << "CHILD " << parts[current].name << " " << parts[i].name << " " << parts[i].wireframe << " "
+				<< fixed << setprecision(3) << parts[i].offset_x << " " << parts[i].offset_y << " " << parts[i].offset_z << "\n";
+		}
+	}
+
+	return bool(out);
 }
 

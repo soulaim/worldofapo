@@ -1,4 +1,3 @@
-
 #ifndef H_MODEL_APODUS
 #define H_MODEL_APODUS
 
@@ -32,18 +31,21 @@ struct Model
 {
 	std::string animation_name;
 	int animation_time;
-	
-	Model():root(-1) {}
 	std::vector<ModelNode> parts;
 	int root;
-	
 	Vec3 realUnitPos;
 	Vec3 currentModelPos;
 	
+	Model():
+		root(-1)
+	{
+	}
+
 	void updatePosition(float x, float y, float z);
 	
 	void tick();
-	bool load(const std::string& );
+	bool load(const std::string& filename);
+	bool save(const std::string& filename) const;
 	void setAction(const std::string&);
 	
 };

@@ -1,7 +1,7 @@
-
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 #include "graphics.h"
 
@@ -58,5 +58,34 @@ bool Graphics::loadObjects(const string& object_filename)
 		}
 	}
 	return true;
+}
+
+bool Graphics::saveObjects(const string& object_filename)
+{
+	ofstream out(object_filename.c_str());
+	if(!out)
+	{
+		return false;
+	}
+
+	for(std::map<std::string, ObjectPart>::const_iterator it = objects.begin(), et = objects.end(); it != et; ++it)
+	{
+		const string& part_name = it->first;
+		out << "NEXT " << part_name << "\n";
+		const ObjectPart& part = it->second;
+
+		for(size_t i = 0; i < part.triangles.size(); ++i)
+		{
+			const ObjectTri& triangle = part.triangles[i];
+			out << "TRIANGLE " << fixed << setprecision(3) << triangle.x[0] << " " << triangle.y[0] << " " << triangle.z[0] << "\n";
+			out << "         " << fixed << setprecision(3) << triangle.x[1] << " " << triangle.y[1] << " " << triangle.z[1] << "\n";
+			out << "         " << fixed << setprecision(3) << triangle.x[2] << " " << triangle.y[2] << " " << triangle.z[2] << "\n";
+		}
+
+		out << "ENDPOINT " << fixed << setprecision(3) << part.end_x << " " << part.end_y << " " << part.end_z << "\n";
+		out << "\n";
+	}
+
+	return bool(out);
 }
 

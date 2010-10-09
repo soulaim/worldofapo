@@ -67,7 +67,32 @@ void Editor::tick()
 
 void Editor::saveModel(const string& file)
 {
+	string pathed_file = "data/" + file;
+	view.pushMessage("Saving model to '" + pathed_file + "'", WHITE);
+	if(models[0].save(pathed_file))
+	{
+		view.pushMessage("Success", GREEN);
+		objectsName = file;
+	}
+	else
+	{
+		view.pushMessage("Fail", RED);
+	}
+}
 
+void Editor::saveObjects(const string& file)
+{
+	string pathed_file = "data/" + file;
+	view.pushMessage("Saving objects to '" + pathed_file + "'", WHITE);
+	if(view.saveObjects(pathed_file))
+	{
+		view.pushMessage("Success", GREEN);
+		objectsName = file;
+	}
+	else
+	{
+		view.pushMessage("Fail", RED);
+	}
 }
 
 void Editor::loadObjects(const string& file)
