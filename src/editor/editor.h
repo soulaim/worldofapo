@@ -28,6 +28,8 @@ class Editor
 	void handle_command(const std::string& command);
 	void select_part(const std::string& part);
 	void move_part(double dx, double dy, double dz);
+	void remove_part();
+	void add_part(const std::string& part_name, const std::string& part_type);
 
 	std::map<int, Model> models;
 	Unit dummy;

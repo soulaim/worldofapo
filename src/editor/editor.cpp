@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <climits>
 
 using namespace std;
 
@@ -145,6 +146,7 @@ void Editor::move_part(double dx, double dy, double dz)
 	if(models[0].parts.size() <= selected_part)
 	{
 		view.pushMessage("Failed to move part, no selected part", WHITE);
+		return;
 	}
 
 	ModelNode modelnode = models[0].parts[selected_part];
@@ -165,6 +167,88 @@ void Editor::select_part(const string& part)
 		}
 	}
 	view.pushMessage("Failed to select part " + part, RED);
+}
+
+void Editor::remove_part()
+{
+	if(models[0].parts.size() <= selected_part)
+	{
+		view.pushMessage("Failed to remove part, no selected part", WHITE);
+		return;
+	}
+	queue<size_t> to_be_removed;
+	vector<bool> removed;
+	vector<size_t> new_indices;
+	removed.resize(models[0].parts.size(), 0);
+	new_indices.resize(models[0].parts.size(), UINT_MAX);
+
+	// Find all removed indices.
+	to_be_removed.push(selected_part);
+	while(!to_be_removed.empty())
+	{
+		size_t current = to_be_removed.front();
+		to_be_removed.pop();
+		removed[current] = true;
+		for(size_t i = 0; i < models[0].parts[current].children.size(); ++i)
+		{
+			to_be_removed.push(models[0].parts[current].children[i]);
+		}
+	}
+
+	// Do actual moving and resizing. Store new indices.
+	size_t next = 0;
+	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	{
+		if(!removed[i])
+		{
+			std::swap(models[0].parts[i], models[0].parts[next]);
+			new_indices[i] = next;
+			++next;
+		}
+	}
+	models[0].parts.resize(next - 1);
+
+	// Update children's indices.
+	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	{
+		for(size_t j = 0; j < models[0].parts[i].children.size(); ++j)
+		{
+			size_t& child = models[0].parts[i].children[j];
+			child = new_indices[child];
+			if(child == UINT_MAX)
+			{
+				models[0].parts[i].children.erase(models[0].parts[i].children.begin() + j);
+				--j;
+			}
+		}
+	}
+}
+
+void Editor::add_part(const std::string& part_name, const std::string& part_type)
+{
+	if(!models[0].parts.empty() && selected_part >= models[0].parts.size())
+	{
+		view.pushMessage("Add part failed, select part first");
+		return;
+	}
+	ModelNode new_node;
+	new_node.name = part_name;
+	new_node.wireframe = part_type;
+	new_node.offset_x = 0.0f;
+	new_node.offset_y = 0.0f;
+	new_node.offset_z = 0.0f;
+	models[0].parts.push_back(new_node);
+	if(!models[0].parts.empty())
+	{
+		ModelNode& selected_node = models[0].parts[selected_part];
+		selected_node.children.push_back(models[0].parts.size()-1);
+		view.pushMessage("Added new part '" + part_name + "' of type '" + part_type + "' as child of '" + selected_node.name, GREEN);
+	}
+	else
+	{
+		view.pushMessage("Added new part '" + part_name + "' of type '" + part_type + "' as root", GREEN);
+	}
+
 }
 
 void Editor::handle_command(const string& command)
@@ -203,6 +287,16 @@ void Editor::handle_command(const string& command)
 	{
 		ss >> second_word;
 		select_part(second_word);
+	}
+	else if(first_word == "add")
+	{
+		ss >> second_word;
+		ss >> third_word;
+		add_part(second_word, third_word);
+	}
+	else if(first_word == "remove")
+	{
+		remove_part();
 	}
 }
 

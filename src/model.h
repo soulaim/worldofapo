@@ -23,7 +23,7 @@ struct ModelNode
 	float rotation_y;
 	float rotation_z;
 	
-	std::vector<int> children;
+	std::vector<size_t> children;
 };
 
 
