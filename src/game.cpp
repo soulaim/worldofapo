@@ -34,7 +34,6 @@ void Game::reset()
 	
 	UnitInput.clear();
 	world.terminate();
-	enableGrab(); // FIXME: find better place
 }
 
 void Game::init()
@@ -71,6 +70,8 @@ void Game::readConfig()
 
 void Game::makeLocalGame()
 {
+    enableGrab();
+
 	myID = -1;
 	string host = "localhost";
 	state = "host";
@@ -87,6 +88,8 @@ void Game::makeLocalGame()
 
 void Game::joinInternetGame(string hostName)
 {
+    enableGrab();
+
 	myID = -1;
 	state = "client";
 	int port = 12345;
@@ -118,7 +121,6 @@ void Game::endGame()
 
 void Game::start()
 {
-
 	// THIS IS WHAT THE HOST DOES
 	if(state == "host")
 	{
