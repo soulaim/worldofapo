@@ -48,7 +48,16 @@ void Editor::start()
 		tick();
 		view.setTime( ticks );
 		view.tick();
-		view.draw(models);
+
+
+		stringstream ss;
+		if(models[0].parts.size() > selected_part)
+		{
+			const ModelNode& node = models[0].parts[selected_part];
+			ss << "'" << node.name << "' is " << node.wireframe << " at ("
+				<< node.offset_x << ", " << node.offset_y << ", " << node.offset_z << ")";
+		}
+		view.draw(models, ss.str());
 	}
 	else
 	{

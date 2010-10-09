@@ -59,35 +59,40 @@ class Graphics
 	
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, int, const std::string&, int);
-	void drawMessages();
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawLevel(const Level&);
 	void drawModels(std::map<int, Model>& models);
 	void drawDebugLines();
+	void updateCamera(const Level&);
+
+
+	// HUD Stuff
+	void drawHUD();
+	void drawMessages();
 	void drawCrossHair();
 	void drawStatusBar();
 	void drawZombiesLeft();
 	void drawBanner();
 	void drawParticles();
-	void drawHUD();
 	void drawMinimap();
 	void drawFPS();
-
-	void updateCamera(const Level&);
-	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
-	std::vector<Particle> viewParticles;
-	std::map<std::string, ObjectPart> objects;
-	
-	// define some character widths in our particular font
-	std::vector<float> charWidth;
-	
 	std::string kills;
 	std::string deaths;
 	std::string health;
 	std::string plr_name;
 	std::map<int, PlayerInfo>* Players;
+	int zombieCount;
+	std::vector<Location> humanPositions;
+	
+
+
+	std::vector<Particle> viewParticles;
+	std::map<std::string, ObjectPart> objects;
+	
+	// define some character widths in our particular font
+	std::vector<float> charWidth;
 	
 	SDL_Surface* drawContext;
 	Camera camera;
@@ -95,36 +100,37 @@ class Graphics
 	int world_ticks;
 	unsigned currentTime;
 	bool lightsActive;
-	int zombieCount;
-	std::vector<Location> humanPositions;
 	
 public:
 	friend class Editor;
-	
+
+	// HUD stuff
 	void setLocalPlayerName(const std::string&);
 	void setLocalPlayerHP(const int);
 	void setPlayerInfo(std::map<int,PlayerInfo>* pInfo);
-	
+	void setZombiesLeft(int);
+	void setLocalPlayerKills(const int k);
+	void setLocalPlayerDeaths(const int d);
+	void drawStats();
+	void pushMessage(const std::string&, float r = 1.0, float g = 1.0, float b = 1.0);
+	void setCurrentClientCommand(const std::string&);
+	void setHumanPositions(const std::vector<Location>&);
+
+
+
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate, int mousex, int mousey);
 	
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
-
-	void setZombiesLeft(int);
-	void setLocalPlayerKills(const int k);
-	void setLocalPlayerDeaths(const int d);
 	
 	void setCamera(const Camera& camera);
 	bool loadObjects(const std::string&);
 	bool saveObjects(const std::string&);
 	
-	void pushMessage(const std::string&, float r = 1.0, float g = 1.0, float b = 1.0);
 	void setTime(unsigned);
-	void setCurrentClientCommand(const std::string&);
 	
 	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units);
-	void draw(std::map<int, Model>&);
-	void drawStats();
+	void draw(std::map<int, Model>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
 	void drawHitboxes(const std::map<int,Unit>& units);
@@ -140,9 +146,6 @@ public:
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
 
-	
-	void setHumanPositions(const std::vector<Location>&);
-	
 	Graphics();
 	FrustumR frustum;
 };

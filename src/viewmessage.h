@@ -1,6 +1,5 @@
-
-#ifndef _H_VIEW_MESSAGE
-#define _H_VIEW_MESSAGE
+#ifndef H_VIEW_MESSAGE
+#define H_VIEW_MESSAGE
 
 #include <string>
 
@@ -12,7 +11,7 @@ public:
 	{
 	}
 	
-	ViewMessage(std::string& msg): msgContent(msg), startTime(0), endTime(0), scale(1.5f), hilight(false)
+	ViewMessage(const std::string& msg): msgContent(msg), startTime(0), endTime(0), scale(1.5f), hilight(false)
 	{
 	}
 	

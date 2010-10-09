@@ -616,11 +616,12 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<in
 	SDL_GL_SwapBuffers();
 }
 
-void Graphics::draw(map<int, Model>& models)
+void Graphics::draw(std::map<int, Model>& models, const std::string& status_message)
 {
 	startDrawing();
 	drawModels(models);
 	drawMessages();
+	drawString(status_message, 0.2, 0.9, 1.5, true);
 	SDL_GL_SwapBuffers();
 }
 
