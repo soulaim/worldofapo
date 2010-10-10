@@ -673,7 +673,7 @@ void Graphics::draw(std::map<int, Model>& models, const std::string& status_mess
 	startDrawing();
 	drawModels(models);
 	drawMessages();
-	drawString(status_message, 0.2, 0.9, 1.5, true);
+	drawString(status_message, -0.9, 0.9, 1.5, true);
 	SDL_GL_SwapBuffers();
 }
 
