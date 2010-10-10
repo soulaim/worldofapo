@@ -19,6 +19,12 @@ void UserIO::init()
 		keyNames.push_back( SDL_GetKeyName(  SDLKey(i) ) );
 }
 
+int UserIO::isPressed(int key)
+{
+	checkEvents();
+	return keystate[key];
+}
+
 int UserIO::getGameInput()
 {
 	checkEvents();

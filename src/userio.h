@@ -34,6 +34,7 @@ public:
 	void init();
 	
 	int getGameInput();
+	int isPressed(int);
 	
 	void getMouseChange(int& x, int& y);
 	int getMousePress();

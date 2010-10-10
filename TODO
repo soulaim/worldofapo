@@ -26,9 +26,9 @@ MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. F
       OLISI KIVA   - Smarter enemy behaviour
       VITUN TARKEA - NPC behaviour.
 
-!!    VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
+Mika  VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
 
-      VITUN TARKEA - Connecting to active games results in randomly getting out of sync. Why? (if starts in sync, stays in sync)
+Mika  VITUN TARKEA - Connecting to active games results in randomly getting out of sync. Why? (if starts in sync, stays in sync)
 
       VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 

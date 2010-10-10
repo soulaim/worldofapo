@@ -33,8 +33,8 @@ void Graphics::depthSortParticles(Vec3& d)
 void Graphics::initLight()
 {
 	lightsActive = true;
-	GLfloat	global_ambient[ 4 ]	= {0.01f, 0.01f,  0.01f, 1.0f};
-	GLfloat	light0ambient[ 4 ]	= {0.2f, 0.2f,  0.2f, 1.0f};
+	GLfloat	global_ambient[ 4 ]	= {0.05f, 0.05f,  0.05f, 1.0f};
+	GLfloat	light0ambient[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
 	GLfloat	light0diffuse[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
 	GLfloat	light0specular[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
 	
