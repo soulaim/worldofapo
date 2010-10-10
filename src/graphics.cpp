@@ -268,7 +268,7 @@ void Graphics::init()
 	charWidth.resize(255, 1.f);
 	
 	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
-		charWidth[symbol] = 0.26;
+		charWidth[symbol] = 0.22;
 	for(char symbol = 'a'; symbol <= 'z'; symbol++)
 		charWidth[symbol] = 0.19;
 	for(char symbol = '0'; symbol <= '9'; symbol++)
@@ -307,6 +307,16 @@ void Graphics::init()
 	charWidth['|'] = 0.1;
 	charWidth['/'] = 0.1;
 	charWidth['_'] = 0.1;
+	charWidth['%'] = 0.13;
+	charWidth['&'] = 0.12;
+	charWidth['='] = 0.13;
+	charWidth['"'] = 0.1;
+	
+	charWidth['S'] = 0.17;
+	charWidth['T'] = 0.19;
+	charWidth['W'] = 0.24;
+	charWidth['Q'] = 0.24;
+	charWidth['O'] = 0.24;
 	
 	createWindow(); // let SDL handle this part..
 	
