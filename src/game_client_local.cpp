@@ -147,6 +147,8 @@ void Game::handleClientLocalInput()
 	if(key.size() == 0)
 		return;
 	
+	int shift_pressed = userio.isPressed(SDLK_LSHIFT) | userio.isPressed(SDLK_RSHIFT);
+	
 	if(key == "return")
 		client_state ^= 2;
 	else if(key == "f11")
@@ -169,8 +171,15 @@ void Game::handleClientLocalInput()
 		nick.append("> ");
 		
 		if(key.size() == 1)
-			clientCommand.append(key);
-		
+		{
+			if(key[0] >= 'a' && key[0] <= 'z' && shift_pressed)
+			{
+				key[0] -= 32;
+				clientCommand.append(key);
+			}
+			else
+				clientCommand.append(key);
+		}
 		else if(key == "backspace" && clientCommand.size() > 0)
 			clientCommand.resize(clientCommand.size()-1);
 		
@@ -182,6 +191,7 @@ void Game::handleClientLocalInput()
 		}
 		else if(key == "space")
 			clientCommand.append(" ");
+		
 		nick.append(clientCommand);
 		view.setCurrentClientCommand(nick);
 	}

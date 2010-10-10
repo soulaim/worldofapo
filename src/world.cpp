@@ -539,9 +539,12 @@ void World::worldTick(int tickCount)
 	{
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 		{
-			stringstream msg;
-			msg << currentWorldFrame << ": " << iter->second.name << " (" << iter->first << "): " << iter->second.position.x.getFloat() << ", " << iter->second.position.z.getFloat();
-			worldMessages.push_back(msg.str());
+			if(iter->second.human())
+			{
+				stringstream msg;
+				msg << currentWorldFrame << ": " << iter->second.name << " (" << iter->first << "): " << iter->second.position.x.getFloat() << ", " << iter->second.position.z.getFloat();
+				worldMessages.push_back(msg.str());
+			}
 		}
 	}
 	
@@ -566,8 +569,7 @@ void World::viewTick()
 void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
-	units[id].position.x = FixedPoint(50);
-	units[id].position.z = FixedPoint(50);
+	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;

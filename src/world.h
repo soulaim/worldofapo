@@ -55,7 +55,6 @@ public:
 	Level lvl;
 	ApoMath apomath;
 	
-	// should just reserve a little bit of memory for these guys. if they release memory every time they are cleared, is inefficient.
 	std::vector<std::string> worldMessages;
 	std::vector<int> deadUnits;
 	std::vector<WorldEvent> events;
