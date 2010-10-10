@@ -44,7 +44,7 @@ public:
 	Coord getMousePoint();
 	
 	int checkEvents();
-	std::string& getSingleKey();
+	std::string getSingleKey();
 	
 	UserIO();
 };
