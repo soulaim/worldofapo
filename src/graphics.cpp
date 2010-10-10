@@ -144,7 +144,15 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	
 	float totalWidth = 0.025f;
 	for(size_t i = 0; i < msg.size(); ++i)
+	{
+		if(msg[i] == '^')
+		{
+			++i;
+			continue;
+		}
+		
 		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+	}
 	
 	float x_now     = 0.0f;
 	float x_next    = pos_x + 0.05;
@@ -172,6 +180,35 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 	
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
+		
+		if(msg[i] == '^')
+		{
+			++i;
+			if(msg[i] == 'g')
+				glColor4f(0.1f, 0.6f, 0.1f, 1.0f);
+			else if(msg[i] == 'G')
+				glColor4f(0.1f, 1.0f, 0.1f, 1.0f);
+			else if(msg[i] == 'r')
+				glColor4f(0.6f, 0.1f, 0.1f, 1.0f);
+			else if(msg[i] == 'R')
+				glColor4f(1.0f, 0.1f, 0.1f, 1.0f);
+			else if(msg[i] == 'b')
+				glColor4f(0.1f, 0.1f, 0.6f, 1.0f);
+			else if(msg[i] == 'B')
+				glColor4f(0.1f, 0.1f, 1.0f, 1.0f);
+			else if(msg[i] == 'y')
+				glColor4f(0.7f, 0.7f, 0.0f, 1.0f);
+			else if(msg[i] == 'Y')
+				glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+			else if(msg[i] == 'W')
+				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+			else if(msg[i] == 'w')
+				glColor4f(0.6f, 0.6f, 0.6f, 1.0f);
+			
+			continue;
+		}
+		
+		
 		currentWidth = 0.05 * charWidth[msg[i]];
 		
 		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
