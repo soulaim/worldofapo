@@ -147,14 +147,6 @@ void Editor::loadModel(const string& file)
 	}
 }
 
-std::string toupper(const std::string& s)
-{
-	// TODO: Remove this function when shift and capslock support works.
-	std::string tmp(s);
-	std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))std::toupper);
-	return tmp;
-}
-
 void Editor::move_part(double dx, double dy, double dz)
 {
 	if(edited_model.parts.size() <= selected_part)
@@ -175,7 +167,7 @@ void Editor::select_part(const string& part)
 {
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
-		if(toupper(edited_model.parts[i].name) == toupper(part))
+		if(edited_model.parts[i].name == part)
 		{
 			selected_part = i;
 			view.pushMessage("Selected part " + part, GREEN);
@@ -211,6 +203,11 @@ void Editor::remove_part()
 		}
 	}
 
+	if(removed[edited_model.root])
+	{
+		edited_model.root = -1;
+	}
+
 	// Do actual moving and resizing. Store new indices.
 	size_t next = 0;
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
@@ -222,7 +219,7 @@ void Editor::remove_part()
 			++next;
 		}
 	}
-	edited_model.parts.resize(next - 1);
+	edited_model.parts.resize(next);
 
 	// Update children's indices.
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
@@ -238,6 +235,7 @@ void Editor::remove_part()
 			}
 		}
 	}
+	selected_part = 0;
 }
 
 void Editor::add_part(const std::string& part_name, const std::string& part_type)
@@ -254,7 +252,7 @@ void Editor::add_part(const std::string& part_name, const std::string& part_type
 	new_node.offset_y = 0.0f;
 	new_node.offset_z = 0.0f;
 	edited_model.parts.push_back(new_node);
-	if(!edited_model.parts.empty())
+	if(edited_model.parts.size() > 1)
 	{
 		ModelNode& selected_node = edited_model.parts[selected_part];
 		selected_node.children.push_back(edited_model.parts.size()-1);
@@ -263,15 +261,25 @@ void Editor::add_part(const std::string& part_name, const std::string& part_type
 	else
 	{
 		view.pushMessage("Added new part '" + part_name + "' of type '" + part_type + "' as root", GREEN);
+		edited_model.root = 1;
 	}
 
 }
 
-void Editor::print_parts()
+void Editor::print_model()
 {
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
 		view.pushMessage(edited_model.parts[i].name, WHITE);
+	}
+}
+
+void Editor::print_parts()
+{
+	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
+	{
+		const std::string& name = it->first;
+		view.pushMessage(name, WHITE);
 	}
 }
 
@@ -290,7 +298,7 @@ void Editor::edit_part(const std::string& part_type)
 	dummy.animation_time = 0;
 	ModelNode node;
 	node.name = "dummy";
-	node.wireframe = "part_type";
+	node.wireframe = part_type;
 	node.offset_x = 0.0f;
 	node.offset_y = 0.0f;
 	node.offset_z = 0.0f;
@@ -325,12 +333,12 @@ void Editor::handle_command(const string& command)
 	string second_word;
 	string third_word;
 	ss >> first_word;
+	ss >> second_word;
+	ss >> third_word;
 
 
 	if(first_word == "load")
 	{
-		ss >> second_word;
-		ss >> third_word;
 		if(second_word == "objects")
 		{
 			loadObjects(third_word);
@@ -342,8 +350,6 @@ void Editor::handle_command(const string& command)
 	}
 	if(first_word == "save")
 	{
-		ss >> second_word;
-		ss >> third_word;
 		if(second_word == "objects")
 		{
 			saveObjects(third_word);
@@ -355,6 +361,8 @@ void Editor::handle_command(const string& command)
 	}
 	else if(first_word == "move")
 	{
+		stringstream ss(command);
+		ss >> first_word;
 		double dx = 0.0;
 		double dy = 0.0;
 		double dz = 0.0;
@@ -363,13 +371,10 @@ void Editor::handle_command(const string& command)
 	}
 	else if(first_word == "select")
 	{
-		ss >> second_word;
 		select_part(second_word);
 	}
 	else if(first_word == "add")
 	{
-		ss >> second_word;
-		ss >> third_word;
 		add_part(second_word, third_word);
 	}
 	else if(first_word == "remove")
@@ -378,12 +383,25 @@ void Editor::handle_command(const string& command)
 	}
 	else if(first_word == "edit")
 	{
-		ss >> second_word;
-		edit_part(second_word);
+		if(second_word == "part")
+		{
+			edit_part(third_word);
+		}
+		else if(second_word == "model")
+		{
+			edit_model();
+		}
 	}
 	else if(first_word == "print")
 	{
-		print_parts();
+		if(second_word == "parts")
+		{
+			print_parts();
+		}
+		else if(second_word == "model")
+		{
+			print_model();
+		}
 	}
 }
 

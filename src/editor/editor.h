@@ -33,6 +33,7 @@ class Editor
 	void edit_model();
 	void edit_part(const std::string& part_type);
 	void print_parts();
+	void print_model();
 
 	Unit dummy;
 

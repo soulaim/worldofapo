@@ -377,6 +377,10 @@ void Graphics::createWindow()
 
 void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, const string& animation, int animation_state)
 {
+	if(current_node < 0 || size_t(current_node) >= model.parts.size())
+	{
+		return;
+	}
 	glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
 	
 	ObjectPart& obj_part = objects[model.parts[current_node].wireframe];
