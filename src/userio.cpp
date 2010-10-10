@@ -146,6 +146,27 @@ string UserIO::getSingleKey()
 					key[0] -= 32;
 				}
 				
+				if(key[0] == '+')
+					key[0] = '?';
+				if(key[0] == '-')
+					key[0] = '_';
+				if(key[0] == '8')
+					key[0] = '(';
+				if(key[0] == '9')
+					key[0] = ')';
+				if(key[0] == '7')
+					key[0] = '/';
+				if(key[0] == '6')
+					key[0] = '&';
+				if(key[0] == '5')
+					key[0] = '%';
+				if(key[0] == '1')
+					key[0] = '!';
+				if(key[0] == '0')
+					key[0] = '=';
+				if(key[0] == '2')
+					key[0] = '"';
+				
 				return key;
 			}
 			
