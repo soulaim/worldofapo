@@ -25,7 +25,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
-		string viewMessage_str = "[";
+		string viewMessage_str = "^R[";
 		viewMessage_str.append(Players[server_msg.keyState].name);
 		viewMessage_str.append("] has disconnected!");
 		view.pushMessage(viewMessage_str);
@@ -42,7 +42,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		world.addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
-		view.pushMessage("Hero created!");
+		view.pushMessage("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -69,7 +69,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
-		view.pushMessage("got playerID!");
+		view.pushMessage("^Ggot playerID!");
 		
 		if(world.units.find(myID) != world.units.end())
 		{
@@ -125,7 +125,7 @@ void Game::processClientMsgs()
 			getline(ss, line);
 			
 			stringstream chatMsg;
-			chatMsg << "<" << Players[plrID].name << "> " << line;
+			chatMsg << "^y<" << Players[plrID].name << "> ^w" << line;
 			view.pushMessage(chatMsg.str());
 		}
 		
@@ -142,7 +142,7 @@ void Game::processClientMsgs()
 			cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
 			
 			stringstream ss_viewMsg;
-			ss_viewMsg << Players[plrID].name << " has connected!" << endl;
+			ss_viewMsg << "^g" << Players[plrID].name << "^r has connected!" << endl;
 			view.pushMessage(ss_viewMsg.str());
 			
 			// set unit's name to match the players
