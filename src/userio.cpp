@@ -129,7 +129,7 @@ int UserIO::getMouseWheelScrolled()
 	return 0;
 }
 
-string& UserIO::getSingleKey()
+string UserIO::getSingleKey()
 {
 	checkEvents();
 	for(int i=0; i<numKeys; i++)
@@ -137,6 +137,18 @@ string& UserIO::getSingleKey()
 		if(keyStates[i] > 0)
 		{
 			keyStates[i]--;
+			
+			if( ( isPressed(SDLK_LSHIFT) | isPressed(SDLK_RSHIFT) ) && (keyNames[i].size() == 1) )
+			{
+				string key = keyNames[i];
+				if(key[0] >= 'a' && key[0] <= 'z')
+				{
+					key[0] -= 32;
+				}
+				
+				return key;
+			}
+			
 			return keyNames[i];
 		}
 	}
