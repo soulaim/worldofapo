@@ -30,8 +30,10 @@ class Editor
 	void move_part(double dx, double dy, double dz);
 	void remove_part();
 	void add_part(const std::string& part_name, const std::string& part_type);
+	void edit_model();
+	void edit_part(const std::string& part_type);
+	void print_parts();
 
-	std::map<int, Model> models;
 	Unit dummy;
 
 	std::string objectsName;
@@ -39,6 +41,10 @@ class Editor
 
 	bool editing_single_part;
 	size_t selected_part;
+
+	Model edited_model;
+	ObjectPart* edited_part;
+	Model stored_model;
 public:
 	Editor();
 	void start();

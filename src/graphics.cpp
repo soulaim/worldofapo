@@ -306,6 +306,7 @@ void Graphics::init()
 	charWidth['-'] = 0.1;
 	charWidth['|'] = 0.1;
 	charWidth['/'] = 0.1;
+	charWidth['_'] = 0.1;
 	
 	createWindow(); // let SDL handle this part..
 	

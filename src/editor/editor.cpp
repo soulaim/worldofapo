@@ -5,6 +5,8 @@
 #include <sstream>
 #include <algorithm>
 #include <climits>
+#include <locale>
+
 
 using namespace std;
 
@@ -20,6 +22,7 @@ Editor::Editor()
 void Editor::init()
 {
 	editing_single_part = false;
+	edited_part = 0;
 	selected_part = 0;
 	userio.init();
 
@@ -52,12 +55,15 @@ void Editor::start()
 
 
 		stringstream ss;
-		if(models[0].parts.size() > selected_part)
+		if(edited_model.parts.size() > selected_part)
 		{
-			const ModelNode& node = models[0].parts[selected_part];
+			const ModelNode& node = edited_model.parts[selected_part];
 			ss << "'" << node.name << "' is " << node.wireframe << " at ("
 				<< node.offset_x << ", " << node.offset_y << ", " << node.offset_z << ")";
 		}
+
+		std::map<int,Model> models;
+		models[0] = edited_model;
 		view.draw(models, ss.str());
 	}
 	else
@@ -77,7 +83,7 @@ void Editor::saveModel(const string& file)
 {
 	string pathed_file = "data/" + file;
 	view.pushMessage("Saving model to '" + pathed_file + "'", WHITE);
-	if(models[0].save(pathed_file))
+	if(edited_model.save(pathed_file))
 	{
 		view.pushMessage("Success", GREEN);
 		objectsName = file;
@@ -131,7 +137,7 @@ void Editor::loadModel(const string& file)
 	{
 		selected_part = 0;
 		editing_single_part = false;
-		models[0] = model;
+		edited_model = model;
 		view.pushMessage("Success", GREEN);
 		modelName = file;
 	}
@@ -141,25 +147,35 @@ void Editor::loadModel(const string& file)
 	}
 }
 
+std::string toupper(const std::string& s)
+{
+	// TODO: Remove this function when shift and capslock support works.
+	std::string tmp(s);
+	std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))std::toupper);
+	return tmp;
+}
+
 void Editor::move_part(double dx, double dy, double dz)
 {
-	if(models[0].parts.size() <= selected_part)
+	if(edited_model.parts.size() <= selected_part)
 	{
 		view.pushMessage("Failed to move part, no selected part", WHITE);
 		return;
 	}
 
-	ModelNode modelnode = models[0].parts[selected_part];
+	ModelNode& modelnode = edited_model.parts[selected_part];
 	modelnode.offset_x += dx;
 	modelnode.offset_y += dy;
 	modelnode.offset_z += dz;
+
+	view.pushMessage("Moved " + modelnode.name, GREEN);
 }
 
 void Editor::select_part(const string& part)
 {
-	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
-		if(models[0].parts[i].name == part)
+		if(toupper(edited_model.parts[i].name) == toupper(part))
 		{
 			selected_part = i;
 			view.pushMessage("Selected part " + part, GREEN);
@@ -171,7 +187,7 @@ void Editor::select_part(const string& part)
 
 void Editor::remove_part()
 {
-	if(models[0].parts.size() <= selected_part)
+	if(edited_model.parts.size() <= selected_part)
 	{
 		view.pushMessage("Failed to remove part, no selected part", WHITE);
 		return;
@@ -179,8 +195,8 @@ void Editor::remove_part()
 	queue<size_t> to_be_removed;
 	vector<bool> removed;
 	vector<size_t> new_indices;
-	removed.resize(models[0].parts.size(), 0);
-	new_indices.resize(models[0].parts.size(), UINT_MAX);
+	removed.resize(edited_model.parts.size(), 0);
+	new_indices.resize(edited_model.parts.size(), UINT_MAX);
 
 	// Find all removed indices.
 	to_be_removed.push(selected_part);
@@ -189,35 +205,35 @@ void Editor::remove_part()
 		size_t current = to_be_removed.front();
 		to_be_removed.pop();
 		removed[current] = true;
-		for(size_t i = 0; i < models[0].parts[current].children.size(); ++i)
+		for(size_t i = 0; i < edited_model.parts[current].children.size(); ++i)
 		{
-			to_be_removed.push(models[0].parts[current].children[i]);
+			to_be_removed.push(edited_model.parts[current].children[i]);
 		}
 	}
 
 	// Do actual moving and resizing. Store new indices.
 	size_t next = 0;
-	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
 		if(!removed[i])
 		{
-			std::swap(models[0].parts[i], models[0].parts[next]);
+			std::swap(edited_model.parts[i], edited_model.parts[next]);
 			new_indices[i] = next;
 			++next;
 		}
 	}
-	models[0].parts.resize(next - 1);
+	edited_model.parts.resize(next - 1);
 
 	// Update children's indices.
-	for(size_t i = 0; i < models[0].parts.size(); ++i)
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
-		for(size_t j = 0; j < models[0].parts[i].children.size(); ++j)
+		for(size_t j = 0; j < edited_model.parts[i].children.size(); ++j)
 		{
-			size_t& child = models[0].parts[i].children[j];
+			size_t& child = edited_model.parts[i].children[j];
 			child = new_indices[child];
 			if(child == UINT_MAX)
 			{
-				models[0].parts[i].children.erase(models[0].parts[i].children.begin() + j);
+				edited_model.parts[i].children.erase(edited_model.parts[i].children.begin() + j);
 				--j;
 			}
 		}
@@ -226,7 +242,7 @@ void Editor::remove_part()
 
 void Editor::add_part(const std::string& part_name, const std::string& part_type)
 {
-	if(!models[0].parts.empty() && selected_part >= models[0].parts.size())
+	if(!edited_model.parts.empty() && selected_part >= edited_model.parts.size())
 	{
 		view.pushMessage("Add part failed, select part first");
 		return;
@@ -237,11 +253,11 @@ void Editor::add_part(const std::string& part_name, const std::string& part_type
 	new_node.offset_x = 0.0f;
 	new_node.offset_y = 0.0f;
 	new_node.offset_z = 0.0f;
-	models[0].parts.push_back(new_node);
-	if(!models[0].parts.empty())
+	edited_model.parts.push_back(new_node);
+	if(!edited_model.parts.empty())
 	{
-		ModelNode& selected_node = models[0].parts[selected_part];
-		selected_node.children.push_back(models[0].parts.size()-1);
+		ModelNode& selected_node = edited_model.parts[selected_part];
+		selected_node.children.push_back(edited_model.parts.size()-1);
 		view.pushMessage("Added new part '" + part_name + "' of type '" + part_type + "' as child of '" + selected_node.name, GREEN);
 	}
 	else
@@ -249,6 +265,55 @@ void Editor::add_part(const std::string& part_name, const std::string& part_type
 		view.pushMessage("Added new part '" + part_name + "' of type '" + part_type + "' as root", GREEN);
 	}
 
+}
+
+void Editor::print_parts()
+{
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
+	{
+		view.pushMessage(edited_model.parts[i].name, WHITE);
+	}
+}
+
+void Editor::edit_part(const std::string& part_type)
+{
+	if(editing_single_part)
+	{
+		view.pushMessage("Already editing single part.", RED);
+		return;
+	}
+	stored_model = edited_model;
+	Model dummy;
+	dummy.root = 0;
+	dummy.updatePosition(0.0f,0.0f,0.0f);
+	dummy.currentModelPos = Vec3();
+	dummy.animation_time = 0;
+	ModelNode node;
+	node.name = "dummy";
+	node.wireframe = "part_type";
+	node.offset_x = 0.0f;
+	node.offset_y = 0.0f;
+	node.offset_z = 0.0f;
+	dummy.parts.push_back(node);
+	edited_model = dummy;
+
+	edited_part = &view.objects[part_type];
+
+	editing_single_part = true;
+	view.pushMessage("Editing parttype '" + part_type + "'", WHITE);
+}
+
+void Editor::edit_model()
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage("Already editing model.", RED);
+		return;
+	}
+	editing_single_part = false;
+	edited_part = 0;
+
+	edited_model = stored_model;
 }
 
 void Editor::handle_command(const string& command)
@@ -275,6 +340,19 @@ void Editor::handle_command(const string& command)
 			loadModel(third_word);
 		}
 	}
+	if(first_word == "save")
+	{
+		ss >> second_word;
+		ss >> third_word;
+		if(second_word == "objects")
+		{
+			saveObjects(third_word);
+		}
+		else if(second_word == "model")
+		{
+			saveModel(third_word);
+		}
+	}
 	else if(first_word == "move")
 	{
 		double dx = 0.0;
@@ -297,6 +375,15 @@ void Editor::handle_command(const string& command)
 	else if(first_word == "remove")
 	{
 		remove_part();
+	}
+	else if(first_word == "edit")
+	{
+		ss >> second_word;
+		edit_part(second_word);
+	}
+	else if(first_word == "print")
+	{
+		print_parts();
 	}
 }
 

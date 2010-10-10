@@ -102,9 +102,10 @@ bool Model::save(const string& filename) const
 
 		for(size_t i = 0; i < parts[current].children.size(); ++i)
 		{
-			to_be_printed.push(i);
-			out << "CHILD " << parts[current].name << " " << parts[i].name << " " << parts[i].wireframe << " "
-				<< fixed << setprecision(3) << parts[i].offset_x << " " << parts[i].offset_y << " " << parts[i].offset_z << "\n";
+			size_t child = parts[current].children[i];
+			to_be_printed.push(child);
+			out << "CHILD " << parts[current].name << " " << parts[child].name << " " << parts[child].wireframe << " "
+				<< fixed << setprecision(3) << parts[child].offset_x << " " << parts[child].offset_y << " " << parts[child].offset_z << "\n";
 		}
 	}
 
