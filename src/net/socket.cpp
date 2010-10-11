@@ -148,16 +148,16 @@ int MU_Socket::write(const string& msg)
 	{
 		int data_sent = send(sock, c_msg, total_length, 0);
 		
-		// err???  MAYBE SHOULD HANDLE THIS CASE??
-		if(data_sent < 0)
-		{
-			cerr << "network write failed :DD" << endl;
-			return 0; // failed
-		}
-		
-		if(data_sent == 0)
+		if(data_sent == 0 || (data_sent < 0 && errno == EINTR))
 		{
 			cerr << "no data was written to socket?? :O  wtf? gonna try again.." << endl;
+		}
+		else if(data_sent < 0)
+		{
+			// err???  MAYBE SHOULD HANDLE THIS CASE??
+
+			cerr << "network write failed :DD" << endl;
+			return 0; // failed
 		}
 		
 		total_length -= data_sent;
@@ -170,14 +170,31 @@ int MU_Socket::write(const string& msg)
 string MU_Socket::read()
 {
 	//	cerr << "Reading data from socket.. " << endl;
-	int data_received = 0;
 	read_buffer[0] = '\0';
 	
-	data_received = recv(sock, read_buffer, READ_BUFFER_SIZE - 1, 0 );
-	read_buffer[data_received] = '\0';
+	int data_received = 0;
+	while(1)
+	{
+		data_received = recv(sock, read_buffer, READ_BUFFER_SIZE - 1, 0 );
+		if(data_received >= 0)
+		{
+			read_buffer[data_received] = '\0';
+			break;
+		}
+		else if(data_received < 0 && errno == EINTR)
+		{
+			continue;
+		}
+		else
+		{
+			break;
+		}
+	}
 	
-	if(data_received == 0)
+	if(data_received <= 0)
+	{
 		alive = false;
+	}
 	
 	return string(read_buffer);
 }

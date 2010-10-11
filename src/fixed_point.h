@@ -10,13 +10,6 @@
 // for debugging
 #include <cassert>
 
-struct keijo
-{
-	double a;
-	int b;
-	float c;
-};
-
 struct FixedPoint
 {
 	static const FixedPoint ZERO;
@@ -29,7 +22,7 @@ struct FixedPoint
 	
 	float getFloat() const
 	{
-		return number / 1000 + (number % 1000) / 1000.0;
+		return number / 1000.0;
 	}
 	
 	int getInteger() const
@@ -49,16 +42,15 @@ struct FixedPoint
 		return tmp;
 	}
 	
-	void operator += (const FixedPoint& a)
+	FixedPoint& operator += (const FixedPoint& a)
 	{
 		number += a.number;
+		return *this;
 	}
 	
 	FixedPoint operator + (const FixedPoint& a) const
 	{
-		FixedPoint tmp(a);
-		tmp += *this;
-		return tmp;
+		return FixedPoint(*this) += a;
 	}
 	
 	FixedPoint& operator -= (const FixedPoint& a)
@@ -81,9 +73,7 @@ struct FixedPoint
 	
 	FixedPoint operator * (const FixedPoint& a) const
 	{
-		FixedPoint tmp(*this);
-		tmp *= a;
-		return tmp;
+		return FixedPoint(*this) *= a;
 	}
 	
 	bool operator==(const FixedPoint& a) const
@@ -111,38 +101,42 @@ struct FixedPoint
 		return number > a.number;
 	}
 	
-	void operator *= (const FixedPoint& a)
+	FixedPoint& operator *= (const FixedPoint& a)
 	{
-		long long tmp = a.number;
-		tmp *= number;
-		tmp /= 1000;
-		number = tmp;
+		number *= a.number;
+		number /= 1000;
+		return *this;
 	}
 	
-	void operator /= (const FixedPoint& a)
+	FixedPoint& operator/=(const FixedPoint& a)
 	{
 		assert(a.number != 0);
 		
 		number *= 1000;
 		number /= a.number;
+		return *this;
 	}
 	
 	FixedPoint operator / (const FixedPoint& a) const
 	{
-		FixedPoint tmp(*this);
-		tmp /= a;
-		return tmp;
+		return FixedPoint(*this) /= a;
 	}
 	
 	FixedPoint squareRoot() const
 	{
 		if(number < 2)
+		{
 			return FixedPoint(0);
+		}
 		
 		// approximates the square root quite nicely
-		FixedPoint currentVal = *this / FixedPoint(2);
-		for(int i=0; i<10; i++)
-			currentVal = (currentVal + *this / currentVal) / FixedPoint(2);
+		FixedPoint currentVal(*this);
+		currentVal /= FixedPoint(2);
+		for(int i = 0; i < 10; ++i)
+		{
+			currentVal += *this / currentVal;
+			currentVal /= FixedPoint(2);
+		}
 		return currentVal;
 	}
 	
