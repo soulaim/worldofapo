@@ -1,0 +1,7 @@
+
+void main(void)
+{
+	vec4 v = vec4(gl_Vertex);
+/*	v.y = sin(v.x) * cos(v.z) * 50.0; */
+	gl_Position = gl_ModelViewProjectionMatrix * v;
+}

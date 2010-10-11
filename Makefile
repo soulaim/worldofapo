@@ -1,6 +1,6 @@
-CXXFLAGS = -pedantic -Wall -Werror -O3 -std=c++0x
-LDLIBS = -lSDL -lSDL_mixer -lGL -lGLU -lpng
-CXX = g++
+CXXFLAGS = -g -pedantic -Wall -Werror -O0 -std=c++0x
+LDLIBS   = -g -lSDL -lSDL_mixer -L ./glew_bin/lib64/ -lGL -lGLU -lpng -lGLEW
+CXX      = g++
 
 DIRS = src src/net src/frustum
 

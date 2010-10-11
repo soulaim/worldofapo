@@ -13,6 +13,49 @@ using namespace std;
 
 vector<pair<Location,Location> > LINES;
 
+
+
+char* file2string(const char *path);
+
+
+void printLog(GLuint obj)
+{
+	int infologLength = 0;
+	char infoLog[1024];
+	
+	if (glIsShader(obj))
+		glGetShaderInfoLog(obj, 1024, &infologLength, infoLog);
+	else
+		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
+	
+	if (infologLength > 0)
+		printf("%s\n", infoLog);
+}
+
+
+
+void Graphics::loadVertexShader(string name, string filename)
+{
+	const char* code = file2string(filename.c_str());
+	
+	shaders[name] = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(shaders[name], 1, &code, NULL);
+	glCompileShader(shaders[name]);
+	printLog(shaders[name]);
+}
+
+void Graphics::loadFragmentShader(string name, string filename)
+{
+	const char* code = file2string(filename.c_str());
+	
+	shaders[name] = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(shaders[name], 1, &code, NULL);
+	glCompileShader(shaders[name]);
+	printLog(shaders[name]);
+}
+
+
+
 float Graphics::modelGround(const Model& model)
 {
 	// :G
@@ -302,6 +345,7 @@ Graphics::Graphics()
 
 void Graphics::init()
 {
+	
 	charWidth.resize(255, 1.f);
 	
 	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
@@ -355,6 +399,23 @@ void Graphics::init()
 	charWidth['O'] = 0.24;
 	
 	createWindow(); // let SDL handle this part..
+	
+	if(glewInit() == GLEW_OK)
+		cerr << "GLEW JIHUU :DD" << endl;
+	else
+		cerr << "GLEW VITYYY DD:" << endl;
+	
+	loadFragmentShader("test_frag", "shaders/test_shader.fragment");
+	loadVertexShader("test_vert", "shaders/test_shader.vertex");
+	
+	shaders["test_program"] = glCreateProgram();
+	glAttachShader(shaders["test_program"], shaders["test_frag"]);
+	glAttachShader(shaders["test_program"], shaders["test_vert"]);
+	
+	glLinkProgram(shaders["test_program"]);
+	printLog(shaders["test_program"]);
+	glUseProgram(shaders["test_program"]);
+	glUseProgram(0);
 	
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
@@ -545,6 +606,8 @@ void Graphics::drawDebugLines()
 
 void Graphics::drawModels(map<int, Model>& models)
 {
+	glUseProgram(shaders["test_program"]);
+	
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		if(iter->second.root < 0)
@@ -557,6 +620,8 @@ void Graphics::drawModels(map<int, Model>& models)
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
+	
+	glUseProgram(0);
 }
 
 void Graphics::drawParticles()
@@ -806,7 +871,8 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 	humanPositions = positions;
 }
 
-void Graphics::drawHitboxes(const std::map<int,Unit>& units) {
+void Graphics::drawHitboxes(const std::map<int,Unit>& units)
+{
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;

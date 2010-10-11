@@ -1,14 +1,13 @@
 
-#include "image.h"
-#include "location.h"
-#include "particle.h"
 
 #include <vector>
 #include <map>
 #include <string>
 
+#include "glew/glew.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+
 #include <SDL/SDL.h>
 
 #include "model.h"
@@ -17,6 +16,10 @@
 #include "camera.h"
 #include "viewmessage.h"
 #include "playerinfo.h"
+
+#include "image.h"
+#include "location.h"
+#include "particle.h"
 
 struct Level;
 struct MenuButton;
@@ -76,6 +79,7 @@ class Graphics
 	void drawParticles();
 	void drawMinimap();
 	void drawFPS();
+	
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
 	std::string kills;
@@ -87,9 +91,14 @@ class Graphics
 	std::vector<Location> humanPositions;
 	
 
+	void loadVertexShader(std::string name, std::string filename);
+	void loadFragmentShader(std::string name, std::string filename);
+
 
 	std::vector<Particle> viewParticles;
+	
 	std::map<std::string, ObjectPart> objects;
+	std::map<std::string, GLuint> shaders;
 	
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
