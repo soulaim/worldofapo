@@ -48,12 +48,10 @@ void Level::updateHeight(int x, int z, FixedPoint h)
 	
 	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 1)
 	{
-		cerr << "updateHeight called with improper parameters" << endl;
 		return;
 	}
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 1)
 	{
-		cerr << "updateHeight called with improper parameters" << endl;
 		return;
 	}
 	
