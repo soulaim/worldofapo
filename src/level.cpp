@@ -206,10 +206,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
 	int x_index = x.getInteger() / 8;
 	int z_index = z.getInteger() / 8;
-	
-	int x_desimal = x.getDesimal() + (x.getInteger() & 7) * 1000;
-	int z_desimal = z.getDesimal() + (z.getInteger() & 7) * 1000;
-	
+
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
@@ -237,13 +234,15 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 		return y_from_x + y_from_z;
 	}
 	*/
-	
-	
-	int top_val = C.number + x_desimal * (D.number - C.number) / 8000;
-	int bot_val = A.number + x_desimal * (B.number - A.number) / 8000;
+
+	FixedPoint remainder_x = x - FixedPoint(x_index * 8);
+	FixedPoint remainder_z = z - FixedPoint(z_index * 8);
+
+	FixedPoint top_val = C + (D - C) * remainder_x / FixedPoint(8);
+	FixedPoint bot_val = A + (B - A) * remainder_x / FixedPoint(8);
 	
 	FixedPoint height_value;
-	height_value.number = bot_val + z_desimal * (top_val - bot_val) / 8000;
+	height_value = bot_val + (top_val - bot_val) * remainder_z / FixedPoint(8);
 	return height_value;
 	
 }

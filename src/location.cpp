@@ -25,7 +25,7 @@ void Location::normalize()
 {
 	FixedPoint length = (x*x + y*y + z*z).squareRoot();
 	
-	if(length.number == 0)
+	if(length == FixedPoint::ZERO)
 		return;
 	x /= length;
 	y /= length;

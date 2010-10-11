@@ -111,9 +111,9 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		p.pos = position;
 		p.vel = velocity;
 		
-		p.vel.x.number += ((rand() % 1000) - 500) * max_rand;
-		p.vel.y.number += ((rand() % 1000) - 500) * max_rand;
-		p.vel.z.number += ((rand() % 1000) - 500) * max_rand;
+		p.vel.x += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);;
 		p.max_life = 70;
 		p.cur_life = 70;
 		
@@ -771,9 +771,9 @@ void Graphics::tick()
 	Location position(FixedPoint(0),FixedPoint(5),FixedPoint(0));
 	
 	Location velocity;
-	velocity.x.number = 100;
-	velocity.y.number = 900;
-	velocity.z.number = 0;
+	velocity.x = FixedPoint(100,1000);
+	velocity.y = FixedPoint(900,1000);
+	velocity.z = FixedPoint(0);
 
 	
 	genParticles(position, velocity, 1, 0.5, 1.0, 0.9, 0.2, 0.2);

@@ -1,8 +1,8 @@
-
 #ifndef H_FIXEDPOINT
 #define H_FIXEDPOINT
 
 #include <ostream>
+#include <istream>
 
 // for square root message only
 #include <iostream>
@@ -10,16 +10,27 @@
 // for debugging
 #include <cassert>
 
-struct FixedPoint
+class FixedPoint
 {
+	long long number;
+
+public:
 	static const FixedPoint ZERO;
 
-	long long number;
-	
-	FixedPoint(const FixedPoint& a):number(a.number) {}
-	FixedPoint(int a, int b = 1):number( (a * 1000) / b ) {}
-	FixedPoint():number(0) {}
-	
+	FixedPoint(const FixedPoint& a):
+		number(a.number)
+	{
+	}
+	FixedPoint(int a, int b = 1):
+		number( (a * 1000) / b )
+	{
+	}
+
+	FixedPoint():
+		number(0)
+	{
+	}
+
 	float getFloat() const
 	{
 		return number / 1000.0;
@@ -139,13 +150,25 @@ struct FixedPoint
 		}
 		return currentVal;
 	}
+
+	friend inline std::ostream& operator<<(std::ostream& out, const FixedPoint& point)
+	{
+		return out << point.number;
+	}
+
+	friend inline std::istream& operator>>(std::istream& in, FixedPoint& point)
+	{
+		long long tmp;
+		in >> tmp;
+		if(in)
+		{
+			point.number = tmp;
+		}
+		return in;
+	}
 	
 };
 
-inline std::ostream& operator<<(std::ostream& out, const FixedPoint& point)
-{
-	return out << point.getFloat();
-}
 
 #endif
 
