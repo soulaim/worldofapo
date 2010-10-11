@@ -1,4 +1,10 @@
 TODO:
+      OLISI KURJA  - Aimbot for aliens
+
+      OLISI KIVA   - Light manager (more than one light active in the level)
+
+      OLISI KIVA   - Shaders for different things (level drawing, units)
+
       OLISI KIVA   - Windows binary
 
       OLISI KIVA   - Improve the FPS! Precalculate stuff for drawing the level! Dont swap the texture all the fucking time! (Square root is less accurate now (saves about 66% time there))
