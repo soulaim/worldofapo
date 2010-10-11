@@ -127,36 +127,36 @@ void Level::updateHeightDifference(int x, int z)
 		return;
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
 		return;
-	h_diff[x][z] = FixedPoint(estimateHeightDifference(x, z));
+	h_diff[x][z] = estimateHeightDifference(x, z);
 }
 
-float Level::estimateHeightDifference(int x, int y) const
+FixedPoint Level::estimateHeightDifference(int x, int y) const
 {
-	float min = 10000000;
-	float max = 0;
+	FixedPoint min = 10000000;
+	FixedPoint max = 0;
 	
-	if(pointheight_info[x][y].number < min)
-		min = pointheight_info[x][y].number;
-	if(pointheight_info[x][y].number > max)
-		max = pointheight_info[x][y].number;
+	if(pointheight_info[x][y] < min)
+		min = pointheight_info[x][y];
+	if(pointheight_info[x][y] > max)
+		max = pointheight_info[x][y];
 	
 	x++;
-	if(pointheight_info[x][y].number < min)
-		min = pointheight_info[x][y].number;
-	if(pointheight_info[x][y].number > max)
-		max = pointheight_info[x][y].number;
+	if(pointheight_info[x][y] < min)
+		min = pointheight_info[x][y];
+	if(pointheight_info[x][y] > max)
+		max = pointheight_info[x][y];
 	
 	y++;
-	if(pointheight_info[x][y].number < min)
-		min = pointheight_info[x][y].number;
-	if(pointheight_info[x][y].number > max)
-		max = pointheight_info[x][y].number;
+	if(pointheight_info[x][y] < min)
+		min = pointheight_info[x][y];
+	if(pointheight_info[x][y] > max)
+		max = pointheight_info[x][y];
 	
 	x--;
-	if(pointheight_info[x][y].number < min)
-		min = pointheight_info[x][y].number;
-	if(pointheight_info[x][y].number > max)
-		max = pointheight_info[x][y].number;
+	if(pointheight_info[x][y] < min)
+		min = pointheight_info[x][y];
+	if(pointheight_info[x][y] > max)
+		max = pointheight_info[x][y];
 	
 	return max - min;
 }

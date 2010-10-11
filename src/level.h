@@ -42,7 +42,7 @@ private:
 	std::vector<std::vector<FixedPoint> > h_diff;
 	std::vector<std::vector<Location> > normals;
 	
-	float estimateHeightDifference(int x, int z) const;
+	FixedPoint estimateHeightDifference(int x, int z) const;
 	void updateHeightDifference(int x, int z);
 	void updateNormal(int x, int z);
 	
