@@ -1,0 +1,26 @@
+varying vec4 diffuse,ambientGlobal;
+varying vec3 lightDir,normal;
+varying float dist;
+
+uniform sampler2D tex1,tex2;
+
+void main()
+{
+	vec3 ct,cf;
+	vec4 texel;
+	float intensity,at,af,att;
+	
+	cf.rgb = ambientGlobal.rgb;
+	
+	intensity = max(dot(lightDir,normalize(normal)),0.0);
+	att = 1.0 / (gl_LightSource[0].linearAttenuation * dist);
+	
+	cf += att * (diffuse);
+	af = gl_FrontMaterial.diffuse.a;
+	
+	texel = texture2D(tex1,gl_TexCoord[0].st) + texture2D(tex2,gl_TexCoord[1].st);
+	ct = texel.rgb;
+	at = texel.a;
+	
+	gl_FragColor = vec4(ct * cf, at * af);
+}

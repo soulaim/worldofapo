@@ -1,0 +1,20 @@
+varying vec4 diffuse,ambientGlobal;
+varying vec3 lightDir,normal;
+varying float dist;
+
+void main()
+{
+	normal = normalize(gl_NormalMatrix * gl_Normal);
+	
+	vec3 aux;
+	aux = vec3(gl_ModelViewMatrix * gl_Vertex) - vec3(gl_LightSource[0].position);
+	lightDir = normalize(aux);
+	dist = length(aux);
+	
+	diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;
+	ambientGlobal = gl_LightModel.ambient * gl_FrontMaterial.ambient;
+	
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = ftransform();
+}
+

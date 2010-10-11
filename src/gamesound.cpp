@@ -69,13 +69,13 @@ int GameSound::init()
 	
 	game_sound_music = 0;
 	
-	sfx["alien_death"]   = Mix_LoadWAV("alien_death.wav");
-	sfx["player_death"]  = Mix_LoadWAV("player_death.wav");
-	sfx["walk"]  = Mix_LoadWAV("walk.wav");
-	sfx["shoot"] = Mix_LoadWAV("shoot.wav");
-	sfx["jump"]  = Mix_LoadWAV("jump.wav");
-	sfx["jump_land"] = Mix_LoadWAV("jump_land.wav");
-	sfx["domination"]  = Mix_LoadWAV("domination.wav");
+	sfx["alien_death"]   = Mix_LoadWAV("sounds/alien_death.wav");
+	sfx["player_death"]  = Mix_LoadWAV("sounds/player_death.wav");
+	sfx["walk"]  = Mix_LoadWAV("sounds/walk.wav");
+	sfx["shoot"] = Mix_LoadWAV("sounds/shoot.wav");
+	sfx["jump"]  = Mix_LoadWAV("sounds/jump.wav");
+	sfx["jump_land"] = Mix_LoadWAV("sounds/jump_land.wav");
+	sfx["domination"]  = Mix_LoadWAV("sounds/domination.wav");
 	
 	return 1;
 }

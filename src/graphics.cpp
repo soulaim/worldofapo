@@ -76,15 +76,17 @@ void Graphics::depthSortParticles(Vec3& d)
 void Graphics::initLight()
 {
 	lightsActive = true;
-	GLfloat	global_ambient[ 4 ]	= {0.05f, 0.05f,  0.05f, 1.0f};
-	GLfloat	light0ambient[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
-	GLfloat	light0diffuse[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
-	GLfloat	light0specular[ 4 ]	= {1.0f, 1.0f,  1.0f, 1.0f};
+	GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+	GLfloat	light0ambient[ 4 ]	= {.0f, .0f,  .0f, 1.0f};
+	GLfloat	light0specular[ 4 ]	= {.0f, .0f,  .0f, 1.0f};
+
+	GLfloat	light0diffuse[ 4 ]	= {0.5f, .3f,  .3f, 1.0f};
+	
 	
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
 	
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1f);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.15f);
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0diffuse);
@@ -406,17 +408,28 @@ void Graphics::init()
 	else
 		cerr << "GLEW VITYYY DD:" << endl;
 	
-	loadFragmentShader("test_frag", "shaders/test_shader.fragment");
-	loadVertexShader("test_vert", "shaders/test_shader.vertex");
+	loadFragmentShader("level_frag", "shaders/level.fragment");
+	loadVertexShader("level_vert", "shaders/level.vertex");
 	
-	shaders["test_program"] = glCreateProgram();
-	glAttachShader(shaders["test_program"], shaders["test_frag"]);
-	glAttachShader(shaders["test_program"], shaders["test_vert"]);
+	loadFragmentShader("unit_frag", "shaders/unit.fragment");
+	loadVertexShader("unit_vert", "shaders/unit.vertex");
 	
-	glLinkProgram(shaders["test_program"]);
-	printLog(shaders["test_program"]);
-	glUseProgram(shaders["test_program"]);
+	shaders["level_program"] = glCreateProgram();
+	glAttachShader(shaders["level_program"], shaders["level_frag"]);
+	glAttachShader(shaders["level_program"], shaders["level_vert"]);
+	glLinkProgram(shaders["level_program"]);
+	printLog(shaders["level_program"]);
+	
+	shaders["unit_program"] = glCreateProgram();
+	glAttachShader(shaders["unit_program"], shaders["unit_frag"]);
+	glAttachShader(shaders["unit_program"], shaders["unit_vert"]);
+	glLinkProgram(shaders["unit_program"]);
+	printLog(shaders["unit_program"]);
+	
+	/*
+	glUseProgram(shaders["level_program"]);
 	glUseProgram(0);
+	*/
 	
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
@@ -528,6 +541,7 @@ void Graphics::setCamera(const Camera& cam)
 
 void Graphics::drawLevel(const Level& lvl)
 {
+	glUseProgram(shaders["level_program"]);
 	glEnable(GL_TEXTURE_2D);
 	// TextureHandler::getSingleton().bindTexture("grass");
 	
@@ -593,6 +607,8 @@ void Graphics::drawLevel(const Level& lvl)
 	
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
+	
+	glUseProgram(0);
 }
 
 void Graphics::drawDebugLines()
@@ -610,8 +626,7 @@ void Graphics::drawDebugLines()
 
 void Graphics::drawModels(map<int, Model>& models)
 {
-	glUseProgram(shaders["test_program"]);
-	
+	glUseProgram(shaders["unit_program"]);
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		if(iter->second.root < 0)
@@ -624,7 +639,6 @@ void Graphics::drawModels(map<int, Model>& models)
 		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
-	
 	glUseProgram(0);
 }
 

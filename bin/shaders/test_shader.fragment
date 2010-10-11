@@ -1,7 +1,0 @@
-
-void main()
-{
-	gl_FragColor[0] = gl_FragCoord[0] / 800.0;
-	gl_FragColor[1] = gl_FragCoord[1] / 600.0;
-	gl_FragColor[2] = 1.0;
-}
