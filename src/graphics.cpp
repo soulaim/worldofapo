@@ -14,7 +14,8 @@ using namespace std;
 vector<pair<Vec3,Vec3> > LINES;
 vector<Vec3> DOTS;
 
-
+int TRIANGLES_DRAWN_THIS_FRAME = 0;
+int QUADS_DRAWN_THIS_FRAME = 0;
 
 char* file2string(const char *path);
 
@@ -509,10 +510,10 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 	glRotatef(model.parts[current_node].rotation_y, 1, 0, 0);
 	glRotatef(model.parts[current_node].rotation_z, 0, 0, 1);
 	
-	
 	glBegin(GL_TRIANGLES);
 	for(size_t i=0; i<obj_part.triangles.size(); i++)
 	{
+		++TRIANGLES_DRAWN_THIS_FRAME;
 		// how to choose textures??
 		ObjectTri& tri = obj_part.triangles[i];
 		glColor3f(1.0f, 1.0f, 1.0f); glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
@@ -603,6 +604,7 @@ void Graphics::drawLevel(const Level& lvl)
 					glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
 					glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
 					glEnd();
+					++QUADS_DRAWN_THIS_FRAME;
 				}
 			}
 		}
@@ -693,6 +695,7 @@ void Graphics::drawParticles()
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
 		glEnd();
+		++QUADS_DRAWN_THIS_FRAME;
 		
 		glRotatef(-y_angle, 1.0, 0.0, 0.0);
 		glRotatef(-x_angle, 0.0, 1.0, 0.0);
@@ -742,6 +745,9 @@ void Graphics::startDrawing()
 			  upVector.x, upVector.y, upVector.z);
 			  
 	frustum.setCamDef(camPos, camTarget, upVector);
+
+	TRIANGLES_DRAWN_THIS_FRAME = 0;
+	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
 void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units)
