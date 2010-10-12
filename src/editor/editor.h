@@ -29,6 +29,8 @@ class Editor
 	void handle_command(const std::string& command);
 	void select_part(const std::string& part);
 	void move_part(double dx, double dy, double dz);
+	void move_dot(double dx, double dy, double dz);
+	void move(double dx, double dy, double dz);
 	void rotate_part(double dx, double dy, double dz);
 	void remove_part();
 	void add_part(const std::string& part_name, const std::string& type);
@@ -38,6 +40,10 @@ class Editor
 	void add_type(const std::string& type);
 	void print_types();
 	void print_model();
+	void dot();
+	void undot();
+	void next_dot();
+	void prev_dot();
 
 	Unit dummy;
 
@@ -48,7 +54,8 @@ class Editor
 	size_t selected_part;
 
 	Model edited_model;
-	ObjectPart* edited_part;
+	std::string edited_type_name;
+	ObjectPart* edited_type;
 	Model stored_model;
 
 	float speed;
@@ -56,6 +63,10 @@ class Editor
 
 	std::vector<std::string> commands;
 	size_t current_command;
+
+	size_t selected_dot;
+	Vec3 current_dot;
+	std::vector<Vec3> new_dots;
 public:
 	Editor();
 	void start();

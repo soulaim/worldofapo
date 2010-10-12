@@ -11,7 +11,8 @@
 
 using namespace std;
 
-vector<pair<Location,Location> > LINES;
+vector<pair<Vec3,Vec3> > LINES;
+vector<Vec3> DOTS;
 
 
 
@@ -522,7 +523,9 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 	
 	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
 	for(size_t i=0; i<model.parts[current_node].children.size(); i++)
+	{
 		drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
+	}
 	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
 	
 	
@@ -613,13 +616,24 @@ void Graphics::drawLevel(const Level& lvl)
 
 void Graphics::drawDebugLines()
 {
+	glColor3f(1.0f, 1.0f, 0.0f);
 	for(size_t i = 0; i < LINES.size(); ++i)
 	{
-		Location& p1 = LINES[i].first;
-		Location& p2 = LINES[i].second;
+		Vec3& p1 = LINES[i].first;
+		Vec3& p2 = LINES[i].second;
 		glBegin(GL_LINES);
-		glVertex3f(p1.x.getFloat(), p1.y.getFloat(), p1.z.getFloat());
-		glVertex3f(p2.x.getFloat(), p2.y.getFloat(), p2.z.getFloat());
+		glVertex3f(p1.x, p1.y, p1.z);
+		glVertex3f(p2.x, p2.y, p2.z);
+		glEnd();
+	}
+
+	glPointSize(5.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	for(size_t i = 0; i < DOTS.size(); ++i)
+	{
+		Vec3& p1 = DOTS[i];
+		glBegin(GL_POINTS);
+		glVertex3f(p1.x, p1.y, p1.z);
 		glEnd();
 	}
 }
@@ -749,6 +763,7 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<in
 void Graphics::draw(std::map<int, Model>& models, const std::string& status_message)
 {
 	startDrawing();
+	drawDebugLines();
 	drawModels(models);
 	drawMessages();
 	drawString(status_message, -0.9, 0.9, 1.5, true);

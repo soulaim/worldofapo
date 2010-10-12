@@ -10,6 +10,10 @@ target3 = bin/loader_3ds
 
 all: $(target1) $(target2) $(target3)
 
+debug: CXXFLAGS += -O0 -g
+debug: LDLIBS += -g
+debug: $(target1)
+
 prof: CXXFLAGS += -pg
 prof: LDLIBS += -pg
 prof: $(target1)
