@@ -28,6 +28,7 @@ struct Location
 	Location crossProduct(const Location&) const;
 	FixedPoint dotProduct(const Location& b) const;
 	FixedPoint length() const;
+	FixedPoint lengthSquared() const;
 };
 
 bool operator==(const Location&, const Location&);
