@@ -11,15 +11,20 @@ SocketHandler::SocketHandler(): nextConnection(0)
 {
 }
 
-int SocketHandler::add_new(int sock)
+int SocketHandler::add_new(int sock, int id)
 {
-	//	cerr << "SocketHandler got a new socket, pushing back: " << sock << endl;
-	sockets[nextConnection] = MU_Socket();
-	sockets[nextConnection].sock = sock;
-	sockets[nextConnection].alive = true;
+	int socket_id = id;
+	if(id == -1)
+	{
+		socket_id = nextConnection;
+		nextConnection++;
+	}
 	
-	nextConnection++;
-	if(!sockets[nextConnection-1].setnonblocking())
+	sockets[socket_id] = MU_Socket();
+	sockets[socket_id].sock = sock;
+	sockets[socket_id].alive = true;
+
+	if(!sockets[socket_id].setnonblocking())
 		return 0;
 	return 1;
 }

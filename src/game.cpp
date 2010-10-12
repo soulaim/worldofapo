@@ -119,16 +119,8 @@ void Game::endGame()
 }
 
 
-void Game::start()
+void Game::draw()
 {
-	// THIS IS WHAT THE HOST DOES
-	if(state == "host")
-	{
-		host_tick();
-	}
-	
-	client_tick();
-	
 	view.setTime( SDL_GetTicks() );
 	if((world.units.find(myID) != world.units.end()) && (myID >= 0))
 	{
@@ -138,15 +130,6 @@ void Game::start()
 	}
 	else
 	{
-		cerr << "looks like my unit doesnt exist! Not really sure what to draw now :G" << endl;
-	}
-	
-	if(state == "menu")
-	{
-		if(myID >= 0)
-			reset();
-		
-		menuQuestions();
 	}
 }
 

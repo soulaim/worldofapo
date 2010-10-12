@@ -568,7 +568,7 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].birthTime = currentWorldFrame;
 	
 	models[id] = Model();
-	models[id].load("data/model.bones");
+	models[id].load("models/model.bones");
 	
 	
 	if(!playerCharacter)
@@ -591,7 +591,7 @@ void World::addProjectile(Location& location, int id)
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id].load("data/bullet.bones");
+	models[id].load("models/bullet.bones");
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
 

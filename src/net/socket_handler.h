@@ -11,7 +11,7 @@ class SocketHandler
 	public:
 		SocketHandler();
 		
-		int add_new(int sock);
+		int add_new(int sock, int id = -1);
 		int get_readable();
 		int get_writable();
 		

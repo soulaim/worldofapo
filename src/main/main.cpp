@@ -23,10 +23,22 @@ int main()
 	
 	while(true)
 	{
-		master.start();
+		// THIS IS WHAT THE HOST DOES
+		if(master.state == "host")
+		{
+			master.host_tick();
+		}
+		
+		master.client_tick();
+		
+		master.draw(); // draws if possible
+		
+		if(master.state == "menu")
+		{
+			master.menu_tick();
+		}
 	}
 	
-	cerr << "lolwut?" << endl;
-	
+	cerr << "apparently exiting now" << endl;
 	return 0;
 }
