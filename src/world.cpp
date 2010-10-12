@@ -8,13 +8,11 @@ using namespace std;
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 {
 	// no restrictions for moving downhill
-	if(h_diff > FixedPoint(-1, 10))
+	if(h_diff < FixedPoint::ZERO)
 		return 1;
-	
-	if(h_diff < FixedPoint(-1))
-		return 0;
-	
-	return FixedPoint(1) + h_diff;
+	if(h_diff >= FixedPoint(2))
+		return FixedPoint::ZERO;
+	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
 void World::doDeathFor(Unit& unit, int causeOfDeath)
@@ -57,8 +55,8 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	event.actor_id  = actor_id;
 	
 	event.position = unit.position;
-	event.position.y.number += 2000;
-	event.velocity.y.number = 200;
+	event.position.y += FixedPoint(2);
+	event.velocity.y = FixedPoint(200,1000);
 	
 	if(unit.human())
 	{
@@ -136,8 +134,8 @@ void World::generateInput_RabidAlien(Unit& unit)
 		WorldEvent event;
 		event.type = DAMAGE_DEVOUR;
 		event.position = units[unitID].position;
-		event.position.y.number += 2000;
-		event.velocity.y.number = 900;
+		event.position.y += FixedPoint(2);
+		event.velocity.y = FixedPoint(900,1000);
 		events.push_back(event);
 	}
 	
@@ -152,10 +150,12 @@ void World::generateInput_RabidAlien(Unit& unit)
 	FixedPoint error = (myDirection.x - direction.x) * (myDirection.x - direction.x) + (myDirection.z - direction.z) * (myDirection.z - direction.z);
 	
 	int keyState = 0;
-	int mousex = 0, mousey = 0;
+	int mousex = 0;
+	int mousey = 0;
 	int mousebutton = 0;
 	
-	mousex = error.number / 4;
+	error *= FixedPoint(250);
+	mousex = error.getInteger();
 	keyState |= Unit::MOVE_FRONT;
 	
 	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
@@ -225,14 +225,14 @@ void World::tickUnit(Unit& unit, Model& model)
 		FixedPoint friction = FixedPoint(88, 100);
 		
 		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
-		unit.velocity.y.number = 0;
+		unit.velocity.y = FixedPoint::ZERO;
 		unit.velocity.x *= friction;
 		unit.velocity.z *= friction;
 		hitGround = true;
 	}
 	else
 	{
-		unit.velocity.y.number -= 35;
+		unit.velocity.y -= FixedPoint(35,1000);
 	}
 	
 	// do something about unit to unit collisions
@@ -287,8 +287,7 @@ void World::tickUnit(Unit& unit, Model& model)
 
 	if(unit.leap_cooldown == 0)
 	{
-		FixedPoint scale;
-		scale.number = 950;
+		FixedPoint scale(950,1000);
 		if(unit.getKeyAction(Unit::LEAP_LEFT) && hitGround)
 		{
 			int dummy_angle = unit.angle - apomath.DEGREES_90;
@@ -459,8 +458,8 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 				WorldEvent event;
 				event.type = DAMAGE_BULLET;
 				event.position = unit.position;
-				event.position.y.number += 2000;
-				event.velocity.y.number = 200;
+				event.position.y += FixedPoint(2);
+				event.velocity.y = FixedPoint(200,1000);
 				events.push_back(event);
 				
 				
@@ -490,7 +489,7 @@ void World::updateModel(Model& model, Unit& unit)
 {
 	/*
 	// deduce which animation to display
-	if(unit.position.h.number - 100 > lvl.getHeight(unit.position.x, unit.position.y).number)
+	if(unit.position.h - FixedPoint(100,1000) > lvl.getHeight(unit.position.x, unit.position.y))
 	{
 		model.setAction("jump");
 	}

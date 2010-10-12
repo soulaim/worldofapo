@@ -66,7 +66,10 @@ int Unit::getMouseAction(int type)
 
 void Unit::handleCopyOrder(stringstream& ss)
 {
-	ss >> angle >> upangle >> keyState >> position.x.number >> position.z.number >> position.y.number >> velocity.x.number >> velocity.z.number >> velocity.y.number >> mouseButtons >> weapon_cooldown >> leap_cooldown >> controllerTypeID >> hitpoints >> birthTime >> id;
+	ss >> angle >> upangle >> keyState >>
+		position.x >> position.z >> position.y >>
+		velocity.x >> velocity.z >> velocity.y >>
+		mouseButtons >> weapon_cooldown >> leap_cooldown >> controllerTypeID >> hitpoints >> birthTime >> id;
 	
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);
@@ -75,7 +78,10 @@ void Unit::handleCopyOrder(stringstream& ss)
 string Unit::copyOrder(int ID)
 {
 	stringstream hero_msg;
-	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " " << position.x.number << " " << position.z.number << " " << position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << " " << hitpoints << " " << birthTime << " " << id << " ";
+	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
+		<< position.x << " " << position.z << " " << position.y << " "
+		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
+		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << " " << hitpoints << " " << birthTime << " " << id << " ";
 	
 	// name must be the last element.
 	hero_msg << name << "#";

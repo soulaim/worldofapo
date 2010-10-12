@@ -25,13 +25,20 @@ class Editor
 	void loadModel(const std::string& file);
 	void saveModel(const std::string& file);
 	void saveObjects(const std::string& file);
+	bool type_exists(const std::string& type);
 	void handle_command(const std::string& command);
 	void select_part(const std::string& part);
 	void move_part(double dx, double dy, double dz);
+	void rotate_part(double dx, double dy, double dz);
 	void remove_part();
-	void add_part(const std::string& part_name, const std::string& part_type);
+	void add_part(const std::string& part_name, const std::string& type);
+	void edit_model();
+	void type_helper(const std::string& type);
+	void edit_type(const std::string& type);
+	void add_type(const std::string& type);
+	void print_types();
+	void print_model();
 
-	std::map<int, Model> models;
 	Unit dummy;
 
 	std::string objectsName;
@@ -39,6 +46,16 @@ class Editor
 
 	bool editing_single_part;
 	size_t selected_part;
+
+	Model edited_model;
+	ObjectPart* edited_part;
+	Model stored_model;
+
+	float speed;
+	float rotate_speed;
+
+	std::vector<std::string> commands;
+	size_t current_command;
 public:
 	Editor();
 	void start();

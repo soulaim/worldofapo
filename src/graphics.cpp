@@ -113,9 +113,9 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		p.pos = position;
 		p.vel = velocity;
 		
-		p.vel.x.number += ((rand() % 1000) - 500) * max_rand;
-		p.vel.y.number += ((rand() % 1000) - 500) * max_rand;
-		p.vel.z.number += ((rand() % 1000) - 500) * max_rand;
+		p.vel.x += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);;
 		p.max_life = 70;
 		p.cur_life = 70;
 		
@@ -389,6 +389,7 @@ void Graphics::init()
 	charWidth['-'] = 0.1;
 	charWidth['|'] = 0.1;
 	charWidth['/'] = 0.1;
+	charWidth['_'] = 0.1;
 	charWidth['%'] = 0.13;
 	charWidth['&'] = 0.12;
 	charWidth['='] = 0.13;
@@ -487,6 +488,10 @@ void Graphics::createWindow()
 
 void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, const string& animation, int animation_state)
 {
+	if(current_node < 0 || size_t(current_node) >= model.parts.size())
+	{
+		return;
+	}
 	glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
 	
 	ObjectPart& obj_part = objects[model.parts[current_node].wireframe];
@@ -544,61 +549,60 @@ void Graphics::drawLevel(const Level& lvl)
 	
 	Vec3 semiAverage;
 	
-	for(int i=0; i<3; i++)
+	const int textures_size = 3;
+	const char* textures[textures_size] = { "grass", "highground", "mountain" };
+	for(int i = 0; i < textures_size; ++i)
 	{
-		if(i==0)
-			TextureHandler::getSingleton().bindTexture("grass");
-		else if(i == 1)
-			TextureHandler::getSingleton().bindTexture("highground");
-		else if(i == 2)
-			TextureHandler::getSingleton().bindTexture("mountain");
-	for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
-	{
-		for(size_t y=0; y < lvl.pointheight_info[x].size()-1; y++)
+		// Changing the active texture is avoided by drawing similar coordinates together.
+		TextureHandler::getSingleton().bindTexture(textures[i]);
+
+		for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
 		{
-			// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
-			FixedPoint h_diff = lvl.getHeightDifference(x, y);
-			int lololol = -1;
-			if(h_diff < FixedPoint(35, 10))
-				lololol = 0;
-			else if(h_diff < FixedPoint(10))
-				lololol = 1;
-			else
-				lololol = 2;
-			
-			if(lololol != i)
-				continue;
-			
-			
-			FixedPoint fpx; fpx.number = multiplier * (1000 * x + 500);
-			FixedPoint fpy; fpy.number = multiplier * (1000 * y + 500);
-			
-			semiAverage.x = multiplier * (x + 0.5f);
-			semiAverage.z = multiplier * (y + 0.5f);
-			semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
-			
-			Location n = lvl.getNormal(x, y);
-			glNormal3f(-n.x.getFloat(), n.y.getFloat(), -n.z.getFloat());
-			
-			if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
+			for(size_t y=0; y < lvl.pointheight_info[x].size()-1; y++)
 			{
-				/* swapping the active texture wildly should be avoided */
+				// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
+				FixedPoint h_diff = lvl.getHeightDifference(x, y);
+				int lololol = -1;
+				if(h_diff < FixedPoint(35, 10))
+					lololol = 0;
+				else if(h_diff < FixedPoint(10))
+					lololol = 1;
+				else
+					lololol = 2;
 				
+				if(lololol != i)
+					continue;
 				
-				Vec3 A(multiplier * x, lvl.pointheight_info[x][y].getFloat(), multiplier * y);
-				Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][y].getFloat(), multiplier * y);
-				Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1));
-				Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1));
+				FixedPoint fpx(x);
+				FixedPoint fpy(y);
+				fpx += FixedPoint(1,2);
+				fpy += FixedPoint(1,2);
+				fpx *= FixedPoint(multiplier);
+				fpy *= FixedPoint(multiplier);
+
+				semiAverage.x = multiplier * (x + 0.5f);
+				semiAverage.z = multiplier * (y + 0.5f);
+				semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 				
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
-				glTexCoord2f(1.f, 0.0f); glVertex3f( B.x, B.y, B.z );
-				glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
-				glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
-				glEnd();
+				Location n = lvl.getNormal(x, y);
+				glNormal3f(-n.x.getFloat(), n.y.getFloat(), -n.z.getFloat());
+				
+				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
+				{
+					Vec3 A(multiplier * x, lvl.pointheight_info[x][y].getFloat(), multiplier * y);
+					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][y].getFloat(), multiplier * y);
+					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1));
+					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1));
+					
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
+					glTexCoord2f(1.f, 0.0f); glVertex3f( B.x, B.y, B.z );
+					glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
+					glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
+					glEnd();
+				}
 			}
 		}
-	}
 	}
 	
 	glDisable(GL_TEXTURE_2D);
@@ -747,7 +751,7 @@ void Graphics::draw(std::map<int, Model>& models, const std::string& status_mess
 	startDrawing();
 	drawModels(models);
 	drawMessages();
-	drawString(status_message, 0.2, 0.9, 1.5, true);
+	drawString(status_message, -0.9, 0.9, 1.5, true);
 	SDL_GL_SwapBuffers();
 }
 
@@ -781,9 +785,9 @@ void Graphics::tick()
 	Location position(FixedPoint(0),FixedPoint(5),FixedPoint(0));
 	
 	Location velocity;
-	velocity.x.number = 100;
-	velocity.y.number = 900;
-	velocity.z.number = 0;
+	velocity.x = FixedPoint(100,1000);
+	velocity.y = FixedPoint(900,1000);
+	velocity.z = FixedPoint(0);
 
 	
 	genParticles(position, velocity, 1, 0.5, 1.0, 0.9, 0.2, 0.2);

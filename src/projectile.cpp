@@ -64,15 +64,13 @@ void Projectile::tick()
 
 void Projectile::handleCopyOrder(stringstream& ss)
 {
-	ss >> curr_position.x.number >> curr_position.z.number >> curr_position.y.number >>
-	velocity.x.number >> velocity.z.number >> velocity.y.number >>
-	lifetime;
+	ss >> curr_position.x >> curr_position.z >> curr_position.y >> velocity.x >> velocity.z >> velocity.y >> lifetime;
 }
 
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x.number << " " << curr_position.z.number << " " << curr_position.y.number << " " << velocity.x.number << " " << velocity.z.number << " " << velocity.y.number << " " << lifetime << "#";
+	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x << " " << curr_position.z << " " << curr_position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y << " " << lifetime << "#";
 	
 	return projectile_msg.str();
 }

@@ -17,7 +17,7 @@ class Particle
 	void tick()
 	{
 		pos += vel;
-		vel.y.number -= 20;
+		vel.y -= FixedPoint(20, 1000);
 	}
 	
 	float getAlpha()
