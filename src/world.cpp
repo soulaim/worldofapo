@@ -354,12 +354,6 @@ void World::tickUnit(Unit& unit, Model& model)
 			weapon_position.y += 4;
 			projectile_direction.y += 4;
 
-
-//			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
-//				projectile_direction.x << "," << projectile_direction.y << "," << projectile_direction.h << ")\n";
-//			extern vector<pair<Location,Location> > LINES;
-//			LINES.push_back(make_pair(weapon_position, projectile_direction));
-
 			int id = nextUnitID();
 			addProjectile(weapon_position, id);
 			
