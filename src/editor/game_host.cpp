@@ -1,5 +1,5 @@
 
-#include "game.h"
+#include "../game.h"
 
 using namespace std;
 
@@ -19,7 +19,6 @@ void Game::serverSendRequestPlayerNameMessage(int player_id)
 
 void Game::host_tick()
 {
-	
 	acceptConnections();
 	
 	// if there's any data to be read from clients, then read it

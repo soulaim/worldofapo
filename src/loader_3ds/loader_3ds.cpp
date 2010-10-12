@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
 
 using namespace std;
 
@@ -37,6 +38,17 @@ struct ObjMesh
 	Face* face;
 	UVCoord* UV;
 	char MatName[64];
+	
+	void print()
+	{
+		for(int i=0; i<nFace; i++)
+		{
+			cerr << "TRIANGLE ";
+			cerr << fixed << setprecision(2) << vtx[face[i].p1].x << " " << vtx[face[i].p1].y << " " << vtx[face[i].p1].z << endl;
+			cerr << "         " << vtx[face[i].p2].x << " " << vtx[face[i].p2].y << " " << vtx[face[i].p2].z << endl;
+			cerr << "         " << vtx[face[i].p3].x << " " << vtx[face[i].p3].y << " " << vtx[face[i].p3].z << endl;
+		}
+	}
 };
 
 struct ObjMatl
@@ -69,6 +81,12 @@ class Obj3DS
 		void Get3fVector(int offset, float& x1, float& x2, float& x3);
 		void Get3Vector(int offset, unsigned short& x1, unsigned short& x2, unsigned short& x3);
 		void Get2fVector(int offset, float& x1, float& x2);
+		
+		void print()
+		{
+			for(int i=0; i<nMesh; i++)
+				Mesh[i].print();
+		}
 };
 
 Obj3DS::Obj3DS()
@@ -183,14 +201,14 @@ int Obj3DS::Load(const char* fName)
 			case 0x0002: // Version
 				{
 					memcpy(&Value, &data[Offset+6], 4);
-					printf("Chunk 0002 (Version) - %d\nOffset %d\n",Value,Info.Size);
+// 					printf("Chunk 0002 (Version) - %d\nOffset %d\n",Value,Info.Size);
 					Offset += Info.Size;
 					break;
 				}
 
 			case 0x0011: // RGB1
 				{
-					printf("Chunk 0011 (RGB1) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
+// 					printf("Chunk 0011 (RGB1) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
 
 					if(CopyVal)
 					{
@@ -207,27 +225,27 @@ int Obj3DS::Load(const char* fName)
 
 			case 0x0012: // RGB2
 				{
-					printf("Chunk 0012 (RGB2) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
+// 					printf("Chunk 0012 (RGB2) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
 					Offset += Info.Size;
 					break;
 				}
 
 			case 0x0010:
 				Get3fVector(Offset+6,fVal,fVal2,fVal3);
-				printf("Chunk 0010 (RGB) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
+// 				printf("Chunk 0010 (RGB) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
 				Offset += Info.Size;
 				break;
 
 			case 0x0013:
 				Get3fVector(Offset+6,fVal,fVal2,fVal3);
-				printf("Chunk 0013 (gamma corrected) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
+// 				printf("Chunk 0013 (gamma corrected) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
 				Offset += Info.Size;
 				break;
 
 			case 0x0030: // Quantity value for parent chunks
 				{
 					memcpy(&Val,&data[Offset+6],2);
-					printf("Chunk 0030 (Qty Value) %d\nOffset %d\n",Val,Info.Size);
+// 					printf("Chunk 0030 (Qty Value) %d\nOffset %d\n",Val,Info.Size);
 					Offset += Info.Size;
 					break;
 				}
@@ -301,32 +319,32 @@ int Obj3DS::Load(const char* fName)
 
 			case 0x4110: // Vertex List
 				memcpy(&Val,&data[Offset+6],2);
-				printf("Chunk 4110 (Vertex List) %d Vertices\nOffset %d\n",Val,Info.Size);
+// 				printf("Chunk 4110 (Vertex List) %d Vertices\nOffset %d\n",Val,Info.Size);
 				Mesh[MeshDex].nVtx = Val;
 				Mesh[MeshDex].vtx = new Vertex[Val+1];
 				for(Loop = 0, LOff = Offset+8; Loop != Val; ++Loop, LOff+=12)
 				{
 					Get3fVector(LOff,Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
-					printf("X: %f, Y: %f, Z: %f\n",Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
+// 					printf("X: %f, Y: %f, Z: %f\n",Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
 				}
 				Offset += Info.Size;
 				break;
 
 			case 0x4111: // Vertex Options
-				printf("Chunk 4111 (Vertex Options)\nOffset %d\n",Info.Size);
+// 				printf("Chunk 4111 (Vertex Options)\nOffset %d\n",Info.Size);
 				Offset += Info.Size;
 				break;
 
 			case 0x4120: // Face List
 				memcpy(&Val,&data[Offset+6],2);
-				printf("Chunk 4120 (Face List) %d polys\nOffset %d\n",Val,Info.Size);
+// 				printf("Chunk 4120 (Face List) %d polys\nOffset %d\n",Val,Info.Size);
 				Mesh[MeshDex].nFace=Val;
 				Mesh[MeshDex].face = new Face[Val+1];
 				for(Loop = 0, LOff = Offset+8; Loop != Val; ++Loop, LOff+=8)
 				{
 					Get3Vector(LOff,Mesh[MeshDex].face[Loop].p1,Mesh[MeshDex].face[Loop].p2,Mesh[MeshDex].face[Loop].p3);
 					memcpy(&Val2,&data[LOff+6],2);
-					printf("X: %d, Y: %d, Z: %d (",Mesh[MeshDex].face[Loop].p1,Mesh[MeshDex].face[Loop].p2,Mesh[MeshDex].face[Loop].p3);
+ 					printf("X: %d, Y: %d, Z: %d (",Mesh[MeshDex].face[Loop].p1,Mesh[MeshDex].face[Loop].p2,Mesh[MeshDex].face[Loop].p3);
 					if (Val2&0x01) printf("AC ");
 					if (Val2&0x02) printf("BC ");
 					if (Val2&0x04) printf("AB ");
@@ -582,6 +600,8 @@ int main(int argc, char* argv[])
 
 	Obj3DS model;
 	model.Load(argv[1]);
+	
+	model.print();
 
 	return 0;
 }

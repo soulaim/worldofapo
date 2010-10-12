@@ -35,7 +35,6 @@ void Game::handleServerMessage(const Order& server_msg)
 		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
-		
 	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
@@ -94,10 +93,8 @@ void Game::processClientMsgs()
 {
 	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{
-		
 		// TROLOLOLOL
 		inTransitMessages.erase(clientOrders.orders[i]);
-		
 		
 		
 		stringstream ss(clientOrders.orders[i]);

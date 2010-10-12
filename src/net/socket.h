@@ -32,7 +32,7 @@ class MU_Socket
 		std::string read();
 		
 		int init_listener(int port);
-		int accept_connection(SocketHandler&);
+		int accept_connection(SocketHandler&, int id = -1);
 		
 		int setnonblocking();
 		

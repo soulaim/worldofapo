@@ -1,5 +1,6 @@
 
 
+
 #include <SDL/SDL.h>
 
 #include <iostream>
@@ -14,29 +15,22 @@ using namespace std;
 
 int main()
 {
-	cerr << "starting logger" << endl;
-	Logger log;
-	log.open("gamelog.log");
-	
 	cerr << "creating game object" << endl;
 	Game master;
 	
+	master.state = "host";
+	
+	int port = 12345;
+	while(master.serverSocket.init_listener(port) == 0)
+		port--;
+	
+	master.serverSocket.alive = true;
+	cerr << "Listening to port " << port << endl;
+	
+	
 	while(true)
 	{
-		// THIS IS WHAT THE HOST DOES
-		if(master.state == "host")
-		{
-			master.host_tick();
-		}
-		
-		master.client_tick();
-		
-		master.draw(); // draws if possible
-		
-		if(master.state == "menu")
-		{
-			master.menu_tick();
-		}
+		master.host_tick();
 	}
 	
 	cerr << "apparently exiting now" << endl;

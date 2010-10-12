@@ -57,7 +57,9 @@ class Game
 	Graphics view;
 	GameSound soundsystem;
 	
+public:
 	MU_Socket serverSocket; // for hosting games
+private:
 	MU_Socket clientSocket; // for connecting to all games (also local games)
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	
@@ -77,7 +79,6 @@ class Game
 	
 	int state_descriptor;
 	int client_state;
-	std::string state;
 	
 	std::string menuWord;
 	std::string clientCommand;
@@ -97,15 +98,9 @@ class Game
 	void init();
 	void readConfig();
 	
-	void menuQuestions();
-	
-	void acceptConnections();
-	void host_tick();
-	
 	void handleWorldEvents();
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
-	void client_tick();
 	void camera_handling();
 	int connectMenu();
 
@@ -122,9 +117,21 @@ class Game
 	
 	void enableGrab();
 	void disableGrab();
+	
+	
+	// for dedicated server
+	void ServerProcessClientMsgs();
+	void ServerHandleServerMessage(const Order&);
+	
 public:
 	Game();
-	void start();
+	std::string state;
+	
+	void acceptConnections();
+	void host_tick();
+	void client_tick();
+	void menu_tick();
+	void draw();
 };
 
 

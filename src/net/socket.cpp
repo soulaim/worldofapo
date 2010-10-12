@@ -265,7 +265,7 @@ int MU_Socket::init_listener(int port)
 	return 1;
 }
 
-int MU_Socket::accept_connection(SocketHandler& handler)
+int MU_Socket::accept_connection(SocketHandler& handler, int id)
 {
 	//	cerr << "Accepting connection.. " << endl;
 	
@@ -278,7 +278,7 @@ int MU_Socket::accept_connection(SocketHandler& handler)
 	else
 		cerr << "Accepted a new connection :D trololol :D" << endl;
 	
-	handler.add_new(new_socket);
+	handler.add_new(new_socket, id);
 	return 1;
 }
 

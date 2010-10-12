@@ -353,12 +353,6 @@ void World::tickUnit(Unit& unit, Model& model)
 			weapon_position.y += 4;
 			projectile_direction.y += 4;
 
-
-//			cerr << "Shooting from (" << unit.position.x << "," << unit.position.y << "," << unit.position.h << ") to (" <<
-//				projectile_direction.x << "," << projectile_direction.y << "," << projectile_direction.h << ")\n";
-//			extern vector<pair<Location,Location> > LINES;
-//			LINES.push_back(make_pair(weapon_position, projectile_direction));
-
 			int id = nextUnitID();
 			addProjectile(weapon_position, id);
 			
@@ -574,7 +568,7 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].birthTime = currentWorldFrame;
 	
 	models[id] = Model();
-	models[id].load("data/model.bones");
+	models[id].load("models/model.bones");
 	
 	
 	if(!playerCharacter)
@@ -597,7 +591,7 @@ void World::addProjectile(Location& location, int id)
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id].load("data/bullet.bones");
+	models[id].load("models/bullet.bones");
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
 

@@ -5,8 +5,11 @@
 
 using namespace std;
 
-void Game::menuQuestions()
+void Game::menu_tick()
 {
+	if(myID >= 0)
+		reset();
+	
 	// load images & create textures
 	vector<MenuButton> buttons;
 	
