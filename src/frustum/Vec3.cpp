@@ -151,3 +151,4 @@ void Vec3::print() {
 	printf("Vec3(%f, %f, %f)",x,y,z);
 	
 }
+
