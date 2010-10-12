@@ -43,7 +43,13 @@ int SocketHandler::get_readable()
 			high = iter->second.sock;
 	}
 	
-	int count = select(high+1, &fd_socks, (fd_set *) 0, (fd_set *) 0, &timeout);
+	int count;
+	do
+	{
+		count = select(high+1, &fd_socks, (fd_set *) 0, (fd_set *) 0, &timeout);
+	}
+	while(count < 0 && errno == EINTR);
+
 	return count;
 }
 
@@ -87,7 +93,13 @@ int SocketHandler::get_writable()
 			high = iter->second.sock;
 	}
 	
-	int count = select(high+1, (fd_set *) 0, &fd_socks, (fd_set *) 0, &timeout);
+	int count;
+	do
+	{
+		count = select(high+1, (fd_set *) 0, &fd_socks, (fd_set *) 0, &timeout);
+	}
+	while(count < 0 && errno == EINTR);
+
 	return count;
 }
 
