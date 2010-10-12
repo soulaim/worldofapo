@@ -40,7 +40,7 @@ int MU_Socket::readyToRead()
 	
 	/* Set time limit. */
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
+	timeout.tv_usec = 0;
 	
 	/* Create a descriptor set containing our server socket.  */
 	FD_ZERO(&fds);

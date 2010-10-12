@@ -28,7 +28,7 @@ int SocketHandler::get_readable()
 {
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 5000;
+	timeout.tv_usec = 0;
 	
 	int high = 0;
 	
@@ -78,7 +78,7 @@ int SocketHandler::get_writable()
 {
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 5000;
+	timeout.tv_usec = 0;
 	
 	int high = 0;
 	
