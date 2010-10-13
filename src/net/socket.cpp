@@ -40,17 +40,17 @@ int MU_Socket::readyToRead()
 	
 	/* Set time limit. */
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
+	timeout.tv_usec = 0;
 	
 	/* Create a descriptor set containing our server socket.  */
 	FD_ZERO(&fds);
 	FD_SET(sock, &fds);
 
-	rc = EINTR;
-	while(rc == EINTR)
+	do
 	{
 		rc = select(sock+1, &fds, NULL, NULL, &timeout);
 	}
+	while(rc < 0 && errno == EINTR);
 	
 	if(rc == -1)
 	{
@@ -144,11 +144,17 @@ int MU_Socket::write(const string& msg)
 	const char* c_msg = msg.c_str();
 	int total_length = msg.size();
 	
-	while(total_length != 0)
+	while(total_length > 0)
 	{
-		int data_sent = send(sock, c_msg, total_length, 0);
+		int data_sent;
 		
-		if(data_sent == 0 || (data_sent < 0 && errno == EINTR))
+		do
+		{
+			data_sent = send(sock, c_msg, total_length, 0);
+		}
+		while(data_sent < 0 && errno == EINTR);
+		
+		if(data_sent == 0)
 		{
 			cerr << "no data was written to socket?? :O  wtf? gonna try again.." << endl;
 		}
@@ -173,24 +179,17 @@ string MU_Socket::read()
 	read_buffer[0] = '\0';
 	
 	int data_received = 0;
-	while(1)
+	do
 	{
 		data_received = recv(sock, read_buffer, READ_BUFFER_SIZE - 1, 0 );
-		if(data_received >= 0)
-		{
-			read_buffer[data_received] = '\0';
-			break;
-		}
-		else if(data_received < 0 && errno == EINTR)
-		{
-			continue;
-		}
-		else
-		{
-			break;
-		}
 	}
-	
+	while(data_received < 0 && errno == EINTR);
+
+	if(data_received >= 0)
+	{
+		read_buffer[data_received] = '\0';
+	}
+
 	if(data_received <= 0)
 	{
 		alive = false;

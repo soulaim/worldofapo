@@ -1,25 +1,24 @@
-// Plane.cpp
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "Plane.h"
 #include <stdio.h>
 
 
-Plane::Plane(const Vec3 &v1, const Vec3 &v2, const Vec3 &v3) {
-
+Plane::Plane(const Vec3& v1, const Vec3& v2, const Vec3& v3)
+{
 	set3Points(v1,v2,v3);
 }
 
 
-Plane::Plane() {}
+Plane::Plane()
+{
+}
 
-Plane::~Plane() {}
+Plane::~Plane()
+{
+}
 
 
-void Plane::set3Points(const Vec3 &v1, const Vec3 &v2, const Vec3 &v3) {
-
-
+void Plane::set3Points(const Vec3& v1, const Vec3& v2, const Vec3& v3)
+{
 	Vec3 aux1, aux2;
 
 	aux1 = v1 - v2;
@@ -32,15 +31,15 @@ void Plane::set3Points(const Vec3 &v1, const Vec3 &v2, const Vec3 &v3) {
 	d = -(normal.innerProduct(point));
 }
 
-void Plane::setNormalAndPoint(const Vec3 &normal, const Vec3 &point) {
-
+void Plane::setNormalAndPoint(const Vec3& normal, const Vec3& point)
+{
 	this->normal = normal;
 	this->normal.normalize();
 	d = -(this->normal.innerProduct(point));
 }
 
-void Plane::setCoefficients(float a, float b, float c, float d) {
-
+void Plane::setCoefficients(float a, float b, float c, float d)
+{
 	// set the normal vector
 	normal.set(a,b,c);
 	//compute the lenght of the vector
@@ -52,14 +51,13 @@ void Plane::setCoefficients(float a, float b, float c, float d) {
 }
 
 
-	
-
-float Plane::distance(Vec3 &p) {
-
+float Plane::distance(const Vec3 &p)
+{
 	return (d + normal.innerProduct(p));
 }
 
-void Plane::print() {
-
+void Plane::print()
+{
 	printf("Plane(");normal.print();printf("# %f)",d);
 }
+

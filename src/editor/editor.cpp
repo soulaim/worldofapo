@@ -10,6 +10,9 @@
 
 using namespace std;
 
+extern vector<pair<Vec3,Vec3> > LINES;
+extern vector<Vec3> DOTS;
+
 std::string red(const std::string& s)
 {
 	return "^r" + s;
@@ -32,8 +35,9 @@ void Editor::init()
 	current_command = 0;
 
 	editing_single_part = false;
-	edited_part = 0;
+	edited_type = 0;
 	selected_part = 0;
+	selected_dot = 0;
 	userio.init();
 
 //	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -41,15 +45,21 @@ void Editor::init()
 //	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 
 	view.bindCamera(&dummy);
+	view.toggleLightingStatus();
 
 	handle_command("load objects parts.dat");
 	handle_command("load model model.bones");
+	handle_command("edit type HEAD");
 
 //	view.megaFuck();
 }
 
 void Editor::start()
 {
+	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
+	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
+	LINES.push_back(make_pair(Vec3(0,0,100),Vec3(0,0,-100)));
+
 	int ticks = SDL_GetTicks();
 	static int last_tick = -999999;
 
@@ -63,19 +73,47 @@ void Editor::start()
 		view.setTime( ticks );
 		view.tick();
 
+		string message;
 
-		stringstream ss;
-		if(edited_model.parts.size() > selected_part)
+		if(editing_single_part)
 		{
-			const ModelNode& node = edited_model.parts[selected_part];
-			ss << "'" << node.name << "' is " << node.wireframe << " at ("
-				<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
-				<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
+			LINES.resize(3);
+			// TODO: print dx,dy,dz
+			stringstream ss;
+			ss << current_dot;
+			message = "Editing '" + edited_type_name + "': " + ss.str();
+
+			for(size_t i = 0; i < new_dots.size(); ++i)
+			{
+				// Line i -> current.
+				LINES.push_back(make_pair(new_dots[i],current_dot));
+				for(size_t j = 0; j < i; ++j)
+				{
+					// Line j -> i.
+					LINES.push_back(make_pair(new_dots[j], new_dots[i]));
+				}
+			}
+
+			DOTS.clear();
+			DOTS.push_back(current_dot);
+		}
+		else
+		{
+			stringstream ss;
+			if(edited_model.parts.size() > selected_part)
+			{
+				const ModelNode& node = edited_model.parts[selected_part];
+				ss << "'" << node.name << "' is " << node.wireframe << " at ("
+					<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
+					<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
+			}
+
+			message = ss.str();
 		}
 
 		std::map<int,Model> models;
 		models[0] = edited_model;
-		view.draw(models, ss.str());
+		view.draw(models, message);
 	}
 	else
 	{
@@ -160,6 +198,25 @@ void Editor::loadModel(const string& file)
 	else
 	{
 		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::move_dot(double dx, double dy, double dz)
+{
+	current_dot.x += dx;
+	current_dot.y += dy;
+	current_dot.z += dz;
+}
+
+void Editor::move(double dx, double dy, double dz)
+{
+	if(editing_single_part)
+	{
+		move_dot(dx, dy, dz);
+	}
+	else
+	{
+		move_part(dx, dy, dz);
 	}
 }
 
@@ -326,11 +383,18 @@ void Editor::print_types()
 
 void Editor::type_helper(const std::string& type)
 {
+	edited_type = &view.objects[type];
+	edited_type_name = type;
+
+	edited_type->end_x = 0.0f;
+	edited_type->end_y = 0.0f;
+	edited_type->end_z = 0.0f;
+
 	stored_model = edited_model;
 	Model dummy;
 	dummy.root = 0;
-	dummy.updatePosition(0.0f,0.0f,0.0f);
-	dummy.currentModelPos = Vec3();
+	dummy.currentModelPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
+	dummy.realUnitPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
 	dummy.animation_time = 0;
 	ModelNode node;
 	node.name = "dummy";
@@ -341,10 +405,9 @@ void Editor::type_helper(const std::string& type)
 	dummy.parts.push_back(node);
 	edited_model = dummy;
 
-	edited_part = &view.objects[type];
-
 	editing_single_part = true;
 	view.pushMessage("Editing parttype '" + type + "'");
+	selected_dot = edited_type->triangles.size() * 3 - 1;
 }
 
 void Editor::edit_type(const std::string& type)
@@ -375,9 +438,76 @@ void Editor::edit_model()
 		return;
 	}
 	editing_single_part = false;
-	edited_part = 0;
+	edited_type = 0;
+	edited_type_name = "";
 
 	edited_model = stored_model;
+}
+
+void Editor::dot()
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage(red("dot works only when editing part types."));
+		return;
+	}
+	new_dots.push_back(current_dot);
+
+	if(new_dots.size() == 3)
+	{
+		stringstream ss;
+
+		ObjectTri triangle;
+		for(int i = 0; i < 3; ++i)
+		{
+			triangle.x[i] = new_dots[i].x;
+			triangle.y[i] = new_dots[i].y;
+			triangle.z[i] = new_dots[i].z;
+
+			ss << fixed << setprecision(2) << "(" << triangle.x[i] << "," << triangle.y[i] << "," << triangle.z[i] << ")";
+		}
+		edited_type->triangles.push_back(triangle);
+		selected_dot = edited_type->triangles.size() * 3 - 1;
+		new_dots.clear();
+
+		view.pushMessage(green("Added new triangle: " + ss.str()));
+	}
+}
+
+void Editor::next_dot()
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage(red("dot works only when editing part types."));
+		return;
+	}
+	if(selected_dot < edited_type->triangles.size() * 3 - 1)
+	{
+		++selected_dot;
+		size_t index = selected_dot / 3;
+		size_t remainder = selected_dot % 3;
+		current_dot.x = edited_type->triangles[index].x[remainder];
+		current_dot.y = edited_type->triangles[index].y[remainder];
+		current_dot.z = edited_type->triangles[index].z[remainder];
+	}
+}
+
+void Editor::prev_dot()
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage(red("dot works only when editing part types."));
+		return;
+	}
+	if(selected_dot > 0)
+	{
+		--selected_dot;
+		size_t index = selected_dot / 3;
+		size_t remainder = selected_dot % 3;
+		current_dot.x = edited_type->triangles[index].x[remainder];
+		current_dot.y = edited_type->triangles[index].y[remainder];
+		current_dot.z = edited_type->triangles[index].z[remainder];
+	}
 }
 
 void Editor::handle_command(const string& command)
@@ -425,7 +555,7 @@ void Editor::handle_command(const string& command)
 		double dy = 0.0;
 		double dz = 0.0;
 		ss >> dx >> dy >> dz;
-		move_part(dx,dy,dz);
+		move(dx,dy,dz);
 	}
 	else if(word1 == "rotate")
 	{
@@ -494,6 +624,18 @@ void Editor::handle_command(const string& command)
 		ss2 << rotate_speed;
 		view.pushMessage("Rotate speed set to " + ss2.str());
 	}
+	else if(word1 == "dot")
+	{
+		dot();
+	}
+	else if(word1 == "next")
+	{
+		next_dot();
+	}
+	else if(word1 == "prev")
+	{
+		prev_dot();
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -502,7 +644,7 @@ void Editor::handle_command(const string& command)
 void Editor::handle_input()
 {
 	string key = userio.getSingleKey();
-	cerr << key << "\n";
+//	cerr << key << "\n";
 
 	static string clientCommand = "";
 	static bool writing = false;
@@ -603,6 +745,18 @@ void Editor::handle_input()
 		}
 		else
 		{
+			if(key == "left")
+			{
+				prev_dot();
+			}
+			if(key == "right")
+			{
+				next_dot();
+			}
+			if(key == "enter")
+			{
+				dot();
+			}
 			if(key == "insert")
 			{
 				rotate_part(0, 0, rotate_speed);
@@ -631,27 +785,27 @@ void Editor::handle_input()
 
 			if(key == "[8]")
 			{
-				move_part(0, 0, speed);
+				move(0, 0, speed);
 			}
 			if(key == "[5]")
 			{
-				move_part(0, 0, -speed);
+				move(0, 0, -speed);
 			}
 			if(key == "[4]")
 			{
-				move_part(speed, 0, 0);
+				move(speed, 0, 0);
 			}
 			if(key == "[6]")
 			{
-				move_part(-speed, 0, 0);
+				move(-speed, 0, 0);
 			}
 			if(key == "[9]")
 			{
-				move_part(0, speed, 0);
+				move(0, speed, 0);
 			}
 			if(key == "[3]")
 			{
-				move_part(0, -speed, 0);
+				move(0, -speed, 0);
 			}
 
 			if(key == "return") {

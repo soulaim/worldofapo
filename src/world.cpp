@@ -97,7 +97,7 @@ void World::resolveUnitCollision(Unit& a, Unit& b)
 
 void World::generateInput_RabidAlien(Unit& unit)
 {
-	FixedPoint bestDistance = FixedPoint(1000);
+	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
 	
 	// find the nearest human controlled unit
@@ -105,10 +105,10 @@ void World::generateInput_RabidAlien(Unit& unit)
 	{
 		if(it->second.controllerTypeID == Unit::HUMAN_INPUT) // MMM!! MAYBE I CAN GO KILL THIS PLAYER ?:DD
 		{
-			FixedPoint tmp_dist = (it->second.position - unit.position).length();
-			if( tmp_dist < bestDistance )
+			FixedPoint tmp_dist = (it->second.position - unit.position).lengthSquared();
+			if( tmp_dist < bestSquaredDistance )
 			{
-				bestDistance = tmp_dist;
+				bestSquaredDistance = tmp_dist;
 				unitID = it->first;
 			}
 		}
@@ -123,7 +123,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	}
 	
 	// if close enough, do damage by DEVOURING
-	if(bestDistance < FixedPoint(3))
+	if(bestSquaredDistance < FixedPoint(9))
 	{
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
@@ -240,7 +240,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	{
 		if(iter->second.id == unit.id)
 			continue;
-		if((iter->second.position - unit.position).length() < FixedPoint(2))
+		if((iter->second.position - unit.position).lengthSquared() < FixedPoint(4))
 		{
 			resolveUnitCollision(unit, iter->second);
 			

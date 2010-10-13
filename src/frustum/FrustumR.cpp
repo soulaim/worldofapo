@@ -136,7 +136,7 @@ void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
 
 
 
-int FrustumR::pointInFrustum(Vec3 &p) {
+int FrustumR::pointInFrustum(const Vec3 &p) const {
 
 	float pcz,pcx,pcy,aux;
 
@@ -167,7 +167,7 @@ int FrustumR::pointInFrustum(Vec3 &p) {
 }
 
 
-int FrustumR::sphereInFrustum(Vec3 &p, float radius) {
+int FrustumR::sphereInFrustum(const Vec3 &p, float radius) const {
 
 
 	float d1,d2;

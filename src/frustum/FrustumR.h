@@ -41,8 +41,8 @@ public:
 	void setFrustum(float *m);
 	void setCamInternals(float angle, float radius, float nearD, float farD);
 	void setCamDef(Vec3 &p, Vec3 &l, Vec3 &u);
-	int pointInFrustum(Vec3 &p);
-	int sphereInFrustum(Vec3 &p, float radius);
+	int pointInFrustum(const Vec3 &p) const;
+	int sphereInFrustum(const Vec3 &p, float radius) const;
 
 	void drawPoints();
 	void drawLines();

@@ -11,9 +11,11 @@
 
 using namespace std;
 
-vector<pair<Location,Location> > LINES;
+vector<pair<Vec3,Vec3> > LINES;
+vector<Vec3> DOTS;
 
-
+int TRIANGLES_DRAWN_THIS_FRAME = 0;
+int QUADS_DRAWN_THIS_FRAME = 0;
 
 char* file2string(const char *path);
 
@@ -508,10 +510,10 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 	glRotatef(model.parts[current_node].rotation_y, 1, 0, 0);
 	glRotatef(model.parts[current_node].rotation_z, 0, 0, 1);
 	
-	
 	glBegin(GL_TRIANGLES);
 	for(size_t i=0; i<obj_part.triangles.size(); i++)
 	{
+		++TRIANGLES_DRAWN_THIS_FRAME;
 		// how to choose textures??
 		ObjectTri& tri = obj_part.triangles[i];
 		glColor3f(1.0f, 1.0f, 1.0f); glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
@@ -522,7 +524,9 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 	
 	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
 	for(size_t i=0; i<model.parts[current_node].children.size(); i++)
+	{
 		drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
+	}
 	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
 	
 	
@@ -600,6 +604,7 @@ void Graphics::drawLevel(const Level& lvl)
 					glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
 					glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
 					glEnd();
+					++QUADS_DRAWN_THIS_FRAME;
 				}
 			}
 		}
@@ -613,13 +618,24 @@ void Graphics::drawLevel(const Level& lvl)
 
 void Graphics::drawDebugLines()
 {
+	glColor3f(1.0f, 1.0f, 0.0f);
 	for(size_t i = 0; i < LINES.size(); ++i)
 	{
-		Location& p1 = LINES[i].first;
-		Location& p2 = LINES[i].second;
+		Vec3& p1 = LINES[i].first;
+		Vec3& p2 = LINES[i].second;
 		glBegin(GL_LINES);
-		glVertex3f(p1.x.getFloat(), p1.y.getFloat(), p1.z.getFloat());
-		glVertex3f(p2.x.getFloat(), p2.y.getFloat(), p2.z.getFloat());
+		glVertex3f(p1.x, p1.y, p1.z);
+		glVertex3f(p2.x, p2.y, p2.z);
+		glEnd();
+	}
+
+	glPointSize(5.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	for(size_t i = 0; i < DOTS.size(); ++i)
+	{
+		Vec3& p1 = DOTS[i];
+		glBegin(GL_POINTS);
+		glVertex3f(p1.x, p1.y, p1.z);
 		glEnd();
 	}
 }
@@ -679,6 +695,7 @@ void Graphics::drawParticles()
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
 		glEnd();
+		++QUADS_DRAWN_THIS_FRAME;
 		
 		glRotatef(-y_angle, 1.0, 0.0, 0.0);
 		glRotatef(-x_angle, 0.0, 1.0, 0.0);
@@ -728,6 +745,9 @@ void Graphics::startDrawing()
 			  upVector.x, upVector.y, upVector.z);
 			  
 	frustum.setCamDef(camPos, camTarget, upVector);
+
+	TRIANGLES_DRAWN_THIS_FRAME = 0;
+	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
 void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units)
@@ -749,6 +769,7 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<in
 void Graphics::draw(std::map<int, Model>& models, const std::string& status_message)
 {
 	startDrawing();
+	drawDebugLines();
 	drawModels(models);
 	drawMessages();
 	drawString(status_message, -0.9, 0.9, 1.5, true);

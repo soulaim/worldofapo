@@ -7,6 +7,9 @@
 
 using namespace std;
 
+extern int TRIANGLES_DRAWN_THIS_FRAME;
+extern int QUADS_DRAWN_THIS_FRAME;
+
 void Graphics::setLocalPlayerName(const std::string& name)
 {
 	plr_name = name;
@@ -108,8 +111,14 @@ void Graphics::drawFPS()
 	ss1 << "FPS: " << fixed << setprecision(2) << fps;
 	stringstream ss2;
 	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
-	drawString(ss1.str(), 0.7, 0.9, 1.5, true);
-	drawString(ss2.str(), 0.7, 0.8, 1.5, true);
+	stringstream ss3;
+	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
+	stringstream ss4;
+	ss4 << "QUADS: " << fixed << setprecision(2) << QUADS_DRAWN_THIS_FRAME;
+	drawString(ss1.str(), 0.6, 0.9, 1.5, true);
+	drawString(ss2.str(), 0.6, 0.8, 1.5, true);
+	drawString(ss3.str(), 0.6, 0.7, 1.5, true);
+	drawString(ss4.str(), 0.6, 0.6, 1.5, true);
 }
 
 void Graphics::drawHUD()
