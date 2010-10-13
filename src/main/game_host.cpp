@@ -182,7 +182,7 @@ void Game::acceptConnections()
 		{
 			cerr << "sending info!" << endl;
 			stringstream playerInfo_msg;
-			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << " " << iter->second.kills << " " << iter->second.deaths << "#";
+			playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << iter->second.name << "#";
 			connectingPlayer.write(playerInfo_msg.str());
 		}
 

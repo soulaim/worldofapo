@@ -41,6 +41,10 @@ void Game::handleServerMessage(const Order& server_msg)
 		world.addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+		
+		// just to make sure.
+		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
+		
 		view.pushMessage("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
@@ -70,6 +74,23 @@ void Game::handleServerMessage(const Order& server_msg)
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		view.pushMessage("^Ggot playerID!");
 		
+		
+		
+		cerr << "Sending my name now: " << localPlayer.name << endl;
+		stringstream ss;
+		
+		if(localPlayer.name == "")
+		{
+			localPlayer.name = "Unknown player";
+		}
+		
+		ss << "2 " << myID << " 0 0 " << localPlayer.name << "#";
+		clientSocket.write(ss.str());
+		
+		
+		
+		
+		
 		if(world.units.find(myID) != world.units.end())
 		{
 			cerr << "Binding camera to player " << myID << "\n";
@@ -96,7 +117,6 @@ void Game::processClientMsgs()
 		// TROLOLOLOL
 		inTransitMessages.erase(clientOrders.orders[i]);
 		
-		
 		stringstream ss(clientOrders.orders[i]);
 		
 		int order_type;
@@ -115,6 +135,8 @@ void Game::processClientMsgs()
 		}
 		else if(order_type == 3) // chat message
 		{
+			cerr << "ORDER: " << clientOrders.orders[i] << endl;
+			
 			int plrID;
 			string line;
 			
@@ -128,10 +150,16 @@ void Game::processClientMsgs()
 		
 		else if(order_type == 2) // playerInfo message
 		{
+			cerr << "ORDER: " << clientOrders.orders[i] << endl;
+			
 			cerr << "Got playerInfo message!" << endl;
 			int plrID, kills, deaths;
 			string name;
-			ss >> plrID >> name >> kills >> deaths;
+			ss >> plrID >> kills >> deaths;
+			
+			ss.ignore(); // eat away the extra space delimiter
+			getline(ss, name);
+			
 			Players[plrID].name = name;
 			Players[plrID].kills = kills;
 			Players[plrID].deaths = deaths;
@@ -144,7 +172,9 @@ void Game::processClientMsgs()
 			
 			// set unit's name to match the players
 			if(world.units.find(plrID) == world.units.end())
-				cerr << "GOT playerInfo MESSAGE TOO SOON :G WHAT HAPPENS NOW??" << endl;
+			{
+				cerr << "GOT playerInfo MESSAGE TOO SOON :G Will just place the name at hero birth." << endl;
+			}
 			else
 			{
 				cerr << "Assigning player identity (name) to corresponding unit." << endl;
@@ -185,10 +215,7 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "GIVE_NAME") // request player name message
 			{
-				cerr << "Server wants to know my identity now. Sending: " << localPlayer.name << endl;
-				stringstream ss;
-				ss << "2 " << myID << " " << localPlayer.name << " 0 0#";
-				clientSocket.write(ss.str());
+
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
@@ -230,6 +257,8 @@ void Game::processClientMsgs()
 		
 		else if(order_type == -4) // copy of an existing order
 		{
+			cerr << "ORDER: " << clientOrders.orders[i] << endl;
+			
 			cerr << "Got a copy of an old message" << endl;
 			Order tmp_order;
 			ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButtons;

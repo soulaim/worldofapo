@@ -37,8 +37,8 @@ Level::Level()
 Location Level::getRandomLocation(int seed)
 {
 	Location result;
-	result.x = ((3  * seed) % 100) * 8;
-	result.z = ((17 * seed) % 100) * 8;
+	result.x = ((43  * seed) % 100) * 8;
+	result.z = ((73 * seed) % 100) * 8;
 	result.y = FixedPoint(100);
 	return result;
 }
