@@ -8,9 +8,8 @@ using namespace std;
 void Game::serverSendMonsterSpawn()
 {
 	stringstream tmp_msg;
-	tmp_msg << "-1 " << (serverAllow+1) << " 10" << "#";
-	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
-		target->second.write(tmp_msg.str());
+	tmp_msg << "-1 " << (serverAllow+10) << " 10" << "#";
+	serverMsgs.push_back(tmp_msg.str());
 }
 
 void Game::serverSendRequestPlayerNameMessage(int player_id)
@@ -397,7 +396,30 @@ void Game::ServerProcessClientMsgs()
 		}
 		else if(order_type == 3) // chat message
 		{
-			cerr << "GOT Chat message" << endl;
+			int plrID;
+			string line;
+			
+			ss >> plrID;
+			
+			string cmd;
+			ss >> cmd;
+			
+			cerr << cmd;
+			
+			
+			// THIS IS DANGEROUS
+			if(cmd == "ZOMBIE")
+			{
+				int num = 0;
+				ss >> num;
+				
+				cerr << "sending " << num << " spawn orders." << endl;
+				
+				for(int i=0; i<num; i++)
+					serverSendMonsterSpawn();
+			}
+			
+			
 		}
 		
 		else if(order_type == 2) // playerInfo message
