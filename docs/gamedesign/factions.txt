@@ -1,0 +1,15 @@
+== Yleisidea ==
+
+On pelaajia.
+Pelaajat voivat liittoutua keskenään.
+Eli on liittoja.
+Liitot voivat sotia keskenään.
+Eli on levottomuutta.
+Sekasortoa lisää kolmas osapuoli.
+Eli on alienzombiet.
+
+== Pelaajat ==
+
+Pelaajilla äänioikeus liitossa.
+Osa pelaajista muodostaa liiton hallituksen.
+Hallituksen koko on liiton itse määräämä ja oletusarvoisesti perustajajäsenten lukumäärä.
