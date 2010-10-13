@@ -3,6 +3,7 @@
 *~
 bin/diablo
 bin/editor
+bin/server
 bin/loader_3ds
 *.swp
 *.log
