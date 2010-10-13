@@ -86,7 +86,7 @@ void Game::makeLocalGame()
 	clientSocket.conn_init(host, port);
 }
 
-void Game::joinInternetGame(string hostName)
+void Game::joinInternetGame(const string& hostName)
 {
     enableGrab();
 

@@ -46,7 +46,7 @@ $(dep): %.d: %.cpp
 	$(CXX) -MT "$(@:.d=.o) $@" -MM $(CXXFLAGS) $< > $@
 
 clean:
-	$(RM) $(target1) $(target2) $(obj1) $(obj2) $(obj3) $(dep)
+	$(RM) $(target1) $(target2) $(obj1) $(obj2) $(obj3) $(obj4) $(dep)
 
 ifneq ($(MAKECMDGOALS),clean)
   include $(dep)

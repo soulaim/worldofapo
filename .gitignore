@@ -4,6 +4,7 @@
 bin/diablo
 bin/editor
 bin/loader_3ds
+bin/server
 *.swp
 *.log
 gmon.out
