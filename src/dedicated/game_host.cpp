@@ -111,12 +111,15 @@ void Game::host_tick()
 	
 	// transmit serverMsgs to players
 	for(int k=0; k < static_cast<int>(serverMsgs.size()); k++)
+	{
+		// give msg to local handling and send to others.
+		clientOrders.insert(serverMsgs[k]);
+		
 		for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
 		{
-			// give msg to local handling and send to others.
-			clientOrders.insert(serverMsgs[k]);
 			i->second.write(serverMsgs[k]);
 		}
+	}
 	serverMsgs.clear();
 	
 	
@@ -130,9 +133,9 @@ void Game::host_tick()
 
 	
 	// the level can kind of shut down when there's no one there.
-	if(sockets.sockets.size() == 0 && UnitInput.size() == 0)
+	if( (sockets.sockets.size() == 0) && (UnitInput.size() == 0) )
 	{
-		UnitInput.clear();
+		UnitInput.clear(); // redundant
 		simulRules.reset();
 		return;
 	}
@@ -178,8 +181,46 @@ void Game::host_tick()
 		world.worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
 		
-		// lets pray that this is ok for now. We really need to take care of them later, but for now its ok to just ignore.
-		// handleWorldEvents();
+		
+		
+		
+		
+		
+		// output events to show the server is still in sync.
+		for(size_t i = 0; i < world.events.size(); ++i)
+		{
+			WorldEvent& event = world.events[i];
+			
+			if(event.type == World::DEATH_ENEMY)
+			{
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				{
+					Players[event.actor_id].kills++;
+					cerr << Players[event.actor_id].name << " has killed" << endl;
+				}
+			}
+			
+			if(event.type == World::DEATH_PLAYER)
+			{
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				{
+					Players[event.actor_id].kills++;
+					cerr << Players[event.actor_id].name << " has killed" << endl;
+				}
+				
+				if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
+				{
+					Players[event.target_id].deaths++;
+					cerr << Players[event.target_id].name << " has died" << endl;
+				}
+			}
+		}
+		
+		world.events.clear();
+		
+		
+		
+		
 		
 		// sounds lol?
 		/*
