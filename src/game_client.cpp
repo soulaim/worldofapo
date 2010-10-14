@@ -1,8 +1,7 @@
-
 #include "game.h"
-
-// for debugging
 #include "logger.h"
+
+#include <SDL/SDL.h>
 
 #include <sstream>
 #include <algorithm>
@@ -25,10 +24,10 @@ void Game::handleServerMessage(const Order& server_msg)
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
-		string viewMessage_str = "^R[";
-		viewMessage_str.append(Players[server_msg.keyState].name);
-		viewMessage_str.append("] has disconnected!");
-		view->pushMessage(viewMessage_str);
+		string message = "^R[";
+		message.append(Players[server_msg.keyState].name);
+		message.append("] has disconnected!");
+		world->add_message(message);
 		
 		world->units.erase(server_msg.keyState);
 		world->models.erase(server_msg.keyState);
@@ -45,7 +44,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		// just to make sure.
 		world->units[server_msg.keyState].name = Players[server_msg.keyState].name;
 		
-		view->pushMessage("^GHero created!");
+		world->add_message("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -66,9 +65,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
-		view->pushMessage("^Ggot playerID!");
-		
-		
+		world->add_message("^Ggot playerID!");
 		
 		cerr << "Sending my name now: " << localPlayer.name << endl;
 		stringstream ss;
@@ -82,13 +79,13 @@ void Game::handleServerMessage(const Order& server_msg)
 		clientSocket.write(ss.str());
 		
 		
-		
-		
-		
 		if(world->units.find(myID) != world->units.end())
 		{
-			cerr << "Binding camera to player " << myID << "\n";
-			view->bindCamera(&world->units[myID]);
+			WorldEvent event;
+			event.type = World::CENTER_CAMERA;
+			event.actor_id = myID;
+			world->add_event(event);
+			cerr << "Creating event to bind camera to unit " << myID << "\n";
 		}
 		else
 		{
@@ -136,7 +133,7 @@ void Game::processClientMsgs()
 			
 			stringstream chatMsg;
 			chatMsg << "^y<" << Players[plrID].name << "> ^w" << line;
-			view->pushMessage(chatMsg.str());
+			world->add_message(chatMsg.str());
 		}
 		
 		else if(order_type == 2) // playerInfo message
@@ -159,7 +156,7 @@ void Game::processClientMsgs()
 			
 			stringstream ss_viewMsg;
 			ss_viewMsg << "^g" << Players[plrID].name << "^r has connected!" << endl;
-			view->pushMessage(ss_viewMsg.str());
+			world->add_message(ss_viewMsg.str());
 			
 			// set unit's name to match the players
 			if(world->units.find(plrID) == world->units.end())

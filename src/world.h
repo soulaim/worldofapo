@@ -42,7 +42,8 @@ public:
 		DAMAGE_BULLET,
 		DAMAGE_DEVOUR,
 		DEATH_PLAYER,
-		DEATH_ENEMY
+		DEATH_ENEMY,
+		CENTER_CAMERA
 	};
 	
 	World();
@@ -80,6 +81,9 @@ public:
 	int getZombies();
 	
 	void terminate(); // don't call this unless you mean it :D
+
+	void add_message(const std::string& message);
+	void add_event(const WorldEvent& event);
 };
 
 #endif

@@ -10,10 +10,9 @@
 
 using namespace std;
 
-Game::Game(Graphics* v, World* w):
+Game::Game(World* w):
 	fps_world(0),
-	world(w),
-	view(v)
+	world(w)
 {
 	paused_state = PAUSED;
 	myID = -1;
@@ -31,10 +30,6 @@ void Game::reset()
 void Game::init()
 {
 	reset();
-	
-	view->loadObjects("data/parts.dat");
-	view->megaFuck(); // blah..
-	view->setPlayerInfo(&Players);
 	
 	readConfig();
 	

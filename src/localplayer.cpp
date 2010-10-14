@@ -21,7 +21,7 @@
 
 Localplayer::Localplayer():
 	client_input_state(0),
-	game(&view, &world)
+	game(&world)
 {
 }
 
@@ -47,6 +47,10 @@ void Localplayer::init()
 	soundsystem.init();
 	game.init();
 	userio.init();
+
+	view.loadObjects("data/parts.dat");
+	view.megaFuck(); // blah..
+	view.setPlayerInfo(&game.Players);
 }
 
 bool Localplayer::client_tick()
@@ -60,6 +64,7 @@ bool Localplayer::client_tick()
 	{
 		if(game.client_tick_local())
 		{
+			view.world_tick();
 			handleWorldEvents();
 			
 			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)

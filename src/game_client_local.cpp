@@ -89,7 +89,6 @@ bool Game::client_tick_local()
 		// run simulation for one WorldFrame
 		world->worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
-		view->world_tick();
 
 		return true;
 	}
@@ -275,6 +274,15 @@ void Localplayer::handleWorldEvents()
 				game.Players[event.actor_id].kills++;
 			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
 				game.Players[event.target_id].deaths++;
+		}
+
+		if(event.type == World::CENTER_CAMERA)
+		{
+			if( (world.units.find(event.actor_id) != world.units.end()) )
+			{
+				cerr << "Binding camera to unit " << event.actor_id << endl;
+				view.bindCamera(&world.units[event.actor_id]);
+			}
 		}
 		
 	}
