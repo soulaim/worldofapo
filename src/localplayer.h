@@ -48,7 +48,7 @@ private:
 	void check_messages_from_server();
 	void handleClientLocalInput();
 	void client_tick_local();
-	void process_game_input();
+	void process_sent_game_input();
 	
 	// fully 3D single channel sounds! :DD
 	void playSound(const string& name, Location& position);
@@ -60,6 +60,7 @@ private:
 	Game game;
 	Graphics view;
 	GameSound soundsystem;
+	UserIO userio;
 };
 
 

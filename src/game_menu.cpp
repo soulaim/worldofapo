@@ -25,7 +25,7 @@ void Localplayer::menu_tick()
 	{
 		view.drawMenu(buttons);
 		
-		string key = game.userio.getSingleKey();
+		string key = userio.getSingleKey();
 		
 		if(key == "")
 		{
@@ -84,7 +84,7 @@ int Localplayer::connectMenu()
 	
 	while(true)
 	{
-		string key_hostname = game.userio.getSingleKey();
+		string key_hostname = userio.getSingleKey();
 		
 		if(key_hostname == "")
 		{

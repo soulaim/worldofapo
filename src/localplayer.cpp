@@ -45,6 +45,7 @@ void Localplayer::init()
 {
 	soundsystem.init();
 	game.init();
+	userio.init();
 }
 
 void Localplayer::readConfig()
@@ -63,19 +64,9 @@ void Localplayer::processClientMsgs()
 	game.processClientMsgs();
 }
 
-void Localplayer::camera_handling()
-{
-	game.camera_handling();
-}
-
 void Localplayer::check_messages_from_server()
 {
 	game.check_messages_from_server();
-}
-
-void Localplayer::handleClientLocalInput()
-{
-	game.handleClientLocalInput();
 }
 
 void Localplayer::client_tick_local()
@@ -89,26 +80,11 @@ void Localplayer::client_tick_local()
 	}
 }
 
-void Localplayer::process_game_input()
-{
-	game.process_game_input();
-}
-
-void Localplayer::enableGrab()
-{
-	game.enableGrab();
-}
-
-void Localplayer::disableGrab()
-{
-	game.disableGrab();
-}
-
-
 void Localplayer::client_tick()
 {
 	game.check_messages_from_server();
-	game.handleClientLocalInput();
+	handleClientLocalInput();
+	process_sent_game_input();
 
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.

@@ -42,22 +42,22 @@ void Localplayer::playSound(const string& name, Location& position)
 }
 
 
-void Game::camera_handling()
+void Localplayer::camera_handling()
 {
 	int wheel_status = userio.getMouseWheelScrolled();
 	if (wheel_status == 1)
-		view->mouseUp();
+		view.mouseUp();
 	if (wheel_status == 2)
-		view->mouseDown();
+		view.mouseDown();
 }
 
-void Game::enableGrab()
+void Localplayer::enableGrab()
 {
 	SDL_WM_GrabInput(SDL_GRAB_ON);
 	SDL_ShowCursor(0);
 }
 
-void Game::disableGrab()
+void Localplayer::disableGrab()
 {
 	SDL_WM_GrabInput(SDL_GRAB_OFF);
 	SDL_ShowCursor(1);
@@ -84,7 +84,7 @@ bool Game::client_tick_local()
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 		
 		fps_world.insert();
-		process_game_input();
+		process_received_game_input(); // TODO: check if everything works, process (sent) game input used to be here.
 		
 		// run simulation for one WorldFrame
 		world.worldTick(simulRules.currentFrame);
@@ -99,25 +99,32 @@ bool Game::client_tick_local()
 
 
 
-void Game::process_game_input()
+void Localplayer::process_sent_game_input()
 {
 	int keyState = userio.getGameInput();
-	if (client_state & 2)
+	if (game.client_state & 2)
 		keyState = 0;
 	int x, y;
 	
 	userio.getMouseChange(x, y);
-	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
+
+	view.updateInput(keyState, x, y); // Make only "small" local changes like change camera angle.
+
+	// TODO: move to game.
+	int frame = game.simulRules.currentFrame + game.simulRules.frameSkip * game.simulRules.windowSize;
 	
-	if(myID >= 0)
+	if(game.myID >= 0)
 	{
 		stringstream inputMsg;
 		string msg;
-		inputMsg << "1 " << myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
+		inputMsg << "1 " << game.myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
 		msg = inputMsg.str();
-		clientSocket.write(msg);
+		game.clientSocket.write(msg);
 	}
-	
+}
+
+void Game::process_received_game_input()
+{
 	Logger log;
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
@@ -138,11 +145,10 @@ void Game::process_game_input()
 	}
 	
 	log.print("\n");
-	view->updateInput(keyState, x, y);
 }
 
 
-void Game::handleClientLocalInput()
+void Localplayer::handleClientLocalInput()
 {
 	camera_handling();
 	
@@ -152,60 +158,60 @@ void Game::handleClientLocalInput()
 		return;
 	
 	if(key == "return")
-		client_state ^= 2;
+		game.client_state ^= 2;
 	else if(key == "f11")
-		view->toggleFullscreen();
+		view.toggleFullscreen();
 	else if(key == "f10")
-		view->toggleLightingStatus();
+		view.toggleLightingStatus();
 	else if(key == "f9")
-		world.show_errors ^= 1;
+		game.world.show_errors ^= 1;
 	
-	if(client_state & 2) // chat message
+	if(game.client_state & 2) // chat message
 	{
 		string nick;
 		nick.append("<");
-		nick.append(Players[myID].name);
+		nick.append(game.Players[game.myID].name);
 		nick.append("> ");
 		
 		if(key.size() == 1)
 		{
-			clientCommand.append(key);
+			game.clientCommand.append(key);
 		}
-		else if(key == "backspace" && clientCommand.size() > 0)
-			clientCommand.resize(clientCommand.size()-1);
+		else if(key == "backspace" && game.clientCommand.size() > 0)
+			game.clientCommand.resize(game.clientCommand.size()-1);
 		
 		else if(key == "escape")
 		{
-			client_state ^= 2;
-			clientCommand = "";
+			game.client_state ^= 2;
+			game.clientCommand = "";
 			nick = "";
 		}
 		else if(key == "space")
-			clientCommand.append(" ");
+			game.clientCommand.append(" ");
 		
-		nick.append(clientCommand);
-		view->setCurrentClientCommand(nick);
+		nick.append(game.clientCommand);
+		view.setCurrentClientCommand(nick);
 	}
 	else
 	{
 		
 		if(key == "return") // handle client local command
 		{
-			if(clientCommand.size() > 0)
+			if(game.clientCommand.size() > 0)
 			{
 				stringstream tmp_msg;
-				tmp_msg << "3 " << myID << " " << clientCommand << "#";
-				clientSocket.write(tmp_msg.str());
+				tmp_msg << "3 " << game.myID << " " << game.clientCommand << "#";
+				game.clientSocket.write(tmp_msg.str());
 			}
 			
-			clientCommand = "";
-			view->setCurrentClientCommand(clientCommand);
+			game.clientCommand = "";
+			view.setCurrentClientCommand(game.clientCommand);
 		}
 		
 		if(key == "escape")
 		{
 			// shutdown the connection first, so the others can continue playing in peace.
-			clientSocket.closeConnection();
+			game.clientSocket.closeConnection();
 			
 			// then proceed with local shutdown.
 			cerr << "User pressed ESC, shutting down." << endl;
@@ -215,11 +221,11 @@ void Game::handleClientLocalInput()
 		
 		if(key == "g")
 		{
-			if (client_state & 4)
+			if (game.client_state & 4)
 				enableGrab();
 			else
 				disableGrab();
-			client_state ^= 4;
+			game.client_state ^= 4;
 		}
 	}
 }
@@ -288,5 +294,5 @@ void Localplayer::handleWorldEvents()
 	game.world.events.clear();
 	view.setLocalPlayerKills(game.Players[game.myID].kills);
 	view.setLocalPlayerDeaths(game.Players[game.myID].deaths);
-	
 }
+

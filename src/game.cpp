@@ -40,8 +40,6 @@ void Game::init()
 	
 	readConfig();
 	
-	userio.init();
-	
 	// load some textures.
 	// should not be done here. FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -64,8 +62,6 @@ void Game::readConfig()
 
 void Game::joinInternetGame(const string& hostName)
 {
-    enableGrab();
-
 	myID = -1;
 	state = "client";
 	int port = 12345;
@@ -94,10 +90,5 @@ void Game::endGame()
 	// reset client/server values to false
 	
 	// release local game resources.
-}
-
-
-void Game::draw()
-{
 }
 
