@@ -21,7 +21,7 @@
 
 Localplayer::Localplayer():
 	client_input_state(0),
-	game(&view)
+	game(&view, &world)
 {
 }
 
@@ -71,7 +71,7 @@ void Localplayer::client_tick_local()
 	{
 		handleWorldEvents();
 		
-		for(map<int, Unit>::iterator iter = game.world.units.begin(); iter != game.world.units.end(); iter++)
+		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 			playSound(iter->second.soundInfo, iter->second.position);
 	}
 }
@@ -93,11 +93,11 @@ void Localplayer::client_tick()
 void Localplayer::draw()
 {
 	view.setTime( SDL_GetTicks() );
-	if((game.world.units.find(game.myID) != game.world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
+	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
-		game.world.viewTick();
+		world.viewTick();
 		view.tick();
-		view.draw(game.world.models, game.world.lvl, game.world.units);
+		view.draw(world.models, world.lvl, world.units);
 	}
 }
 

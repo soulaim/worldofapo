@@ -54,7 +54,7 @@ class Game
 
 	FPS_Manager fps_world;
 	
-	World world;
+	World* world;
 	Graphics* view;
 	
 public:
@@ -70,8 +70,10 @@ private:
 	
 	std::vector<Order> UnitInput;
 	
-	std::map<int, PlayerInfo> Players;
+public:
+	std::map<int, PlayerInfo> Players; // TODO: make private?
 	PlayerInfo localPlayer;
+private:
 	
 	int state_descriptor;
 
@@ -83,13 +85,14 @@ private:
 	PausedState paused_state;
 	
 	StateInfo simulRules; // rules for running the simulation.
-	int myID;
-	
+
+public:
 	void joinInternetGame(const std::string&);
-	void endGame();
 	
 	void reset();
 	void init();
+
+private:
 	void readConfig();
 	
 	void handleServerMessage(const Order&);
@@ -99,9 +102,15 @@ private:
 	bool client_tick_local();
 	void process_received_game_input();
 
-public:
-	Game(Graphics* view);
 	std::string state;
+
+public:
+	Game(Graphics* view, World* world);
+
+	void set_current_frame_input(int keystate, int x, int y, int mousepress);
+	int myID; // TODO: make getter?
+	void send_chat_message(const std::string&);
+	void endGame();
 };
 
 

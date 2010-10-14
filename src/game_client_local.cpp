@@ -14,7 +14,7 @@ void Localplayer::playSound(const string& name, Location& position)
 	// play sounds!
 	if(game.myID != -1)
 	{
-		Location reference_point = game.world.units[game.myID].position;
+		Location reference_point = world.units[game.myID].position;
 		
 		FixedPoint distance = (reference_point - position).length();
 		
@@ -87,7 +87,7 @@ bool Game::client_tick_local()
 		process_received_game_input(); // TODO: check if everything works, process (sent) game input used to be here.
 		
 		// run simulation for one WorldFrame
-		world.worldTick(simulRules.currentFrame);
+		world->worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
 		view->world_tick();
 
@@ -107,20 +107,11 @@ void Localplayer::process_sent_game_input()
 	int x, y;
 	
 	userio.getMouseChange(x, y);
+	int mousepress = userio.getMousePress();
 
 	view.updateInput(keyState, x, y); // Make only "small" local changes like change camera angle.
 
-	// TODO: move to game.
-	int frame = game.simulRules.currentFrame + game.simulRules.frameSkip * game.simulRules.windowSize;
-	
-	if(game.myID >= 0)
-	{
-		stringstream inputMsg;
-		string msg;
-		inputMsg << "1 " << game.myID << " " << frame << " " << keyState << " " << x << " " << y << " " << userio.getMousePress() << "#";
-		msg = inputMsg.str();
-		game.clientSocket.write(msg);
-	}
+	game.set_current_frame_input(keyState, x, y, mousepress);
 }
 
 void Game::process_received_game_input()
@@ -141,7 +132,7 @@ void Game::process_received_game_input()
 			break;
 		}
 		
-		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+		world->units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 	log.print("\n");
@@ -164,7 +155,7 @@ void Localplayer::handleClientLocalInput()
 	else if(key == "f10")
 		view.toggleLightingStatus();
 	else if(key == "f9")
-		game.world.show_errors ^= 1;
+		world.show_errors ^= 1;
 	
 	if(client_input_state & 2) // chat message
 	{
@@ -199,9 +190,7 @@ void Localplayer::handleClientLocalInput()
 		{
 			if(clientCommand.size() > 0)
 			{
-				stringstream tmp_msg;
-				tmp_msg << "3 " << game.myID << " " << clientCommand << "#";
-				game.clientSocket.write(tmp_msg.str());
+				game.send_chat_message(clientCommand);
 			}
 			
 			clientCommand = "";
@@ -210,8 +199,7 @@ void Localplayer::handleClientLocalInput()
 		
 		if(key == "escape")
 		{
-			// shutdown the connection first, so the others can continue playing in peace.
-			game.clientSocket.closeConnection();
+			game.endGame();
 			
 			// then proceed with local shutdown.
 			cerr << "User pressed ESC, shutting down." << endl;
@@ -239,23 +227,23 @@ void Localplayer::handleWorldEvents()
 	if(game.myID != -1)
 	{
 		view.setLocalPlayerName(game.Players[game.myID].name);
-		view.setLocalPlayerHP(game.world.units[game.myID].hitpoints);
+		view.setLocalPlayerHP(world.units[game.myID].hitpoints);
 	}
 
-	view.setZombiesLeft(game.world.getZombies());
-	view.setHumanPositions(game.world.humanPositions());
+	view.setZombiesLeft(world.getZombies());
+	view.setHumanPositions(world.humanPositions());
 	
-	// deliver any world message events to graphics structure, and erase them from game.world data.
-	for(size_t i = 0; i < game.world.worldMessages.size(); ++i)
+	// deliver any world message events to graphics structure, and erase them from world data.
+	for(size_t i = 0; i < world.worldMessages.size(); ++i)
 	{
-		view.pushMessage(game.world.worldMessages[i]);
+		view.pushMessage(world.worldMessages[i]);
 	}
-	game.world.worldMessages.clear();
+	world.worldMessages.clear();
 	
 	// handle any world events <-> graphics structure
-	for(size_t i = 0; i < game.world.events.size(); ++i)
+	for(size_t i = 0; i < world.events.size(); ++i)
 	{
-		WorldEvent& event = game.world.events[i];
+		WorldEvent& event = world.events[i];
 		if(event.type == World::DAMAGE_BULLET)
 			view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 		else if(event.type == World::DAMAGE_DEVOUR)
@@ -271,11 +259,11 @@ void Localplayer::handleWorldEvents()
 			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 		}
 		else
-			cerr << "UNKNOWN game.world EVENT OCCURRED" << endl;
+			cerr << "UNKNOWN world EVENT OCCURRED" << endl;
 		
 		if(event.type == World::DEATH_ENEMY)
 		{
-			if( (game.world.units.find(event.actor_id) != game.world.units.end()) && game.world.units[event.actor_id].human())
+			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
 					game.Players[event.actor_id].kills++;
 			}
@@ -283,15 +271,15 @@ void Localplayer::handleWorldEvents()
 		
 		if(event.type == World::DEATH_PLAYER)
 		{
-			if( (game.world.units.find(event.actor_id) != game.world.units.end()) && game.world.units[event.actor_id].human())
+			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				game.Players[event.actor_id].kills++;
-			if( (game.world.units.find(event.target_id) != game.world.units.end()) && game.world.units[event.target_id].human())
+			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
 				game.Players[event.target_id].deaths++;
 		}
 		
 	}
 	
-	game.world.events.clear();
+	world.events.clear();
 	view.setLocalPlayerKills(game.Players[game.myID].kills);
 	view.setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }

@@ -20,7 +20,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	}
 	else if(server_msg.serverCommand == 10)
 	{
-		world.addUnit(world.nextUnitID(), false);
+		world->addUnit(world->nextUnitID(), false);
 	}
 	
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
@@ -30,20 +30,20 @@ void Game::handleServerMessage(const Order& server_msg)
 		viewMessage_str.append("] has disconnected!");
 		view->pushMessage(viewMessage_str);
 		
-		world.units.erase(server_msg.keyState);
-		world.models.erase(server_msg.keyState);
+		world->units.erase(server_msg.keyState);
+		world->models.erase(server_msg.keyState);
 		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
 	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
-		world.addUnit(server_msg.keyState);
+		world->addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
-		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
 		
 		// just to make sure.
-		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
+		world->units[server_msg.keyState].name = Players[server_msg.keyState].name;
 		
 		view->pushMessage("^GHero created!");
 		
@@ -85,10 +85,10 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		
 		
-		if(world.units.find(myID) != world.units.end())
+		if(world->units.find(myID) != world->units.end())
 		{
 			cerr << "Binding camera to player " << myID << "\n";
-			view->bindCamera(&world.units[myID]);
+			view->bindCamera(&world->units[myID]);
 		}
 		else
 		{
@@ -162,14 +162,14 @@ void Game::processClientMsgs()
 			view->pushMessage(ss_viewMsg.str());
 			
 			// set unit's name to match the players
-			if(world.units.find(plrID) == world.units.end())
+			if(world->units.find(plrID) == world->units.end())
 			{
 				cerr << "GOT playerInfo MESSAGE TOO SOON :G Will just place the name at hero birth." << endl;
 			}
 			else
 			{
 				cerr << "Assigning player identity (name) to corresponding unit." << endl;
-				world.units[plrID].name = Players[plrID].name;
+				world->units[plrID].name = Players[plrID].name;
 			}
 		}
 		
@@ -213,19 +213,19 @@ void Game::processClientMsgs()
 				cerr << "Creating a new unit as per instructions" << endl;
 				int unitID;
 				ss >> unitID;
-				world.addUnit(unitID);
-				world.units[unitID].handleCopyOrder(ss);
+				world->addUnit(unitID);
+				world->units[unitID].handleCopyOrder(ss);
 			}
 			else if(cmd == "PROJECTILE")
 			{
 				int id; ss >> id;
 				Location paska;
-				world.addProjectile(paska, id);
-				world.projectiles[id].handleCopyOrder(ss);
+				world->addProjectile(paska, id);
+				world->projectiles[id].handleCopyOrder(ss);
 			}
 			else if(cmd == "NEXT_UNIT_ID")
 			{
-				ss >> world._unitID_next_unit;
+				ss >> world->_unitID_next_unit;
 			}
 			else if(cmd == "SIMUL")
 			{

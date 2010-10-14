@@ -63,6 +63,7 @@ private:
 	Graphics view;
 	GameSound soundsystem;
 	UserIO userio;
+	World world;
 };
 
 

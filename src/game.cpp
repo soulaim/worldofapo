@@ -10,8 +10,9 @@
 
 using namespace std;
 
-Game::Game(Graphics* v):
+Game::Game(Graphics* v, World* w):
 	fps_world(0),
+	world(w),
 	view(v)
 {
 	paused_state = PAUSED;
@@ -27,7 +28,7 @@ void Game::reset()
 	state = "menu";
 	
 	UnitInput.clear();
-	world.terminate();
+	world->terminate();
 }
 
 void Game::init()
@@ -82,13 +83,29 @@ void Game::joinInternetGame(const string& hostName)
 
 void Game::endGame()
 {
-	// disconnect from server
+	clientSocket.closeConnection();
 	
-	// if I am the server, send to all clients termination message and shut down sockets.
-	// shut down server socket.
+	// TODO: release local game resources?
+}
+
+void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
+{
+	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
 	
-	// reset client/server values to false
-	
-	// release local game resources.
+	if(myID >= 0)
+	{
+		stringstream inputMsg;
+		string msg;
+		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
+		msg = inputMsg.str();
+		clientSocket.write(msg);
+	}
+}
+
+void Game::send_chat_message(const std::string& clientCommand)
+{
+	stringstream tmp_msg;
+	tmp_msg << "3 " << myID << " " << clientCommand << "#";
+	clientSocket.write(tmp_msg.str());
 }
 
