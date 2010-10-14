@@ -1,24 +1,24 @@
 
-#include "../game.h"
+#include "dedicated.h"
 
 #include <algorithm>
 
 using namespace std;
 
-void Game::serverSendMonsterSpawn()
+void DedicatedServer::serverSendMonsterSpawn()
 {
 	stringstream tmp_msg;
 	tmp_msg << "-1 " << (serverAllow+10) << " 10#";
 	serverMsgs.push_back(tmp_msg.str());
 }
 
-void Game::serverSendRequestPlayerNameMessage(int player_id)
+void DedicatedServer::serverSendRequestPlayerNameMessage(int player_id)
 {
 	cerr << "Sending a request to the new player to identify himself!" << endl;
 	sockets.sockets[player_id].write("-2 GIVE_NAME#");
 }
 
-void Game::host_tick()
+void DedicatedServer::host_tick()
 {
 	acceptConnections();
 	
@@ -141,8 +141,8 @@ void Game::host_tick()
 		UnitInput.clear(); // redundant
 		simulRules.reset();
 		fps_world.reset();
-		
-//		cerr << "World shutting down." << endl;
+		cerr << "World shutting down." << endl;
+
 //		state_descriptor = 0;
 		return;
 	}
@@ -234,7 +234,7 @@ void Game::host_tick()
 
 
 
-void Game::acceptConnections()
+void DedicatedServer::acceptConnections()
 {
 	
 	// accept any incoming connections
@@ -320,7 +320,7 @@ void Game::acceptConnections()
 
 
 // server messages read from the network
-void Game::ServerHandleServerMessage(const Order& server_msg)
+void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
 	{
@@ -381,7 +381,7 @@ void Game::ServerHandleServerMessage(const Order& server_msg)
 
 
 // client messages read from the network
-void Game::ServerProcessClientMsgs()
+void DedicatedServer::ServerProcessClientMsgs()
 {
 	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{

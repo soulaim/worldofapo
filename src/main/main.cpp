@@ -23,14 +23,7 @@ int main()
 	
 	while(true)
 	{
-		// THIS IS WHAT THE HOST DOES
-		if(master.state == "host")
-		{
-			master.host_tick();
-		}
-		
 		master.client_tick();
-		
 		master.draw(); // draws if possible
 		
 		if(master.state == "menu")

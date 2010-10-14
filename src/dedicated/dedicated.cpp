@@ -1,38 +1,35 @@
 
-
-
-#include <SDL/SDL.h>
+#include "dedicated.h"
 
 #include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-
-#include "../game.h"
-#include "../logger.h"
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
-int main()
+DedicatedServer::DedicatedServer(): fps_world(0)
 {
-	cerr << "creating game object" << endl;
-	Game master;
-	
-	master.state = "host";
-	
-	int port = 12345;
-	while(master.serverSocket.init_listener(port) == 0)
-		port--;
-	
-	master.serverSocket.alive = true;
-	cerr << "Listening to port " << port << endl;
-	
-	
-	while(true)
-	{
-		master.host_tick();
-	}
-	
-	cerr << "apparently exiting now" << endl;
-	return 0;
+	client_state = 0;
+	myID = -1;
+	state_descriptor = 0;
+	serverAllow = 0;
+	init();
+}
+
+void DedicatedServer::init()
+{
+	readConfig();
+}
+
+void DedicatedServer::readConfig()
+{
+	//ifstream configFile("config.cfg");
+	//configFile >> localPlayer.name;
+	string name;
+	char *e = getenv("USERNAME");
+	if(e)
+	  name.assign(e);
+	else
+	  name = "failname";
+	localPlayer.name = name;
 }
