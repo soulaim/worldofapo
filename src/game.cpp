@@ -30,6 +30,7 @@ void Game::reset()
 	
 	serverAllow = 0;
 	myID = -1;
+	
 	state = "menu";
 	
 	UnitInput.clear();
