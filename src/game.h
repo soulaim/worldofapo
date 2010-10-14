@@ -50,7 +50,7 @@ struct StateInfo
 
 class Game
 {
-	friend class Localplayer;
+//	friend class Localplayer;
 
 	FPS_Manager fps_world;
 	
@@ -74,8 +74,6 @@ public:
 	std::map<int, PlayerInfo> Players; // TODO: make private?
 	PlayerInfo localPlayer;
 private:
-	
-	int state_descriptor;
 
 	enum PausedState
 	{
@@ -93,16 +91,12 @@ public:
 	void init();
 
 private:
-	void readConfig();
+	void readConfig(); // TODO: maybe shouldn't be done here.
 	
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 
-	void check_messages_from_server();
-	bool client_tick_local();
 	void process_received_game_input();
-
-	std::string state;
 
 public:
 	Game(Graphics* view, World* world);
@@ -111,6 +105,11 @@ public:
 	int myID; // TODO: make getter?
 	void send_chat_message(const std::string&);
 	void endGame();
+
+	bool check_messages_from_server();
+	bool client_tick_local();
+
+	bool paused() const;
 };
 
 

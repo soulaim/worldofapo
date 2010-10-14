@@ -22,15 +22,25 @@ int main()
 	Localplayer master;
 	master.init();
 
+	bool menu = true;
 	while(true)
 	{
-		master.client_tick();
-		master.draw(); // draws if possible
-		
-		if(master.in_menu())
+		if(!menu)
+		{
+			if(master.client_tick())
+			{
+				menu = true;
+			}
+		}
+		else
 		{
 			master.menu_tick();
+			menu = false;
+
+			cerr << "Menu ended, game starting" << endl;
 		}
+
+		master.draw(); // draws if possible
 	}
 	
 	cerr << "apparently exiting now" << endl;

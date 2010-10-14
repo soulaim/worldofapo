@@ -26,27 +26,23 @@ class Localplayer
 public:
 	Localplayer();
 
-	void client_tick();
-	void menu_tick();
+	bool client_tick();
+	void menu_tick(); // TODO: separate from localplayer?
+
 	void draw();
 	void init();
 
-	bool in_menu() const;
 private:
 	void joinInternetGame(const std::string&);
 	void endGame();
 	
 	void reset();
-	void readConfig();
 	
 	void handleWorldEvents();
-	void handleServerMessage(const Order&);
 	void camera_handling();
 	int connectMenu();
 
-	void check_messages_from_server();
 	void handleClientLocalInput();
-	void client_tick_local();
 	void process_sent_game_input();
 	
 	// fully 3D single channel sounds! :DD

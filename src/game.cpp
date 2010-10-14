@@ -17,15 +17,12 @@ Game::Game(Graphics* v, World* w):
 {
 	paused_state = PAUSED;
 	myID = -1;
-	state_descriptor = 0;
 }
 
 void Game::reset()
 {
 	cerr << "Reseting client state." << endl;
 	myID = -1;
-	
-	state = "menu";
 	
 	UnitInput.clear();
 	world->terminate();
@@ -64,7 +61,6 @@ void Game::readConfig()
 void Game::joinInternetGame(const string& hostName)
 {
 	myID = -1;
-	state = "client";
 	int port = 12345;
 	
 	while(clientSocket.conn_init(hostName, port) == 0)
@@ -107,5 +103,10 @@ void Game::send_chat_message(const std::string& clientCommand)
 	stringstream tmp_msg;
 	tmp_msg << "3 " << myID << " " << clientCommand << "#";
 	clientSocket.write(tmp_msg.str());
+}
+
+bool Game::paused() const
+{
+	return paused_state == PAUSED;
 }
 

@@ -49,45 +49,26 @@ void Localplayer::init()
 	userio.init();
 }
 
-void Localplayer::readConfig()
+bool Localplayer::client_tick()
 {
-	game.readConfig();
-}
+	bool stop = game.check_messages_from_server();
 
-
-void Localplayer::handleServerMessage(const Order& server_msg)
-{
-	game.handleServerMessage(server_msg);
-}
-
-void Localplayer::check_messages_from_server()
-{
-	game.check_messages_from_server();
-}
-
-void Localplayer::client_tick_local()
-{
-	if(game.client_tick_local())
-	{
-		handleWorldEvents();
-		
-		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-			playSound(iter->second.soundInfo, iter->second.position);
-	}
-}
-
-void Localplayer::client_tick()
-{
-	game.check_messages_from_server();
 	handleClientLocalInput();
 	process_sent_game_input();
 
-	// if state_descriptor == 0, the userIO
-	// is used by HOST functions. Do not interfere.
-	if( ((game.state == "client") || (game.state_descriptor != 0)) && (game.paused_state != Game::PAUSED))  
+	if(!stop && !game.paused())
 	{
-		client_tick_local();
+		if(game.client_tick_local())
+		{
+			handleWorldEvents();
+			
+			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
+			{
+				playSound(iter->second.soundInfo, iter->second.position);
+			}
+		}
 	}
+	return stop;
 }
 
 void Localplayer::draw()
@@ -99,10 +80,5 @@ void Localplayer::draw()
 		view.tick();
 		view.draw(world.models, world.lvl, world.units);
 	}
-}
-
-bool Localplayer::in_menu() const
-{
-	return game.state == "menu";
 }
 

@@ -191,7 +191,7 @@ void Game::processClientMsgs()
 			ss >> cmd;
 			if(cmd == "GO")
 			{
-				cerr << "Setting client state to 1" << endl;
+				cerr << "Setting client state to UNPAUSED" << endl;
 				paused_state = GO;
 				fps_world.reset();
 				fps_world.setStartTime( SDL_GetTicks() );
@@ -237,7 +237,7 @@ void Game::processClientMsgs()
 			{
 				int nopause = 0;
 				ss >> nopause;
-				if(nopause == 0)
+				if(!nopause)
 				{
 					paused_state = PAUSED;
 				}
@@ -274,8 +274,9 @@ void Game::processClientMsgs()
 }
 
 
-void Game::check_messages_from_server()
+bool Game::check_messages_from_server()
 {
+	bool stop = false;
 	if(clientSocket.readyToRead() == 1)
 	{
 		string msg = clientSocket.read();
@@ -284,11 +285,12 @@ void Game::check_messages_from_server()
 		{
 			clientSocket.closeConnection();
 			cerr << "Client connection has died. :(" << endl;
-			state = "menu";
+			stop = true;
 		}
 		
 		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
 		processClientMsgs();
 	}
+	return stop;
 }
 
