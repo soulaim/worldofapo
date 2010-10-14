@@ -59,6 +59,7 @@ private:
 private:
 	Game game;
 	Graphics view;
+	GameSound soundsystem;
 };
 
 

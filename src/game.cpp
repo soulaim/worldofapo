@@ -32,8 +32,6 @@ void Game::reset()
 
 void Game::init()
 {
-	soundsystem.init();
-
 	reset();
 	
 	view->loadObjects("data/parts.dat");

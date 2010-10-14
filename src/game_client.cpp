@@ -283,17 +283,3 @@ void Game::check_messages_from_server()
 	}
 }
 
-void Game::client_tick()
-{
-	check_messages_from_server();
-	handleClientLocalInput();
-
-	// if state_descriptor == 0, the userIO
-	// is used by HOST functions. Do not interfere.
-	if( ((state == "client") || (state_descriptor != 0)) && (client_state & 1))  
-	{
-		client_tick_local();
-	}
-}
-
-

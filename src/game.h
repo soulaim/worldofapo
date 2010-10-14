@@ -57,7 +57,6 @@ class Game
 	World world;
 	UserIO userio;
 	Graphics* view;
-	GameSound soundsystem;
 	
 public:
 	MU_Socket serverSocket; // for hosting games
@@ -66,7 +65,6 @@ private:
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	
 	OrderContainer clientOrders;
-	OrderContainer serverOrders;
 	
 	std::vector<std::string> clientMsgs; // messages to be sent by the client
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
@@ -79,7 +77,6 @@ private:
 	int state_descriptor;
 	int client_state;
 	
-	std::string menuWord;
 	std::string clientCommand;
 	
 	StateInfo simulRules; // rules for running the simulation.
@@ -92,7 +89,6 @@ private:
 	void init();
 	void readConfig();
 	
-	void handleWorldEvents();
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 	void camera_handling();
@@ -100,12 +96,9 @@ private:
 
 	void check_messages_from_server();
 	void handleClientLocalInput();
-	void client_tick_local();
+	bool client_tick_local();
 	void process_game_input();
-	
-	// fully 3D single channel sounds! :DD
-	void playSound(const string& name, Location& position);
-	
+
 	void enableGrab();
 	void disableGrab();
 	
@@ -113,7 +106,6 @@ public:
 	Game(Graphics* view);
 	std::string state;
 	
-	void client_tick();
 	void menu_tick();
 	void draw();
 };

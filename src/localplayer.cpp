@@ -43,6 +43,7 @@ void Localplayer::reset()
 
 void Localplayer::init()
 {
+	soundsystem.init();
 	game.init();
 }
 
@@ -51,11 +52,6 @@ void Localplayer::readConfig()
 	game.readConfig();
 }
 
-
-void Localplayer::handleWorldEvents()
-{
-	game.handleWorldEvents();
-}
 
 void Localplayer::handleServerMessage(const Order& server_msg)
 {
@@ -89,19 +85,19 @@ void Localplayer::handleClientLocalInput()
 
 void Localplayer::client_tick_local()
 {
-	game.client_tick_local();
+	if(game.client_tick_local())
+	{
+		handleWorldEvents();
+		
+		for(map<int, Unit>::iterator iter = game.world.units.begin(); iter != game.world.units.end(); iter++)
+			playSound(iter->second.soundInfo, iter->second.position);
+	}
 }
 
 void Localplayer::process_game_input()
 {
 	game.process_game_input();
 }
-
-void Localplayer::playSound(const string& name, Location& position)
-{
-	game.playSound(name, position);
-}
-
 
 void Localplayer::enableGrab()
 {
@@ -116,7 +112,15 @@ void Localplayer::disableGrab()
 
 void Localplayer::client_tick()
 {
-	game.client_tick();
+	game.check_messages_from_server();
+	game.handleClientLocalInput();
+
+	// if state_descriptor == 0, the userIO
+	// is used by HOST functions. Do not interfere.
+	if( ((game.state == "client") || (game.state_descriptor != 0)) && (game.client_state & 1))  
+	{
+		client_tick_local();
+	}
 }
 
 void Localplayer::menu_tick()
