@@ -10,18 +10,13 @@
 
 using namespace std;
 
-
-
-Mix_Music *music = NULL;
-void musicDone();
-
-Game::Game(): fps_world(0)
+Game::Game(Graphics* v):
+	fps_world(0),
+	view(v)
 {
 	client_state = 0;
 	myID = -1;
 	state_descriptor = 0;
-	init();
-	soundsystem.init();
 }
 
 void Game::reset()
@@ -37,11 +32,13 @@ void Game::reset()
 
 void Game::init()
 {
+	soundsystem.init();
+
 	reset();
 	
-	view.loadObjects("data/parts.dat");
-	view.megaFuck(); // blah..
-	view.setPlayerInfo(&Players);
+	view->loadObjects("data/parts.dat");
+	view->megaFuck(); // blah..
+	view->setPlayerInfo(&Players);
 	
 	readConfig();
 	
@@ -104,12 +101,5 @@ void Game::endGame()
 
 void Game::draw()
 {
-	view.setTime( SDL_GetTicks() );
-	if((world.units.find(myID) != world.units.end()) && (myID >= 0))
-	{
-		world.viewTick();
-		view.tick();
-		view.draw(world.models, world.lvl, world.units);
-	}
 }
 

@@ -40,9 +40,9 @@ void Game::camera_handling()
 {
 	int wheel_status = userio.getMouseWheelScrolled();
 	if (wheel_status == 1)
-		view.mouseUp();
+		view->mouseUp();
 	if (wheel_status == 2)
-		view.mouseDown();
+		view->mouseDown();
 }
 
 void Game::enableGrab()
@@ -83,7 +83,7 @@ void Game::client_tick_local()
 		// run simulation for one WorldFrame
 		world.worldTick(simulRules.currentFrame);
 		simulRules.currentFrame++;
-		view.world_tick();
+		view->world_tick();
 		
 		handleWorldEvents();
 		
@@ -134,7 +134,7 @@ void Game::process_game_input()
 	}
 	
 	log.print("\n");
-	view.updateInput(keyState, x, y);
+	view->updateInput(keyState, x, y);
 }
 
 
@@ -150,9 +150,9 @@ void Game::handleClientLocalInput()
 	if(key == "return")
 		client_state ^= 2;
 	else if(key == "f11")
-		view.toggleFullscreen();
+		view->toggleFullscreen();
 	else if(key == "f10")
-		view.toggleLightingStatus();
+		view->toggleLightingStatus();
 	else if(key == "f9")
 		world.show_errors ^= 1;
 	
@@ -180,7 +180,7 @@ void Game::handleClientLocalInput()
 			clientCommand.append(" ");
 		
 		nick.append(clientCommand);
-		view.setCurrentClientCommand(nick);
+		view->setCurrentClientCommand(nick);
 	}
 	else
 	{
@@ -195,7 +195,7 @@ void Game::handleClientLocalInput()
 			}
 			
 			clientCommand = "";
-			view.setCurrentClientCommand(clientCommand);
+			view->setCurrentClientCommand(clientCommand);
 		}
 		
 		if(key == "escape")
@@ -228,17 +228,17 @@ void Game::handleWorldEvents()
 {
 	if(myID != -1)
 	{
-		view.setLocalPlayerName(Players[myID].name);
-		view.setLocalPlayerHP(world.units[myID].hitpoints);
+		view->setLocalPlayerName(Players[myID].name);
+		view->setLocalPlayerHP(world.units[myID].hitpoints);
 	}
 
-	view.setZombiesLeft(world.getZombies());
-	view.setHumanPositions(world.humanPositions());
+	view->setZombiesLeft(world.getZombies());
+	view->setHumanPositions(world.humanPositions());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < world.worldMessages.size(); ++i)
 	{
-		view.pushMessage(world.worldMessages[i]);
+		view->pushMessage(world.worldMessages[i]);
 	}
 	world.worldMessages.clear();
 	
@@ -247,18 +247,18 @@ void Game::handleWorldEvents()
 	{
 		WorldEvent& event = world.events[i];
 		if(event.type == World::DAMAGE_BULLET)
-			view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+			view->genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 		else if(event.type == World::DAMAGE_DEVOUR)
-			view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+			view->genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 		else if(event.type == World::DEATH_ENEMY)
 		{
 			playSound("alien_death", event.position);
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+			view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
 		}
 		else if(event.type == World::DEATH_PLAYER)
 		{
 			playSound("player_death", event.position);
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+			view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 		}
 		else
 			cerr << "UNKNOWN WORLD EVENT OCCURRED" << endl;
@@ -282,7 +282,7 @@ void Game::handleWorldEvents()
 	}
 	
 	world.events.clear();
-	view.setLocalPlayerKills(Players[myID].kills);
-	view.setLocalPlayerDeaths(Players[myID].deaths);
+	view->setLocalPlayerKills(Players[myID].kills);
+	view->setLocalPlayerDeaths(Players[myID].deaths);
 	
 }

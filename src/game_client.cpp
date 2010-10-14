@@ -28,7 +28,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		string viewMessage_str = "^R[";
 		viewMessage_str.append(Players[server_msg.keyState].name);
 		viewMessage_str.append("] has disconnected!");
-		view.pushMessage(viewMessage_str);
+		view->pushMessage(viewMessage_str);
 		
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
@@ -45,7 +45,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		// just to make sure.
 		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
 		
-		view.pushMessage("^GHero created!");
+		view->pushMessage("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -66,7 +66,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
-		view.pushMessage("^Ggot playerID!");
+		view->pushMessage("^Ggot playerID!");
 		
 		
 		
@@ -88,7 +88,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		if(world.units.find(myID) != world.units.end())
 		{
 			cerr << "Binding camera to player " << myID << "\n";
-			view.bindCamera(&world.units[myID]);
+			view->bindCamera(&world.units[myID]);
 		}
 		else
 		{
@@ -136,7 +136,7 @@ void Game::processClientMsgs()
 			
 			stringstream chatMsg;
 			chatMsg << "^y<" << Players[plrID].name << "> ^w" << line;
-			view.pushMessage(chatMsg.str());
+			view->pushMessage(chatMsg.str());
 		}
 		
 		else if(order_type == 2) // playerInfo message
@@ -159,7 +159,7 @@ void Game::processClientMsgs()
 			
 			stringstream ss_viewMsg;
 			ss_viewMsg << "^g" << Players[plrID].name << "^r has connected!" << endl;
-			view.pushMessage(ss_viewMsg.str());
+			view->pushMessage(ss_viewMsg.str());
 			
 			// set unit's name to match the players
 			if(world.units.find(plrID) == world.units.end())

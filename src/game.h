@@ -56,7 +56,7 @@ class Game
 	
 	World world;
 	UserIO userio;
-	Graphics view;
+	Graphics* view;
 	GameSound soundsystem;
 	
 public:
@@ -110,7 +110,7 @@ private:
 	void disableGrab();
 	
 public:
-	Game();
+	Game(Graphics* view);
 	std::string state;
 	
 	void client_tick();

@@ -20,7 +20,8 @@ int main()
 	
 	cerr << "creating game object" << endl;
 	Localplayer master;
-	
+	master.init();
+
 	while(true)
 	{
 		master.client_tick();

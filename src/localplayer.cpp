@@ -19,7 +19,8 @@
 #include <map>
 #include <set>
 
-Localplayer::Localplayer()
+Localplayer::Localplayer():
+	game(&view)
 {
 }
 
@@ -125,7 +126,13 @@ void Localplayer::menu_tick()
 
 void Localplayer::draw()
 {
-	game.draw();
+	view.setTime( SDL_GetTicks() );
+	if((game.world.units.find(game.myID) != game.world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
+	{
+		game.world.viewTick();
+		view.tick();
+		view.draw(game.world.models, game.world.lvl, game.world.units);
+	}
 }
 
 bool Localplayer::in_menu() const

@@ -29,6 +29,7 @@ public:
 	void client_tick();
 	void menu_tick();
 	void draw();
+	void init();
 
 	bool in_menu() const;
 private:
@@ -36,7 +37,6 @@ private:
 	void endGame();
 	
 	void reset();
-	void init();
 	void readConfig();
 	
 	void handleWorldEvents();
@@ -58,6 +58,7 @@ private:
 
 private:
 	Game game;
+	Graphics view;
 };
 
 

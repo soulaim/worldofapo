@@ -23,7 +23,7 @@ void Game::menu_tick()
 	
 	while(dont_exit)
 	{
-		view.drawMenu(buttons);
+		view->drawMenu(buttons);
 		
 		string key = userio.getSingleKey();
 		
