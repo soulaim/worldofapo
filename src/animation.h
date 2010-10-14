@@ -1,3 +1,5 @@
+#ifndef ANIMATION_H
+#define ANIMATION_H
 
 #include <vector>
 
@@ -12,4 +14,6 @@ class Animation
 		void setAnimationState(size_t, float, float, float);
 		size_t getSize() const;
 };
+
+#endif
 
