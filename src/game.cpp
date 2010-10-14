@@ -14,7 +14,7 @@ Game::Game(Graphics* v):
 	fps_world(0),
 	view(v)
 {
-	client_state = 0;
+	paused_state = PAUSED;
 	myID = -1;
 	state_descriptor = 0;
 }

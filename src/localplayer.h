@@ -41,7 +41,6 @@ private:
 	
 	void handleWorldEvents();
 	void handleServerMessage(const Order&);
-	void processClientMsgs();
 	void camera_handling();
 	int connectMenu();
 
@@ -57,6 +56,9 @@ private:
 	void disableGrab();
 
 private:
+	int client_input_state;
+	std::string clientCommand;
+
 	Game game;
 	Graphics view;
 	GameSound soundsystem;

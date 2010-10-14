@@ -55,7 +55,6 @@ class Game
 	FPS_Manager fps_world;
 	
 	World world;
-//	UserIO userio;
 	Graphics* view;
 	
 public:
@@ -75,9 +74,13 @@ private:
 	PlayerInfo localPlayer;
 	
 	int state_descriptor;
-	int client_state;
-	
-	std::string clientCommand;
+
+	enum PausedState
+	{
+		PAUSED = 0,
+		GO
+	};
+	PausedState paused_state;
 	
 	StateInfo simulRules; // rules for running the simulation.
 	int myID;
@@ -91,16 +94,11 @@ private:
 	
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
-//	void camera_handling();
 
 	void check_messages_from_server();
-//	void handleClientLocalInput();
 	bool client_tick_local();
 	void process_received_game_input();
 
-//	void enableGrab();
-//	void disableGrab();
-	
 public:
 	Game(Graphics* view);
 	std::string state;

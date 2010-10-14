@@ -102,7 +102,7 @@ bool Game::client_tick_local()
 void Localplayer::process_sent_game_input()
 {
 	int keyState = userio.getGameInput();
-	if (game.client_state & 2)
+	if (client_input_state & 2)
 		keyState = 0;
 	int x, y;
 	
@@ -158,7 +158,7 @@ void Localplayer::handleClientLocalInput()
 		return;
 	
 	if(key == "return")
-		game.client_state ^= 2;
+		client_input_state ^= 2;
 	else if(key == "f11")
 		view.toggleFullscreen();
 	else if(key == "f10")
@@ -166,7 +166,7 @@ void Localplayer::handleClientLocalInput()
 	else if(key == "f9")
 		game.world.show_errors ^= 1;
 	
-	if(game.client_state & 2) // chat message
+	if(client_input_state & 2) // chat message
 	{
 		string nick;
 		nick.append("<");
@@ -175,21 +175,21 @@ void Localplayer::handleClientLocalInput()
 		
 		if(key.size() == 1)
 		{
-			game.clientCommand.append(key);
+			clientCommand.append(key);
 		}
-		else if(key == "backspace" && game.clientCommand.size() > 0)
-			game.clientCommand.resize(game.clientCommand.size()-1);
+		else if(key == "backspace" && clientCommand.size() > 0)
+			clientCommand.resize(clientCommand.size()-1);
 		
 		else if(key == "escape")
 		{
-			game.client_state ^= 2;
-			game.clientCommand = "";
+			client_input_state ^= 2;
+			clientCommand = "";
 			nick = "";
 		}
 		else if(key == "space")
-			game.clientCommand.append(" ");
+			clientCommand.append(" ");
 		
-		nick.append(game.clientCommand);
+		nick.append(clientCommand);
 		view.setCurrentClientCommand(nick);
 	}
 	else
@@ -197,15 +197,15 @@ void Localplayer::handleClientLocalInput()
 		
 		if(key == "return") // handle client local command
 		{
-			if(game.clientCommand.size() > 0)
+			if(clientCommand.size() > 0)
 			{
 				stringstream tmp_msg;
-				tmp_msg << "3 " << game.myID << " " << game.clientCommand << "#";
+				tmp_msg << "3 " << game.myID << " " << clientCommand << "#";
 				game.clientSocket.write(tmp_msg.str());
 			}
 			
-			game.clientCommand = "";
-			view.setCurrentClientCommand(game.clientCommand);
+			clientCommand = "";
+			view.setCurrentClientCommand(clientCommand);
 		}
 		
 		if(key == "escape")
@@ -221,11 +221,11 @@ void Localplayer::handleClientLocalInput()
 		
 		if(key == "g")
 		{
-			if (game.client_state & 4)
+			if (client_input_state & 4)
 				enableGrab();
 			else
 				disableGrab();
-			game.client_state ^= 4;
+			client_input_state ^= 4;
 		}
 	}
 }

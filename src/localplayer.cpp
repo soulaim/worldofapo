@@ -20,6 +20,7 @@
 #include <set>
 
 Localplayer::Localplayer():
+	client_input_state(0),
 	game(&view)
 {
 }
@@ -59,11 +60,6 @@ void Localplayer::handleServerMessage(const Order& server_msg)
 	game.handleServerMessage(server_msg);
 }
 
-void Localplayer::processClientMsgs()
-{
-	game.processClientMsgs();
-}
-
 void Localplayer::check_messages_from_server()
 {
 	game.check_messages_from_server();
@@ -88,7 +84,7 @@ void Localplayer::client_tick()
 
 	// if state_descriptor == 0, the userIO
 	// is used by HOST functions. Do not interfere.
-	if( ((game.state == "client") || (game.state_descriptor != 0)) && (game.client_state & 1))  
+	if( ((game.state == "client") || (game.state_descriptor != 0)) && (game.paused_state != Game::PAUSED))  
 	{
 		client_tick_local();
 	}

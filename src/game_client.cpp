@@ -15,7 +15,7 @@ void Game::handleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
 	{
-		client_state = 0;
+		paused_state = PAUSED;
 		cerr << "Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
 	else if(server_msg.serverCommand == 10)
@@ -192,7 +192,7 @@ void Game::processClientMsgs()
 			if(cmd == "GO")
 			{
 				cerr << "Setting client state to 1" << endl;
-				client_state = 1;
+				paused_state = GO;
 				fps_world.reset();
 				fps_world.setStartTime( SDL_GetTicks() );
 			}
@@ -235,7 +235,16 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "CLIENT_STATE")
 			{
-				ss >> client_state;
+				int nopause = 0;
+				ss >> nopause;
+				if(nopause == 0)
+				{
+					paused_state = PAUSED;
+				}
+				else
+				{
+					paused_state = GO;
+				}
 				fps_world.reset();
 				fps_world.setStartTime( SDL_GetTicks() );
 			}
