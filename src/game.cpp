@@ -27,8 +27,6 @@ Game::Game(): fps_world(0)
 void Game::reset()
 {
 	cerr << "Reseting client state." << endl;
-	
-	serverAllow = 0;
 	myID = -1;
 	
 	state = "menu";
@@ -69,24 +67,6 @@ void Game::readConfig()
 	localPlayer.name = name;
 }
 
-void Game::makeLocalGame()
-{
-    enableGrab();
-
-	myID = -1;
-	string host = "localhost";
-	state = "host";
-	
-	int port = 12345;
-	while(serverSocket.init_listener(port) == 0)
-		port--;
-	
-	serverSocket.alive = true;
-	cerr << "Listening to port " << port << endl;
-	
-	clientSocket.conn_init(host, port);
-}
-
 void Game::joinInternetGame(const string& hostName)
 {
     enableGrab();
@@ -104,6 +84,8 @@ void Game::joinInternetGame(const string& hostName)
 			exit(0);
 		}
 	}
+	
+	cerr << "I think I got a connection, port: " << port << endl;
 }
 
 
@@ -128,9 +110,6 @@ void Game::draw()
 		world.viewTick();
 		view.tick();
 		view.draw(world.models, world.lvl, world.units);
-	}
-	else
-	{
 	}
 }
 

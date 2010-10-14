@@ -62,12 +62,6 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		sort(UnitInput.begin(), UnitInput.end());
 		
-		// if i'm the host, request a player name for this hero.
-		if(state == "host")
-		{
-			serverSendRequestPlayerNameMessage(server_msg.keyState);
-		}
-		
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
@@ -114,9 +108,6 @@ void Game::processClientMsgs()
 {
 	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{
-		// TROLOLOLOL
-		inTransitMessages.erase(clientOrders.orders[i]);
-		
 		stringstream ss(clientOrders.orders[i]);
 		
 		int order_type;

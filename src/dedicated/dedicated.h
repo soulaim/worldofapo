@@ -2,17 +2,16 @@
 #ifndef H_GAME_
 #define H_GAME_
 
-#include "world.h"
-#include "userio.h"
-#include "graphics.h"
-#include "ordercontainer.h"
-#include "fps_manager.h"
-#include "order.h"
-#include "playerinfo.h"
-#include "gamesound.h"
+#include "../world.h"
+#include "../ordercontainer.h"
+#include "../fps_manager.h"
+#include "../order.h"
+#include "../playerinfo.h"
 
-#include "net/socket.h"
-#include "net/socket_handler.h"
+#include "../net/socket.h"
+#include "../net/socket_handler.h"
+
+#include <SDL/SDL.h>
 
 #include <string>
 #include <vector>
@@ -48,14 +47,11 @@ struct StateInfo
 };
 
 
-class Game
+class DedicatedServer
 {
 	FPS_Manager fps_world;
 	
 	World world;
-	UserIO userio;
-	Graphics view;
-	GameSound soundsystem;
 	
 public:
 	MU_Socket serverSocket; // for hosting games
@@ -77,24 +73,17 @@ private:
 	int state_descriptor;
 	int client_state;
 	
-	std::string menuWord;
-	std::string clientCommand;
+	void serverSendMonsterSpawn();
+	void serverSendRequestPlayerNameMessage(int player_id);
 	
+	unsigned serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
 	int myID;
 	
-	void joinInternetGame(const std::string&);
-	void endGame();
-	
-	void reset();
 	void init();
 	void readConfig();
 	
 	void handleWorldEvents();
-	void handleServerMessage(const Order&);
-	void processClientMsgs();
-	void camera_handling();
-	int connectMenu();
 
 	void update_kills();
 	void update_deaths();
@@ -104,18 +93,19 @@ private:
 	void client_tick_local();
 	void process_game_input();
 	
-	// fully 3D single channel sounds! :DD
-	void playSound(const string& name, Location& position);
-	
 	void enableGrab();
 	void disableGrab();
 	
+	// for dedicated server
+	void ServerProcessClientMsgs();
+	void ServerHandleServerMessage(const Order&);
+	
 public:
-	Game();
+	DedicatedServer();
 	std::string state;
 	
-	void client_tick();
-	void menu_tick();
+	void acceptConnections();
+	void host_tick();
 	void draw();
 };
 
