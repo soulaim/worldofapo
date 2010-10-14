@@ -52,12 +52,7 @@ void Game::menu_tick()
 		}
 		else if(key == "return")
 		{
-			if(buttons[selected].name == "host")
-			{
-				makeLocalGame();
-				dont_exit = 0;
-			}
-			else if(buttons[selected].name == "connect")
+			if(buttons[selected].name == "connect")
 			{
 				// ask for host name and connect.
 				dont_exit = connectMenu();
@@ -66,6 +61,10 @@ void Game::menu_tick()
 			{
 				SDL_Quit();
 				exit(0);
+			}
+			else
+			{
+				cerr << "STUPID USER!!" << endl;
 			}
 		}
 	}
