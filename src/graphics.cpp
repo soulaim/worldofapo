@@ -104,6 +104,7 @@ void Graphics::toggleLightingStatus()
 		glDisable(GL_LIGHTING);
 	else
 		glEnable(GL_LIGHTING);
+    drawhitboxes = !drawhitboxes;
 	lightsActive = !lightsActive;
 }
 
@@ -401,7 +402,9 @@ void Graphics::init()
 	charWidth['T'] = 0.19;
 	charWidth['W'] = 0.24;
 	charWidth['Q'] = 0.24;
-	charWidth['O'] = 0.24;
+	charWidth['O'] = 0.3;
+	charWidth['Z'] = 0.1;
+	charWidth['M'] = 0.3;
 	
 	createWindow(); // let SDL handle this part..
 	
@@ -463,6 +466,8 @@ void Graphics::init()
 	frustum.setCamInternals(angle,ratio,nearP,farP);
 	
 	glMatrixMode(GL_MODELVIEW);
+
+    drawhitboxes = false;
 }
 
 void Graphics::createWindow()
@@ -912,6 +917,9 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 
 void Graphics::drawHitboxes(const std::map<int,Unit>& units)
 {
+    if (!drawhitboxes)
+        return;
+
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;
