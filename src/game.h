@@ -92,7 +92,6 @@ private:
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 	void camera_handling();
-	int connectMenu();
 
 	void check_messages_from_server();
 	void handleClientLocalInput();
@@ -106,7 +105,6 @@ public:
 	Game(Graphics* view);
 	std::string state;
 	
-	void menu_tick();
 	void draw();
 };
 
