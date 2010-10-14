@@ -1,10 +1,10 @@
-CXXFLAGS = -pedantic -Wall -Werror -O3 -std=c++0x
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -O3 -std=c++0x
 LDLIBS   = -lSDL -lSDL_mixer -L ./lib/ -lGL -lGLU -lpng -lGLEW
 CXX      = g++
 
 DIRS = src src/net src/frustum
 
-target1 = bin/diablo
+target1 = bin/client
 target2 = bin/editor
 target3 = bin/loader_3ds
 target4 = bin/server

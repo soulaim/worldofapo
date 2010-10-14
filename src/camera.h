@@ -35,7 +35,7 @@ public:
 	void bind(Unit* unit, FollowMode mode);
 	void setMode(FollowMode mode);
 	bool isFirstPerson() const;
-	void updateInput(int keystate, int mousex, int mousey);
+	void updateInput(int keystate);
 	void fixHeight(float h);
 	void zoomIn();
 	void zoomOut();

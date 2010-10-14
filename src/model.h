@@ -47,6 +47,8 @@ struct Model
 	bool load(const std::string& filename);
 	bool save(const std::string& filename) const;
 	void setAction(const std::string&);
+
+    float height() const;
 	
 };
 
