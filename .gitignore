@@ -1,12 +1,19 @@
+# Binary files:
+bin/client
+bin/server
+bin/editor
+bin/loader_3ds
+
+# Compiled files:
 *.d
 *.o
-*~
-bin/diablo
-bin/editor
-bin/server
-bin/loader_3ds
-bin/server
-*.swp
-*.log
-gmon.out
 
+# Log files:
+*.log
+
+# Editor backup files (not supposed to be in here, but who cares):
+*~
+*.swp
+
+# Misc files:
+gmon.out

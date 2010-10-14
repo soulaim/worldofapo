@@ -110,6 +110,7 @@ class Graphics
 	int world_ticks;
 	unsigned currentTime;
 	bool lightsActive;
+    bool drawhitboxes;
 	
 public:
 	friend class Editor;
