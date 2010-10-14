@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void OrderContainer::init(int size)
+void OrderContainer::init()
 {
 	return;
 }

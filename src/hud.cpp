@@ -55,7 +55,7 @@ void Graphics::drawZombiesLeft()
 	drawString(zz.str(), 0.2, 0.9, 1.5, true);
 }
 
-void Graphics::pushMessage(const string& msg, float r, float g, float b)
+void Graphics::pushMessage(const string& msg)
 {
 	viewMessages.push_back(ViewMessage(msg, currentTime));
 }

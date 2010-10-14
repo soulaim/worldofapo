@@ -16,7 +16,7 @@ class OrderContainer
 		
 		OrderContainer(){}
 		
-		void init(int);
+		void init();
 		void insert(std::string);
 };
 

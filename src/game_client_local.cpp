@@ -134,7 +134,7 @@ void Game::process_game_input()
 	}
 	
 	log.print("\n");
-	view.updateInput(keyState, x, y);
+	view.updateInput(keyState);
 }
 
 

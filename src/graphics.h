@@ -61,7 +61,7 @@ class Graphics
 	float modelGround(const Model& model);
 	
 	void startDrawing();
-	void drawPartsRecursive(Model&, int, int, const std::string&, int);
+	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawLevel(const Level&);
 	void drawModels(std::map<int, Model>& models);
@@ -122,14 +122,14 @@ public:
 	void setLocalPlayerKills(const int k);
 	void setLocalPlayerDeaths(const int d);
 	void drawStats();
-	void pushMessage(const std::string&, float r = 1.0, float g = 1.0, float b = 1.0);
+	void pushMessage(const std::string&);
 	void setCurrentClientCommand(const std::string&);
 	void setHumanPositions(const std::vector<Location>&);
 
 
 
 	void bindCamera(Unit* unit);
-	void updateInput(int keystate, int mousex, int mousey);
+	void updateInput(int keystate);
 	
 	void megaFuck(); // this function creates a test animation called "walk" for the test model
 	

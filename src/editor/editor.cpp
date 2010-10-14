@@ -834,7 +834,7 @@ void Editor::handle_input()
 	{
 		view.mouseDown();
 	}
-	view.updateInput(keystate, x, y);
+	view.updateInput(keystate);
 	dummy.updateInput(0, x, y, 0);
 }
 

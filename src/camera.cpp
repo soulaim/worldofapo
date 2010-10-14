@@ -84,7 +84,7 @@ bool Camera::isFirstPerson() const
 	return mode == FIRST_PERSON;
 }
 
-void Camera::updateInput(int keystate, int mousex, int mousey)
+void Camera::updateInput(int keystate)
 {
 	// f11? dont fuck up everything permanently, when the user makes the mistake of trying this button out..
 	/*
