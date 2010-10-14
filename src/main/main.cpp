@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 
-#include "../game.h"
+#include "../localplayer.h"
 #include "../logger.h"
 
 using namespace std;
@@ -19,14 +19,14 @@ int main()
 	log.open("gamelog.log");
 	
 	cerr << "creating game object" << endl;
-	Game master;
+	Localplayer master;
 	
 	while(true)
 	{
 		master.client_tick();
 		master.draw(); // draws if possible
 		
-		if(master.state == "menu")
+		if(master.in_menu())
 		{
 			master.menu_tick();
 		}
@@ -35,3 +35,4 @@ int main()
 	cerr << "apparently exiting now" << endl;
 	return 0;
 }
+

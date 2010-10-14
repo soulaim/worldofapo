@@ -50,6 +50,8 @@ struct StateInfo
 
 class Game
 {
+	friend class Localplayer;
+
 	FPS_Manager fps_world;
 	
 	World world;
@@ -95,9 +97,6 @@ private:
 	void processClientMsgs();
 	void camera_handling();
 	int connectMenu();
-
-	void update_kills();
-	void update_deaths();
 
 	void check_messages_from_server();
 	void handleClientLocalInput();

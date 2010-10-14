@@ -85,9 +85,6 @@ private:
 	
 	void handleWorldEvents();
 
-	void update_kills();
-	void update_deaths();
-
 	void check_messages_from_server();
 	void handleClientLocalInput();
 	void client_tick_local();
