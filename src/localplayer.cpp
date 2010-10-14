@@ -68,9 +68,9 @@ void Localplayer::camera_handling()
 	game.camera_handling();
 }
 
-int Localplayer::connectMenu()
+int Game::connectMenu()
 {
-	return game.connectMenu();
+	return -1;
 }
 
 void Localplayer::check_messages_from_server()
@@ -123,9 +123,8 @@ void Localplayer::client_tick()
 	}
 }
 
-void Localplayer::menu_tick()
+void Game::menu_tick()
 {
-	game.menu_tick();
 }
 
 void Localplayer::draw()

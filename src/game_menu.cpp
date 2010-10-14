@@ -1,13 +1,13 @@
-
+#include "localplayer.h"
 #include "game.h"
 #include "image.h"
 #include "menubutton.h"
 
 using namespace std;
 
-void Game::menu_tick()
+void Localplayer::menu_tick()
 {
-	if(myID >= 0)
+	if(game.myID >= 0)
 		reset();
 	
 	// load images & create textures
@@ -23,9 +23,9 @@ void Game::menu_tick()
 	
 	while(dont_exit)
 	{
-		view->drawMenu(buttons);
+		view.drawMenu(buttons);
 		
-		string key = userio.getSingleKey();
+		string key = game.userio.getSingleKey();
 		
 		if(key == "")
 		{
@@ -77,14 +77,14 @@ void Game::menu_tick()
 	return;
 }
 
-int Game::connectMenu()
+int Localplayer::connectMenu()
 {
 	cerr << "Type the name of the host machine: " << endl;
 	string hostName = "";
 	
 	while(true)
 	{
-		string key_hostname = userio.getSingleKey();
+		string key_hostname = game.userio.getSingleKey();
 		
 		if(key_hostname == "")
 		{
@@ -113,3 +113,4 @@ int Game::connectMenu()
 		cerr << "Current input: \"" << hostName << "\"" << endl;
 	}
 }
+
