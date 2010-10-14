@@ -25,7 +25,6 @@ void Localplayer::playSound(const string& name, Location& position)
 		// play local player's unit's sound effect
 		if(name == "walk")
 		{
-//			if(simulRules.currentFrame % 15 == 0)
 			static int frame = 0;
 			++frame;
 			if(frame % 15 == 0)
@@ -63,41 +62,6 @@ void Localplayer::disableGrab()
 	SDL_ShowCursor(1);
 }
 
-
-
-bool Game::client_tick_local()
-{
-	// this is acceptable because the size is guaranteed to be insignificantly small
-	sort(UnitInput.begin(), UnitInput.end());
-	
-	// handle any server commands intended for this frame
-	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
-	{
-		Order server_command = UnitInput.back();
-		UnitInput.pop_back();
-		handleServerMessage(server_command);
-	}
-	
-	if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
-	{
-		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
-			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
-		
-		fps_world.insert();
-		process_received_game_input(); // TODO: check if everything works, process (sent) game input used to be here.
-		
-		// run simulation for one WorldFrame
-		world->worldTick(simulRules.currentFrame);
-		simulRules.currentFrame++;
-
-		return true;
-	}
-
-	return false;
-}
-
-
-
 void Localplayer::process_sent_game_input()
 {
 	int keyState = userio.getGameInput();
@@ -112,31 +76,6 @@ void Localplayer::process_sent_game_input()
 
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
-
-void Game::process_received_game_input()
-{
-	Logger log;
-	// update commands of player controlled characters
-	while(UnitInput.back().frameID == simulRules.currentFrame)
-	{
-		Order tmp = UnitInput.back();
-		UnitInput.pop_back();
-		
-		// log all processed game data affecting commands in the order of processing
-		log.print(tmp.copyOrder());
-		
-		if(tmp.plr_id == -1)
-		{
-			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
-			break;
-		}
-		
-		world->units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
-	}
-	
-	log.print("\n");
-}
-
 
 void Localplayer::handleClientLocalInput()
 {
@@ -257,26 +196,21 @@ void Localplayer::handleWorldEvents()
 			playSound("player_death", event.position);
 			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 		}
-		else
-			cerr << "UNKNOWN world EVENT OCCURRED" << endl;
-		
-		if(event.type == World::DEATH_ENEMY)
+		else if(event.type == World::DEATH_ENEMY)
 		{
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
 					game.Players[event.actor_id].kills++;
 			}
 		}
-		
-		if(event.type == World::DEATH_PLAYER)
+		else if(event.type == World::DEATH_PLAYER)
 		{
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				game.Players[event.actor_id].kills++;
 			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
 				game.Players[event.target_id].deaths++;
 		}
-
-		if(event.type == World::CENTER_CAMERA)
+		else if(event.type == World::CENTER_CAMERA)
 		{
 			if( (world.units.find(event.actor_id) != world.units.end()) )
 			{
@@ -284,7 +218,10 @@ void Localplayer::handleWorldEvents()
 				view.bindCamera(&world.units[event.actor_id]);
 			}
 		}
-		
+		else
+		{
+			cerr << "UNKNOWN world EVENT OCCURRED" << endl;
+		}
 	}
 	
 	world.events.clear();

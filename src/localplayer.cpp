@@ -9,6 +9,7 @@
 #include "order.h"
 #include "playerinfo.h"
 #include "gamesound.h"
+#include "texturehandler.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -51,6 +52,11 @@ void Localplayer::init()
 	view.loadObjects("data/parts.dat");
 	view.megaFuck(); // blah..
 	view.setPlayerInfo(&game.Players);
+
+	// TODO: Should not be done here? FIX
+	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
+	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 }
 
 bool Localplayer::client_tick()

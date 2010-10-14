@@ -1,4 +1,3 @@
-
 #ifndef H_GAME_
 #define H_GAME_
 
@@ -51,7 +50,8 @@ class Game
 	
 	World* world;
 
-	MU_Socket clientSocket; // for connecting to all games (also local games)
+	MU_Socket clientSocket;
+
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
 	
