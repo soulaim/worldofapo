@@ -3,3 +3,4 @@ ORDERTYPES
 -1		Server command. Must be processed before User input updates on its designated frame.
 -2		Instant reaction command. This command is not pushed back to order queue, but takes effect immediately when received.
 -4		A copy of an existing order from another player's queue.
+

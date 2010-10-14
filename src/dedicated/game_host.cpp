@@ -8,7 +8,7 @@ using namespace std;
 void Game::serverSendMonsterSpawn()
 {
 	stringstream tmp_msg;
-	tmp_msg << "-1 " << (serverAllow+10) << " 10" << "#";
+	tmp_msg << "-1 " << (serverAllow+10) << " 10#";
 	serverMsgs.push_back(tmp_msg.str());
 }
 
@@ -98,16 +98,6 @@ void Game::host_tick()
 		serverMsgs.push_back(allowSimulation_msg.str());
 	}
 	
-	if((state_descriptor == 0) && (sockets.sockets.size() > 0))
-	{
-		state_descriptor = 1;
-		
-		// send the beginning commands to all players currently connected.
-		serverMsgs.push_back("-2 GO#");
-	}
-	
-	
-	
 	// transmit serverMsgs to players
 	for(int k=0; k < static_cast<int>(serverMsgs.size()); k++)
 	{
@@ -122,20 +112,38 @@ void Game::host_tick()
 	serverMsgs.clear();
 	
 	
+	if(state_descriptor == 0)
+	{
+		if(sockets.sockets.size() > 0)
+		{
+			// send the beginning commands to all players currently connected.
+			state_descriptor = 1;
+			serverMsgs.push_back("-2 GO#");
+			fps_world.setStartTime(SDL_GetTicks());
+		}
+		else
+		{
+			// sleep a little bit :)
+			SDL_Delay(10);
+			return;
+		}
+	}
+	
 	// prepare to update game world.
 	ServerProcessClientMsgs();
 	
-	
-	
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
-
 	
 	// the level can kind of shut down when there's no one there.
 	if( (sockets.sockets.size() == 0) && (UnitInput.size() == 0) )
 	{
 		UnitInput.clear(); // redundant
 		simulRules.reset();
+		fps_world.reset();
+		
+//		cerr << "World shutting down." << endl;
+//		state_descriptor = 0;
 		return;
 	}
 	
@@ -148,7 +156,10 @@ void Game::host_tick()
 	}
 	
 	
-	if( (simulRules.currentFrame < simulRules.allowedFrame) )
+	
+	
+	//															// this seems like THE wrong way to do it.
+	if( (simulRules.currentFrame < simulRules.allowedFrame) ) //|| (sockets.sockets.size() == 0) )
 	{
 		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
@@ -174,7 +185,6 @@ void Game::host_tick()
 		{
 			cerr << "Server has somehow skipped an order :(" << endl;
 		}
-		
 		
 		// run simulation for one WorldFrame
 		world.worldTick(simulRules.currentFrame);
@@ -217,15 +227,6 @@ void Game::host_tick()
 		
 		world.events.clear();
 		
-		
-		
-		
-		
-		// sounds lol?
-		/*
-		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-			playSound(iter->second.soundInfo, iter->second.position);
-		*/
 	}
 }
 
@@ -249,11 +250,11 @@ void Game::acceptConnections()
 		MU_Socket& connectingPlayer = sockets.sockets[playerID_val];
 		
 		
-		// send new player the current state of the world:
+		// send new player the current state of the world: units
 		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 			connectingPlayer.write(iter->second.copyOrder(iter->first));
 		
-		// send new player the current state of the world:
+		// send new player the current state of the world: projectiles
 		for(map<int, Projectile>::iterator iter = world.projectiles.begin(); iter != world.projectiles.end(); iter++)
 			connectingPlayer.write(iter->second.copyOrder(iter->first));
 		
@@ -273,7 +274,10 @@ void Game::acceptConnections()
 		{
 			cerr << "sending info!" << endl;
 			stringstream playerInfo_msg;
-			playerInfo_msg << "2 " << iter->first << " " << iter->second.name << " " << iter->second.kills << " " << iter->second.deaths << "#";
+			string clientName = iter->second.name;
+			if(clientName == "")
+				clientName = "Unknown Player";
+			playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << clientName << "#";
 			connectingPlayer.write(playerInfo_msg.str());
 		}
 
@@ -344,6 +348,9 @@ void Game::ServerHandleServerMessage(const Order& server_msg)
 		world.addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
 		
+		// just to be sure.
+		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
+		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
 		cerr << "Creating dummy input for new hero." << endl;
 		
@@ -409,16 +416,7 @@ void Game::ServerProcessClientMsgs()
 			
 			// THIS IS DANGEROUS
 			if(cmd == "ZOMBIE")
-			{
-				int num = 0;
-				ss >> num;
-				
-				cerr << "sending " << num << " spawn orders." << endl;
-				
-				for(int i=0; i<num; i++)
-					serverSendMonsterSpawn();
-			}
-			
+				serverSendMonsterSpawn();
 			
 		}
 		
@@ -427,7 +425,11 @@ void Game::ServerProcessClientMsgs()
 			cerr << "SERVER Got playerInfo message!" << endl;
 			int plrID, kills, deaths;
 			string name;
-			ss >> plrID >> name >> kills >> deaths;
+			ss >> plrID >> kills >> deaths;
+			
+			ss.ignore(); // eat away the extra space delimiter
+			getline(ss, name);
+			
 			Players[plrID].name = name;
 			Players[plrID].kills = kills;
 			Players[plrID].deaths = deaths;

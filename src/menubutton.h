@@ -10,7 +10,7 @@
 struct MenuButton
 {
 	
-	MenuButton(std::string name_, std::string file)
+	MenuButton(const std::string& name_, const std::string& file)
 	{
 		name = name_;
 		TextureHandler::getSingleton().createTexture(name, file);
@@ -20,7 +20,7 @@ struct MenuButton
 	void unloadTexture()
 	{
 		std::cerr << "BUTTON: deleting my texture.." << std::endl;
-		TextureHandler::getSingleton().deleteTexture(name); 
+		TextureHandler::getSingleton().deleteTexture(name);
 	}
 	
 	~MenuButton()

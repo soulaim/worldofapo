@@ -91,7 +91,7 @@ private:
 	int myID;
 	
 	void makeLocalGame();
-	void joinInternetGame(std::string);
+	void joinInternetGame(const std::string&);
 	void endGame();
 	
 	void reset();

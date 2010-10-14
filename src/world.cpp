@@ -194,8 +194,7 @@ void World::init()
 void World::terminate()
 {
 	_unitID_next_unit = 10000;
-	
-	
+	_playerID_next_player = 0;
 	
 	units.clear();
 	models.clear();
