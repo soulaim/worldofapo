@@ -36,7 +36,6 @@ void Localplayer::playSound(const string& name, Location& position)
 		{
 			soundsystem.playEffect(name, distance.getFloat(), 100000);
 		}
-		
 	}
 }
 

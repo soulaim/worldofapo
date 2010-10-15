@@ -154,6 +154,11 @@ void DedicatedServer::host_tick()
 	if(minAllowed < simulRules.windowSize)
 		minAllowed = simulRules.windowSize;
 	
+	if( (minAllowed != UINT_MAX) )
+		simulRules.allowedFrame = minAllowed;
+	
+	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
+		minAllowed = simulRules.currentFrame;
 	
 	if( (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
 	{
@@ -309,7 +314,6 @@ void DedicatedServer::acceptConnections()
 	cerr << "looks like someone is connecting :O" << endl;
 	
 	int playerID_val = world.nextPlayerID();
-	
 	serverSocket.accept_connection(sockets, playerID_val);
 	Players[playerID_val].connectionState = 0;
 }
