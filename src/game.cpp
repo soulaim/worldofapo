@@ -14,7 +14,6 @@ using namespace std;
 
 
 Game::Game(World* w):
-	fps_world(0),
 	world(w)
 {
 	paused_state = PAUSED;
@@ -150,10 +149,10 @@ bool Game::joinInternetGame(const string& hostName)
 	clientSocket.write("START NEW#");
 	cerr << "Starting with a new character." << endl;
 
-
 	clientOrders.orders.clear();
 //	Logger log;
 //	log.print(string("Sent handshake message: +++") + "START NEW#" + "+++\n");
+
 	return true;
 }
 
@@ -214,8 +213,6 @@ bool Game::client_tick_local()
 	{
 		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
-		
-		fps_world.insert();
 
 		return true;
 	}
@@ -447,8 +444,6 @@ void Game::processClientMsgs()
 			{
 				cerr << "Setting client state to UNPAUSED" << endl;
 				paused_state = GO;
-				fps_world.reset();
-				fps_world.setStartTime( SDL_GetTicks() );
 			}
 			else if(cmd == "ALLOW")
 			{
@@ -509,8 +504,6 @@ void Game::processClientMsgs()
 				{
 					paused_state = GO;
 				}
-				fps_world.reset();
-				fps_world.setStartTime( SDL_GetTicks() );
 			}
 			else
 			{

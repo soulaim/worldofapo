@@ -3,6 +3,8 @@
 
 #include <algorithm>
 
+#include <sys/time.h>
+
 using namespace std;
 
 
@@ -22,13 +24,31 @@ void DedicatedServer::serverSendRequestPlayerNameMessage(int player_id)
 void DedicatedServer::host_tick()
 {
 	// accept any incoming connections
+	
+	/*
+	timeval time;
+	gettimeofday(&time,NULL);
+	long long time_ms = time.tv_sec * 1000 + time.tv_usec / 1000;
+	
+	cerr << time_ms << endl;
+	*/
+	
 	if(serverSocket.readyToRead() == 1)
 		acceptConnections();
-	
 	
 	// if there's any data to be read from clients, then read it
 	sockets.get_readable();
 	sockets.read_selected();
+	
+	
+	/*
+	// MAYBE THIS DOESNT NEED TO BE DONE SO FUCKING OFTEN
+	timeval time;
+	gettimeofday(&time,NULL);
+	long long time_ms = time.tv_sec * 1000 + time.tv_usec / 1000;
+	if(simulRules.numPlayers == 0)
+		fps_world.reset(time_ms);
+	*/
 	
 	// if there are leavers, send a kill order against one of them
 	int leaver = -1;
@@ -101,9 +121,9 @@ void DedicatedServer::host_tick()
 					
 					ss >> id >> cmd;
 					
-					cerr << id << " " << cmd << endl;
+					cerr << "Chat <" << id << "> " << cmd << endl;
 					
-					if(cmd == "CRTZOMB")
+					if(cmd == "CRTZOMB#")
 					{
 						cerr << "SPAWNING MONSTER" << endl;
 						serverSendMonsterSpawn();
@@ -193,7 +213,6 @@ void DedicatedServer::host_tick()
 			
 			state_descriptor = 1;
 			serverMsgs.push_back("-2 GO#");
-			fps_world.setStartTime(SDL_GetTicks());
 		}
 		else
 		{
@@ -214,7 +233,12 @@ void DedicatedServer::host_tick()
 	{
 		UnitInput.clear(); // redundant
 		simulRules.reset();
-		fps_world.reset();
+		
+		timeval t;
+		gettimeofday(&t,NULL);
+		long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
+		fps_world.reset(milliseconds);
+		
 		cerr << "World shutting down." << endl;
 
 //		state_descriptor = 0;
@@ -231,9 +255,12 @@ void DedicatedServer::host_tick()
 	
 	
 	
+	timeval t;
+	gettimeofday(&t,NULL);
+	long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
 	
-	//															// this seems like THE wrong way to do it.
-	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(SDL_GetTicks()) ) //|| (sockets.sockets.size() == 0) )
+	//																									// this seems like THE wrong way to do it.
+	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) ) //|| (sockets.sockets.size() == 0) )
 	{
 		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
@@ -464,8 +491,11 @@ void DedicatedServer::ServerProcessClientMsgs()
 			{
 				cerr << "Setting client state to 1" << endl;
 				client_state = 1;
-				fps_world.reset();
-				fps_world.setStartTime( SDL_GetTicks() );
+				
+				timeval t;
+				gettimeofday(&t,NULL);
+				long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
+				fps_world.reset(milliseconds);
 			}
 			else if(cmd == "ALLOW")
 			{
@@ -508,8 +538,11 @@ void DedicatedServer::ServerProcessClientMsgs()
 			else if(cmd == "CLIENT_STATE")
 			{
 				ss >> client_state;
-				fps_world.reset();
-				fps_world.setStartTime( SDL_GetTicks() );
+				
+				timeval t;
+				gettimeofday(&t,NULL);
+				long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
+				fps_world.reset(milliseconds);
 			}
 			else
 			{

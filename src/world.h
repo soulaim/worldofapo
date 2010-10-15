@@ -36,7 +36,7 @@ class World
 	
 public:
 	
-	// identifications for event where we want to do some SFX
+	// identifications for events where we want to do some SFX
 	enum
 	{
 		DAMAGE_BULLET,

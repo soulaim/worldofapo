@@ -4,7 +4,7 @@
 
 string generateKey()
 {
-	static int val1 = 0;
+	int val1 = rand();
 	
 	char c = 0;
 	string key;
@@ -87,15 +87,18 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 		Players[playerID_val] = dormantPlayers[choice];
 	}
 	
-	
+	cerr << "Sending a copy of the world" << endl;
 	sendWorldCopy("test_area", playerID_val);
 	
 	
+	cerr << "Sending PLAYER ID" << endl;
 	// tell the new player what his player ID is.
 	stringstream playerID_msg;
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
 	connectingPlayer.write(playerID_msg.str());
 	
+	
+	cerr << "SENDING OTHER PLAYERS" << endl;
 	// send the new player some generic info about other players
 	for(map<int, PlayerInfo>::iterator iter = Players.begin(); iter != Players.end(); iter++)
 	{
@@ -108,6 +111,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 		connectingPlayer.write(playerInfo_msg.str());
 	}
 	
+	cerr << "SENDING ADDHERO" << endl;
 	// send to everyone the ADDHERO msg
 	int birth_time = simulRules.currentFrame + simulRules.windowSize;
 	

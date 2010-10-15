@@ -46,8 +46,6 @@ struct StateInfo
 
 class Game
 {
-	FPS_Manager fps_world;
-	
 	World* world;
 
 	MU_Socket clientSocket;

@@ -28,6 +28,7 @@ int main()
 			return 0;
 		}
 	}
+	
 	master.serverSocket.alive = true;
 	
 	while(true)
