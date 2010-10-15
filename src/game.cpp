@@ -94,6 +94,8 @@ bool Game::joinInternetGame(const string& hostName)
 					{
 						clientSocket.closeConnection();
 						cerr << "Client connection has died during sign-in process. :(" << endl;
+						
+						clientOrders.orders.clear();
 						return false;
 					}
 					
@@ -130,6 +132,7 @@ bool Game::joinInternetGame(const string& hostName)
 								log.print("Sent handshake message: +++" + cmd + "+++\n");
 								
 								cerr << "just sent the start command. breaking from this shit." << endl;
+								clientOrders.orders.clear();
 								return true;
 							}
 						}
@@ -146,10 +149,9 @@ bool Game::joinInternetGame(const string& hostName)
 	// start with a new character
 	clientSocket.write("START NEW#");
 	cerr << "Starting with a new character." << endl;
-
 //	Logger log;
 //	log.print(string("Sent handshake message: +++") + "START NEW#" + "+++\n");
-
+	clientOrders.orders.clear();
 	return true;
 }
 
@@ -206,7 +208,7 @@ bool Game::client_tick_local()
 		handleServerMessage(server_command);
 	}
 	
-	if( (simulRules.currentFrame < simulRules.allowedFrame) && (fps_world.need_to_draw(SDL_GetTicks()) == 1) )
+	if( (simulRules.currentFrame < simulRules.allowedFrame) )
 	{
 		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;

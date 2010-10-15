@@ -87,6 +87,10 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 		Players[playerID_val] = dormantPlayers[choice];
 	}
 	
+	
+	sendWorldCopy("test_area", playerID_val);
+	
+	
 	// tell the new player what his player ID is.
 	stringstream playerID_msg;
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
@@ -118,8 +122,6 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 	nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
 	connectingPlayer.write(nextUnit_msg.str());
 	
-	
-	sendWorldCopy("test_area", playerID_val);
 	
 	
 	// Now that all game info has been sent, can send messages to allow the client to start his own simulation.
