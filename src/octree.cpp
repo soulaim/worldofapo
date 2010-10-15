@@ -70,19 +70,9 @@ void Octree::insert(Location l)
 			return;
 		}
 	}
-	int x, y, z;
-	if (l.x < c.x)
-		x = 0;
-	else
-		x = 1;
-	if (l.y < c.y)
-		y = 0;
-	else
-		y = 1;
-	if (l.z < c.z)
-		z = 0;
-	else
-		z = 1;
+	int x = (l.x < c.x)? 0 : 1;
+	int y = (l.y < c.y)? 0 : 1;
+	int z = (l.z < c.z)? 0 : 1;
 	children[x][y][z]->insert(l);
 }
 
