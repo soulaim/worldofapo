@@ -77,6 +77,9 @@ bool Game::joinInternetGame(const string& hostName)
 			ss << "OPTION " << key << "#";
 			cerr << "sending query for key " << key << endl;
 			clientSocket.write(ss.str());
+
+//			Logger log;
+//			log.print("Sent handshake message: ---" + ss.str() + "---\n");
 			
 			cerr << "waiting for answer.." << endl;
 			
@@ -86,7 +89,7 @@ bool Game::joinInternetGame(const string& hostName)
 				if(clientSocket.readyToRead())
 				{
 					string msg = clientSocket.read();
-					
+
 					if(msg.size() == 0)
 					{
 						clientSocket.closeConnection();
@@ -98,6 +101,9 @@ bool Game::joinInternetGame(const string& hostName)
 					
 					for(size_t k=0; k<clientOrders.orders.size(); k++)
 					{
+						Logger log;
+						log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
+
 						not_finished = false;
 						string cmd;
 						stringstream ss(clientOrders.orders[k]);
@@ -121,6 +127,7 @@ bool Game::joinInternetGame(const string& hostName)
 								cmd.append(key);
 								cmd.append("#");
 								clientSocket.write(cmd);
+								log.print("Sent handshake message: +++" + cmd + "+++\n");
 								
 								cerr << "just sent the start command. breaking from this shit." << endl;
 								return true;
@@ -139,6 +146,9 @@ bool Game::joinInternetGame(const string& hostName)
 	// start with a new character
 	clientSocket.write("START NEW#");
 	cerr << "Starting with a new character." << endl;
+
+//	Logger log;
+//	log.print(string("Sent handshake message: +++") + "START NEW#" + "+++\n");
 
 	return true;
 }
@@ -162,6 +172,9 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
 		msg = inputMsg.str();
 		clientSocket.write(msg);
+
+//		Logger log;
+//		log.print("Sent message: +++" + msg + "+++\n");
 	}
 }
 
@@ -170,6 +183,9 @@ void Game::send_chat_message(const std::string& clientCommand)
 	stringstream tmp_msg;
 	tmp_msg << "3 " << myID << " " << clientCommand << "#";
 	clientSocket.write(tmp_msg.str());
+
+//	Logger log;
+//	log.print("Sent message: +++" + tmp_msg.str() + "+++\n");
 }
 
 bool Game::paused() const
@@ -212,6 +228,7 @@ bool Game::client_tick_local()
 void Game::process_received_game_input()
 {
 	Logger log;
+	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
 	{
@@ -219,7 +236,7 @@ void Game::process_received_game_input()
 		UnitInput.pop_back();
 		
 		// log all processed game data affecting commands in the order of processing
-		log.print(tmp.copyOrder());
+		log.print(tmp.copyOrder() + "\n");
 		
 		if(tmp.plr_id == -1)
 		{
@@ -230,7 +247,7 @@ void Game::process_received_game_input()
 		world->units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
-	log.print("\n");
+//	log.print("\n");
 }
 
 // server messages read from the network
@@ -301,6 +318,9 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		ss << "2 " << myID << " " << localPlayer.name << "#";
 		clientSocket.write(ss.str());
+
+//		Logger log;
+//		log.print("Sent message: +++" + ss.str() + "+++\n");
 		
 		
 		if(world->units.find(myID) != world->units.end())
@@ -331,6 +351,9 @@ void Game::processClientMsgs()
 	{
 		if(clientOrders.orders[i] == "")
 			continue;
+
+		Logger log;
+		log.print("Got message: ---" + clientOrders.orders[i] + "---\n");
 
 		stringstream ss(clientOrders.orders[i]);
 		
@@ -529,7 +552,7 @@ bool Game::check_messages_from_server()
 			cerr << "Client connection has died. :(" << endl;
 			stop = true;
 		}
-		
+
 		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
 		processClientMsgs();
 	}
