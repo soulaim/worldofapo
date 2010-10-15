@@ -6,10 +6,27 @@
 class PlayerInfo {
 
 public:
-	PlayerInfo(): kills(0), deaths(0) {}
+	PlayerInfo(): kills(0), deaths(0), connectionState(0) {}
+	
+	const PlayerInfo& operator = (const PlayerInfo& a)
+	{
+		name = a.name;
+		kills = a.kills;
+		deaths = a.deaths;
+		key = a.key;
+		connectionState = a.connectionState;
+		
+		return *this;
+	}
+	
 	std::string name;
 	int kills;
 	int deaths;
+	
+	int connectionState;
+	std::string key;
+	
+	std::string getDescription();
 };
 
 #endif

@@ -17,3 +17,6 @@ bin/loader_3ds
 
 # Misc files:
 gmon.out
+
+# World of Apo's character codes for accessing profiles on the server
+myKeys

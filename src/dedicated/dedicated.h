@@ -60,18 +60,20 @@ private:
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	
 	OrderContainer clientOrders;
-	OrderContainer serverOrders;
 	
-	std::vector<std::string> clientMsgs; // messages to be sent by the client
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
-	
 	std::vector<Order> UnitInput;
 	
-	std::map<int, PlayerInfo> Players;
+	std::map<std::string, PlayerInfo> dormantPlayers;
+	std::map<int        , PlayerInfo> Players;
 	PlayerInfo localPlayer;
 	
 	int state_descriptor;
 	int client_state;
+	
+	// sign-in handling
+	void playerStartingChoice(int, std::string);
+	void handleSignInMessage(int, std::string);
 	
 	void serverSendMonsterSpawn();
 	void serverSendRequestPlayerNameMessage(int player_id);
@@ -85,9 +87,11 @@ private:
 	
 	void handleWorldEvents();
 
+	void sendWorldCopy(string areaName, int plrID);
 	void update_kills();
 	void update_deaths();
 
+/*
 	void check_messages_from_server();
 	void handleClientLocalInput();
 	void client_tick_local();
@@ -95,7 +99,8 @@ private:
 	
 	void enableGrab();
 	void disableGrab();
-	
+*/
+
 	// for dedicated server
 	void ServerProcessClientMsgs();
 	void ServerHandleServerMessage(const Order&);

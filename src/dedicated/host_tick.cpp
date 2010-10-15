@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 void DedicatedServer::serverSendMonsterSpawn()
 {
 	stringstream tmp_msg;
@@ -20,7 +21,10 @@ void DedicatedServer::serverSendRequestPlayerNameMessage(int player_id)
 
 void DedicatedServer::host_tick()
 {
-	acceptConnections();
+	// accept any incoming connections
+	if(serverSocket.readyToRead() == 1)
+		acceptConnections();
+	
 	
 	// if there's any data to be read from clients, then read it
 	sockets.get_readable();
@@ -39,33 +43,90 @@ void DedicatedServer::host_tick()
 			continue;
 		}
 		
-		for(int k=0; k<static_cast<int>(i->second.msgs.size()); k++)
+		
+		int conn_state = Players[i->first].connectionState;
+		
+		if(conn_state == 0)
 		{
-			i->second.msgs[k].append("#");
-			
-			// commands passed down to local message handling before sending to others.
-			clientOrders.insert(i->second.msgs[k]);
-			
-			for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
-			{
-				// dont write to disconnected players
-				if(target->second.alive)
-					target->second.write(i->second.msgs[k]);
-			}
-			
-			// keep track of last frames for which orders have been received.
-			stringstream ss(i->second.msgs[k]);
-			string orderWord;
-			ss >> orderWord;
-			
-			if(orderWord == "1")
-			{
-				int order_player_id, frame;
-				ss >> order_player_id >> frame;
-				i->second.last_order = frame;
-			}
+			for(size_t k=0; k < i->second.msgs.size(); k++)
+				handleSignInMessage(i->first, i->second.msgs[k]);
+			i->second.msgs.clear();
 		}
-		i->second.msgs.clear();
+		else if(conn_state == 1)
+		{
+			for(size_t k=0; k < i->second.msgs.size(); k++)
+			{
+				i->second.msgs[k].append("#");
+				
+				
+				// keep track of last frames for which orders have been received.
+				stringstream ss(i->second.msgs[k]);
+				string orderWord;
+				ss >> orderWord;
+				
+				
+				if(orderWord == "1")
+				{
+					int order_player_id, frame;
+					ss >> order_player_id >> frame;
+					i->second.last_order = frame;
+				}
+				else if(orderWord == "2") // someone is sending an introduction message. I, as the GOD, should rewrite some of that message :D
+				{
+					int id;
+					string introductionName;
+					
+					ss >> id;
+					ss.ignore();
+					ss >> introductionName;
+					
+					
+					if(id == i->first)
+					{
+						// everything checks out.
+						stringstream new_message;
+						
+						if(Players[id].name == "")
+							Players[id].name = introductionName;
+						
+						// create a better message and distribute that to players.
+						new_message << "2 " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
+						i->second.msgs[k] = new_message.str();
+					}
+				}
+				else if(orderWord == "3") // chat message!
+				{
+					string id;
+					string cmd;
+					
+					ss >> id >> cmd;
+					
+					cerr << id << " " << cmd << endl;
+					
+					if(cmd == "CRTZOMB")
+					{
+						cerr << "SPAWNING MONSTER" << endl;
+						serverSendMonsterSpawn();
+						continue;
+					}
+				}
+				
+				
+				// commands passed down to local message handling before sending to others.
+				clientOrders.insert(i->second.msgs[k]);
+				
+				
+				
+				for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
+				{
+					// dont write to disconnected players
+					if(target->second.alive && (Players[target->first].connectionState == 1))
+						target->second.write(i->second.msgs[k]);
+				}
+				
+			}
+			i->second.msgs.clear();
+		}
 	}
 	
 	// this message will go to local messagehandling at the end of function
@@ -74,6 +135,12 @@ void DedicatedServer::host_tick()
 		stringstream discCommand;
 		discCommand << -1 << " " << (sockets.sockets[leaver].last_order + 1) << " 100 " << leaver << "#";
 		serverMsgs.push_back( discCommand.str() );
+		
+		
+		cerr << "Saving disconnecting character with key: " << Players[leaver].key << endl;
+		dormantPlayers[Players[leaver].key] = Players[leaver];
+		Players.erase(leaver);
+		
 		
 		sockets.erase_id(leaver);
 	}
@@ -114,9 +181,11 @@ void DedicatedServer::host_tick()
 	
 	if(state_descriptor == 0)
 	{
-		if(sockets.sockets.size() > 0)
+		if(simulRules.numPlayers > 0)
 		{
 			// send the beginning commands to all players currently connected.
+			cerr << " I HAVE : " << simulRules.numPlayers << " PLAYERS " << endl;
+			
 			state_descriptor = 1;
 			serverMsgs.push_back("-2 GO#");
 			fps_world.setStartTime(SDL_GetTicks());
@@ -159,7 +228,7 @@ void DedicatedServer::host_tick()
 	
 	
 	//															// this seems like THE wrong way to do it.
-	if( (simulRules.currentFrame < simulRules.allowedFrame) ) //|| (sockets.sockets.size() == 0) )
+	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(SDL_GetTicks()) ) //|| (sockets.sockets.size() == 0) )
 	{
 		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
@@ -237,78 +306,13 @@ void DedicatedServer::host_tick()
 void DedicatedServer::acceptConnections()
 {
 	
-	// accept any incoming connections
-	if(serverSocket.readyToRead() == 1)
-	{
-		
-		cerr << "looks like someone is connecting :O" << endl;
-		
-		int playerID_val = world.nextPlayerID();
-		serverSocket.accept_connection(sockets, playerID_val);
-		
-		// if game in progress, inform everyone else of a new connecting player TODO
-		MU_Socket& connectingPlayer = sockets.sockets[playerID_val];
-		
-		
-		// send new player the current state of the world: units
-		for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-			connectingPlayer.write(iter->second.copyOrder(iter->first));
-		
-		// send new player the current state of the world: projectiles
-		for(map<int, Projectile>::iterator iter = world.projectiles.begin(); iter != world.projectiles.end(); iter++)
-			connectingPlayer.write(iter->second.copyOrder(iter->first));
-		
-		// send new player current pending orders
-		for(size_t i = 0; i < UnitInput.size(); ++i)
-			connectingPlayer.write(UnitInput[i].copyOrder());
-		
-		// tell the new player what his player ID is.
-		stringstream playerID_msg;
-		
-		playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
-		connectingPlayer.write(playerID_msg.str());
-		cerr << "player is expected to assume his role at frame " << (simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize) << endl;
-		
-		// send the new player some generic info about other players
-		for(map<int, PlayerInfo>::iterator iter = Players.begin(); iter != Players.end(); iter++)
-		{
-			cerr << "sending info!" << endl;
-			stringstream playerInfo_msg;
-			string clientName = iter->second.name;
-			if(clientName == "")
-				clientName = "Unknown Player";
-			playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << clientName << "#";
-			connectingPlayer.write(playerInfo_msg.str());
-		}
-
-		// send to everyone the ADDHERO msg
-		int birth_time = simulRules.currentFrame + simulRules.windowSize;
-		
-		stringstream createHero_msg;
-		connectingPlayer.last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
-		
-		createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
-		serverMsgs.push_back(createHero_msg.str());
-		cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << endl;
-		
-		stringstream nextUnit_msg;
-		nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
-		connectingPlayer.write(nextUnit_msg.str());
-		
-		// Now that all game info has been sent, can send messages to allow the client to start his own simulation.
-		stringstream simulRules_msg;
-		simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
-		connectingPlayer.write(simulRules_msg.str());
-		
-		// go!
-		stringstream clientState_msg;
-		clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
-		connectingPlayer.write(clientState_msg.str());
-		
-	}
+	cerr << "looks like someone is connecting :O" << endl;
+	
+	int playerID_val = world.nextPlayerID();
+	
+	serverSocket.accept_connection(sockets, playerID_val);
+	Players[playerID_val].connectionState = 0;
 }
-
-
 
 
 
@@ -338,7 +342,6 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		cerr << "THIS IS WHAT SERVER SHOULD DO WHEN DISCONNECT HAPPENS" << endl;
 		world.units.erase(server_msg.keyState);
 		world.models.erase(server_msg.keyState);
-		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
 	}
@@ -346,7 +349,6 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
 		world.addUnit(server_msg.keyState);
-		simulRules.numPlayers++;
 		
 		// just to be sure.
 		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
@@ -385,6 +387,13 @@ void DedicatedServer::ServerProcessClientMsgs()
 {
 	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{
+		
+		if(clientOrders.orders[i] == "")
+		{
+			cerr << "SERVER: I encountered an empty order :o how peculiar :D" << endl;
+			continue;
+		}
+		
 		stringstream ss(clientOrders.orders[i]);
 		
 		int order_type;
@@ -403,21 +412,6 @@ void DedicatedServer::ServerProcessClientMsgs()
 		}
 		else if(order_type == 3) // chat message
 		{
-			int plrID;
-			string line;
-			
-			ss >> plrID;
-			
-			string cmd;
-			ss >> cmd;
-			
-			cerr << cmd;
-			
-			
-			// THIS IS DANGEROUS
-			if(cmd == "ZOMBIE")
-				serverSendMonsterSpawn();
-			
 		}
 		
 		else if(order_type == 2) // playerInfo message

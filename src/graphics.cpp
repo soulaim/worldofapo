@@ -217,12 +217,14 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 		glVertex3f(pos_x + totalWidth    , y_top, -1);
 		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
 		glEnd();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 		glEnable(GL_TEXTURE_2D);
 	}
 	
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
+	
+	// reset default colour to white.
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	
 	for(size_t i = 0; i < msg.size(); ++i)
 	{

@@ -8,6 +8,9 @@
 
 #include <SDL/SDL_mixer.h>
 
+// required for obtaining character keys from file. could be located in another file.
+#include <fstream>
+
 using namespace std;
 
 
@@ -69,8 +72,6 @@ void Game::readConfig()
 
 void Game::joinInternetGame(const string& hostName)
 {
-    enableGrab();
-
 	myID = -1;
 	state = "client";
 	int port = 12345;
@@ -85,7 +86,81 @@ void Game::joinInternetGame(const string& hostName)
 		}
 	}
 	
-	cerr << "I think I got a connection, port: " << port << endl;
+	ifstream keyCodes("myKeys");
+	while(keyCodes.good() && !keyCodes.eof())
+	{
+		string key;
+		keyCodes >> key;
+		
+		if(key.length() == 15)
+		{
+			stringstream ss;
+			ss << "OPTION " << key << "#";
+			cerr << "sending query for key " << key << endl;
+			clientSocket.write(ss.str());
+			
+			cerr << "waiting for answer.." << endl;
+			
+			bool not_finished = true;
+			while(not_finished)
+			{
+				if(clientSocket.readyToRead())
+				{
+					string msg = clientSocket.read();
+					
+					if(msg.size() == 0)
+					{
+						clientSocket.closeConnection();
+						cerr << "Client connection has died during sign-in process. :(" << endl;
+						state = "menu";
+						return;
+					}
+					
+					clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
+					
+					for(size_t k=0; k<clientOrders.orders.size(); k++)
+					{
+						not_finished = false;
+						string cmd;
+						stringstream ss(clientOrders.orders[k]);
+						ss >> cmd;
+						
+						if(cmd == "NO")
+						{
+							// my character was NOT found in the system :G
+							cerr << "my character was not found :((" << endl;
+						}
+						else if(cmd == "YES")
+						{
+							
+							getline(ss, cmd);
+							cerr << "Want this one? (" << cmd << ") type \"OK\" and press enter to accept. Just enter to ignore" << endl;
+							cin >> cmd;
+							
+							if(cmd == "OK")
+							{
+								cmd = "START ";
+								cmd.append(key);
+								cmd.append("#");
+								clientSocket.write(cmd);
+								
+								cerr << "just sent the start command. breaking from this shit." << endl;
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			cerr << "key of length " << key.length() << " found. The current standard is 15!" << endl;
+		}
+	}
+	
+	// start with a new character
+	clientSocket.write("START NEW#");
+	cerr << "Starting with a new character." << endl;
 }
 
 

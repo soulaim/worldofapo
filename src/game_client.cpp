@@ -78,7 +78,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			localPlayer.name = "Unknown player";
 		}
 		
-		ss << "2 " << myID << " 0 0 " << localPlayer.name << "#";
+		ss << "2 " << myID << " " << localPlayer.name << "#";
 		clientSocket.write(ss.str());
 		
 		
@@ -108,6 +108,9 @@ void Game::processClientMsgs()
 {
 	for(size_t i = 0; i < clientOrders.orders.size(); ++i)
 	{
+		if(clientOrders.orders[i] == "")
+			continue;
+		
 		stringstream ss(clientOrders.orders[i]);
 		
 		int order_type;
@@ -141,35 +144,42 @@ void Game::processClientMsgs()
 		
 		else if(order_type == 2) // playerInfo message
 		{
-			cerr << "ORDER: " << clientOrders.orders[i] << endl;
+			cerr << "ORDER: \"" << clientOrders.orders[i] << "\"" << endl;
 			
-			cerr << "Got playerInfo message!" << endl;
-			int plrID, kills, deaths;
-			string name;
-			ss >> plrID >> kills >> deaths;
-			
-			ss.ignore(); // eat away the extra space delimiter
-			getline(ss, name);
-			
-			Players[plrID].name = name;
-			Players[plrID].kills = kills;
-			Players[plrID].deaths = deaths;
-			
-			cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
-			
-			stringstream ss_viewMsg;
-			ss_viewMsg << "^g" << Players[plrID].name << "^r has connected!" << endl;
-			view.pushMessage(ss_viewMsg.str());
-			
-			// set unit's name to match the players
-			if(world.units.find(plrID) == world.units.end())
+			if(clientOrders.orders[i].size() < 4) // less than four long, it can't hold all the necessary data.
 			{
-				cerr << "GOT playerInfo MESSAGE TOO SOON :G Will just place the name at hero birth." << endl;
+				cerr << "This message seems to be full of shit :/ I'll just ignore it or something.." << endl;
 			}
 			else
 			{
-				cerr << "Assigning player identity (name) to corresponding unit." << endl;
-				world.units[plrID].name = Players[plrID].name;
+				cerr << "Got playerInfo message!" << endl;
+				int plrID, kills, deaths;
+				string name;
+				ss >> plrID >> kills >> deaths;
+				
+				ss.ignore(); // eat away the extra space delimiter
+				getline(ss, name);
+				
+				Players[plrID].name = name;
+				Players[plrID].kills = kills;
+				Players[plrID].deaths = deaths;
+				
+				cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
+				
+				stringstream ss_viewMsg;
+				ss_viewMsg << "^g" << Players[plrID].name << "^r has connected!" << endl;
+				view.pushMessage(ss_viewMsg.str());
+				
+				// set unit's name to match the players
+				if(world.units.find(plrID) == world.units.end())
+				{
+					cerr << "GOT playerInfo MESSAGE TOO SOON :G Will just place the name at hero birth." << endl;
+				}
+				else
+				{
+					cerr << "Assigning player identity (name) to corresponding unit." << endl;
+					world.units[plrID].name = Players[plrID].name;
+				}
 			}
 		}
 		
@@ -206,7 +216,17 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "GIVE_NAME") // request player name message
 			{
-
+				// hmm
+			}
+			else if(cmd == "CHAR_KEY") // I just received a character key :O I better store it..
+			{
+				cerr << "GOT A CHARACTER KEY CODE. SAVING IT TO FILE." << endl;
+				
+				string characterKey;
+				ss >> characterKey;
+				
+				ofstream keyCodes("myKeys", ios::app);
+				keyCodes << characterKey << endl;
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
@@ -257,7 +277,7 @@ void Game::processClientMsgs()
 		}
 		else
 		{
-			cerr << "HOLY FUCK! I DONT UNDERSTAND SHIT :G" << endl;
+			cerr << "HOLY FUCK! I DONT UNDERSTAND SHIT :G \"" << clientOrders.orders[i] << "\"" << endl;
 		}
 	}
 	
