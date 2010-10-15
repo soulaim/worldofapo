@@ -41,7 +41,7 @@ void Game::readConfig()
 	//ifstream configFile("config.cfg");
 	//configFile >> localPlayer.name;
 	string name;
-	char *e = getenv("USERNAME");
+	char *e = getenv("USER");
 	if(e)
 	  name.assign(e);
 	else
@@ -60,100 +60,105 @@ bool Game::joinInternetGame(const string& hostName)
 		if(port < 12000)
 		{
 			cerr << "superfail :(" << endl;
-			exit(0);
+            return false;
 		}
 	}
 	
-	ifstream keyCodes("myKeys");
-	while(keyCodes.good() && !keyCodes.eof())
-	{
-		string key;
-		keyCodes >> key;
-		
-		if(key.length() == 15)
-		{
-			stringstream ss;
-			ss << "OPTION " << key << "#";
-			cerr << "sending query for key " << key << endl;
-			clientSocket.write(ss.str());
 
-//			Logger log;
-//			log.print("Sent handshake message: ---" + ss.str() + "---\n");
-			
-			cerr << "waiting for answer.." << endl;
-			
-			bool not_finished = true;
-			while(not_finished)
-			{
-				if(clientSocket.readyToRead())
-				{
-					string msg = clientSocket.read();
+    map<string, string> heroes;
+    if (!getHeroes(heroes))
+        return false;
 
-					if(msg.size() == 0)
-					{
-						clientSocket.closeConnection();
-						cerr << "Client connection has died during sign-in process. :(" << endl;
-						
-						clientOrders.orders.clear();
-						return false;
-					}
-					
-					clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
-					
-					for(size_t k=0; k<clientOrders.orders.size(); k++)
-					{
-						Logger log;
-						log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
-
-						not_finished = false;
-						string cmd;
-						stringstream ss(clientOrders.orders[k]);
-						ss >> cmd;
-						
-						if(cmd == "NO")
-						{
-							// my character was NOT found in the system :G
-							cerr << "my character was not found :((" << endl;
-						}
-						else if(cmd == "YES")
-						{
-							
-							getline(ss, cmd);
-							cerr << "Want this one? (" << cmd << ") type \"OK\" and press enter to accept. Just enter to ignore" << endl;
-							cin >> cmd;
-							
-							if(cmd == "OK")
-							{
-								cmd = "START ";
-								cmd.append(key);
-								cmd.append("#");
-								clientSocket.write(cmd);
-								log.print("Sent handshake message: +++" + cmd + "+++\n");
-								
-								cerr << "just sent the start command. breaking from this shit." << endl;
-								clientOrders.orders.clear();
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			cerr << "key of length " << key.length() << " found. The current standard is 15!" << endl;
-		}
-	}
+    // menu
+    string hero = temp_menu_which_should_be_removed(heroes);
 	
-	// start with a new character
-	clientSocket.write("START NEW#");
-	cerr << "Starting with a new character." << endl;
+    stringstream herocommand;
+    herocommand << "START " << hero << "#";
+	clientSocket.write(herocommand.str());
+	cerr << "Starting with " << hero << "." << endl;
+	return true;
+}
+
+bool Game::getHeroes(map<string, string>& heroes)
+{
+    set<string> keys = KeyManager::readKeys();
+    for(auto i = keys.begin(); i!=keys.end(); i++)
+    {
+        stringstream ss;
+        ss << "OPTION " << (*i) << "#";
+        cerr << "sending query for key " << *i << endl;
+        clientSocket.write(ss.str());
+
+        bool not_finished = true;
+        while(not_finished)
+        {
+            if(clientSocket.readyToRead())
+            {
+                string msg = clientSocket.read();
+
+                if(msg.size() == 0)
+                {
+                    clientSocket.closeConnection();
+                    cerr << "Client connection has died during sign-in process. :(" << endl;
+                    
+                    clientOrders.orders.clear();
+                    return false;
+                }
+                
+                clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
+                
+                for(size_t k=0; k<clientOrders.orders.size(); k++)
+                {
+                    Logger log;
+                    log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
+
+                    not_finished = false;
+                    string cmd;
+                    stringstream ss(clientOrders.orders[k]);
+                    ss >> cmd;
+                    
+                    if(cmd == "YES")
+                    {
+                        
+                        getline(ss, cmd);
+                        heroes[*i] = cmd;
+                        clientOrders.orders.clear();
+                    }
+                    else if(cmd == "NO")
+                        clientOrders.orders.clear();
+                }
+            }
+        }
+    }
+
+    heroes["NEW"] = "New Character";
 
 	clientOrders.orders.clear();
-//	Logger log;
-//	log.print(string("Sent handshake message: +++") + "START NEW#" + "+++\n");
 
-	return true;
+    return true;
+}
+
+string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
+{
+    if (heroes.size() == 1)
+        return heroes.begin()->first;
+    cerr << "Your heroes" << endl;
+	for(map<string, string>::const_iterator iter = heroes.begin(); iter != heroes.end(); iter++)
+    {
+        cerr << "Hero code '" << iter->first << "': " << iter->second << endl;
+    }
+    string code;
+    while (1)
+    {
+        cerr << "Enter hero code" << endl;
+        cin >> code;
+        if (heroes.find(code) != heroes.end())
+        {
+            return code;
+        }
+        else
+            cerr << "Not valid hero code" << endl;
+    }
 }
 
 
@@ -460,12 +465,8 @@ void Game::processClientMsgs()
 			else if(cmd == "CHAR_KEY") // I just received a character key :O I better store it..
 			{
 				cerr << "GOT A CHARACTER KEY CODE. SAVING IT TO FILE." << endl;
-				
-				string characterKey;
-				ss >> characterKey;
-				
-				ofstream keyCodes("myKeys", ios::app);
-				keyCodes << characterKey << endl;
+				string characterKey; ss >> characterKey;
+                KeyManager::saveKey(characterKey);
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
