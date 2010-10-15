@@ -74,10 +74,20 @@ std::string Menu::menu_tick()
 				SDL_Quit();
 				exit(0);
 			}
+			else if(buttons[selected].name == "host")
+			{
+				int ret = system("./server &");
+				cerr << "Starting server, remember to stop it!!! ok: " << ret << endl;
+			}
 			else
 			{
 				cerr << "STUPID USER!!" << endl;
 			}
+		}
+		else if(key == "escape")
+		{
+			SDL_Quit();
+			exit(0);
 		}
 	}
 	
