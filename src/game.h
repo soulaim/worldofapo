@@ -6,6 +6,7 @@
 #include "fps_manager.h"
 #include "order.h"
 #include "playerinfo.h"
+#include "keymanager.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -74,6 +75,10 @@ private:
 	
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
+
+
+    bool getHeroes(std::map<std::string, std::string>&);
+    std::string temp_menu_which_should_be_removed(const std::map<std::string, std::string>);
 
 
 public:
