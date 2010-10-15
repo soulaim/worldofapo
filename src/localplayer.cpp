@@ -269,45 +269,57 @@ void Localplayer::handleWorldEvents()
 	for(size_t i = 0; i < world.events.size(); ++i)
 	{
 		WorldEvent& event = world.events[i];
-		if(event.type == World::DAMAGE_BULLET)
-			view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
-		else if(event.type == World::DAMAGE_DEVOUR)
-			view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
-		else if(event.type == World::DEATH_ENEMY)
+		switch(event.type)
 		{
-			playSound("alien_death", event.position);
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
-		}
-		else if(event.type == World::DEATH_PLAYER)
-		{
-			playSound("player_death", event.position);
-			view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
-		}
-		else if(event.type == World::DEATH_ENEMY)
-		{
-			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+			case World::DAMAGE_BULLET:
 			{
+				view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+				break;
+			}
+			case World::DAMAGE_DEVOUR:
+			{
+				view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+				break;
+			}
+			case World::DEATH_ENEMY:
+			{
+				playSound("alien_death", event.position);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				{
 					game.Players[event.actor_id].kills++;
+				}
+				break;
 			}
-		}
-		else if(event.type == World::DEATH_PLAYER)
-		{
-			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
-				game.Players[event.actor_id].kills++;
-			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
-				game.Players[event.target_id].deaths++;
-		}
-		else if(event.type == World::CENTER_CAMERA)
-		{
-			if( (world.units.find(event.actor_id) != world.units.end()) )
+			case World::DEATH_PLAYER:
 			{
-				cerr << "Binding camera to unit " << event.actor_id << endl;
-				view.bindCamera(&world.units[event.actor_id]);
+				playSound("player_death", event.position);
+				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				{
+					game.Players[event.actor_id].kills++;
+				}
+				if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
+				{
+					game.Players[event.target_id].deaths++;
+				}
+				break;
 			}
-		}
-		else
-		{
-			cerr << "UNKNOWN world EVENT OCCURRED" << endl;
+			case World::CENTER_CAMERA:
+			{
+				if( (world.units.find(event.actor_id) != world.units.end()) )
+				{
+					cerr << "Binding camera to unit " << event.actor_id << endl;
+					view.bindCamera(&world.units[event.actor_id]);
+				}
+				break;
+			}
+			default:
+			{
+				cerr << "UNKNOWN world EVENT OCCURRED" << endl;
+			}
 		}
 	}
 	

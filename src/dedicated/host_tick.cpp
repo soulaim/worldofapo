@@ -101,9 +101,9 @@ void DedicatedServer::host_tick()
 					
 					ss >> id >> cmd;
 					
-					cerr << id << " " << cmd << endl;
+					cerr << "Chat <" << id << "> " << cmd << endl;
 					
-					if(cmd == "CRTZOMB")
+					if(cmd == "CRTZOMB#")
 					{
 						cerr << "SPAWNING MONSTER" << endl;
 						serverSendMonsterSpawn();
