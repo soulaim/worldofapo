@@ -212,11 +212,6 @@ bool Game::client_tick_local()
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 		
 		fps_world.insert();
-		process_received_game_input(); // TODO: check if everything works, process (sent) game input used to be here.
-		
-		// run simulation for one WorldFrame
-		world->worldTick(simulRules.currentFrame);
-		simulRules.currentFrame++;
 
 		return true;
 	}
@@ -560,22 +555,10 @@ bool Game::check_messages_from_server()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void Game::TICK()
+{
+	// run simulation for one WorldFrame
+	world->worldTick(simulRules.currentFrame);
+	simulRules.currentFrame++;
+}
 

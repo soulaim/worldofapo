@@ -64,12 +64,16 @@ bool Localplayer::client_tick()
 	bool stop = game.check_messages_from_server();
 
 	handleClientLocalInput();
-	process_sent_game_input();
 
 	if(!stop && !game.paused())
 	{
 		if(game.client_tick_local())
 		{
+			process_sent_game_input();
+			game.process_received_game_input();
+			
+			game.TICK();
+
 			view.world_tick();
 			handleWorldEvents();
 			

@@ -75,7 +75,6 @@ private:
 	void handleServerMessage(const Order&);
 	void processClientMsgs();
 
-	void process_received_game_input();
 
 public:
 	Game(World* world);
@@ -89,11 +88,13 @@ public:
 
 	bool check_messages_from_server();
 	bool client_tick_local();
+	void TICK();
 	void reset();
 
 	bool joinInternetGame(const std::string&);
 
 	bool paused() const;
+	void process_received_game_input(); // TODO: No private :((
 };
 
 
