@@ -60,9 +60,7 @@ void Graphics::loadFragmentShader(string name, string filename)
 
 float Graphics::modelGround(const Model& model)
 {
-	// :G
-	
-	return -2.f;
+	return model.height();
 }
 
 void Graphics::depthSortParticles(Vec3& d)
@@ -104,6 +102,7 @@ void Graphics::toggleLightingStatus()
 		glDisable(GL_LIGHTING);
 	else
 		glEnable(GL_LIGHTING);
+    drawhitboxes = !drawhitboxes;
 	lightsActive = !lightsActive;
 }
 
@@ -401,7 +400,9 @@ void Graphics::init()
 	charWidth['T'] = 0.19;
 	charWidth['W'] = 0.24;
 	charWidth['Q'] = 0.24;
-	charWidth['O'] = 0.24;
+	charWidth['O'] = 0.3;
+	charWidth['Z'] = 0.1;
+	charWidth['M'] = 0.3;
 	
 	createWindow(); // let SDL handle this part..
 	
@@ -463,6 +464,8 @@ void Graphics::init()
 	frustum.setCamInternals(angle,ratio,nearP,farP);
 	
 	glMatrixMode(GL_MODELVIEW);
+
+    drawhitboxes = false;
 }
 
 void Graphics::createWindow()
@@ -488,7 +491,7 @@ void Graphics::createWindow()
 	}
 }
 
-void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node, const string& animation, int animation_state)
+void Graphics::drawPartsRecursive(Model& model, int current_node, const string& animation, int animation_state)
 {
 	if(current_node < 0 || size_t(current_node) >= model.parts.size())
 	{
@@ -525,7 +528,7 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, int prev_node,
 	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
 	for(size_t i=0; i<model.parts[current_node].children.size(); i++)
 	{
-		drawPartsRecursive(model, model.parts[current_node].children[i], current_node, animation, animation_state);
+		drawPartsRecursive(model, model.parts[current_node].children[i], animation, animation_state);
 	}
 	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
 	
@@ -652,7 +655,7 @@ void Graphics::drawModels(map<int, Model>& models)
 		}
 
 		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
-		drawPartsRecursive(iter->second, iter->second.root, -1, iter->second.animation_name, iter->second.animation_time);
+		drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
 		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
 	}
 	glUseProgram(0);
@@ -777,9 +780,9 @@ void Graphics::draw(std::map<int, Model>& models, const std::string& status_mess
 	SDL_GL_SwapBuffers();
 }
 
-void Graphics::updateInput(int keystate, int mousex, int mousey)
+void Graphics::updateInput(int keystate)
 {
-	camera.updateInput(keystate, mousex, mousey);
+	camera.updateInput(keystate);
 }
 
 void Graphics::bindCamera(Unit* unit)
@@ -967,6 +970,9 @@ void Graphics::drawOctree(const Octree& o) {
 
 void Graphics::drawHitboxes(const std::map<int,Unit>& units)
 {
+    if (!drawhitboxes)
+        return;
+
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;

@@ -112,3 +112,7 @@ bool Model::save(const string& filename) const
 	return bool(out);
 }
 
+float Model::height() const
+{
+	return -2.f;
+}
