@@ -1,13 +1,13 @@
-
+#include "localplayer.h"
 #include "game.h"
 #include "image.h"
 #include "menubutton.h"
 
 using namespace std;
 
-void Game::menu_tick()
+void Localplayer::menu_tick()
 {
-	if(myID >= 0)
+	if(game.myID >= 0)
 		reset();
 	
 	// load images & create textures
@@ -77,7 +77,7 @@ void Game::menu_tick()
 	return;
 }
 
-int Game::connectMenu()
+int Localplayer::connectMenu()
 {
 	cerr << "Type the name of the host machine: " << endl;
 	string hostName = "";
@@ -107,9 +107,9 @@ int Game::connectMenu()
 		}
 		else if(key_hostname == "return")
 		{
-			joinInternetGame(hostName);
-			return 0;
+			return !joinInternetGame(hostName);
 		}
 		cerr << "Current input: \"" << hostName << "\"" << endl;
 	}
 }
+

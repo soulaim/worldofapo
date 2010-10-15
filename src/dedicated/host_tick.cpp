@@ -172,7 +172,8 @@ void DedicatedServer::host_tick()
 		
 		for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
 		{
-			i->second.write(serverMsgs[k]);
+			if(Players[i->first].connectionState == 1)
+				i->second.write(serverMsgs[k]);
 		}
 	}
 	serverMsgs.clear();
