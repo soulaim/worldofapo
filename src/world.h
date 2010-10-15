@@ -4,12 +4,14 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "unit.h"
 #include "projectile.h"
 #include "model.h"
 #include "level.h"
 #include "apomath.h"
+#include "octree.h"
 
 struct WorldEvent
 {
@@ -33,7 +35,7 @@ class World
 	void generateInput_RabidAlien(Unit& unit);
 	void resolveUnitCollision(Unit& a, Unit& b);
 	void doDeathFor(Unit& unit, int causeOfDeath);
-	
+
 public:
 	
 	// identifications for event where we want to do some SFX
@@ -47,6 +49,8 @@ public:
 	
 	World();
 	void init();
+
+	std::shared_ptr<Octree> o;
 	
 	std::map<int, Unit> units;
 	std::map<int, Model> models;

@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <memory>
 
 #include "glew/glew.h"
 #include <GL/gl.h>
@@ -17,6 +18,7 @@
 #include "viewmessage.h"
 #include "playerinfo.h"
 
+#include "octree.h"
 #include "image.h"
 #include "location.h"
 #include "particle.h"
@@ -126,7 +128,6 @@ public:
 	void setHumanPositions(const std::vector<Location>&);
 
 
-
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate, int mousex, int mousey);
 	
@@ -138,11 +139,13 @@ public:
 	
 	void setTime(unsigned);
 	
-	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units);
+	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units, const std::shared_ptr<Octree> o);
 	void draw(std::map<int, Model>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
 	void drawHitboxes(const std::map<int,Unit>& units);
+	void drawBox(const Location&, const Location&);
+	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void toggleLightingStatus();
 	void toggleFullscreen();

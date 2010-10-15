@@ -750,7 +750,7 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
-void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units)
+void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units, const std::shared_ptr<Octree> o)
 {
 	updateCamera(lvl);
 
@@ -761,6 +761,7 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<in
 	drawHitboxes(units);
 	drawModels(models);
 	drawParticles();
+	drawOctree(o);
 	drawHUD();
 
 	SDL_GL_SwapBuffers();
@@ -910,42 +911,66 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 	humanPositions = positions;
 }
 
+void Graphics::drawBox(const Location& top, const Location& bot) {
+	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+	glBegin(GL_LINES);
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
+	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
+	glEnd();
+}
+
+void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
+	drawBox(o->top, o->bot);
+	if (o->hasChildren) {
+		for (int i = 0; i < 2; ++i)
+			for (int j = 0; j < 2; ++j)
+				for (int k = 0; k < 2; ++k)
+					drawOctree(o->children[i][j][k]);
+	}
+}
+
+/*
+void Graphics::drawOctree(const Octree& o) {
+	drawBox(o.top, o.bot);
+	if (o.hasChildren) {
+		for (int i = 0; i < 2; ++i)
+			for (int j = 0; j < 2; ++j)
+				for (int k = 0; k < 2; ++k)
+					drawOctree(*(o.children[i][j][k]));
+	}
+}
+*/
+
 void Graphics::drawHitboxes(const std::map<int,Unit>& units)
 {
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;
-		const Location& top = u.hitbox_top();
-		const Location& bot = u.hitbox_bot();
-
-		glBegin(GL_LINES);
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-		glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-		glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-		glEnd();
+		drawBox(u.hitbox_top(), u.hitbox_bot());
 	}
 }
 

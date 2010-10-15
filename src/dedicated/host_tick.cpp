@@ -416,7 +416,8 @@ void DedicatedServer::ServerProcessClientMsgs()
 			
 			// THIS IS DANGEROUS
 			if(cmd == "ZOMBIE")
-				serverSendMonsterSpawn();
+				for (int i = 0; i < 10; ++i)
+					serverSendMonsterSpawn();
 			
 		}
 		

@@ -186,8 +186,9 @@ void World::init()
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
-	
+
 	lvl.generate(50);
+	
 	show_errors = 0;
 }
 
@@ -508,14 +509,18 @@ void World::updateModel(Model& model, Unit& unit)
 
 void World::worldTick(int tickCount)
 {
+	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(100), FixedPoint(lvl.max_z()))));
+
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
+		o->insert(iter->second.position);
 		tickUnit(iter->second, models[iter->first]);
 	}
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
+		o->insert(iter->second.curr_position);
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
 	
