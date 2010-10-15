@@ -75,6 +75,7 @@ private:
 	void playerStartingChoice(int, std::string);
 	void handleSignInMessage(int, std::string);
 	
+	// some message sending stuff
 	void serverSendMonsterSpawn();
 	void serverSendRequestPlayerNameMessage(int player_id);
 	
@@ -90,16 +91,6 @@ private:
 	void sendWorldCopy(string areaName, int plrID);
 	void update_kills();
 	void update_deaths();
-
-/*
-	void check_messages_from_server();
-	void handleClientLocalInput();
-	void client_tick_local();
-	void process_game_input();
-	
-	void enableGrab();
-	void disableGrab();
-*/
 
 	// for dedicated server
 	void ServerProcessClientMsgs();

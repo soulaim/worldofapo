@@ -6,17 +6,11 @@
 #include <sstream>
 #include <algorithm>
 
-#include <SDL/SDL_mixer.h>
-
 // required for obtaining character keys from file. could be located in another file.
 #include <fstream>
 
 using namespace std;
 
-
-
-Mix_Music *music = NULL;
-void musicDone();
 
 Game::Game(): fps_world(0)
 {

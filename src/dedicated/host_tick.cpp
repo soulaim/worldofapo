@@ -141,14 +141,13 @@ void DedicatedServer::host_tick()
 		dormantPlayers[Players[leaver].key] = Players[leaver];
 		Players.erase(leaver);
 		
-		
 		sockets.erase_id(leaver);
 	}
 	
 	unsigned minAllowed = UINT_MAX;
 	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
 	{
-		if(target->second.last_order < minAllowed)
+		if(Players[target->first].connectionState == 1 && target->second.last_order < minAllowed)
 			minAllowed = target->second.last_order;
 	}
 	
