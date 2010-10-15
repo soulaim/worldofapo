@@ -20,9 +20,11 @@
 #include <map>
 #include <set>
 
-Localplayer::Localplayer():
+Localplayer::Localplayer(Graphics* g, UserIO* u):
 	client_input_state(0),
-	game(&world)
+	game(&world),
+	view(g),
+	userio(u)
 {
 }
 
@@ -47,11 +49,11 @@ void Localplayer::init()
 {
 	soundsystem.init();
 	game.init();
-	userio.init();
+	userio->init();
 
-	view.loadObjects("data/parts.dat");
-	view.megaFuck(); // blah..
-	view.setPlayerInfo(&game.Players);
+	view->loadObjects("data/parts.dat");
+	view->megaFuck(); // blah..
+	view->setPlayerInfo(&game.Players);
 
 	// TODO: Should not be done here? FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -74,7 +76,7 @@ bool Localplayer::client_tick()
 			
 			game.TICK();
 
-			view.world_tick();
+			view->world_tick();
 			handleWorldEvents();
 			
 			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
@@ -88,12 +90,12 @@ bool Localplayer::client_tick()
 
 void Localplayer::draw()
 {
-	view.setTime( SDL_GetTicks() );
+	view->setTime( SDL_GetTicks() );
 	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
 		world.viewTick();
-		view.tick();
-		view.draw(world.models, world.lvl, world.units);
+		view->tick();
+		view->draw(world.models, world.lvl, world.units);
 	}
 }
 
@@ -130,11 +132,11 @@ void Localplayer::playSound(const string& name, Location& position)
 
 void Localplayer::camera_handling()
 {
-	int wheel_status = userio.getMouseWheelScrolled();
+	int wheel_status = userio->getMouseWheelScrolled();
 	if (wheel_status == 1)
-		view.mouseUp();
+		view->mouseUp();
 	if (wheel_status == 2)
-		view.mouseDown();
+		view->mouseDown();
 }
 
 void Localplayer::enableGrab()
@@ -151,15 +153,15 @@ void Localplayer::disableGrab()
 
 void Localplayer::process_sent_game_input()
 {
-	int keyState = userio.getGameInput();
+	int keyState = userio->getGameInput();
 	if (client_input_state & 2)
 		keyState = 0;
 	int x, y;
 	
-	userio.getMouseChange(x, y);
-	int mousepress = userio.getMousePress();
+	userio->getMouseChange(x, y);
+	int mousepress = userio->getMousePress();
 
-	view.updateInput(keyState); // Make only "small" local changes like change camera angle.
+	view->updateInput(keyState); // Make only "small" local changes like change camera angle.
 
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
@@ -168,7 +170,7 @@ void Localplayer::handleClientLocalInput()
 {
 	camera_handling();
 	
-	string key = userio.getSingleKey();
+	string key = userio->getSingleKey();
 	
 	if(key.size() == 0)
 		return;
@@ -176,9 +178,9 @@ void Localplayer::handleClientLocalInput()
 	if(key == "return")
 		client_input_state ^= 2;
 	else if(key == "f11")
-		view.toggleFullscreen();
+		view->toggleFullscreen();
 	else if(key == "f10")
-		view.toggleLightingStatus();
+		view->toggleLightingStatus();
 	else if(key == "f9")
 		world.show_errors ^= 1;
 	
@@ -206,7 +208,7 @@ void Localplayer::handleClientLocalInput()
 			clientCommand.append(" ");
 		
 		nick.append(clientCommand);
-		view.setCurrentClientCommand(nick);
+		view->setCurrentClientCommand(nick);
 	}
 	else
 	{
@@ -219,7 +221,7 @@ void Localplayer::handleClientLocalInput()
 			}
 			
 			clientCommand = "";
-			view.setCurrentClientCommand(clientCommand);
+			view->setCurrentClientCommand(clientCommand);
 		}
 		
 		if(key == "escape")
@@ -251,17 +253,17 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID != -1)
 	{
-		view.setLocalPlayerName(game.Players[game.myID].name);
-		view.setLocalPlayerHP(world.units[game.myID].hitpoints);
+		view->setLocalPlayerName(game.Players[game.myID].name);
+		view->setLocalPlayerHP(world.units[game.myID].hitpoints);
 	}
 
-	view.setZombiesLeft(world.getZombies());
-	view.setHumanPositions(world.humanPositions());
+	view->setZombiesLeft(world.getZombies());
+	view->setHumanPositions(world.humanPositions());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < world.worldMessages.size(); ++i)
 	{
-		view.pushMessage(world.worldMessages[i]);
+		view->pushMessage(world.worldMessages[i]);
 	}
 	world.worldMessages.clear();
 	
@@ -273,18 +275,18 @@ void Localplayer::handleWorldEvents()
 		{
 			case World::DAMAGE_BULLET:
 			{
-				view.genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 				break;
 			}
 			case World::DAMAGE_DEVOUR:
 			{
-				view.genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 				break;
 			}
 			case World::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.position);
-				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+				view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -295,7 +297,7 @@ void Localplayer::handleWorldEvents()
 			case World::DEATH_PLAYER:
 			{
 				playSound("player_death", event.position);
-				view.genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -312,7 +314,7 @@ void Localplayer::handleWorldEvents()
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
 					cerr << "Binding camera to unit " << event.actor_id << endl;
-					view.bindCamera(&world.units[event.actor_id]);
+					view->bindCamera(&world.units[event.actor_id]);
 				}
 				break;
 			}
@@ -324,8 +326,8 @@ void Localplayer::handleWorldEvents()
 	}
 	
 	world.events.clear();
-	view.setLocalPlayerKills(game.Players[game.myID].kills);
-	view.setLocalPlayerDeaths(game.Players[game.myID].deaths);
+	view->setLocalPlayerKills(game.Players[game.myID].kills);
+	view->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
 
 

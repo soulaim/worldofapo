@@ -8,6 +8,9 @@
 #include <fstream>
 
 #include "../localplayer.h"
+#include "../menu.h"
+#include "../graphics.h"
+#include "../userio.h"
 #include "../logger.h"
 
 using namespace std;
@@ -19,25 +22,30 @@ int main()
 	log.open("gamelog.log");
 	
 	cerr << "creating game object" << endl;
-	Localplayer master;
+	UserIO userio;
+	Graphics view;
+	Localplayer master(&view, &userio);
 	master.init();
+	Menu menu(&view, &userio);
 
-	bool menu = true;
+	bool in_menu = true;
 	while(true)
 	{
-		if(!menu)
+		if(!in_menu)
 		{
 			if(master.client_tick())
 			{
-				menu = true;
+				in_menu = true;
 			}
 		}
 		else
 		{
-			master.menu_tick();
-			menu = false;
-
-			cerr << "Menu ended, game starting" << endl;
+			string choice = menu.menu_tick();
+			if(choice != "" && master.joinInternetGame(choice))
+			{
+				in_menu = false;
+				cerr << "Menu ended, game starting" << endl;
+			}
 		}
 
 		master.draw(); // draws if possible

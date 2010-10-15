@@ -24,23 +24,22 @@
 class Localplayer
 {
 public:
-	Localplayer();
+	Localplayer(Graphics*, UserIO*);
 
 	bool client_tick();
-	void menu_tick(); // TODO: separate from localplayer?
 
 	void draw();
 	void init();
 
-private:
 	bool joinInternetGame(const std::string&);
+
+private:
 	void endGame();
 	
 	void reset();
 	
 	void handleWorldEvents();
 	void camera_handling();
-	int connectMenu();
 
 	void handleClientLocalInput();
 	void process_sent_game_input();
@@ -56,9 +55,9 @@ private:
 	std::string clientCommand;
 
 	Game game;
-	Graphics view;
+	Graphics* view;
+	UserIO* userio;
 	GameSound soundsystem;
-	UserIO userio;
 	World world;
 };
 

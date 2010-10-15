@@ -1,15 +1,21 @@
-#include "localplayer.h"
+#include "menu.h"
+
 #include "game.h"
 #include "image.h"
 #include "menubutton.h"
 
+#include <vector>
+
 using namespace std;
 
-void Localplayer::menu_tick()
+Menu::Menu(Graphics* v, UserIO* u):
+	view(v),
+	userio(u)
 {
-	if(game.myID >= 0)
-		reset();
-	
+}
+
+std::string Menu::menu_tick()
+{
 	// load images & create textures
 	vector<MenuButton> buttons;
 	
@@ -20,12 +26,14 @@ void Localplayer::menu_tick()
 	size_t selected = 2;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
+
+	string ret;
 	
 	while(dont_exit)
 	{
-		view.drawMenu(buttons);
+		view->drawMenu(buttons);
 		
-		string key = userio.getSingleKey();
+		string key = userio->getSingleKey();
 		
 		if(key == "")
 		{
@@ -55,7 +63,11 @@ void Localplayer::menu_tick()
 			if(buttons[selected].name == "connect")
 			{
 				// ask for host name and connect.
-				dont_exit = connectMenu();
+				ret = connectMenu();
+				if(ret != "")
+				{
+					dont_exit = false;
+				}
 			}
 			else if(buttons[selected].name == "exit")
 			{
@@ -74,17 +86,17 @@ void Localplayer::menu_tick()
 		buttons[i].unloadTexture();
 	}
 	
-	return;
+	return ret;
 }
 
-int Localplayer::connectMenu()
+std::string Menu::connectMenu()
 {
 	cerr << "Type the name of the host machine: " << endl;
 	string hostName = "";
 	
 	while(true)
 	{
-		string key_hostname = userio.getSingleKey();
+		string key_hostname = userio->getSingleKey();
 		
 		if(key_hostname == "")
 		{
@@ -98,18 +110,21 @@ int Localplayer::connectMenu()
 		else if(key_hostname == "escape")
 		{
 			cerr << "Out from connecting" << endl;
-			return 1;
+			break;
 		}
 		else if(key_hostname == "backspace")
 		{
 			if(hostName.size() > 0)
+			{
 				hostName.resize(hostName.size()-1);
+			}
 		}
 		else if(key_hostname == "return")
 		{
-			return !joinInternetGame(hostName);
+			return hostName;
 		}
 		cerr << "Current input: \"" << hostName << "\"" << endl;
 	}
+	return "";
 }
 
