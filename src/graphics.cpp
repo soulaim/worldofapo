@@ -102,7 +102,7 @@ void Graphics::toggleLightingStatus()
 		glDisable(GL_LIGHTING);
 	else
 		glEnable(GL_LIGHTING);
-    drawhitboxes = !drawhitboxes;
+	drawDebuglines = !drawDebuglines;
 	lightsActive = !lightsActive;
 }
 
@@ -467,7 +467,7 @@ void Graphics::init()
 	
 	glMatrixMode(GL_MODELVIEW);
 
-    drawhitboxes = false;
+	drawDebuglines = false;
 }
 
 void Graphics::createWindow()
@@ -953,6 +953,8 @@ void Graphics::drawBox(const Location& top, const Location& bot) {
 }
 
 void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
+	if (!drawDebuglines)
+		return;
 	drawBox(o->top, o->bot);
 	if (o->hasChildren) {
 		for (int i = 0; i < 2; ++i)
@@ -964,7 +966,7 @@ void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
 
 void Graphics::drawHitboxes(const std::map<int,Unit>& units)
 {
-	if (!drawhitboxes)
+	if (!drawDebuglines)
 		return;
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
