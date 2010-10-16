@@ -22,6 +22,8 @@ Game::Game(World* w):
 
 void Game::reset()
 {
+	Players[-1].name = "GOD";
+	
 	cerr << "Reseting client state." << endl;
 	myID = -1;
 	
@@ -32,7 +34,6 @@ void Game::reset()
 void Game::init()
 {
 	reset();
-	
 	readConfig();
 }
 

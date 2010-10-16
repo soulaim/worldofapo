@@ -30,6 +30,14 @@ int FPS_Manager::setStartTime(const long long& time)
 int FPS_Manager::need_to_draw(const long long& time)
 {
 	long long real_time = time - start_time;
+	
+	long long missing_frames = desired_fps * real_time / 1000 - frame_count;
+	if(missing_frames > 25)
+	{
+		reset(time);
+		return 0;
+	}
+	
 	if(1000 * frame_count / (1 + real_time) < desired_fps)
 		return 1;
 	return 0;

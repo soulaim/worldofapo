@@ -130,6 +130,19 @@ void DedicatedServer::host_tick()
 						continue;
 					}
 				}
+				else if(orderWord == "-1")
+				{
+					// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
+					cerr << "SOME IS IMPERSONATING GOD!! :" << i->second.msgs[k] << endl;
+					i->second.msgs[k] = "";
+					
+					// disconnect the fucker
+					i->second.alive = false;
+					
+					stringstream chatmsg;
+					chatmsg << "3 -1 ^r" << Players[i->first].name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
+					serverMsgs.push_back(chatmsg.str());
+				}
 				
 				
 				// commands passed down to local message handling before sending to others.
@@ -216,8 +229,14 @@ void DedicatedServer::host_tick()
 		}
 		else
 		{
-			// sleep a little bit :)
-			SDL_Delay(10);
+			/*
+			// update tick counts anyway..
+			timeval t;
+			gettimeofday(&t,NULL);
+			long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
+			if(fps_world.need_to_draw(milliseconds))
+				fps_world.insert();
+			*/
 			return;
 		}
 	}
@@ -228,6 +247,8 @@ void DedicatedServer::host_tick()
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
 	
+	
+	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( (sockets.sockets.size() == 0) && (UnitInput.size() == 0) )
 	{
@@ -240,8 +261,7 @@ void DedicatedServer::host_tick()
 		fps_world.reset(milliseconds);
 		
 		cerr << "World shutting down." << endl;
-
-//		state_descriptor = 0;
+		state_descriptor = 0;
 		return;
 	}
 	
