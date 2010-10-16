@@ -52,27 +52,51 @@ void Octree::split() {
 		}
 	}
 	hasChildren = true;
-	for(std::vector<Location>::iterator it = objects.begin(); it != objects.end(); ++it) {
-		insert(*it);
+	for(std::vector<Unit>::iterator it = units.begin(); it != units.end(); ++it) {
+		insertUnit(*it);
 	}
-	objects.clear();
+	for(std::vector<Projectile>::iterator it = projectiles.begin(); it != projectiles.end(); ++it) {
+		insertProjectile(*it);
+	}
+	units.clear();
+	projectiles.clear();
 }
 
-void Octree::insert(Location l)
+void Octree::insertUnit(const Unit& u)
 {
 	if (!hasChildren) {
 		if (n >= MAX_OBJ && depth < MAX_DEPTH) {
 			split();
 			n = 0;
 		} else {
-			objects.push_back(l);
+			units.push_back(u);
 			n += 1;
 			return;
 		}
 	}
+	Location l = u.position;
 	int x = (l.x < c.x)? 0 : 1;
 	int y = (l.y < c.y)? 0 : 1;
 	int z = (l.z < c.z)? 0 : 1;
-	children[x][y][z]->insert(l);
+	children[x][y][z]->insertUnit(u);
+}
+
+void Octree::insertProjectile(const Projectile& p)
+{
+	if (!hasChildren) {
+		if (n >= MAX_OBJ && depth < MAX_DEPTH) {
+			split();
+			n = 0;
+		} else {
+			projectiles.push_back(p);
+			n += 1;
+			return;
+		}
+	}
+	Location l = p.curr_position;
+	int x = (l.x < c.x)? 0 : 1;
+	int y = (l.y < c.y)? 0 : 1;
+	int z = (l.z < c.z)? 0 : 1;
+	children[x][y][z]->insertProjectile(p);
 }
 

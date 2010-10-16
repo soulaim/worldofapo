@@ -2,6 +2,8 @@
 #define OCTREE_H
 
 #include "location.h"
+#include "unit.h"
+#include "projectile.h"
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -21,10 +23,12 @@ public:
 	std::shared_ptr<Octree> children[2][2][2];
 	int depth;
 	int n;
-	std::vector<Location> objects;
+	std::vector<Projectile> projectiles;
+	std::vector<Unit> units;
 
 	void split();
-	void insert(Location l);
+	void insertUnit(const Unit& u);
+	void insertProjectile(const Projectile& p);
 };
 
 #endif
