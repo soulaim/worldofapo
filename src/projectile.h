@@ -25,6 +25,7 @@ class Projectile
 		Location curr_position;
 		Location prev_position;
 		
+		int id;
 		int owner;
 		int lifetime;
 		void tick();

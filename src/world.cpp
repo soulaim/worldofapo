@@ -83,6 +83,22 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	events.push_back(event);
 }
 
+void World::handleUnitUnitCollisions(std::vector<std::pair<Unit*,Unit*>>& l) {
+	// do something about unit to unit collisions
+	for(std::vector<std::pair<Unit*, Unit*>>::iterator it = l.begin(); it != l.end(); ++it)
+	{
+		Unit* u = it->first;
+		Unit* u2 = it->second;
+		if((u->position - u2->position).lengthSquared() < FixedPoint(4))
+		{
+			resolveUnitCollision(*u, *u2);
+			
+			// dont activate this until the sound actually exists, if ever.
+			//unit.soundInfo = "unitbump";
+		}
+	}
+}
+
 void World::resolveUnitCollision(Unit& a, Unit& b)
 {
 	
@@ -235,28 +251,12 @@ void World::tickUnit(Unit& unit, Model& model)
 		unit.velocity.y -= FixedPoint(35,1000);
 	}
 	
-	// do something about unit to unit collisions
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		if(iter->second.id == unit.id)
-			continue;
-		if((iter->second.position - unit.position).lengthSquared() < FixedPoint(4))
-		{
-			resolveUnitCollision(unit, iter->second);
-			
-			// dont activate this until the sound actually exists, if ever.
-			//unit.soundInfo = "unitbump";
-		}
-	}
-	
-	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
 		FixedPoint scale = FixedPoint(10, 100);
 		unit.velocity.x += apomath.getCos(unit.angle) * scale;
 		unit.velocity.z += apomath.getSin(unit.angle) * scale;
 	}
-	
 	
 	if(unit.getKeyAction(Unit::MOVE_BACK) && hitGround)
 	{
@@ -316,7 +316,6 @@ void World::tickUnit(Unit& unit, Model& model)
 		--unit.leap_cooldown;
 	}
 
-
 	// TODO: THIS SHOULD DEFINITELY NOT LOOK SO FUCKING UGLY
 	if(unit.weapon_cooldown == 0)
 	{
@@ -361,6 +360,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			projectile.velocity = projectile_direction - weapon_position;
 			projectile.velocity.normalize();
 			projectile.velocity *= FixedPoint(10, 1);
+			projectile.id = id;
 			projectile.owner = unit.id;
 			
 			projectile.tick();
@@ -437,51 +437,60 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 	if(projectile.lifetime > 0)
 	{
 		projectile.tick();
-
-		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
+		if(projectile.collidesTerrain(lvl))
 		{
-			Unit& unit = it->second;
-			if(projectile.collides(unit))
-			{
-				bool shooterIsMonster = false;
-				if(units.find(projectile.owner) != units.end())
-					shooterIsMonster = !units[projectile.owner].human();
-				
-				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-				if(!unit.human() && shooterIsMonster)
-				{
-					deadUnits.push_back(id);
-					continue;
-				}
-				
-				// save this information for later use.
-				WorldEvent event;
-				event.type = DAMAGE_BULLET;
-				event.position = unit.position;
-				event.position.y += FixedPoint(2);
-				event.velocity.y = FixedPoint(200,1000);
-				events.push_back(event);
-				
-				
-				unit.hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-				unit.velocity += projectile.velocity * FixedPoint(1, 100);
-				
-				if(unit.hitpoints < 1)
-				{
-					doDeathFor(unit, projectile.owner);
-				}
-				
-				deadUnits.push_back(id);
-			}
-			else if(projectile.collidesTerrain(lvl))
-			{
-				deadUnits.push_back(id);
-			}
+			deadUnits.push_back(id);
 		}
 	}
 	else
 	{
 		deadUnits.push_back(id);
+	}
+}
+
+void World::handleProjectileUnitCollisions(std::vector<std::pair<Projectile*,Unit*>>& l) {
+	int lasthit = -1;
+	for(std::vector<std::pair<Projectile*,Unit*>>::iterator it = l.begin(); it != l.end(); ++it)
+	{
+		Projectile* p = it->first;
+		Unit* u = it->second;
+
+		if (p->id == lasthit)
+			continue;
+
+		if(p->collides(*u))
+		{
+			bool shooterIsMonster = false;
+			if(units.find(p->owner) != units.end())
+				shooterIsMonster = !units[p->owner].human();
+			
+			// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+			if(!u->human() && shooterIsMonster)
+			{
+				deadUnits.push_back(p->id);
+				continue;
+			}
+			
+			// save this information for later use.
+			WorldEvent event;
+			event.type = DAMAGE_BULLET;
+			event.position = u->position;
+			event.position.y += FixedPoint(2);
+			event.velocity.y = FixedPoint(200,1000);
+			events.push_back(event);
+			
+			
+			u->hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
+			u->velocity += p->velocity * FixedPoint(1, 100);
+			
+			if(u->hitpoints < 1)
+			{
+				doDeathFor(*u, p->owner);
+			}
+			
+			deadUnits.push_back(p->id);
+			lasthit = p->id;
+		}
 	}
 }
 
@@ -514,15 +523,23 @@ void World::worldTick(int tickCount)
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
-		o->insertUnit(iter->second);
 		tickUnit(iter->second, models[iter->first]);
+		o->insertUnit(&(iter->second));
 	}
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		o->insertProjectile(iter->second);
 		tickProjectile(iter->second, models[iter->first], iter->first);
+		o->insertProjectile(&(iter->second));
 	}
+
+	std::vector<std::pair<Unit*,Unit*>> u2u;
+	o->potUnitUnitColl(u2u);
+	handleUnitUnitCollisions(u2u);
+
+	std::vector<std::pair<Projectile*,Unit*>> p2u;
+	o->potProjectileUnitColl(p2u);
+	handleProjectileUnitCollisions(p2u);
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
@@ -530,7 +547,6 @@ void World::worldTick(int tickCount)
 	}
 	
 	deadUnits.clear();
-	
 	
 	if(show_errors && (currentWorldFrame % 200) == 0)
 	{

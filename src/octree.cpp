@@ -52,17 +52,17 @@ void Octree::split() {
 		}
 	}
 	hasChildren = true;
-	for(std::vector<Unit>::iterator it = units.begin(); it != units.end(); ++it) {
+	for(std::vector<Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
 		insertUnit(*it);
 	}
-	for(std::vector<Projectile>::iterator it = projectiles.begin(); it != projectiles.end(); ++it) {
+	for(std::vector<Projectile*>::iterator it = projectiles.begin(); it != projectiles.end(); ++it) {
 		insertProjectile(*it);
 	}
 	units.clear();
 	projectiles.clear();
 }
 
-void Octree::insertUnit(const Unit& u)
+void Octree::insertUnit(Unit* u)
 {
 	if (!hasChildren) {
 		if (n >= MAX_OBJ && depth < MAX_DEPTH) {
@@ -74,14 +74,14 @@ void Octree::insertUnit(const Unit& u)
 			return;
 		}
 	}
-	Location l = u.position;
+	Location l = u->position;
 	int x = (l.x < c.x)? 0 : 1;
 	int y = (l.y < c.y)? 0 : 1;
 	int z = (l.z < c.z)? 0 : 1;
 	children[x][y][z]->insertUnit(u);
 }
 
-void Octree::insertProjectile(const Projectile& p)
+void Octree::insertProjectile(Projectile* p)
 {
 	if (!hasChildren) {
 		if (n >= MAX_OBJ && depth < MAX_DEPTH) {
@@ -93,10 +93,45 @@ void Octree::insertProjectile(const Projectile& p)
 			return;
 		}
 	}
-	Location l = p.curr_position;
+	Location l = p->curr_position;
 	int x = (l.x < c.x)? 0 : 1;
 	int y = (l.y < c.y)? 0 : 1;
 	int z = (l.z < c.z)? 0 : 1;
 	children[x][y][z]->insertProjectile(p);
+}
+
+int Octree::potProjectileUnitColl(std::vector<std::pair<Projectile*, Unit*>>& l) {
+	int n = 0;
+	for(std::vector<Projectile*>::iterator p_it = projectiles.begin(); p_it != projectiles.end(); ++p_it) {
+		for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
+			l.push_back(make_pair<Projectile*,Unit*>(*p_it, *u_it));
+			++n;
+		}
+	}
+	if (hasChildren) {
+		for (int i = 0; i < 2; ++i)
+			for (int j = 0; j < 2; ++j)
+				for (int k = 0; k < 2; ++k)
+					n += children[i][j][k]->potProjectileUnitColl(l);
+	}
+	return n;
+}
+
+int Octree::potUnitUnitColl(std::vector<std::pair<Unit*, Unit*>>& l) {
+	int n = 0;
+	for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
+		std::vector<Unit*>::iterator u2_it = u_it;
+		for(++u2_it; u2_it != units.end(); ++u2_it) {
+			l.push_back(make_pair<Unit*,Unit*>(*u_it, *u2_it));
+			++n;
+		}
+	}
+	if (hasChildren) {
+		for (int i = 0; i < 2; ++i)
+			for (int j = 0; j < 2; ++j)
+				for (int k = 0; k < 2; ++k)
+					n += children[i][j][k]->potUnitUnitColl(l);
+	}
+	return n;
 }
 
