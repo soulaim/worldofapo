@@ -62,7 +62,7 @@ int GameSound::init()
 	}
 	else
 	{
-		cerr << "Sound system appears to be active :DD" << endl;
+		cerr << "Soundsystem initiated succesfully" << endl;
 		soundsystem_ok = true;
 		Mix_AllocateChannels(20);
 	}

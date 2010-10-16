@@ -647,3 +647,14 @@ std::vector<Location> World::humanPositions()
 	}
 	return positions;
 }
+
+void World::add_message(const std::string& message)
+{
+	worldMessages.push_back(message);
+}
+
+void World::add_event(const WorldEvent& event)
+{
+	events.push_back(event);
+}
+

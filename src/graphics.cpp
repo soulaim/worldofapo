@@ -217,12 +217,14 @@ void Graphics::drawString(const string& msg, float pos_x, float pos_y, float sca
 		glVertex3f(pos_x + totalWidth    , y_top, -1);
 		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
 		glEnd();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 		glEnable(GL_TEXTURE_2D);
 	}
 	
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
+	
+	// reset default colour to white.
+	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
@@ -653,10 +655,13 @@ void Graphics::drawModels(map<int, Model>& models)
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 			continue;
 		}
-
-		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
-		drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
-		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
+		
+		if(frustum.sphereInFrustum(iter->second.currentModelPos, 5) != FrustumR::OUTSIDE)
+		{
+			glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
+			drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
+			glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);
+		}
 	}
 	glUseProgram(0);
 }
@@ -802,9 +807,10 @@ void Graphics::tick()
 
 	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Vec3 camPos = camera.getPosition();
-	lightPos[0] = camPos.x;
-	lightPos[1] = camPos.y;
-	lightPos[2] = camPos.z;
+    Location modelLocation = camera.getUnitPosition();
+	lightPos[0] = camPos.x; //modelLocation.x.getFloat();
+	lightPos[1] = camPos.y; //modelLocation.y.getFloat();
+	lightPos[2] = camPos.z; //modelLocation.z.getFloat();
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	
 	Location position(FixedPoint(0),FixedPoint(5),FixedPoint(0));
@@ -956,23 +962,10 @@ void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
 	}
 }
 
-/*
-void Graphics::drawOctree(const Octree& o) {
-	drawBox(o.top, o.bot);
-	if (o.hasChildren) {
-		for (int i = 0; i < 2; ++i)
-			for (int j = 0; j < 2; ++j)
-				for (int k = 0; k < 2; ++k)
-					drawOctree(*(o.children[i][j][k]));
-	}
-}
-*/
-
 void Graphics::drawHitboxes(const std::map<int,Unit>& units)
 {
-    if (!drawhitboxes)
-        return;
-
+	if (!drawhitboxes)
+		return;
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;

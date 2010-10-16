@@ -4,17 +4,17 @@
 
 class FPS_Manager
 {
-	int frame_count;
-	int start_time;
-	int desired_fps;
+	long long frame_count;
+	long long start_time;
+	long long desired_fps;
 	
 	public:
-		FPS_Manager(int time, int fps = 50);
-		int reset();
-		int setStartTime(int time);
+		FPS_Manager(long long time, long long fps = 50);
+		
+		int reset(const long long& time);
+		int setStartTime(const long long& time);
 		int insert();
-		int need_to_draw(int time);
-		// fps_counter.resize(50, 10000);
+		int need_to_draw(const long long& time);
 };
 
 #endif
