@@ -655,10 +655,13 @@ void Graphics::drawModels(map<int, Model>& models)
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 			continue;
 		}
-
-		glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
-		drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
-		glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);		
+		
+		if(frustum.sphereInFrustum(iter->second.currentModelPos, 5) != FrustumR::OUTSIDE)
+		{
+			glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
+			drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
+			glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);
+		}
 	}
 	glUseProgram(0);
 }

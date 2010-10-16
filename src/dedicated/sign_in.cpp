@@ -4,8 +4,6 @@
 
 string generateKey()
 {
-	int val1 = rand();
-	
 	char c = 0;
 	string key;
 	
@@ -15,8 +13,11 @@ string generateKey()
 	for(int i=0; i<15; i++)
 	{
 		c = '[';
-		while(c < 'a' && c > 'Z')
-			c = 'A' + ( (++val1 * 71) % ('z'-'A') );
+		while( !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) )
+		{
+			int val1 = rand();
+			c = 'A' + ( (val1 * 71) % ('z'-'A') );
+		}
 		key[i] = c;
 	}
 	
