@@ -100,38 +100,29 @@ void Octree::insertProjectile(Projectile* p)
 	children[x][y][z]->insertProjectile(p);
 }
 
-int Octree::potProjectileUnitColl(std::vector<std::pair<Projectile*, Unit*>>& l) {
-	int n = 0;
-	for(std::vector<Projectile*>::iterator p_it = projectiles.begin(); p_it != projectiles.end(); ++p_it) {
-		for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
+void Octree::potProjectileUnitColl(std::vector<std::pair<Projectile*, Unit*>>& l) {
+	for(std::vector<Projectile*>::iterator p_it = projectiles.begin(); p_it != projectiles.end(); ++p_it)
+		for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it)
 			l.push_back(make_pair<Projectile*,Unit*>(*p_it, *u_it));
-			++n;
-		}
-	}
-	if (hasChildren) {
+
+	if (hasChildren)
 		for (int i = 0; i < 2; ++i)
 			for (int j = 0; j < 2; ++j)
 				for (int k = 0; k < 2; ++k)
-					n += children[i][j][k]->potProjectileUnitColl(l);
-	}
-	return n;
+					children[i][j][k]->potProjectileUnitColl(l);
 }
 
-int Octree::potUnitUnitColl(std::vector<std::pair<Unit*, Unit*>>& l) {
-	int n = 0;
+void Octree::potUnitUnitColl(std::vector<std::pair<Unit*, Unit*>>& l) {
 	for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
 		std::vector<Unit*>::iterator u2_it = u_it;
-		for(++u2_it; u2_it != units.end(); ++u2_it) {
+		for(++u2_it; u2_it != units.end(); ++u2_it)
 			l.push_back(make_pair<Unit*,Unit*>(*u_it, *u2_it));
-			++n;
-		}
 	}
-	if (hasChildren) {
+
+	if (hasChildren)
 		for (int i = 0; i < 2; ++i)
 			for (int j = 0; j < 2; ++j)
 				for (int k = 0; k < 2; ++k)
-					n += children[i][j][k]->potUnitUnitColl(l);
-	}
-	return n;
+					children[i][j][k]->potUnitUnitColl(l);
 }
 

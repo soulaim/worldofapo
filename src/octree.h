@@ -12,7 +12,7 @@
 class Octree
 {
 	static const int MAX_OBJ = 6;
-	static const int MAX_DEPTH = 4;
+	static const int MAX_DEPTH = 12;
 public:
 	Octree(Location _bot, Location _top, int _depth = 1);
 	Location top;
@@ -29,8 +29,8 @@ public:
 	void split();
 	void insertUnit(Unit* u);
 	void insertProjectile(Projectile* p);
-	int potProjectileUnitColl(std::vector<std::pair<Projectile*,Unit*>>& l);
-	int potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l);
+	void potProjectileUnitColl(std::vector<std::pair<Projectile*,Unit*>>& l);
+	void potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l);
 };
 
 #endif
