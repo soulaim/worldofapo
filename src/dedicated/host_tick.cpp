@@ -8,19 +8,6 @@
 using namespace std;
 
 
-void DedicatedServer::serverSendMonsterSpawn()
-{
-	stringstream tmp_msg;
-	tmp_msg << "-1 " << (serverAllow+10) << " 10#";
-	serverMsgs.push_back(tmp_msg.str());
-}
-
-void DedicatedServer::serverSendRequestPlayerNameMessage(int player_id)
-{
-	cerr << "Sending a request to the new player to identify himself!" << endl;
-	sockets.sockets[player_id].write("-2 GIVE_NAME#");
-}
-
 void DedicatedServer::host_tick()
 {
 	// accept any incoming connections
@@ -127,6 +114,17 @@ void DedicatedServer::host_tick()
 					{
 						cerr << "SPAWNING MONSTER" << endl;
 						serverSendMonsterSpawn();
+						continue;
+					}
+					
+					if(cmd == "SWARM#")
+					{
+						serverSendMonsterSpawn(70);
+						
+						stringstream chatmsg;
+						chatmsg << "3 -1 ^r" << Players[i->first].name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
+						serverMsgs.push_back(chatmsg.str());
+						
 						continue;
 					}
 				}

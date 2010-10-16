@@ -76,6 +76,7 @@ private:
 	void handleSignInMessage(int, std::string);
 	
 	// some message sending stuff
+	void serverSendMonsterSpawn(int n);
 	void serverSendMonsterSpawn();
 	void serverSendRequestPlayerNameMessage(int player_id);
 	
