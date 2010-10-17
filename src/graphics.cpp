@@ -920,8 +920,9 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 	humanPositions = positions;
 }
 
-void Graphics::drawBox(const Location& top, const Location& bot) {
-	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+void Graphics::drawBox(const Location& top, const Location& bot,
+	GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+	glColor4f(r, g, b, a);
 	glBegin(GL_LINES);
 	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
 	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
@@ -955,7 +956,8 @@ void Graphics::drawBox(const Location& top, const Location& bot) {
 void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
 	if (!drawDebuglines)
 		return;
-	drawBox(o->top, o->bot);
+	if (o->n > 0)
+		drawBox(o->top, o->bot, 1.0f);
 	if (o->hasChildren) {
 		for (int i = 0; i < 2; ++i)
 			for (int j = 0; j < 2; ++j)
