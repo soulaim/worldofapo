@@ -19,11 +19,13 @@ struct Location
 	
 	void normalize();
 	Location& operator*=(const FixedPoint& scalar);
+	Location& operator/=(const FixedPoint& scalar);
 	Location& operator+=(const Location&);
 	Location& operator-=(const Location&);
 	Location operator+(const Location&) const;
 	Location operator-(const Location&) const;
-	Location operator*(const FixedPoint& scalar);
+	Location operator*(const FixedPoint& scalar) const;
+	Location operator/(const FixedPoint& scalar) const;
 	
 	Location crossProduct(const Location&) const;
 	FixedPoint dotProduct(const Location& b) const;

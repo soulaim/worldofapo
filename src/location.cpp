@@ -14,11 +14,14 @@ Location::Location(const FixedPoint& a, const FixedPoint& b, const FixedPoint& c
 {
 }
 
-Location Location::operator*(const FixedPoint& scalar)
+Location Location::operator*(const FixedPoint& scalar) const
 {
-	Location tmp = *this;
-	tmp *= scalar;
-	return tmp;
+	return Location(*this) *= scalar;
+}
+
+Location Location::operator/(const FixedPoint& scalar) const
+{
+	return Location(*this) /= scalar;
 }
 
 void Location::normalize()
@@ -37,6 +40,14 @@ Location& Location::operator*=(const FixedPoint& scalar)
 	x *= scalar;
 	y *= scalar;
 	z *= scalar;
+	return *this;
+}
+
+Location& Location::operator/=(const FixedPoint& scalar)
+{
+	x /= scalar;
+	y /= scalar;
+	z /= scalar;
 	return *this;
 }
 

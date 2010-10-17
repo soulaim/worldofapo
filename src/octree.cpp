@@ -7,7 +7,7 @@ Octree::Octree(Location _bot, Location _top, int _depth):
 	depth(_depth),
 	n(0)
 {
-	c = Location((top.x + bot.x)/2, (top.y + bot.y)/2, (top.z + bot.z)/2);
+	c = (top + bot)/2;
 }
 
 void Octree::split() {
@@ -74,11 +74,39 @@ void Octree::insertUnit(Unit* u)
 			return;
 		}
 	}
-	Location l = u->position;
-	int x = (l.x < c.x)? 0 : 1;
-	int y = (l.y < c.y)? 0 : 1;
-	int z = (l.z < c.z)? 0 : 1;
-	children[x][y][z]->insertUnit(u);
+
+	Location top = u->hitbox_top();
+	Location bot = u->hitbox_bot();
+	int pos = 0;
+
+	if (bot.x <= c.x) pos |= BOT_X;
+	if (top.x >= c.x) pos |= TOP_X;
+
+	if (bot.y <= c.y) pos |= BOT_Y;
+	if (top.y >= c.y) pos |= TOP_Y;
+
+	if (bot.z <= c.z) pos |= BOT_Z;
+	if (top.z >= c.z) pos |= TOP_Z;
+
+	for(int x = 0; x < 2; ++x) {
+		if (x == 0 && !(pos & BOT_X))
+			continue;
+		if (x == 1 && !(pos & TOP_X))
+			continue;
+		for(int y = 0; y < 2; ++y) {
+			if (y == 0 && !(pos & BOT_Y))
+				continue;
+			if (y == 1 && !(pos & TOP_Y))
+				continue;
+			for(int z = 0; z < 2; ++z) {
+				if (z == 0 && !(pos & BOT_Z))
+					continue;
+				if (z == 1 && !(pos & TOP_Z))
+					continue;
+				children[x][y][z]->insertUnit(u);
+			}
+		}
+	}
 }
 
 void Octree::insertProjectile(Projectile* p)
