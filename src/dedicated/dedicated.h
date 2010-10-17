@@ -89,7 +89,7 @@ private:
 	
 	void handleWorldEvents();
 
-	void sendWorldCopy(string areaName, int plrID);
+	void sendWorldCopy(const string& areaName, int plrID);
 	void update_kills();
 	void update_deaths();
 
@@ -97,11 +97,13 @@ private:
 	void ServerProcessClientMsgs();
 	void ServerHandleServerMessage(const Order&);
 	
+	void send_to_all(const std::string& msg);
+	void acceptConnections();
 public:
 	DedicatedServer();
 	std::string state;
 	
-	void acceptConnections();
+	bool start(int port);
 	void host_tick();
 	void draw();
 };

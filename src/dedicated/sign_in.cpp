@@ -42,7 +42,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, string order)
 		{
 			cerr << "Could not find the player" << endl;
 			
-			sockets.sockets[playerID_val].write("NO#");
+			sockets.write(playerID_val, "NO#");
 		}
 		else
 		{
@@ -52,7 +52,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, string order)
 			ans.append( dormantPlayers[cmd].getDescription() );
 			ans.append("#");
 			
-			sockets.sockets[playerID_val].write(ans);
+			sockets.write(playerID_val, ans);
 		}
 	}
 	else if(cmd == "START")
@@ -69,8 +69,6 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 	Players[playerID_val].connectionState = 1; // game on!
 	simulRules.numPlayers++;
 	
-	MU_Socket& connectingPlayer = sockets.sockets[playerID_val];
-	
 	if(choice == "NEW" || (dormantPlayers.find(choice) == dormantPlayers.end()))
 	{
 		// Set the new character's "password"
@@ -80,7 +78,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 		// transmit player key to client
 		stringstream characterKey_msg;
 		characterKey_msg << "-2 CHAR_KEY " << Players[playerID_val].key << "#";
-		connectingPlayer.write(characterKey_msg.str());
+		sockets.write(playerID_val, characterKey_msg.str());
 	}
 	else
 	{
@@ -96,7 +94,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 	// tell the new player what his player ID is.
 	stringstream playerID_msg;
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
-	connectingPlayer.write(playerID_msg.str());
+	sockets.write(playerID_val, playerID_msg.str());
 	
 	
 	cerr << "SENDING OTHER PLAYERS" << endl;
@@ -109,7 +107,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 		if(clientName == "")
 			clientName = "Unknown Player";
 		playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << clientName << "#";
-		connectingPlayer.write(playerInfo_msg.str());
+		sockets.write(playerID_val, playerInfo_msg.str());
 	}
 	
 	cerr << "SENDING ADDHERO" << endl;
@@ -117,7 +115,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 	int birth_time = simulRules.currentFrame + simulRules.windowSize;
 	
 	stringstream createHero_msg;
-	connectingPlayer.last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
+	Players[playerID_val].last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
 	
 	createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
 	serverMsgs.push_back(createHero_msg.str());
@@ -125,19 +123,20 @@ void DedicatedServer::playerStartingChoice(int playerID_val, string choice)
 	
 	stringstream nextUnit_msg;
 	nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
-	connectingPlayer.write(nextUnit_msg.str());
+	sockets.write(playerID_val, nextUnit_msg.str());
 	
 	
 	
 	// Now that all game info has been sent, can send messages to allow the client to start his own simulation.
 	stringstream simulRules_msg;
 	simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
-	connectingPlayer.write(simulRules_msg.str());
+	sockets.write(playerID_val, simulRules_msg.str());
 	
 	// go!
 	stringstream clientState_msg;
 	clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
-	connectingPlayer.write(clientState_msg.str());
+	sockets.write(playerID_val, clientState_msg.str());
+
 }
 
 
