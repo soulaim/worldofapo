@@ -50,12 +50,12 @@ void Game::readConfig()
 	localPlayer.name = name;
 }
 
-bool Game::joinInternetGame(const string& hostName)
+bool Game::joinInternetGame(const string& hostname)
 {
 	myID = -1;
 	int port = 12345;
 	
-	while(clientSocket.conn_init(hostName, port) == 0)
+	while(!clientSocket.open(SERVER_ID, hostname, port))
 	{
 		port--;
 		if(port < 12000)
@@ -75,68 +75,60 @@ bool Game::joinInternetGame(const string& hostName)
 	
     stringstream herocommand;
     herocommand << "START " << hero << "#";
-	clientSocket.write(herocommand.str());
+	clientSocket.write(SERVER_ID, herocommand.str());
 	cerr << "Starting with " << hero << "." << endl;
 	return true;
 }
 
 bool Game::getHeroes(map<string, string>& heroes)
 {
-    set<string> keys = KeyManager::readKeys();
-    for(auto i = keys.begin(); i!=keys.end(); i++)
-    {
-        stringstream ss;
-        ss << "OPTION " << (*i) << "#";
-        cerr << "sending query for key " << *i << endl;
-        clientSocket.write(ss.str());
+	set<string> keys = KeyManager::readKeys();
+	for(auto i = keys.begin(); i!=keys.end(); i++)
+	{
+		stringstream ss;
+		ss << "OPTION " << (*i) << "#";
+		cerr << "sending query for key " << *i << endl;
+		clientSocket.write(SERVER_ID, ss.str());
 
-        bool not_finished = true;
-        while(not_finished)
-        {
-            if(clientSocket.readyToRead())
-            {
-                string msg = clientSocket.read();
+		bool not_finished = true;
+		while(not_finished)
+		{
+			if(check_messages_from_server())
+			{
+				cerr << "Client connection has died during sign-in process. :(" << endl;
 
-                if(msg.size() == 0)
-                {
-                    clientSocket.closeConnection();
-                    cerr << "Client connection has died during sign-in process. :(" << endl;
-                    
-                    clientOrders.orders.clear();
-                    return false;
-                }
-                
-                clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
-                
-                for(size_t k=0; k<clientOrders.orders.size(); k++)
-                {
-                    Logger log;
-                    log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
+				clientOrders.orders.clear();
+				return false;
+			}
 
-                    not_finished = false;
-                    string cmd;
-                    stringstream ss(clientOrders.orders[k]);
-                    ss >> cmd;
-                    
-                    if(cmd == "YES")
-                    {
-                        
-                        getline(ss, cmd);
-                        heroes[*i] = cmd;
-                        clientOrders.orders.clear();
-                    }
-                    else if(cmd == "NO")
-                        clientOrders.orders.clear();
-                }
-            }
-        }
-    }
+			for(size_t k=0; k<clientOrders.orders.size(); k++)
+			{
+				Logger log;
+				log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
 
-    heroes["NEW"] = "New Character";
+				not_finished = false;
+				string cmd;
+				stringstream ss(clientOrders.orders[k]);
+				ss >> cmd;
+
+				if(cmd == "YES")
+				{
+
+					getline(ss, cmd);
+					heroes[*i] = cmd;
+					clientOrders.orders.clear();
+				}
+				else if(cmd == "NO")
+					clientOrders.orders.clear();
+			}
+		}
+	}
+
+	heroes["NEW"] = "New Character";
 
 	clientOrders.orders.clear();
 
-    return true;
+	return true;
 }
 
 string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
@@ -165,7 +157,7 @@ string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
 
 void Game::endGame()
 {
-	clientSocket.closeConnection();
+	clientSocket.close(SERVER_ID);
 	
 	// TODO: release local game resources?
 }
@@ -180,7 +172,7 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 		string msg;
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
 		msg = inputMsg.str();
-		clientSocket.write(msg);
+		clientSocket.write(SERVER_ID, msg);
 
 //		Logger log;
 //		log.print("Sent message: +++" + msg + "+++\n");
@@ -191,7 +183,7 @@ void Game::send_chat_message(const std::string& clientCommand)
 {
 	stringstream tmp_msg;
 	tmp_msg << "3 " << myID << " " << clientCommand << "#";
-	clientSocket.write(tmp_msg.str());
+	clientSocket.write(SERVER_ID, tmp_msg.str());
 
 //	Logger log;
 //	log.print("Sent message: +++" + tmp_msg.str() + "+++\n");
@@ -319,7 +311,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 		ss << "2 " << myID << " " << localPlayer.name << "#";
-		clientSocket.write(ss.str());
+		clientSocket.write(SERVER_ID, ss.str());
 
 //		Logger log;
 //		log.print("Sent message: +++" + ss.str() + "+++\n");
@@ -535,20 +527,22 @@ void Game::processClientMsgs()
 
 bool Game::check_messages_from_server()
 {
+	clientSocket.tick();
 	bool stop = false;
-	if(clientSocket.readyToRead() == 1)
+	if(!clientSocket.alive(SERVER_ID))
 	{
-		string msg = clientSocket.read();
-		
-		if(msg.size() == 0)
+		clientSocket.close(SERVER_ID);
+		cerr << "Client connection has died. :(" << endl;
+		stop = true;
+	}
+	else
+	{
+		vector<string>& msgs = clientSocket.read(SERVER_ID);
+		for(size_t k = 0; k < msgs.size(); ++k)
 		{
-			clientSocket.closeConnection();
-			cerr << "Client connection has died. :(" << endl;
-			stop = true;
+			clientOrders.insert(msgs[k] + "#"); // TODO: messages are now parsed twice: once in sockethandler and once in clientOrders.
 		}
-
-		clientOrders.insert(msg); // give it to orderhandler to be parsed down to single commands
-		processClientMsgs();
+		msgs.clear();
 	}
 	return stop;
 }

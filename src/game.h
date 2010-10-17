@@ -8,7 +8,6 @@
 #include "playerinfo.h"
 #include "keymanager.h"
 
-#include "net/socket.h"
 #include "net/socket_handler.h"
 
 #include <string>
@@ -49,7 +48,8 @@ class Game
 {
 	World* world;
 
-	MU_Socket clientSocket;
+	SocketHandler clientSocket;
+	enum { SERVER_ID = -1 };
 
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
@@ -72,7 +72,6 @@ private:
 	void readConfig(); // TODO: maybe shouldn't be done here.
 	
 	void handleServerMessage(const Order&);
-	void processClientMsgs();
 
 
     bool getHeroes(std::map<std::string, std::string>&);
@@ -90,6 +89,8 @@ public:
 	void endGame();
 
 	bool check_messages_from_server();
+	void processClientMsgs();
+
 	bool client_tick_local();
 	void TICK();
 	void reset();

@@ -11,21 +11,20 @@
 #include <cstring>
 
 
-#define READ_BUFFER_SIZE 1024
+const int READ_BUFFER_SIZE = 1024;
+char SHARED_READ_BUFFER[READ_BUFFER_SIZE];
 
 using namespace std;
 
 MU_Socket::MU_Socket()
 {
-	alive = false;
-	last_order = 0;
-	socket_init();
+	alive = true;
 }
 
 MU_Socket::MU_Socket(const string& ip, int port)
 {
 	//	cerr << "Constructing a new socket and connecting.. " << endl;
-	socket_init();
+	alive = true;
 	conn_init(ip, port);
 }
 
@@ -123,32 +122,26 @@ int MU_Socket::conn_init(const string& host, int port)
 	return 1;
 }
 
-int MU_Socket::socket_init()
-{
-	//	cerr << "Reserving read buffer for socket.. " << endl;
-	read_buffer = new char[READ_BUFFER_SIZE];
-	last_order = 0;
-	return 1;
-}
-
 int MU_Socket::write(const string& msg)
 {
+//	cerr << "Writing data to socket: " << msg << endl;
 	if(!alive)
 	{
 		cerr << "TRYING TO WRITE TO A DEAD SOCKET!! NOT A GOOD IDEA MAYBE?? well fuck you user, i'll just not do that :/" << endl;
-		return 0;
+		return -1;
 	}
 	
 	const char* c_msg = msg.c_str();
-	int total_length = msg.size();
+	int length_left = msg.size();
+	int total_sent = 0;
 	
-	while(total_length > 0)
+	while(length_left > 0)
 	{
 		int data_sent;
 		
 		do
 		{
-			data_sent = send(sock, c_msg, total_length, 0);
+			data_sent = send(sock, c_msg + total_sent, length_left, 0);
 		}
 		while(data_sent < 0 && errno == EINTR);
 		
@@ -158,34 +151,32 @@ int MU_Socket::write(const string& msg)
 		}
 		else if(data_sent < 0)
 		{
-			// err???  MAYBE SHOULD HANDLE THIS CASE??
-
-			cerr << "network write failed :DD" << endl;
-			return 0; // failed
+			cerr << "Network write failed :DD" << endl;
+			return -1;
 		}
 		
-		total_length -= data_sent;
-		c_msg += data_sent;
+		length_left -= data_sent;
+		total_sent += data_sent;
 	}
-	
-	return 1;
+
+	return total_sent;
 }
 
 string MU_Socket::read()
 {
-	//	cerr << "Reading data from socket.. " << endl;
-	read_buffer[0] = '\0';
+//	cerr << "Reading data from socket.. " << endl;
+	SHARED_READ_BUFFER[0] = '\0';
 	
 	int data_received = 0;
 	do
 	{
-		data_received = recv(sock, read_buffer, READ_BUFFER_SIZE - 1, 0 );
+		data_received = recv(sock, SHARED_READ_BUFFER, READ_BUFFER_SIZE - 1, 0 );
 	}
 	while(data_received < 0 && errno == EINTR);
 
 	if(data_received >= 0)
 	{
-		read_buffer[data_received] = '\0';
+		SHARED_READ_BUFFER[data_received] = '\0';
 	}
 
 	if(data_received <= 0)
@@ -193,42 +184,9 @@ string MU_Socket::read()
 		alive = false;
 	}
 	
-	return string(read_buffer);
+//	cerr << "Read: " << SHARED_READ_BUFFER << "\n";
+	return string(SHARED_READ_BUFFER);
 }
-
-int MU_Socket::push_message(const string& msg)
-{
-	if(!msg.empty() && !order.empty() && msg[0] == '#')
-	{
-		msgs.push_back(order);
-		order = "";
-	}
-	size_t msg_start = 0;
-	for(size_t i = 0; i < msg.size(); ++i)
-	{
-		if(msg[i] == '#')
-		{
-			if(i == msg_start)
-			{
-				msg_start = i + 1;
-				continue;
-			}
-			
-			msgs.push_back(order + msg.substr(msg_start, i - msg_start));
-			order = "";
-			
-			msg_start = i + 1;
-		}
-	}
-	
-	if(msg_start <= msg.size()-1)
-	{
-		order += msg.substr(msg_start);
-	}
-
-	return msgs.size();
-}
-
 
 void MU_Socket::closeConnection()
 {
@@ -259,24 +217,23 @@ int MU_Socket::init_listener(int port)
 	
 	cerr << "great success!" << endl;
 	listen(sock, port);
+	alive = true;
 	
 	return 1;
 }
 
-int MU_Socket::accept_connection(SocketHandler& handler, int id)
+void MU_Socket::accept_connection(MU_Socket& socket)
 {
-	//	cerr << "Accepting connection.. " << endl;
-	
-	int new_socket = accept(sock, 0, 0);
-	if(new_socket < 0)
+//	cerr << "Accepting connection " << endl;
+
+	socket.sock = accept(sock, 0, 0);
+	if(socket.sock > 0)
 	{
-		cerr << "Error while accepting a connection!" << endl;
-		return 0;
+		socket.alive = true;
 	}
 	else
-		cerr << "Accepted a new connection :D trololol :D" << endl;
-	
-	handler.add_new(new_socket, id);
-	return 1;
+	{
+		cerr << "Accept failed??" << endl;
+	}
 }
 

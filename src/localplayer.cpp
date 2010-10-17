@@ -64,6 +64,7 @@ void Localplayer::init()
 bool Localplayer::client_tick()
 {
 	bool stop = game.check_messages_from_server();
+	game.processClientMsgs();
 
 	handleClientLocalInput();
 

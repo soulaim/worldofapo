@@ -7,29 +7,81 @@
 
 using namespace std;
 
-SocketHandler::SocketHandler(): nextConnection(0)
+SocketHandler::SocketHandler()
 {
 }
 
-int SocketHandler::add_new(int sock, int id)
+bool SocketHandler::accept(int id)
 {
-	int socket_id = id;
-	if(id == -1)
+	if(listen_socket.readyToRead())
 	{
-		socket_id = nextConnection;
-		nextConnection++;
+		Connection conn;
+		listen_socket.accept_connection(conn.socket);
+		if(conn.socket.alive)
+		{
+			cerr << "Accepted a new connection :D trololol :D" << endl;
+			sockets[id] = conn;
+			return true;
+		}
+		else
+		{
+			cerr << "Error while accepting a connection!" << endl;
+			return false;
+		}
 	}
-	
-	sockets[socket_id] = MU_Socket();
-	sockets[socket_id].sock = sock;
-	sockets[socket_id].alive = true;
-
-	if(!sockets[socket_id].setnonblocking())
-		return 0;
-	return 1;
+	return false;
 }
 
-int SocketHandler::get_readable()
+bool SocketHandler::listen(int port)
+{
+	return listen_socket.init_listener(port);
+}
+
+bool SocketHandler::open(int id, const std::string& hostname, int port)
+{
+	Connection conn;
+	conn.socket.conn_init(hostname, port);
+	if(conn.socket.alive)
+	{
+		conn.socket.setnonblocking();
+		sockets[id] = conn;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool SocketHandler::alive(int id)
+{
+	auto iter = sockets.find(id);
+	if(iter == sockets.end())
+		return false;
+	return iter->second.socket.alive;
+}
+
+bool SocketHandler::write(int id, const std::string& msg)
+{
+	auto iter = sockets.find(id);
+	if(iter == sockets.end())
+		return false;
+	iter->second.write_buffer += msg;
+	return true;
+}
+
+std::vector<std::string>& SocketHandler::read(int id)
+{
+	auto iter = sockets.find(id);
+	if(iter == sockets.end())
+	{
+		cerr << "Trying to read from dead connection" << endl;
+		throw std::string("Trying to read from dead connection");
+	}
+	return iter->second.msgs;
+}
+
+int SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks)
 {
 	struct timeval timeout;
 	timeout.tv_sec = 0;
@@ -37,83 +89,119 @@ int SocketHandler::get_readable()
 	
 	int high = 0;
 	
-	FD_ZERO(&fd_socks);
-	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
+	FD_ZERO(&fd_write_socks);
+	FD_ZERO(&fd_read_socks);
+	for(auto iter = sockets.begin(); iter != sockets.end(); iter++)
 	{
-		if(iter->second.alive == false)
+		if(!iter->second.socket.alive)
+		{
 			continue;
-		
-		FD_SET(iter->second.sock, &fd_socks);
-		if(iter->second.sock > high)
-			high = iter->second.sock;
+		}
+
+		FD_SET(iter->second.socket.sock, &fd_read_socks);
+		FD_SET(iter->second.socket.sock, &fd_write_socks);
+		if(iter->second.socket.sock > high)
+		{
+			high = iter->second.socket.sock;
+		}
 	}
 	
 	int count;
 	do
 	{
-		count = select(high+1, &fd_socks, (fd_set *) 0, (fd_set *) 0, &timeout);
+		count = ::select(high+1, &fd_read_socks, &fd_write_socks, 0, &timeout);
 	}
 	while(count < 0 && errno == EINTR);
-
 	return count;
 }
 
-void SocketHandler::read_selected()
+void SocketHandler::read_and_write(const fd_set& read_socks, const fd_set& write_socks)
 {
-	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
+	for(auto iter = sockets.begin(); iter != sockets.end(); iter++)
 	{
-		if(FD_ISSET(iter->second.sock, &fd_socks))
+		auto& conn = iter->second;
+		if(FD_ISSET(conn.socket.sock, &read_socks))
 		{
-			string ans = iter->second.read();
-			if(ans.size() == 0)
+			const std::string& read = conn.socket.read();
+			if(read.empty())
 			{
 				cerr << "Socket #" << iter->first << " was marked readable, but still returned empty string? Marking to be erased.." << endl;
-				iter->second.alive = false;
+				conn.socket.alive = false;
 			}
-			else
+			conn.push_message(read);
+		}
+
+		if(FD_ISSET(conn.socket.sock, &write_socks) && !conn.write_buffer.empty())
+		{
+			int sent = conn.socket.write(conn.write_buffer);
+			if(sent > 0)
 			{
-				//	cerr << "Socket #" << i << " sent message: " << ans << endl;
-				iter->second.push_message(ans);
+				conn.write_buffer.erase(0, sent);
 			}
 		}
 	}
 }
 
-int SocketHandler::get_writable()
+void SocketHandler::tick()
 {
-	struct timeval timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
-	
-	int high = 0;
-	
-	FD_ZERO(&fd_socks);
-	for(map<int, MU_Socket>::iterator iter = sockets.begin(); iter != sockets.end(); iter++)
+	fd_set read_socks;
+	fd_set write_socks;
+	int count = select(read_socks, write_socks);
+	if(count > 0)
 	{
-		if(iter->second.alive == false)
-			continue;
-		
-		FD_SET(iter->second.sock, &fd_socks);
-		if(iter->second.sock > high)
-			high = iter->second.sock;
+		read_and_write(read_socks, write_socks);
 	}
-	
-	int count;
-	do
-	{
-		count = select(high+1, (fd_set *) 0, &fd_socks, (fd_set *) 0, &timeout);
-	}
-	while(count < 0 && errno == EINTR);
-
-	return count;
 }
 
-
-void SocketHandler::erase_id(int id)
+bool SocketHandler::close(int id)
 {
-	cerr << "erasing socket.." << endl;
-	close(sockets[id].sock);
-	sockets.erase(id);
-	cerr << "done" << endl;
+	cerr << "Closing socket " << id << endl;
+	auto iter = sockets.find(id);
+	if(iter != sockets.end())
+	{
+		iter->second.socket.closeConnection();
+		sockets.erase(iter);
+		cerr << "Done closing socket " << id << endl;
+		return true;
+	}
+	else
+	{
+		cerr << "Socket " << id << " not found!" << endl;
+		return false;
+	}
 }
+
+int SocketHandler::Connection::push_message(const string& msg)
+{
+	if(!msg.empty() && !read_buffer.empty() && msg[0] == '#')
+	{
+		msgs.push_back(read_buffer);
+		read_buffer = "";
+	}
+	size_t msg_start = 0;
+	for(size_t i = 0; i < msg.size(); ++i)
+	{
+		if(msg[i] == '#')
+		{
+			if(i == msg_start)
+			{
+				msg_start = i + 1;
+				continue;
+			}
+			
+			msgs.push_back(read_buffer + msg.substr(msg_start, i - msg_start));
+			read_buffer = "";
+			
+			msg_start = i + 1;
+		}
+	}
+	
+	if(msg_start <= msg.size()-1)
+	{
+		read_buffer += msg.substr(msg_start);
+	}
+
+	return msgs.size();
+}
+
 

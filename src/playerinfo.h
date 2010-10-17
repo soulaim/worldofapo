@@ -6,7 +6,7 @@
 class PlayerInfo {
 
 public:
-	PlayerInfo(): kills(0), deaths(0), connectionState(0) {}
+	PlayerInfo(): kills(0), deaths(0), last_order(0), connectionState(0) {}
 	
 	const PlayerInfo& operator = (const PlayerInfo& a)
 	{
@@ -23,6 +23,7 @@ public:
 	int kills;
 	int deaths;
 	
+	unsigned last_order;
 	int connectionState;
 	std::string key;
 	
