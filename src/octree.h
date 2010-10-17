@@ -33,13 +33,11 @@ public:
 	std::shared_ptr<Octree> children[2][2][2];
 	int depth;
 	int n;
-	std::vector<Projectile*> projectiles;
 	std::vector<Unit*> units;
 
 	void split();
 	void insertUnit(Unit* u);
-	void insertProjectile(Projectile* p);
-	void potProjectileUnitColl(std::vector<std::pair<Projectile*,Unit*>>& l);
+	const std::vector<Unit*>& potProjectileUnitColl(const Projectile&) const;
 	void potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l);
 };
 

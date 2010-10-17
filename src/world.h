@@ -34,7 +34,6 @@ class World
 	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
 	void generateInput_RabidAlien(Unit& unit);
 	void handleUnitUnitCollisions(std::vector<std::pair<Unit*,Unit*>>& l);
-	void handleProjectileUnitCollisions(std::vector<std::pair<Projectile*,Unit*>>& l);
 	void resolveUnitCollision(Unit& a, Unit& b);
 	void doDeathFor(Unit& unit, int causeOfDeath);
 
