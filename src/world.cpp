@@ -297,6 +297,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 40;
 			
+			unit.soundInfo = "jump";
 			// unit.soundInfo = "leap";
 		}
 		if(unit.getKeyAction(Unit::LEAP_RIGHT) && hitGround)
@@ -308,6 +309,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 40;
 			
+			unit.soundInfo = "jump";
 			// unit.soundInfo = "leap";
 		}
 	}
