@@ -74,8 +74,8 @@ private:
 	void handleServerMessage(const Order&);
 
 
-    bool getHeroes(std::map<std::string, std::string>&);
-    std::string temp_menu_which_should_be_removed(const std::map<std::string, std::string>);
+	bool getHeroes(std::map<std::string, std::string>&);
+	std::string temp_menu_which_should_be_removed(const std::map<std::string, std::string>);
 
 
 public:

@@ -445,6 +445,7 @@ void Graphics::init()
 	glUseProgram(0);
 	*/
 	
+	glLineWidth(5.0f);
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
@@ -603,29 +604,30 @@ void Graphics::drawLevel(const Level& lvl)
 				semiAverage.z = multiplier * (z + 0.5f);
 				semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
 				
-				Location n;
-				
-				if(drawDebuglines)
-				{
-					n = lvl.getNormal(x, z) * 10;
-					Location start;
-					start.x = FixedPoint(int(x * multiplier));
-					start.y = lvl.getHeight(x * multiplier, z * multiplier);
-					start.z = FixedPoint(int(z * multiplier));
-					
-					Location end = start + n;
-					
-					glLineWidth(5.0f);
-					glBegin(GL_LINES);
-					glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-					glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-					glEnd();
-					
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				
 				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 				{
+					
+					Location n;
+					
+					if(drawDebuglines)
+					{
+						n = lvl.getNormal(x, z) * 10;
+						Location start;
+						start.x = FixedPoint(int(x * multiplier));
+						start.y = lvl.getHeight(x * multiplier, z * multiplier);
+						start.z = FixedPoint(int(z * multiplier));
+						
+						Location end = start + n;
+						
+						glBegin(GL_LINES);
+						glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+						glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+						glEnd();
+						
+						glColor3f(1.0, 1.0, 1.0);
+					}
+					
+					
 					Vec3 A(multiplier * x, lvl.pointheight_info[x][z].getFloat(), multiplier * z);
 					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][z].getFloat(), multiplier * z);
 					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][z+1].getFloat(), multiplier * (z+1));
@@ -842,7 +844,7 @@ void Graphics::tick()
 
 	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Vec3 camPos = camera.getPosition();
-    // Location modelLocation = camera.getUnitPosition();
+
 	lightPos[0] = camPos.x; //modelLocation.x.getFloat();
 	lightPos[1] = camPos.y + 4; //modelLocation.y.getFloat();
 	lightPos[2] = camPos.z; //modelLocation.z.getFloat();
