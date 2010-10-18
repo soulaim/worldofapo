@@ -61,20 +61,20 @@ bool Game::joinInternetGame(const string& hostname)
 		if(port < 12000)
 		{
 			cerr << "superfail :(" << endl;
-            return false;
+			return false;
 		}
 	}
 	
 
-    map<string, string> heroes;
-    if (!getHeroes(heroes))
-        return false;
+	map<string, string> heroes;
+	if (!getHeroes(heroes))
+		return false;
 
-    // menu
-    string hero = temp_menu_which_should_be_removed(heroes);
+	// menu
+	string hero = temp_menu_which_should_be_removed(heroes);
 	
-    stringstream herocommand;
-    herocommand << "START " << hero << "#";
+	stringstream herocommand;
+	herocommand << "START " << hero << "#";
 	clientSocket.write(SERVER_ID, herocommand.str());
 	cerr << "Starting with " << hero << "." << endl;
 	return true;
@@ -133,25 +133,25 @@ bool Game::getHeroes(map<string, string>& heroes)
 
 string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
 {
-    if (heroes.size() == 1)
-        return heroes.begin()->first;
-    cerr << "Your heroes" << endl;
+	if (heroes.size() == 1)
+		return heroes.begin()->first;
+	cerr << "Your heroes" << endl;
 	for(map<string, string>::const_iterator iter = heroes.begin(); iter != heroes.end(); iter++)
-    {
-        cerr << "Hero code '" << iter->first << "': " << iter->second << endl;
-    }
-    string code;
-    while (1)
-    {
-        cerr << "Enter hero code" << endl;
-        cin >> code;
-        if (heroes.find(code) != heroes.end())
-        {
-            return code;
-        }
-        else
-            cerr << "Not valid hero code" << endl;
-    }
+	{
+		cerr << "Hero code '" << iter->first << "': " << iter->second << endl;
+	}
+	string code;
+	while (1)
+	{
+		cerr << "Enter hero code" << endl;
+		cin >> code;
+		if (heroes.find(code) != heroes.end())
+		{
+			return code;
+		}
+		else
+			cerr << "Not valid hero code" << endl;
+	}
 }
 
 
@@ -459,7 +459,7 @@ void Game::processClientMsgs()
 			{
 				cerr << "GOT A CHARACTER KEY CODE. SAVING IT TO FILE." << endl;
 				string characterKey; ss >> characterKey;
-                KeyManager::saveKey(characterKey);
+				KeyManager::saveKey(characterKey);
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{

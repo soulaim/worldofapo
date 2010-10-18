@@ -807,7 +807,7 @@ void Graphics::tick()
 
 	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Vec3 camPos = camera.getPosition();
-    Location modelLocation = camera.getUnitPosition();
+	//Location modelLocation = camera.getUnitPosition();
 	lightPos[0] = camPos.x; //modelLocation.x.getFloat();
 	lightPos[1] = camPos.y; //modelLocation.y.getFloat();
 	lightPos[2] = camPos.z; //modelLocation.z.getFloat();
