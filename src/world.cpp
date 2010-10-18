@@ -295,7 +295,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 			unit.velocity.y += FixedPoint(45, 100);
-			unit.leap_cooldown = 60;
+			unit.leap_cooldown = 40;
 			
 			// unit.soundInfo = "leap";
 		}
@@ -306,7 +306,7 @@ void World::tickUnit(Unit& unit, Model& model)
 			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 			unit.velocity.y += FixedPoint(45, 100);
-			unit.leap_cooldown = 60;
+			unit.leap_cooldown = 40;
 			
 			// unit.soundInfo = "leap";
 		}
