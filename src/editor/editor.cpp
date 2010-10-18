@@ -48,8 +48,8 @@ void Editor::init()
 	view.toggleLightingStatus();
 
 	handle_command("load objects parts.dat");
-	handle_command("load model model.bones");
-	handle_command("edit type HEAD");
+	handle_command("load model ../models/model.bones");
+//	handle_command("edit type HEAD");
 
 //	view.megaFuck();
 }
@@ -262,7 +262,13 @@ void Editor::select_part(const string& part)
 	{
 		if(edited_model.parts[i].name == part)
 		{
+			if(selected_part < edited_model.parts.size())
+			{
+				edited_model.parts[selected_part].hilight = false;
+			}
+
 			selected_part = i;
+			edited_model.parts[i].hilight = true;
 			view.pushMessage(green("Selected part " + part));
 			return;
 		}

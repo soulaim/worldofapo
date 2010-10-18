@@ -17,6 +17,8 @@ vector<Vec3> DOTS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
+GLint unit_color_location;
+
 char* file2string(const char *path);
 
 
@@ -430,11 +432,12 @@ void Graphics::init()
 	glAttachShader(shaders["unit_program"], shaders["unit_vert"]);
 	glLinkProgram(shaders["unit_program"]);
 	printLog(shaders["unit_program"]);
-	
-	/*
-	glUseProgram(shaders["level_program"]);
+
+	glUseProgram(shaders["unit_program"]);
+	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
 	glUseProgram(0);
-	*/
+	cerr << "unit_color location: " << unit_color_location << endl;
+
 	
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
@@ -501,12 +504,20 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	}
 	glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
 	
-	ObjectPart& obj_part = objects[model.parts[current_node].wireframe];
+	ModelNode& node = model.parts[current_node];
+	ObjectPart& obj_part = objects[node.wireframe];
+
+	if(node.hilight)
+	{
+		glUniform4f(unit_color_location, 1.0, 0.0, 0.0, 1.0);
+	}
 	
 	// left and right sides of the body are in polarized animation states
 	int ani_addition = 0;
 	if(model.parts[current_node].name.substr(0, 4) == "LEFT")
 		ani_addition = obj_part.animations[animation].getSize() / 2;
+
+//	cerr << "Drawing: " << model.parts[current_node].name << "\n";
 	
 	obj_part.animations[animation].getAnimationState(animation_state + ani_addition, model.parts[current_node].rotation_x, model.parts[current_node].rotation_y, model.parts[current_node].rotation_z);
 	
@@ -521,9 +532,12 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 		++TRIANGLES_DRAWN_THIS_FRAME;
 		// how to choose textures??
 		ObjectTri& tri = obj_part.triangles[i];
-		glColor3f(1.0f, 1.0f, 1.0f); glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
-		glColor3f(1.0f, 1.0f, 1.0f); glVertex3f(tri.x[1], tri.y[1], tri.z[1]);
-		glColor3f(1.0f, 1.0f, 1.0f); glVertex3f(tri.x[2], tri.y[2], tri.z[2]);
+		glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
+
+		glVertex3f(tri.x[1], tri.y[1], tri.z[1]);
+
+		glVertex3f(tri.x[2], tri.y[2], tri.z[2]);
+//		cerr << current_node << "\n";
 	}
 	glEnd();
 	
@@ -534,6 +548,10 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	}
 	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
 	
+	if(node.hilight)
+	{
+		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
+	}
 	
 	// restore rotations
 	glRotatef(-model.parts[current_node].rotation_z, 0, 0, 1);
@@ -650,6 +668,8 @@ void Graphics::drawModels(map<int, Model>& models)
 	glUseProgram(shaders["unit_program"]);
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
+		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
+
 		if(iter->second.root < 0)
 		{
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;

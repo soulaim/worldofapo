@@ -8,7 +8,14 @@
 
 struct ModelNode
 {
-	ModelNode(): offset_x(0), offset_y(0), offset_z(0), rotation_x(0), rotation_y(0), rotation_z(0)
+	ModelNode():
+		offset_x(0),
+		offset_y(0),
+		offset_z(0),
+		rotation_x(0),
+		rotation_y(0),
+		rotation_z(0),
+		hilight(false)
 	{
 	}
 	
@@ -22,7 +29,9 @@ struct ModelNode
 	float rotation_x;
 	float rotation_y;
 	float rotation_z;
-	
+
+	bool hilight; // For editor.
+
 	std::vector<size_t> children;
 };
 
@@ -31,8 +40,10 @@ struct Model
 {
 	std::string animation_name;
 	int animation_time;
+
 	std::vector<ModelNode> parts;
 	int root;
+
 	Vec3 realUnitPos;
 	Vec3 currentModelPos;
 	
