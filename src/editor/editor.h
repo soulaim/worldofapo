@@ -40,10 +40,12 @@ class Editor
 	void add_type(const std::string& type);
 	void print_types();
 	void print_model();
+	void print_animations();
 	void dot();
 	void undot();
 	void next_dot();
 	void prev_dot();
+	void play_animation(const string& animation);
 
 	Unit dummy;
 

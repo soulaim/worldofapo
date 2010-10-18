@@ -51,7 +51,7 @@ void Editor::init()
 	handle_command("load model ../models/model.bones");
 //	handle_command("edit type HEAD");
 
-//	view.megaFuck();
+	view.megaFuck();
 }
 
 void Editor::start()
@@ -64,7 +64,7 @@ void Editor::start()
 	static int last_tick = -999999;
 
 	int time_since_last = ticks - last_tick;
-	int time_between_ticks = 1000/60;
+	int time_between_ticks = 1000/50;
 	if(time_since_last >= time_between_ticks)
 	{
 		last_tick = ticks;
@@ -72,6 +72,7 @@ void Editor::start()
 		tick();
 		view.setTime( ticks );
 		view.tick();
+		edited_model.tick();
 
 		string message;
 
@@ -387,6 +388,19 @@ void Editor::print_types()
 	}
 }
 
+void Editor::print_animations()
+{
+	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
+	{
+		const std::string& type_name = it->first;
+		for(auto it2 = it->second.animations.begin(); it2 != it->second.animations.end(); ++it2)
+		{
+			const std::string& animation_name = it2->first;
+			view.pushMessage(type_name + ": '" + animation_name + "'");
+		}
+	}
+}
+
 void Editor::type_helper(const std::string& type)
 {
 	edited_type = &view.objects[type];
@@ -516,6 +530,12 @@ void Editor::prev_dot()
 	}
 }
 
+void Editor::play_animation(const string& animation)
+{
+	edited_model.setAction(animation);
+	view.pushMessage(green("Playing " + animation));
+}
+
 void Editor::handle_command(const string& command)
 {
 	view.pushMessage(command);
@@ -613,6 +633,10 @@ void Editor::handle_command(const string& command)
 		{
 			print_model();
 		}
+		else if(word2 == "animations")
+		{
+			print_animations();
+		}
 	}
 	else if(word1 == "speed")
 	{
@@ -641,6 +665,10 @@ void Editor::handle_command(const string& command)
 	else if(word1 == "prev")
 	{
 		prev_dot();
+	}
+	else if(word1 == "play")
+	{
+		play_animation(word2);
 	}
 
 	commands.push_back(command);
