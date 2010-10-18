@@ -88,7 +88,7 @@ void Level::updateNormal(int x, int z)
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 1)
 		return;
 	
-	normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1) + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
+	normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1); // + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
 	normals[x][z].normalize();
 }
 
@@ -115,7 +115,7 @@ Location Level::estimateNormal(int x, int z)
 	c.z = z*8;
 	c.y = pointheight_info[x+1][z];
 	
-	result = (c-a).crossProduct(b-a);
+	result = (b-a).crossProduct(c-a);
 	result.normalize();
 	
 	return result;
