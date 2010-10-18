@@ -441,56 +441,48 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 		{
 			deadUnits.push_back(id);
 		}
+		const std::vector<Unit*> potColl = o->potProjectileUnitColl(projectile);
+		for(std::vector<Unit*>::const_iterator it = potColl.begin(); it != potColl.end(); ++it)
+		{
+			Unit* u = *it;
+			if(projectile.collides(*u))
+			{
+				bool shooterIsMonster = false;
+				if(units.find(projectile.owner) != units.end())
+					shooterIsMonster = !units[projectile.owner].human();
+				
+				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+				if(!u->human() && shooterIsMonster)
+				{
+					deadUnits.push_back(projectile.id);
+					continue;
+				}
+				
+				// save this information for later use.
+				WorldEvent event;
+				event.type = DAMAGE_BULLET;
+				event.position = u->position;
+				event.position.y += FixedPoint(2);
+				event.velocity.y = FixedPoint(200,1000);
+				events.push_back(event);
+				
+				
+				u->hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
+				u->velocity += projectile.velocity * FixedPoint(1, 100);
+				
+				if(u->hitpoints < 1)
+				{
+					doDeathFor(*u, projectile.owner);
+				}
+				
+				deadUnits.push_back(projectile.id);
+				break;
+			}
+		}
 	}
 	else
 	{
 		deadUnits.push_back(id);
-	}
-}
-
-void World::handleProjectileUnitCollisions(std::vector<std::pair<Projectile*,Unit*>>& l) {
-	int lasthit = -1;
-	for(std::vector<std::pair<Projectile*,Unit*>>::iterator it = l.begin(); it != l.end(); ++it)
-	{
-		Projectile* p = it->first;
-		Unit* u = it->second;
-
-		if (p->id == lasthit)
-			continue;
-
-		if(p->collides(*u))
-		{
-			bool shooterIsMonster = false;
-			if(units.find(p->owner) != units.end())
-				shooterIsMonster = !units[p->owner].human();
-			
-			// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-			if(!u->human() && shooterIsMonster)
-			{
-				deadUnits.push_back(p->id);
-				continue;
-			}
-			
-			// save this information for later use.
-			WorldEvent event;
-			event.type = DAMAGE_BULLET;
-			event.position = u->position;
-			event.position.y += FixedPoint(2);
-			event.velocity.y = FixedPoint(200,1000);
-			events.push_back(event);
-			
-			
-			u->hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-			u->velocity += p->velocity * FixedPoint(1, 100);
-			
-			if(u->hitpoints < 1)
-			{
-				doDeathFor(*u, p->owner);
-			}
-			
-			deadUnits.push_back(p->id);
-			lasthit = p->id;
-		}
 	}
 }
 
@@ -530,17 +522,12 @@ void World::worldTick(int tickCount)
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		tickProjectile(iter->second, models[iter->first], iter->first);
-		o->insertProjectile(&(iter->second));
 	}
 
 	std::vector<std::pair<Unit*,Unit*>> u2u;
 	o->potUnitUnitColl(u2u);
 	handleUnitUnitCollisions(u2u);
 
-	std::vector<std::pair<Projectile*,Unit*>> p2u;
-	o->potProjectileUnitColl(p2u);
-	handleProjectileUnitCollisions(p2u);
-	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
 		removeUnit(deadUnits[i]);

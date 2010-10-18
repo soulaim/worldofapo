@@ -20,7 +20,7 @@ int main()
 	DedicatedServer master;
 	
 	int port = 12345;
-	while(master.serverSocket.init_listener(port) == 0)
+	while(!master.start(port))
 	{
 		if(--port < 12000)
 		{
@@ -28,8 +28,6 @@ int main()
 			return 0;
 		}
 	}
-	
-	master.serverSocket.alive = true;
 	
 	while(true)
 	{

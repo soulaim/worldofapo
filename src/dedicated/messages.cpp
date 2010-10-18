@@ -3,23 +3,27 @@
 
 using namespace std;
 
-void DedicatedServer::sendWorldCopy(string areaName, int plr_ID)
+void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 {
-	areaName = "";
-	
-	MU_Socket& connectingPlayer = sockets.sockets[plr_ID];
+	areaName.empty(); // FUUU.
 	
 	// send new player the current state of the world: units
 	for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
-		connectingPlayer.write(iter->second.copyOrder(iter->first));
+	{
+		sockets.write(plr_ID, iter->second.copyOrder(iter->first));
+	}
 	
 	// send new player the current state of the world: projectiles
 	for(map<int, Projectile>::iterator iter = world.projectiles.begin(); iter != world.projectiles.end(); iter++)
-		connectingPlayer.write(iter->second.copyOrder(iter->first));
+	{
+		sockets.write(plr_ID, iter->second.copyOrder(iter->first));
+	}
 	
 	// send new player current pending orders
 	for(size_t i = 0; i < UnitInput.size(); ++i)
-		connectingPlayer.write(UnitInput[i].copyOrder());
+	{
+		sockets.write(plr_ID, UnitInput[i].copyOrder());
+	}
 }
 
 void DedicatedServer::serverSendMonsterSpawn()
@@ -42,5 +46,7 @@ void DedicatedServer::serverSendMonsterSpawn(int n)
 void DedicatedServer::serverSendRequestPlayerNameMessage(int player_id)
 {
 	cerr << "Sending a request to the new player to identify himself!" << endl;
-	sockets.sockets[player_id].write("-2 GIVE_NAME#");
+	string msg = "-2 GIVE_NAME#";
+	sockets.write(player_id, msg);
 }
+

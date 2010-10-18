@@ -7,11 +7,25 @@
 
 using namespace std;
 
+void DedicatedServer::send_to_all(const std::string& msg)
+{
+	for(auto it = Players.begin(); it != Players.end(); ++it)
+	{
+		// dont write to disconnected players
+		if(sockets.alive(it->first) && it->second.connectionState == 1)
+		{
+			sockets.write(it->first, msg);
+		}
+	}
+}
+
+bool DedicatedServer::start(int port)
+{
+	return sockets.listen(port);
+}
 
 void DedicatedServer::host_tick()
 {
-	// accept any incoming connections
-	
 	/*
 	timeval time;
 	gettimeofday(&time,NULL);
@@ -20,12 +34,10 @@ void DedicatedServer::host_tick()
 	cerr << time_ms << endl;
 	*/
 	
-	if(serverSocket.readyToRead() == 1)
-		acceptConnections();
-	
-	// if there's any data to be read from clients, then read it
-	sockets.get_readable();
-	sockets.read_selected();
+	// Read and write network data.
+	sockets.tick();
+
+	acceptConnections();
 	
 	
 	/*
@@ -41,33 +53,34 @@ void DedicatedServer::host_tick()
 	int leaver = -1;
 	
 	// mirror any client commands to all clients
-	for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
+	for(auto i = Players.begin(); i != Players.end(); ++i)
 	{
-		if(!i->second.alive)
+		if(!sockets.alive(i->first))
 		{
-			cerr << "LEAVER: " << i->first << ", lastOrder: " << i->second.last_order << endl;
+//			cerr << "LEAVER: " << i->first << ", lastOrder: " << i->second.last_order << endl; // TODO: foo.
 			leaver = i->first;
 			continue;
 		}
 		
 		
+		vector<string>& msgs = sockets.read(i->first);
 		int conn_state = Players[i->first].connectionState;
 		
 		if(conn_state == 0)
 		{
-			for(size_t k=0; k < i->second.msgs.size(); k++)
-				handleSignInMessage(i->first, i->second.msgs[k]);
-			i->second.msgs.clear();
+			for(size_t k=0; k < msgs.size(); k++)
+				handleSignInMessage(i->first, msgs[k]);
+			msgs.clear();
 		}
 		else if(conn_state == 1)
 		{
-			for(size_t k=0; k < i->second.msgs.size(); k++)
+			for(size_t k=0; k < msgs.size(); k++)
 			{
-				i->second.msgs[k].append("#");
+				msgs[k].append("#");
 				
 				
 				// keep track of last frames for which orders have been received.
-				stringstream ss(i->second.msgs[k]);
+				stringstream ss(msgs[k]);
 				string orderWord;
 				ss >> orderWord;
 				
@@ -98,7 +111,7 @@ void DedicatedServer::host_tick()
 						
 						// create a better message and distribute that to players.
 						new_message << "2 " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
-						i->second.msgs[k] = new_message.str();
+						msgs[k] = new_message.str();
 					}
 				}
 				else if(orderWord == "3") // chat message!
@@ -131,11 +144,11 @@ void DedicatedServer::host_tick()
 				else if(orderWord == "-1")
 				{
 					// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
-					cerr << "SOME IS IMPERSONATING GOD!! :" << i->second.msgs[k] << endl;
-					i->second.msgs[k] = "";
+					cerr << "SOME IS IMPERSONATING GOD!! :" << msgs[k] << endl;
+					msgs[k] = "";
 					
 					// disconnect the fucker
-					i->second.alive = false;
+					sockets.close(i->first);
 					
 					stringstream chatmsg;
 					chatmsg << "3 -1 ^r" << Players[i->first].name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
@@ -144,19 +157,13 @@ void DedicatedServer::host_tick()
 				
 				
 				// commands passed down to local message handling before sending to others.
-				clientOrders.insert(i->second.msgs[k]);
+				clientOrders.insert(msgs[k]);
 				
 				
-				
-				for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
-				{
-					// dont write to disconnected players
-					if(target->second.alive && (Players[target->first].connectionState == 1))
-						target->second.write(i->second.msgs[k]);
-				}
+				send_to_all(msgs[k]);
 				
 			}
-			i->second.msgs.clear();
+			msgs.clear();
 		}
 	}
 	
@@ -164,7 +171,7 @@ void DedicatedServer::host_tick()
 	if(leaver != -1) // there is a leaver!!
 	{
 		stringstream discCommand;
-		discCommand << -1 << " " << (sockets.sockets[leaver].last_order + 1) << " 100 " << leaver << "#";
+		discCommand << -1 << " " << (Players[leaver].last_order + 1) << " 100 " << leaver << "#";
 		serverMsgs.push_back( discCommand.str() );
 		
 		
@@ -172,14 +179,14 @@ void DedicatedServer::host_tick()
 		dormantPlayers[Players[leaver].key] = Players[leaver];
 		Players.erase(leaver);
 		
-		sockets.erase_id(leaver);
+		sockets.close(leaver);
 	}
 	
 	unsigned minAllowed = UINT_MAX;
-	for(map<int, MU_Socket>::iterator target = sockets.sockets.begin(); target != sockets.sockets.end(); target++)
+	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
-		if(Players[target->first].connectionState == 1 && target->second.last_order < minAllowed)
-			minAllowed = target->second.last_order;
+		if(it->second.connectionState == 1 && it->second.last_order < minAllowed)
+			minAllowed = it->second.last_order;
 	}
 	
 	if(minAllowed < simulRules.windowSize)
@@ -206,11 +213,7 @@ void DedicatedServer::host_tick()
 		// give msg to local handling and send to others.
 		clientOrders.insert(serverMsgs[k]);
 		
-		for(map<int, MU_Socket>::iterator i = sockets.sockets.begin(); i != sockets.sockets.end(); i++)
-		{
-			if(Players[i->first].connectionState == 1)
-				i->second.write(serverMsgs[k]);
-		}
+		send_to_all(serverMsgs[k]);
 	}
 	serverMsgs.clear();
 	
@@ -248,7 +251,7 @@ void DedicatedServer::host_tick()
 	
 	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
-	if( (sockets.sockets.size() == 0) && (UnitInput.size() == 0) )
+	if( Players.empty() && (UnitInput.size() == 0) )
 	{
 		UnitInput.clear(); // redundant
 		simulRules.reset();
@@ -355,12 +358,13 @@ void DedicatedServer::host_tick()
 
 void DedicatedServer::acceptConnections()
 {
-	
-	cerr << "looks like someone is connecting :O" << endl;
-	
-	int playerID_val = world.nextPlayerID();
-	serverSocket.accept_connection(sockets, playerID_val);
-	Players[playerID_val].connectionState = 0;
+	static int id = world.nextPlayerID();
+	if(sockets.accept(id))
+	{
+		Players[id].connectionState = 0;
+		cerr << "looks like " << id << " is connecting :O" << endl;
+		id = world.nextPlayerID();
+	}
 }
 
 
@@ -581,3 +585,4 @@ void DedicatedServer::ServerProcessClientMsgs()
 	
 	clientOrders.orders.clear();
 }
+

@@ -18,38 +18,37 @@
 
 class SocketHandler;
 
-// this stuff has surely been implemented thousands of times before, but hey.. what the hell..
 class MU_Socket
 {
+	friend class SocketHandler;
+
 	public:
 		MU_Socket();
-		MU_Socket(const std::string& ip, int port); // calls conn_init()
-		
-		int socket_init();
-		
+		MU_Socket(const std::string& ip, int port);
+
 		int conn_init(const std::string& ip, int port);
+		void closeConnection();
+
 		int write(const std::string& msg);
+
+		int readyToRead();
 		std::string read();
 		
 		int init_listener(int port);
-		int accept_connection(SocketHandler&, int id = -1);
+		void accept_connection(MU_Socket&);
 		
 		int setnonblocking();
 		
-		int readyToRead();
-		int push_message(const std::string& msg);
-		std::vector<std::string> msgs;
-		
-		void closeConnection();
-		
+
+	private:
+
 		int sock;
 		char* read_buffer;
-		struct sockaddr_in cliAddr, servAddr;
-		std::string order;
-		std::string write_buffer;
-		
+		struct sockaddr_in cliAddr;
+		struct sockaddr_in servAddr;
+
 		bool alive;
-		unsigned last_order;
+
 };
 
 #endif
