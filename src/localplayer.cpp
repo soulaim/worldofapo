@@ -276,11 +276,17 @@ void Localplayer::handleWorldEvents()
 		{
 			case World::DAMAGE_BULLET:
 			{
+				stringstream ss;
+				int x = (rand() % 4);
+				ss << "hit" << x;
+				playSound(ss.str(), event.position);
+				
 				view->genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
 				break;
 			}
 			case World::DAMAGE_DEVOUR:
 			{
+				playSound("hit0", event.position);
 				view->genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
 				break;
 			}

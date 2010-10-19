@@ -77,6 +77,11 @@ int GameSound::init()
 	sfx["jump_land"] = Mix_LoadWAV("sounds/jump_land.wav");
 	sfx["domination"]  = Mix_LoadWAV("sounds/domination.wav");
 	
+	sfx["hit0"] = Mix_LoadWAV("sounds/hit4.wav");
+	sfx["hit1"] = Mix_LoadWAV("sounds/hit3.wav");
+	sfx["hit2"] = Mix_LoadWAV("sounds/hit2.wav");
+	sfx["hit3"] = Mix_LoadWAV("sounds/hit1.wav");
+	
 	return 1;
 }
 

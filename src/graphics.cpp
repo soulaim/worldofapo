@@ -77,19 +77,19 @@ void Graphics::depthSortParticles(Vec3& d)
 
 void Graphics::initLight()
 {
-	lightsActive = true;
+	lightsActive = false;
 	GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
-	GLfloat	light0ambient[ 4 ]	= {.0f, .0f,  .0f, 1.0f};
-	GLfloat	light0specular[ 4 ]	= {.0f, .0f,  .0f, 1.0f};
-
-	GLfloat	light0diffuse[ 4 ]	= {0.5f, .3f,  .3f, 1.0f};
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 	
+	GLfloat	light0ambient[ 4 ]	= {.1f, .1f,  .1f, 1.0f};
+	GLfloat	light0specular[ 4 ]	= {1.0f, .4f,  .4f, 1.0f};
+	GLfloat	light0diffuse[ 4 ]	= {2.8f, .8f,  .8f, 1.0f};
 	
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
 	
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.15f);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.f);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0002f);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0specular);
@@ -101,10 +101,18 @@ void Graphics::initLight()
 void Graphics::toggleLightingStatus()
 {
 	if(lightsActive)
-		glDisable(GL_LIGHTING);
+	{
+		GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+		drawDebuglines = false;
+	}
 	else
-		glEnable(GL_LIGHTING);
-	drawDebuglines = !drawDebuglines;
+	{
+		GLfloat	global_ambient[ 4 ]	= {0.6f, 0.6f,  0.6f, 1.0f};
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+		drawDebuglines = true;
+	}
+
 	lightsActive = !lightsActive;
 }
 
@@ -118,7 +126,8 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		
 		p.vel.x += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
 		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);;
+		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		
 		p.max_life = 70;
 		p.cur_life = 70;
 		
@@ -439,6 +448,7 @@ void Graphics::init()
 	cerr << "unit_color location: " << unit_color_location << endl;
 
 	
+	glLineWidth(5.0f);
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
@@ -569,6 +579,7 @@ void Graphics::setCamera(const Camera& cam)
 void Graphics::drawLevel(const Level& lvl)
 {
 	glUseProgram(shaders["level_program"]);
+	
 	glEnable(GL_TEXTURE_2D);
 	// TextureHandler::getSingleton().bindTexture("grass");
 	
@@ -585,10 +596,10 @@ void Graphics::drawLevel(const Level& lvl)
 
 		for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
 		{
-			for(size_t y=0; y < lvl.pointheight_info[x].size()-1; y++)
+			for(size_t z=0; z < lvl.pointheight_info[x].size()-1; z++)
 			{
 				// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
-				FixedPoint h_diff = lvl.getHeightDifference(x, y);
+				FixedPoint h_diff = lvl.getHeightDifference(x, z);
 				int lololol = -1;
 				if(h_diff < FixedPoint(35, 10))
 					lololol = 0;
@@ -601,30 +612,56 @@ void Graphics::drawLevel(const Level& lvl)
 					continue;
 				
 				FixedPoint fpx(x);
-				FixedPoint fpy(y);
+				FixedPoint fpy(z);
 				fpx += FixedPoint(1,2);
 				fpy += FixedPoint(1,2);
 				fpx *= FixedPoint(multiplier);
 				fpy *= FixedPoint(multiplier);
 
 				semiAverage.x = multiplier * (x + 0.5f);
-				semiAverage.z = multiplier * (y + 0.5f);
+				semiAverage.z = multiplier * (z + 0.5f);
 				semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
-				
-				Location n = lvl.getNormal(x, y);
-				glNormal3f(-n.x.getFloat(), n.y.getFloat(), -n.z.getFloat());
 				
 				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 				{
-					Vec3 A(multiplier * x, lvl.pointheight_info[x][y].getFloat(), multiplier * y);
-					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][y].getFloat(), multiplier * y);
-					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][y+1].getFloat(), multiplier * (y+1));
-					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][y+1].getFloat()  , multiplier * (y+1));
+					
+					Location n;
+					
+					if(drawDebuglines)
+					{
+						n = lvl.getNormal(x, z) * 10;
+						Location start;
+						start.x = FixedPoint(int(x * multiplier));
+						start.y = lvl.getHeight(x * multiplier, z * multiplier);
+						start.z = FixedPoint(int(z * multiplier));
+						
+						Location end = start + n;
+						
+						glBegin(GL_LINES);
+						glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+						glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+						glEnd();
+						
+						glColor3f(1.0, 1.0, 1.0);
+					}
+					
+					
+					Vec3 A(multiplier * x, lvl.pointheight_info[x][z].getFloat(), multiplier * z);
+					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][z].getFloat(), multiplier * z);
+					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][z+1].getFloat(), multiplier * (z+1));
+					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][z+1].getFloat()  , multiplier * (z+1));
 					
 					glBegin(GL_QUADS);
+					n=lvl.getNormal(x, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
+					
+					n=lvl.getNormal(x+1, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(1.f, 0.0f); glVertex3f( B.x, B.y, B.z );
+					
+					n=lvl.getNormal(x+1, z+1); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
+					
+					n=lvl.getNormal(x, z+1); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
 					glEnd();
 					++QUADS_DRAWN_THIS_FRAME;
@@ -827,9 +864,9 @@ void Graphics::tick()
 
 	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	Vec3 camPos = camera.getPosition();
-    Location modelLocation = camera.getUnitPosition();
+
 	lightPos[0] = camPos.x; //modelLocation.x.getFloat();
-	lightPos[1] = camPos.y; //modelLocation.y.getFloat();
+	lightPos[1] = camPos.y + 4; //modelLocation.y.getFloat();
 	lightPos[2] = camPos.z; //modelLocation.z.getFloat();
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	
