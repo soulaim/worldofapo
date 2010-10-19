@@ -54,7 +54,8 @@ struct Model
 
 	void updatePosition(float x, float y, float z);
 
-	void tick();
+	void tick(int current_frame);
+
 	bool load(const std::string& filename);
 	bool save(const std::string& filename) const;
 	void setAction(const std::string&);
