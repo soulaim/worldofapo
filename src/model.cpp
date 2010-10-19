@@ -5,15 +5,12 @@
 
 using namespace std;
 
-void Model::tick()
+void Model::tick(int current_frame)
 {
 	// Smoothed out model movement. Doesnt correspond 100% to actual unit coordinates.
 	currentModelPos += (realUnitPos - currentModelPos) * 0.2;
 	
-	// animation time should be increased by the actual time difference, instead of by a constant
-	// FIX!!
-	animation_time++;
-	return;
+	animation_time = current_frame;
 }
 
 void Model::updatePosition(float x, float y, float z)

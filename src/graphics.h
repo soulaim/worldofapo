@@ -33,19 +33,18 @@ struct ObjectTri
 	float y[3];
 	float z[3];
 };
-
+/*
 struct ObjectQuad
 {
 	float x[4];
 	float y[4];
 	float z[4];
 };
-
+*/
 struct ObjectPart
 {
-	std::vector<ObjectQuad> quads;
+//	std::vector<ObjectQuad> quads;
 	std::vector<ObjectTri> triangles;
-	std::map<std::string, Animation> animations;
 	
 	float end_x;
 	float end_y;

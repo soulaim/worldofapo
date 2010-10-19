@@ -23,8 +23,10 @@ class Editor
 	void tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
+	void loadAnimations(const std::string& file);
 	void saveModel(const std::string& file);
 	void saveObjects(const std::string& file);
+	void saveAnimations(const std::string& file);
 	bool type_exists(const std::string& type);
 	void handle_command(const std::string& command);
 	void select_part(const std::string& part);
@@ -40,15 +42,22 @@ class Editor
 	void add_type(const std::string& type);
 	void print_types();
 	void print_model();
+	void print_animations();
 	void dot();
 	void undot();
 	void next_dot();
 	void prev_dot();
+	void play_animation(const string& animation);
+	void record_step(size_t time);
+	void record_animation(const string& animation);
+	void reset();
+	void scale(float scalar);
 
 	Unit dummy;
 
-	std::string objectsName;
-	std::string modelName;
+	std::string objectsFile;
+	std::string modelFile;
+	std::string animationsFile;
 
 	bool editing_single_part;
 	size_t selected_part;
@@ -67,6 +76,8 @@ class Editor
 	size_t selected_dot;
 	Vec3 current_dot;
 	std::vector<Vec3> new_dots;
+
+	std::string animation_name;
 public:
 	Editor();
 	void start();

@@ -7,6 +7,7 @@
 #include <climits>
 #include <locale>
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -47,9 +48,11 @@ void Editor::init()
 	view.bindCamera(&dummy);
 	view.toggleLightingStatus();
 
-	handle_command("load objects parts.dat");
-	handle_command("load model model.bones");
-	handle_command("edit type HEAD");
+	handle_command("load objects ../models/model.parts");
+	handle_command("load model ../models/model.bones");
+	handle_command("load animations ../models/model.animation");
+	handle_command("load objects ../models/bullet.parts");
+//	handle_command("edit type HEAD");
 
 //	view.megaFuck();
 }
@@ -62,16 +65,19 @@ void Editor::start()
 
 	int ticks = SDL_GetTicks();
 	static int last_tick = -999999;
+	static int world_ticks = 0;
 
 	int time_since_last = ticks - last_tick;
-	int time_between_ticks = 1000/60;
+	int time_between_ticks = 1000/50;
 	if(time_since_last >= time_between_ticks)
 	{
+		++world_ticks;
 		last_tick = ticks;
 
 		tick();
 		view.setTime( ticks );
 		view.tick();
+		edited_model.tick(world_ticks);
 
 		string message;
 
@@ -140,7 +146,7 @@ void Editor::saveModel(const std::string& file)
 	if(edited_model.save(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		modelFile = file;
 	}
 	else
 	{
@@ -155,7 +161,22 @@ void Editor::saveObjects(const std::string& file)
 	if(view.saveObjects(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		objectsFile = file;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::saveAnimations(const std::string& file)
+{
+	string pathed_file = "data/" + file;
+	view.pushMessage("Saving animations to '" + pathed_file + "'");
+	if(Animation::save(pathed_file))
+	{
+		view.pushMessage(green("Success"));
+		animationsFile = file;
 	}
 	else
 	{
@@ -170,7 +191,7 @@ void Editor::loadObjects(const string& file)
 	if(view.loadObjects(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		objectsFile = file;
 		selected_part = 0;
 		editing_single_part = false;
 	}
@@ -193,7 +214,24 @@ void Editor::loadModel(const string& file)
 		editing_single_part = false;
 		edited_model = model;
 		view.pushMessage(green("Success"));
-		modelName = file;
+		modelFile = file;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::loadAnimations(const string& file)
+{
+	string pathed_file = "data/" + file;
+	view.pushMessage("Loading animations from '" + pathed_file + "'");
+
+	bool ok = Animation::load(pathed_file);
+	if(ok)
+	{
+		view.pushMessage(green("Success"));
+		animationsFile = file;
 	}
 	else
 	{
@@ -262,7 +300,13 @@ void Editor::select_part(const string& part)
 	{
 		if(edited_model.parts[i].name == part)
 		{
+			if(selected_part < edited_model.parts.size())
+			{
+				edited_model.parts[selected_part].hilight = false;
+			}
+
 			selected_part = i;
+			edited_model.parts[i].hilight = true;
 			view.pushMessage(green("Selected part " + part));
 			return;
 		}
@@ -379,6 +423,32 @@ void Editor::print_types()
 		const std::string& name = it->first;
 		view.pushMessage(name);
 	}
+}
+
+void Editor::print_animations()
+{
+	/*
+	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
+	{
+		const std::string& type_name = it->first;
+		for(auto it2 = it->second.animations.begin(); it2 != it->second.animations.end(); ++it2)
+		{
+			const std::string& animation_name = it2->first;
+			view.pushMessage(type_name + ": '" + animation_name + "'");
+		}
+	}
+	*/
+	/*
+	for(auto it = edited_model.parts.begin(); it != edited_model.parts.end(); ++it)
+	{
+		const std::string& part_name = it->name;
+		for(auto it2 = it->animations.begin(); it2 != it->animations.end(); ++it2)
+		{
+			const std::string& animation_name = it2->first;
+			view.pushMessage(part_name + ": '" + animation_name + "'");
+		}
+	}
+	*/
 }
 
 void Editor::type_helper(const std::string& type)
@@ -510,6 +580,62 @@ void Editor::prev_dot()
 	}
 }
 
+void Editor::play_animation(const string& animation)
+{
+	edited_model.setAction(animation);
+	view.pushMessage(green("Playing " + animation));
+}
+
+void Editor::record_animation(const string& animation)
+{
+	view.pushMessage(green("Recording " + animation));
+	animation_name = animation;
+}
+
+void Editor::record_step(size_t time)
+{
+	stringstream ss;
+	ss << time;
+	view.pushMessage(green("Recorded step of length " + ss.str()));
+
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
+	{
+		ModelNode& node = edited_model.parts[i];
+		Animation& animation = Animation::getAnimation(node.name, animation_name);
+
+		animation.insertAnimationState(time, node.rotation_x, node.rotation_y, node.rotation_z);
+//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
+	}
+}
+
+void Editor::scale(float scalar)
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage(red("Scale works only when editing part types."));
+		return;
+	}
+	
+	for(size_t i = 0; i < edited_type->triangles.size(); ++i)
+	{
+		ObjectTri& triangle = edited_type->triangles[i];
+		for(size_t j = 0; j < 3; ++j)
+		{
+			triangle.x[j] *= scalar;
+			triangle.y[j] *= scalar;
+			triangle.z[j] *= scalar;
+		}
+	}
+	edited_type->end_x *= scalar;
+	edited_type->end_y *= scalar;
+	edited_type->end_z *= scalar;
+
+	stringstream ss;
+	ss << scalar;
+	view.pushMessage(green("Scaled to " + ss.str()));
+}
+
+
 void Editor::handle_command(const string& command)
 {
 	view.pushMessage(command);
@@ -535,6 +661,10 @@ void Editor::handle_command(const string& command)
 		{
 			loadModel(word3);
 		}
+		else if(word2 == "animations")
+		{
+			loadAnimations(word3);
+		}
 	}
 	if(word1 == "save")
 	{
@@ -545,6 +675,10 @@ void Editor::handle_command(const string& command)
 		else if(word2 == "model")
 		{
 			saveModel(word3);
+		}
+		else if(word2 == "animations")
+		{
+			saveAnimations(word3);
 		}
 	}
 	else if(word1 == "move")
@@ -607,6 +741,10 @@ void Editor::handle_command(const string& command)
 		{
 			print_model();
 		}
+		else if(word2 == "animations")
+		{
+			print_animations();
+		}
 	}
 	else if(word1 == "speed")
 	{
@@ -636,9 +774,48 @@ void Editor::handle_command(const string& command)
 	{
 		prev_dot();
 	}
+	else if(word1 == "play")
+	{
+		play_animation(word2);
+	}
+	else if(word1 == "record")
+	{
+		record_animation(word2);
+	}
+	else if(word1 == "record_step")
+	{
+		stringstream ss1(command);
+		size_t time = 50;
+		ss1 >> word1 >> time;
+		record_step(time);
+	}
+	else if(word1 == "reset")
+	{
+		reset();
+	}
+	else if(word1 == "scale")
+	{
+		stringstream ss1(command);
+		float scalar = 1.0f;
+		ss1 >> word1 >> scalar;
+		scale(scalar);
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
+}
+
+void Editor::reset()
+{
+	if(edited_model.parts.size() <= selected_part)
+	{
+		return;
+	}
+
+	ModelNode& modelnode = edited_model.parts[selected_part];
+	modelnode.rotation_x = 0.0f;
+	modelnode.rotation_y = 0.0f;
+	modelnode.rotation_z = 0.0f;
 }
 
 void Editor::handle_input()
@@ -654,8 +831,13 @@ void Editor::handle_input()
 	{
 		if(key == "f4")
 		{
-			loadObjects(objectsName);
-			loadModel(modelName);
+			loadObjects(objectsFile);
+			loadModel(modelFile);
+			loadModel(animationsFile);
+		}
+		if(key == "f5")
+		{
+			reset();
 		}
 		if(key == "f11")
 		{
