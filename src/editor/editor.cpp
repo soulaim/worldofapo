@@ -48,9 +48,10 @@ void Editor::init()
 	view.bindCamera(&dummy);
 	view.toggleLightingStatus();
 
-	handle_command("load objects parts.dat");
+	handle_command("load objects ../models/model.parts");
 	handle_command("load model ../models/model.bones");
 	handle_command("load animations ../models/model.animation");
+	handle_command("load objects ../models/bullet.parts");
 //	handle_command("edit type HEAD");
 
 //	view.megaFuck();
@@ -607,6 +608,34 @@ void Editor::record_step(size_t time)
 	}
 }
 
+void Editor::scale(float scalar)
+{
+	if(!editing_single_part)
+	{
+		view.pushMessage(red("Scale works only when editing part types."));
+		return;
+	}
+	
+	for(size_t i = 0; i < edited_type->triangles.size(); ++i)
+	{
+		ObjectTri& triangle = edited_type->triangles[i];
+		for(size_t j = 0; j < 3; ++j)
+		{
+			triangle.x[j] *= scalar;
+			triangle.y[j] *= scalar;
+			triangle.z[j] *= scalar;
+		}
+	}
+	edited_type->end_x *= scalar;
+	edited_type->end_y *= scalar;
+	edited_type->end_z *= scalar;
+
+	stringstream ss;
+	ss << scalar;
+	view.pushMessage(green("Scaled to " + ss.str()));
+}
+
+
 void Editor::handle_command(const string& command)
 {
 	view.pushMessage(command);
@@ -763,6 +792,13 @@ void Editor::handle_command(const string& command)
 	else if(word1 == "reset")
 	{
 		reset();
+	}
+	else if(word1 == "scale")
+	{
+		stringstream ss1(command);
+		float scalar = 1.0f;
+		ss1 >> word1 >> scalar;
+		scale(scalar);
 	}
 
 	commands.push_back(command);

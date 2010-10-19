@@ -52,7 +52,8 @@ void Localplayer::init()
 	game.init();
 	userio->init();
 
-	view->loadObjects("data/parts.dat");
+	view->loadObjects("models/model.parts");
+	view->loadObjects("models/bullet.parts");
 	Animation::load("models/model.animation");
 //	view->megaFuck(); // blah..
 	view->setPlayerInfo(&game.Players);

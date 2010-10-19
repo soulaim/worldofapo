@@ -51,6 +51,7 @@ class Editor
 	void record_step(size_t time);
 	void record_animation(const string& animation);
 	void reset();
+	void scale(float scalar);
 
 	Unit dummy;
 
