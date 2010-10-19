@@ -46,6 +46,9 @@ class Editor
 	void next_dot();
 	void prev_dot();
 	void play_animation(const string& animation);
+	void record_step(size_t time);
+	void record_animation(const string& animation);
+	void reset();
 
 	Unit dummy;
 
@@ -69,6 +72,8 @@ class Editor
 	size_t selected_dot;
 	Vec3 current_dot;
 	std::vector<Vec3> new_dots;
+
+	std::string animation_name;
 public:
 	Editor();
 	void start();

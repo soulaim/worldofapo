@@ -45,7 +45,6 @@ struct ObjectPart
 {
 	std::vector<ObjectQuad> quads;
 	std::vector<ObjectTri> triangles;
-	std::map<std::string, Animation> animations;
 	
 	float end_x;
 	float end_y;

@@ -3,7 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
+#include "animation.h"
 #include "frustum/Vec3.h"
 
 struct ModelNode

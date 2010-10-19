@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <map>
 
 using namespace std;
 
@@ -98,5 +99,12 @@ size_t Animation::getSize() const
 size_t Animation::totalTime() const
 {
 	return total_time;
+}
+
+Animation& Animation::getAnimation(const std::string& modelnode_name, const std::string& animation_name)
+{
+	// TODO: this can be made constant time with simple indexing, if necessary.
+	static std::map<std::string, std::map<std::string, Animation>> animations;
+	return animations[modelnode_name][animation_name];
 }
 
