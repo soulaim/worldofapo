@@ -3,6 +3,9 @@
 #include <iostream>
 #include <cmath>
 #include <map>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -101,10 +104,75 @@ size_t Animation::totalTime() const
 	return total_time;
 }
 
+std::map<std::string, std::map<std::string, Animation>> ANIMATIONS;
+
 Animation& Animation::getAnimation(const std::string& modelnode_name, const std::string& animation_name)
 {
 	// TODO: this can be made constant time with simple indexing, if necessary.
-	static std::map<std::string, std::map<std::string, Animation>> animations;
-	return animations[modelnode_name][animation_name];
+	return ANIMATIONS[modelnode_name][animation_name];
+}
+
+bool Animation::load(const std::string& filename)
+{
+	std::ifstream in(filename);
+	if(!in)
+	{
+		return false;
+	}
+	string line;
+	int line_count = 0;
+	while(getline(in, line))
+	{
+		++line_count;
+		if(line.empty())
+		{
+			continue;
+		}
+
+		string modelnode_name;
+		string animation_name;
+		size_t time;
+		float rot_x;
+		float rot_y;
+		float rot_z;
+
+		stringstream ss(line);
+		ss >> modelnode_name >> animation_name >> time >> rot_x >> rot_y >> rot_z;
+		if(!ss)
+		{
+			cerr << "BAD ANIMATION FILE FORMAT: '" << filename << "': " << line_count << "\n";
+			return false;
+		}
+		Animation& animation = getAnimation(modelnode_name, animation_name);
+		animation.insertAnimationState(time, rot_x, rot_y, rot_z);
+	}
+	return true;
+}
+
+bool Animation::save(const std::string& filename)
+{
+	std::ofstream out(filename);
+	if(!out)
+	{
+		return false;
+	}
+	for(auto it = ANIMATIONS.begin(); it != ANIMATIONS.end(); ++it)
+	{
+		for(auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			Animation& animation = it2->second;
+			for(size_t i = 0; i < animation.times.size(); ++i)
+			{
+				out << it->first << " " << it2->first << " ";
+				out << fixed << setprecision(3);
+				out << setw(4) << animation.times[i] << " " << setw(8) << animation.rot_x[i] << " " << setw(8) << animation.rot_y[i] << " " << setw(8) << animation.rot_z[i];
+				out << "\n";
+			}
+		}
+		out << "\n";
+	}
+	out.close();
+
+	return true;
 }
 

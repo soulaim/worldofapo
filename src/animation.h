@@ -22,6 +22,8 @@ class Animation
 		size_t totalTime() const;
 
 	static Animation& getAnimation(const std::string& modelnode_name, const std::string& animation_name);
+	static bool load(const std::string& filename);
+	static bool save(const std::string& filename);
 };
 
 #endif

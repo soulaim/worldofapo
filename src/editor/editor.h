@@ -23,8 +23,10 @@ class Editor
 	void tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
+	void loadAnimations(const std::string& file);
 	void saveModel(const std::string& file);
 	void saveObjects(const std::string& file);
+	void saveAnimations(const std::string& file);
 	bool type_exists(const std::string& type);
 	void handle_command(const std::string& command);
 	void select_part(const std::string& part);
@@ -52,8 +54,9 @@ class Editor
 
 	Unit dummy;
 
-	std::string objectsName;
-	std::string modelName;
+	std::string objectsFile;
+	std::string modelFile;
+	std::string animationsFile;
 
 	bool editing_single_part;
 	size_t selected_part;

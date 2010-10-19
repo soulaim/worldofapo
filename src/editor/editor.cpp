@@ -50,9 +50,10 @@ void Editor::init()
 
 	handle_command("load objects parts.dat");
 	handle_command("load model ../models/model.bones");
+	handle_command("load animations ../models/model.animation");
 //	handle_command("edit type HEAD");
 
-	view.megaFuck();
+//	view.megaFuck();
 }
 
 void Editor::start()
@@ -144,7 +145,7 @@ void Editor::saveModel(const std::string& file)
 	if(edited_model.save(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		modelFile = file;
 	}
 	else
 	{
@@ -159,7 +160,22 @@ void Editor::saveObjects(const std::string& file)
 	if(view.saveObjects(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		objectsFile = file;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::saveAnimations(const std::string& file)
+{
+	string pathed_file = "data/" + file;
+	view.pushMessage("Saving animations to '" + pathed_file + "'");
+	if(Animation::save(pathed_file))
+	{
+		view.pushMessage(green("Success"));
+		animationsFile = file;
 	}
 	else
 	{
@@ -174,7 +190,7 @@ void Editor::loadObjects(const string& file)
 	if(view.loadObjects(pathed_file))
 	{
 		view.pushMessage(green("Success"));
-		objectsName = file;
+		objectsFile = file;
 		selected_part = 0;
 		editing_single_part = false;
 	}
@@ -197,7 +213,24 @@ void Editor::loadModel(const string& file)
 		editing_single_part = false;
 		edited_model = model;
 		view.pushMessage(green("Success"));
-		modelName = file;
+		modelFile = file;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::loadAnimations(const string& file)
+{
+	string pathed_file = "data/" + file;
+	view.pushMessage("Loading animations from '" + pathed_file + "'");
+
+	bool ok = Animation::load(pathed_file);
+	if(ok)
+	{
+		view.pushMessage(green("Success"));
+		animationsFile = file;
 	}
 	else
 	{
@@ -599,6 +632,10 @@ void Editor::handle_command(const string& command)
 		{
 			loadModel(word3);
 		}
+		else if(word2 == "animations")
+		{
+			loadAnimations(word3);
+		}
 	}
 	if(word1 == "save")
 	{
@@ -609,6 +646,10 @@ void Editor::handle_command(const string& command)
 		else if(word2 == "model")
 		{
 			saveModel(word3);
+		}
+		else if(word2 == "animations")
+		{
+			saveAnimations(word3);
 		}
 	}
 	else if(word1 == "move")
@@ -754,8 +795,9 @@ void Editor::handle_input()
 	{
 		if(key == "f4")
 		{
-			loadObjects(objectsName);
-			loadModel(modelName);
+			loadObjects(objectsFile);
+			loadModel(modelFile);
+			loadModel(animationsFile);
 		}
 		if(key == "f5")
 		{
