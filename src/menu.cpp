@@ -6,7 +6,23 @@
 
 #include <vector>
 
+#include <sys/wait.h>
+
 using namespace std;
+
+pid_t serverpid = 0;
+
+void server_killer()
+{
+	int status;
+	cerr << "Killing server..." << endl;
+	if(kill(serverpid, SIGKILL) < 0)
+	{
+		perror("killing server failed");
+	}
+	pid_t pid = wait(&status);
+	cerr << "Server process " << pid << " died: " << status << endl;
+}
 
 Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
@@ -74,10 +90,21 @@ std::string Menu::menu_tick()
 				SDL_Quit();
 				exit(0);
 			}
-			else if(buttons[selected].name == "host")
+			else if(buttons[selected].name == "host" && serverpid == 0)
 			{
-				int ret = system("./server &");
-				cerr << "Starting server, remember to stop it!!! ok: " << ret << endl;
+				pid_t pid = fork();
+				if(pid == 0)
+				{
+					execl("./server", "./server", 0);
+					perror("Error, starting server failed");
+					exit(0);
+				}
+				serverpid = pid;
+				atexit(server_killer);
+				cerr << "Started server process with pid " << serverpid << endl;
+				sleep(1);
+				ret = "localhost";
+				dont_exit = false;
 			}
 			else
 			{
