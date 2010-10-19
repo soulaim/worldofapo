@@ -505,7 +505,7 @@ void World::updateModel(Model& model, Unit& unit)
 	}
 	
 	// update state of model
-	model.tick();
+	model.tick(currentWorldFrame);
 }
 
 void World::worldTick(int tickCount)
@@ -560,7 +560,7 @@ void World::viewTick()
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		models[iter->first].setAction("idle");
-		models[iter->first].tick();
+		models[iter->first].tick(currentWorldFrame);
 	}
 }
 

@@ -62,17 +62,19 @@ void Editor::start()
 
 	int ticks = SDL_GetTicks();
 	static int last_tick = -999999;
+	static int world_ticks = 0;
 
 	int time_since_last = ticks - last_tick;
 	int time_between_ticks = 1000/50;
 	if(time_since_last >= time_between_ticks)
 	{
+		++world_ticks;
 		last_tick = ticks;
 
 		tick();
 		view.setTime( ticks );
 		view.tick();
-		edited_model.tick();
+		edited_model.tick(world_ticks);
 
 		string message;
 
