@@ -2,6 +2,7 @@
 #define ANIMATION_H
 
 #include <vector>
+#include <string>
 
 class Animation
 {
@@ -19,6 +20,8 @@ class Animation
 //		void setAnimationState(size_t time, float, float, float);
 		size_t getSize() const;
 		size_t totalTime() const;
+
+	static Animation& getAnimation(const std::string& modelnode_name, const std::string& animation_name);
 };
 
 #endif

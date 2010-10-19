@@ -7,6 +7,7 @@
 #include <climits>
 #include <locale>
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -392,6 +393,7 @@ void Editor::print_types()
 
 void Editor::print_animations()
 {
+	/*
 	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
 	{
 		const std::string& type_name = it->first;
@@ -401,6 +403,18 @@ void Editor::print_animations()
 			view.pushMessage(type_name + ": '" + animation_name + "'");
 		}
 	}
+	*/
+	/*
+	for(auto it = edited_model.parts.begin(); it != edited_model.parts.end(); ++it)
+	{
+		const std::string& part_name = it->name;
+		for(auto it2 = it->animations.begin(); it2 != it->animations.end(); ++it2)
+		{
+			const std::string& animation_name = it2->first;
+			view.pushMessage(part_name + ": '" + animation_name + "'");
+		}
+	}
+	*/
 }
 
 void Editor::type_helper(const std::string& type)
@@ -538,6 +552,28 @@ void Editor::play_animation(const string& animation)
 	view.pushMessage(green("Playing " + animation));
 }
 
+void Editor::record_animation(const string& animation)
+{
+	view.pushMessage(green("Recording " + animation));
+	animation_name = animation;
+}
+
+void Editor::record_step(size_t time)
+{
+	stringstream ss;
+	ss << time;
+	view.pushMessage(green("Recorded step of length " + ss.str()));
+
+	for(size_t i = 0; i < edited_model.parts.size(); ++i)
+	{
+		ModelNode& node = edited_model.parts[i];
+		Animation& animation = Animation::getAnimation(node.name, animation_name);
+
+		animation.insertAnimationState(time, node.rotation_x, node.rotation_y, node.rotation_z);
+//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
+	}
+}
+
 void Editor::handle_command(const string& command)
 {
 	view.pushMessage(command);
@@ -672,9 +708,37 @@ void Editor::handle_command(const string& command)
 	{
 		play_animation(word2);
 	}
+	else if(word1 == "record")
+	{
+		record_animation(word2);
+	}
+	else if(word1 == "record_step")
+	{
+		stringstream ss1(command);
+		size_t time = 50;
+		ss1 >> word1 >> time;
+		record_step(time);
+	}
+	else if(word1 == "reset")
+	{
+		reset();
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
+}
+
+void Editor::reset()
+{
+	if(edited_model.parts.size() <= selected_part)
+	{
+		return;
+	}
+
+	ModelNode& modelnode = edited_model.parts[selected_part];
+	modelnode.rotation_x = 0.0f;
+	modelnode.rotation_y = 0.0f;
+	modelnode.rotation_z = 0.0f;
 }
 
 void Editor::handle_input()
@@ -692,6 +756,10 @@ void Editor::handle_input()
 		{
 			loadObjects(objectsName);
 			loadModel(modelName);
+		}
+		if(key == "f5")
+		{
+			reset();
 		}
 		if(key == "f11")
 		{
