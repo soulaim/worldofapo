@@ -55,7 +55,7 @@ void Localplayer::init()
 	view->loadObjects("models/model.parts");
 	view->loadObjects("models/bullet.parts");
 	Animation::load("models/model.animation");
-//	view->megaFuck(); // blah..
+	
 	view->setPlayerInfo(&game.Players);
 
 	// TODO: Should not be done here? FIX

@@ -236,6 +236,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
+		// TODO: Heavy landings should have a gameplay effect!
 		if(unit.velocity.y < FixedPoint(-4, 10))
 			unit.soundInfo = "jump_land";
 		FixedPoint friction = FixedPoint(88, 100);
@@ -345,12 +346,14 @@ void World::tickUnit(Unit& unit, Model& model)
 			FixedPoint x = position.x;
 			FixedPoint y = position.y;
 			FixedPoint z = position.z;
+			
 			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
 			relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
 			relative_position.y =      -upsin * x           +       upcos * y;
 
 			Location weapon_position = unit.position;
-			Location projectile_direction = unit.position + relative_position;
+			Location projectile_direction = relative_position;
+			
 			weapon_position.y += 4;
 			projectile_direction.y += 4;
 
@@ -359,13 +362,14 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			Projectile& projectile = projectiles[id];
 			
-			projectile.velocity = projectile_direction - weapon_position;
-			projectile.velocity.normalize();
-			projectile.velocity *= FixedPoint(10, 1);
+			projectile_direction.normalize();
+			projectile.velocity = projectile_direction * FixedPoint(45, 10) + unit.velocity;
+			projectile.tick(); // need to move projectile out of self-range (don't want to shoot self)
+			
+			projectile.velocity = projectile_direction * FixedPoint(10, 1) + unit.velocity;
 			projectile.id = id;
 			projectile.owner = unit.id;
 			
-			projectile.tick();
 			projectile.lifetime = 50;
 		}
 	}

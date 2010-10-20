@@ -58,6 +58,7 @@ public:
 	std::map<int, Model> models;
 	std::map<int, Projectile> projectiles;
 	
+	
 	Level lvl;
 	ApoMath apomath;
 	
