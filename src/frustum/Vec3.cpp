@@ -112,19 +112,21 @@ Vec3 Vec3::operator*(const Vec3 &v) const
 	return (res);
 }
 
-
-
-float Vec3::length() {
-
+float Vec3::length() const
+{
 	return((float)sqrt(x*x + y*y + z*z));
 }
 
-void Vec3::normalize() {
+float Vec3::lengthSquared() const
+{
+	return x*x + y*y + z*z;
+}
 
-	float len;
-
-	len = length();
-	if (len) {
+void Vec3::normalize()
+{
+	float len = length();
+	if (len)
+	{
 		x /= len;;
 		y /= len;
 		z /= len;
@@ -132,8 +134,8 @@ void Vec3::normalize() {
 }
 
 
-float Vec3::innerProduct(const Vec3 &v) {
-
+float Vec3::innerProduct(const Vec3 &v) const
+{
 	return (x * v.x + y * v.y + z * v.z);
 }
 
@@ -150,5 +152,16 @@ void Vec3::set(float x,float y, float z) {
 void Vec3::print() {
 	printf("Vec3(%f, %f, %f)",x,y,z);
 	
+}
+
+float Vec3::operator[](int i) const
+{
+	switch(i)
+	{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+	}
+	return 1.0f;
 }
 
