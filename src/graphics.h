@@ -13,6 +13,7 @@
 #include <SDL/SDL.h>
 
 #include "model.h"
+#include "skeletalmodel.h"
 #include "animation.h"
 #include "frustum/FrustumR.h"
 #include "camera.h"
@@ -23,35 +24,12 @@
 #include "image.h"
 #include "location.h"
 #include "particle.h"
+#include "primitives.h"
 
 #include "light_object.h"
 
 struct Level;
 struct MenuButton;
-
-struct ObjectTri
-{
-	float x[3];
-	float y[3];
-	float z[3];
-};
-/*
-struct ObjectQuad
-{
-	float x[4];
-	float y[4];
-	float z[4];
-};
-*/
-struct ObjectPart
-{
-//	std::vector<ObjectQuad> quads;
-	std::vector<ObjectTri> triangles;
-	
-	float end_x;
-	float end_y;
-	float end_z;
-};
 
 class Graphics
 {
@@ -68,9 +46,10 @@ class Graphics
 	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
-	void drawModels(std::map<int, Model>& models);
+	void drawModels(std::map<int, Model*>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
+	void finishDrawing();
 
 
 	// HUD Stuff
@@ -100,8 +79,7 @@ class Graphics
 
 
 	std::vector<Particle> viewParticles;
-	
-	std::map<std::string, ObjectPart> objects;
+
 	std::map<std::string, GLuint> shaders;
 	
 	// define some character widths in our particular font
@@ -116,6 +94,7 @@ class Graphics
 	bool drawDebuglines;
 	
 public:
+	static std::map<std::string, ObjectPart> objects; // TODO: Maybe move this somewhere?
 	friend class Editor;
 
 	// HUD stuff
@@ -142,8 +121,8 @@ public:
 // 	
 	void setTime(unsigned);
 	
-	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o);
-	void draw(std::map<int, Model>&, const std::string& status_message);
+	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o);
+	void draw(std::map<int, Model*>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
 	void drawHitboxes(const std::map<int,Unit>& units);

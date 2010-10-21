@@ -1,5 +1,6 @@
-
 #include "world.h"
+#include "apomodel.h"
+#include "skeletalmodel.h"
 
 #include <iostream>
 
@@ -229,7 +230,7 @@ void World::terminate()
 }
 
 
-void World::tickUnit(Unit& unit, Model& model)
+void World::tickUnit(Unit& unit, Model* model)
 {
 	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
 	{
@@ -239,8 +240,8 @@ void World::tickUnit(Unit& unit, Model& model)
 	unit.soundInfo = "";
 	
 	// update the information according to which the unit model will be updated from now on
-	model.parts[model.root].rotation_x = unit.getAngle(apomath);
-	model.updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
+	model->rotate_y(unit.getAngle(apomath));
+	model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	
 	// some physics & game world information
 	bool hitGround = false;
@@ -444,10 +445,10 @@ void World::tickUnit(Unit& unit, Model& model)
 	}
 }
 
-void World::tickProjectile(Projectile& projectile, Model& model, int id)
+void World::tickProjectile(Projectile& projectile, Model* model, int id)
 {
-	// model.parts[model.root].rotation_x = projectile.getAngle(apomath);
-	model.updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
+	// model.parts[model.root].rotation_y = projectile.getAngle(apomath);
+	model->updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
 
 	// cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
 	if(projectile.lifetime > 0)
@@ -502,7 +503,7 @@ void World::tickProjectile(Projectile& projectile, Model& model, int id)
 	}
 }
 
-void World::updateModel(Model& model, Unit& unit)
+void World::updateModel(Model* model, Unit& unit)
 {
 	/*
 	// deduce which animation to display
@@ -513,15 +514,15 @@ void World::updateModel(Model& model, Unit& unit)
 	else */
 	if(unit.getKeyAction(Unit::MOVE_FRONT | Unit::MOVE_BACK | Unit::MOVE_LEFT | Unit::MOVE_RIGHT))
 	{
-		model.setAction("walk");
+		model->setAction("walk");
 	}
 	else
 	{
-		model.setAction("idle");
+		model->setAction("idle2");
 	}
 	
 	// update state of model
-	model.tick(currentWorldFrame);
+	model->tick(currentWorldFrame);
 }
 
 void World::worldTick(int tickCount)
@@ -628,8 +629,9 @@ void World::viewTick()
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		models[iter->first].setAction("idle");
-		models[iter->first].tick(currentWorldFrame);
+		Model* model = models[iter->first];
+		model->setAction("idle");
+		model->tick(currentWorldFrame);
 	}
 }
 
@@ -643,8 +645,10 @@ void World::addUnit(int id, bool playerCharacter)
 	
 	units[id].birthTime = currentWorldFrame;
 	
-	models[id] = Model();
-	models[id].load("models/model.bones"); // TODO: don't load from file! Make some prototype.
+//	models[id] = new ApoModel();
+//	models[id]->load("models/model.bones"); // TODO: don't load from file! Make some prototype.
+	models[id] = new SkeletalModel();
+	models[id]->load("models/model.skeleton"); // TODO: don't load from file! Make some prototype.
 	
 	
 	if(!playerCharacter)
@@ -662,7 +666,7 @@ void World::addUnit(int id, bool playerCharacter)
 
 void World::addProjectile(Location& location, int id)
 {
-	static Model prototype;
+	static ApoModel prototype;
 	if(prototype.root == -1)
 	{
 		prototype.load("models/bullet.bones");
@@ -672,9 +676,9 @@ void World::addProjectile(Location& location, int id)
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id] = prototype; // TODO: still copies some extra constants.
-	models[id].realUnitPos = position;
-	models[id].currentModelPos = position;
+	models[id] = new ApoModel(prototype); // TODO: still copies some extra constants.
+	models[id]->realUnitPos = position;
+	models[id]->currentModelPos = position;
 
 	projectiles[id].curr_position = location;
 	projectiles[id].owner = id;
@@ -700,6 +704,7 @@ void World::removeUnit(int id)
 {
 	units.erase(id);
 	projectiles.erase(id);
+	delete models[id];
 	models.erase(id);
 }
 

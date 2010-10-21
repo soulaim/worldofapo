@@ -2,6 +2,8 @@
 #define EDITOR_H
 
 #include "../model.h"
+#include "../apomodel.h"
+#include "../skeletalmodel.h"
 #include "../userio.h"
 #include "../graphics.h"
 #include "../unit.h"
@@ -17,14 +19,14 @@ class Editor
 	UserIO userio;
 	Graphics view;
 
-	void init();
-	
 	void handle_input();
 	void tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
+	void loadSkeletalModel(const std::string& file);
 	void loadAnimations(const std::string& file);
 	void saveModel(const std::string& file);
+	void saveSkeletalModel(const std::string& file);
 	void saveObjects(const std::string& file);
 	void saveAnimations(const std::string& file);
 	bool type_exists(const std::string& type);
@@ -52,6 +54,7 @@ class Editor
 	void record_animation(const string& animation);
 	void reset();
 	void scale(float scalar);
+	void calculate_nearest_bones();
 
 	Unit dummy;
 
@@ -62,10 +65,13 @@ class Editor
 	bool editing_single_part;
 	size_t selected_part;
 
-	Model edited_model;
+	ApoModel edited_model;
 	std::string edited_type_name;
 	ObjectPart* edited_type;
-	Model stored_model;
+	ApoModel stored_model;
+
+	bool skele;
+	SkeletalModel skeletal_model;
 
 	float speed;
 	float rotate_speed;
@@ -78,6 +84,8 @@ class Editor
 	std::vector<Vec3> new_dots;
 
 	std::string animation_name;
+
+	bool drawing_model;
 public:
 	Editor();
 	void start();

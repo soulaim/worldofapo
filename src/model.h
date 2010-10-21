@@ -1,5 +1,5 @@
-#ifndef H_MODEL_APODUS
-#define H_MODEL_APODUS
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <string>
 #include <vector>
@@ -8,62 +8,27 @@
 #include "animation.h"
 #include "frustum/Vec3.h"
 
-struct ModelNode
-{
-	ModelNode():
-		offset_x(0),
-		offset_y(0),
-		offset_z(0),
-		rotation_x(0),
-		rotation_y(0),
-		rotation_z(0),
-		hilight(false)
-	{
-	}
-
-	std::string name;
-	std::string wireframe;
-
-	float offset_x;
-	float offset_y;
-	float offset_z;
-
-	float rotation_x;
-	float rotation_y;
-	float rotation_z;
-
-	bool hilight; // For editor.
-
-	std::vector<size_t> children;
-};
-
-
 struct Model
 {
 	std::string animation_name;
 	int animation_time;
 
-	std::vector<ModelNode> parts;
-	int root;
-
 	Vec3 realUnitPos;
 	Vec3 currentModelPos;
 
-	Model():
-		root(-1)
-	{
-	}
+	Model();
+	virtual ~Model();
 
 	void updatePosition(float x, float y, float z);
-
 	void tick(int current_frame);
-
-	bool load(const std::string& filename);
-	bool save(const std::string& filename) const;
 	void setAction(const std::string&);
 
-	float height() const;
-
+	virtual bool load(const std::string& filename) = 0;
+	virtual bool save(const std::string& filename) const = 0;
+	virtual void draw() = 0;
+	virtual void rotate_y(float angle) = 0;
+	virtual float height() const = 0;
 };
 
 #endif
+

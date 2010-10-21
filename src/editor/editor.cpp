@@ -26,11 +26,8 @@ std::string green(const std::string& s)
 
 Editor::Editor()
 {
-	init();
-}
-
-void Editor::init()
-{
+	drawing_model = true;
+	skele = false;
 	speed = 0.1f;
 	rotate_speed = 45.0f/2.0f;
 	current_command = 0;
@@ -48,13 +45,14 @@ void Editor::init()
 	view.bindCamera(&dummy);
 	view.toggleLightingStatus();
 
-	handle_command("load objects ../models/model.parts");
-	handle_command("load model ../models/model.bones");
-	handle_command("load animations ../models/model.animation");
-	handle_command("load objects ../models/bullet.parts");
+	handle_command("load objects model.parts");
+//	handle_command("load model model.bones");
+	handle_command("load skele model.skeleton");
+//	handle_command("load animations model.animation");
+	handle_command("load objects bullet.parts");
 //	handle_command("edit type HEAD");
 
-//	view.megaFuck();
+	view.megaFuck();
 }
 
 void Editor::start()
@@ -78,6 +76,7 @@ void Editor::start()
 		view.setTime( ticks );
 		view.tick();
 		edited_model.tick(world_ticks);
+		skeletal_model.tick(world_ticks);
 
 		string message;
 
@@ -106,20 +105,46 @@ void Editor::start()
 		else
 		{
 			stringstream ss;
-			if(edited_model.parts.size() > selected_part)
+			if(skele)
 			{
-				const ModelNode& node = edited_model.parts[selected_part];
-				ss << "'" << node.name << "' is " << node.wireframe << " at ("
-					<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
-					<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
+				if(skeletal_model.bones.size() > selected_part)
+				{
+					const Bone& bone = skeletal_model.bones[selected_part];
+					ss << "'" << bone.name << "' at ("
+						<< fixed << setprecision(2) << bone.start_x << ", " << bone.start_y << ", " << bone.start_z << "), ["
+						<< fixed << setprecision(2) << bone.rotation_x << ", " << bone.rotation_y << ", " << bone.rotation_z << "]";
+				}
+			}
+			else
+			{
+				if(edited_model.parts.size() > selected_part)
+				{
+					const ModelNode& node = edited_model.parts[selected_part];
+					ss << "'" << node.name << "' is " << node.wireframe << " at ("
+						<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
+						<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
+				}
 			}
 
 			message = ss.str();
 		}
 
-		std::map<int,Model> models;
-		models[0] = edited_model;
-		view.draw(models, message);
+		view.startDrawing();
+		if(skele)
+		{
+			skeletal_model.draw(!drawing_model, selected_part);
+		}
+		else
+		{
+			if(drawing_model)
+			{
+				edited_model.draw();
+			}
+		}
+		view.drawDebugLines();
+		view.drawMessages();
+		view.drawString(message, -0.9, 0.9, 1.5, true);
+		view.finishDrawing();
 	}
 	else
 	{
@@ -141,12 +166,29 @@ bool Editor::type_exists(const std::string& type)
 
 void Editor::saveModel(const std::string& file)
 {
-	string pathed_file = "data/" + file;
+	string pathed_file = "models/" + file;
 	view.pushMessage("Saving model to '" + pathed_file + "'");
 	if(edited_model.save(pathed_file))
 	{
 		view.pushMessage(green("Success"));
 		modelFile = file;
+		skele = false;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::saveSkeletalModel(const std::string& file)
+{
+	string pathed_file = "models/" + file;
+	view.pushMessage("Saving skeletal model to '" + pathed_file + "'");
+	if(skeletal_model.save(pathed_file))
+	{
+		view.pushMessage(green("Success"));
+		modelFile = file;
+		skele = true;
 	}
 	else
 	{
@@ -156,7 +198,7 @@ void Editor::saveModel(const std::string& file)
 
 void Editor::saveObjects(const std::string& file)
 {
-	string pathed_file = "data/" + file;
+	string pathed_file = "models/" + file;
 	view.pushMessage("Saving objects to '" + pathed_file + "'");
 	if(view.saveObjects(pathed_file))
 	{
@@ -171,7 +213,7 @@ void Editor::saveObjects(const std::string& file)
 
 void Editor::saveAnimations(const std::string& file)
 {
-	string pathed_file = "data/" + file;
+	string pathed_file = "models/" + file;
 	view.pushMessage("Saving animations to '" + pathed_file + "'");
 	if(Animation::save(pathed_file))
 	{
@@ -186,7 +228,7 @@ void Editor::saveAnimations(const std::string& file)
 
 void Editor::loadObjects(const string& file)
 {
-	string pathed_file = "data/" + file;
+	string pathed_file = "models/" + file;
 	view.pushMessage("Loading objects from '" + pathed_file + "'");
 	if(view.loadObjects(pathed_file))
 	{
@@ -203,10 +245,10 @@ void Editor::loadObjects(const string& file)
 
 void Editor::loadModel(const string& file)
 {
-	string pathed_file = "data/" + file;
-	view.pushMessage("Loading objects from '" + pathed_file + "'");
+	string pathed_file = "models/" + file;
+	view.pushMessage("Loading model from '" + pathed_file + "'");
 
-	Model model;
+	ApoModel model;
 	bool ok = model.load(pathed_file);
 	if(ok)
 	{
@@ -215,6 +257,29 @@ void Editor::loadModel(const string& file)
 		edited_model = model;
 		view.pushMessage(green("Success"));
 		modelFile = file;
+		skele = false;
+	}
+	else
+	{
+		view.pushMessage(red("Fail"));
+	}
+}
+
+void Editor::loadSkeletalModel(const string& file)
+{
+	string pathed_file = "models/" + file;
+	view.pushMessage("Loading skeletal model from '" + pathed_file + "'");
+
+	SkeletalModel model;
+	bool ok = model.load(pathed_file);
+	if(ok)
+	{
+		selected_part = 0;
+		editing_single_part = false;
+		skeletal_model = model;
+		view.pushMessage(green("Success"));
+		modelFile = file;
+		skele = true;
 	}
 	else
 	{
@@ -224,7 +289,7 @@ void Editor::loadModel(const string& file)
 
 void Editor::loadAnimations(const string& file)
 {
-	string pathed_file = "data/" + file;
+	string pathed_file = "models/" + file;
 	view.pushMessage("Loading animations from '" + pathed_file + "'");
 
 	bool ok = Animation::load(pathed_file);
@@ -278,24 +343,47 @@ void Editor::move_part(double dx, double dy, double dz)
 
 void Editor::rotate_part(double dx, double dy, double dz)
 {
-	if(edited_model.parts.size() <= selected_part)
+	if(skele)
 	{
-		view.pushMessage("Failed to rotate part, no selected part");
-		return;
+		Bone& bone = skeletal_model.bones[selected_part];
+		bone.rotation_x += dx;
+		bone.rotation_y += dy;
+		bone.rotation_z += dz;
 	}
+	else
+	{
+		if(edited_model.parts.size() <= selected_part)
+		{
+			view.pushMessage("Failed to rotate part, no selected part");
+			return;
+		}
+		ModelNode& modelnode = edited_model.parts[selected_part];
+		modelnode.rotation_x += dx;
+		modelnode.rotation_y += dy;
+		modelnode.rotation_z += dz;
 
-	ModelNode& modelnode = edited_model.parts[selected_part];
-	modelnode.rotation_x += dx;
-	modelnode.rotation_y += dy;
-	modelnode.rotation_z += dz;
-
-	stringstream ss;
-	ss << "(" << dx << ", " << dy << ", " << dz << ")";
-	view.pushMessage(green("Rotated " + modelnode.name + ss.str()));
+		stringstream ss;
+		ss << "(" << dx << ", " << dy << ", " << dz << ")";
+		view.pushMessage(green("Rotated " + modelnode.name + ss.str()));
+	}
 }
 
 void Editor::select_part(const string& part)
 {
+	if(skele)
+	{
+		for(size_t i = 0; i < skeletal_model.bones.size(); ++i)
+		{
+			if(skeletal_model.bones[i].name == part)
+			{
+				selected_part = i;
+				view.pushMessage(green("Selected part " + part));
+				return;
+			}
+		}
+		view.pushMessage(red("Failed to select part " + part));
+		return;
+	}
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
 	{
 		if(edited_model.parts[i].name == part)
@@ -410,9 +498,28 @@ void Editor::add_part(const std::string& part_name, const std::string& type)
 
 void Editor::print_model()
 {
-	for(size_t i = 0; i < edited_model.parts.size(); ++i)
+	if(skele)
 	{
-		view.pushMessage(edited_model.parts[i].name);
+		for(size_t i = 0; i < skeletal_model.bones.size(); ++i)
+		{
+			const Bone& bone = skeletal_model.bones[i];
+			view.pushMessage(bone.name);
+
+			cerr << bone.name << ":\n";
+			cerr << "    x: " << bone.start_x << "\n";
+			cerr << "    y: " << bone.start_y << "\n";
+			cerr << "    z: " << bone.start_z << "\n";
+			cerr << "    rotx: " << bone.rotation_x << "\n";
+			cerr << "    roty: " << bone.rotation_y << "\n";
+			cerr << "    rotz: " << bone.rotation_z << "\n";
+		}
+	}
+	else
+	{
+		for(size_t i = 0; i < edited_model.parts.size(); ++i)
+		{
+			view.pushMessage(edited_model.parts[i].name);
+		}
 	}
 }
 
@@ -461,7 +568,7 @@ void Editor::type_helper(const std::string& type)
 	edited_type->end_z = 0.0f;
 
 	stored_model = edited_model;
-	Model dummy;
+	ApoModel dummy;
 	dummy.root = 0;
 	dummy.currentModelPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
 	dummy.realUnitPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
@@ -582,7 +689,14 @@ void Editor::prev_dot()
 
 void Editor::play_animation(const string& animation)
 {
-	edited_model.setAction(animation);
+	if(skele)
+	{
+		skeletal_model.setAction(animation);
+	}
+	else
+	{
+		edited_model.setAction(animation);
+	}
 	view.pushMessage(green("Playing " + animation));
 }
 
@@ -598,13 +712,27 @@ void Editor::record_step(size_t time)
 	ss << time;
 	view.pushMessage(green("Recorded step of length " + ss.str()));
 
-	for(size_t i = 0; i < edited_model.parts.size(); ++i)
+	if(skele)
 	{
-		ModelNode& node = edited_model.parts[i];
-		Animation& animation = Animation::getAnimation(node.name, animation_name);
+		for(size_t i = 0; i < skeletal_model.bones.size(); ++i)
+		{
+			Bone& bone = skeletal_model.bones[i];
+			Animation& animation = Animation::getAnimation(bone.name, animation_name);
 
-		animation.insertAnimationState(time, node.rotation_x, node.rotation_y, node.rotation_z);
-//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
+			animation.insertAnimationState(time, bone.rotation_x, bone.rotation_y, bone.rotation_z);
+	//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
+		}
+	}
+	else
+	{
+		for(size_t i = 0; i < edited_model.parts.size(); ++i)
+		{
+			ModelNode& node = edited_model.parts[i];
+			Animation& animation = Animation::getAnimation(node.name, animation_name);
+
+			animation.insertAnimationState(time, node.rotation_x, node.rotation_y, node.rotation_z);
+	//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
+		}
 	}
 }
 
@@ -661,6 +789,10 @@ void Editor::handle_command(const string& command)
 		{
 			loadModel(word3);
 		}
+		else if(word2 == "skele")
+		{
+			loadSkeletalModel(word3);
+		}
 		else if(word2 == "animations")
 		{
 			loadAnimations(word3);
@@ -675,6 +807,10 @@ void Editor::handle_command(const string& command)
 		else if(word2 == "model")
 		{
 			saveModel(word3);
+		}
+		else if(word2 == "skele")
+		{
+			saveSkeletalModel(word3);
 		}
 		else if(word2 == "animations")
 		{
@@ -800,6 +936,10 @@ void Editor::handle_command(const string& command)
 		ss1 >> word1 >> scalar;
 		scale(scalar);
 	}
+	else if(word1 == "bones")
+	{
+		calculate_nearest_bones();
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -807,15 +947,25 @@ void Editor::handle_command(const string& command)
 
 void Editor::reset()
 {
-	if(edited_model.parts.size() <= selected_part)
+	if(skele)
 	{
-		return;
+		Bone& bone = skeletal_model.bones[selected_part];
+		bone.rotation_x = 0.0f;
+		bone.rotation_y = 0.0f;
+		bone.rotation_z = 0.0f;
 	}
+	else
+	{
+		if(edited_model.parts.size() <= selected_part)
+		{
+			return;
+		}
 
-	ModelNode& modelnode = edited_model.parts[selected_part];
-	modelnode.rotation_x = 0.0f;
-	modelnode.rotation_y = 0.0f;
-	modelnode.rotation_z = 0.0f;
+		ModelNode& modelnode = edited_model.parts[selected_part];
+		modelnode.rotation_x = 0.0f;
+		modelnode.rotation_y = 0.0f;
+		modelnode.rotation_z = 0.0f;
+	}
 }
 
 void Editor::handle_input()
@@ -832,22 +982,33 @@ void Editor::handle_input()
 		if(key == "f4")
 		{
 			loadObjects(objectsFile);
-			loadModel(modelFile);
-			loadModel(animationsFile);
+			if(skele)
+			{
+				loadSkeletalModel(modelFile);
+			}
+			else
+			{
+				loadModel(modelFile);
+			}
+			loadAnimations(animationsFile);
 		}
-		if(key == "f5")
+		else if(key == "f5")
 		{
 			reset();
 		}
-		if(key == "f11")
+		else if(key == "f6")
+		{
+			drawing_model = !drawing_model;
+		}
+		else if(key == "f11")
 		{
 			view.toggleFullscreen();
 		}
-		if(key == "f10")
+		else if(key == "f10")
 		{
 			view.toggleLightingStatus();
 		}
-		if(key == "g")
+		else if(key == "g")
 		{
 			if(grabbed)
 			{
@@ -879,8 +1040,7 @@ void Editor::handle_input()
 			{
 				clientCommand.append(" ");
 			}
-
-			if(key == "up")
+			else if(key == "up")
 			{
 				if(current_command > 0)
 				{
@@ -888,7 +1048,7 @@ void Editor::handle_input()
 					clientCommand = commands[current_command];
 				}
 			}
-			if(key == "down")
+			else if(key == "down")
 			{
 				if(current_command < commands.size()-1)
 				{
@@ -901,7 +1061,6 @@ void Editor::handle_input()
 					clientCommand = "";
 				}
 			}
-
 
 			if(key == "return")
 			{
@@ -931,71 +1090,68 @@ void Editor::handle_input()
 			{
 				prev_dot();
 			}
-			if(key == "right")
+			else if(key == "right")
 			{
 				next_dot();
 			}
-			if(key == "enter")
+			else if(key == "enter")
 			{
 				dot();
 			}
-			if(key == "insert")
+			else if(key == "insert")
 			{
 				rotate_part(0, 0, rotate_speed);
 			}
-			if(key == "delete")
+			else if(key == "delete")
 			{
 				rotate_part(0, 0, -rotate_speed);
 			}
-			if(key == "home")
+			else if(key == "home")
 			{
 				rotate_part(rotate_speed, 0, 0);
 			}
-			if(key == "end")
+			else if(key == "end")
 			{
 				rotate_part(-rotate_speed, 0, 0);
 			}
-			if(key == "page up")
+			else if(key == "page up")
 			{
 				rotate_part(0, rotate_speed, 0);
 			}
-			if(key == "page down")
+			else if(key == "page down")
 			{
 				rotate_part(0, -rotate_speed, 0);
 			}
-
-
-			if(key == "[8]")
+			else if(key == "[8]")
 			{
 				move(0, 0, speed);
 			}
-			if(key == "[5]")
+			else if(key == "[5]")
 			{
 				move(0, 0, -speed);
 			}
-			if(key == "[4]")
+			else if(key == "[4]")
 			{
 				move(speed, 0, 0);
 			}
-			if(key == "[6]")
+			else if(key == "[6]")
 			{
 				move(-speed, 0, 0);
 			}
-			if(key == "[9]")
+			else if(key == "[9]")
 			{
 				move(0, speed, 0);
 			}
-			if(key == "[3]")
+			else if(key == "[3]")
 			{
 				move(0, -speed, 0);
 			}
-
-			if(key == "return") {
+			else if(key == "return")
+			{
 				writing = true;
 				view.setCurrentClientCommand("> " + clientCommand);
 			}
-
-			if(key == "escape")
+			else if(key == "escape")
 			{
 				cerr << "User pressed ESC, shutting down." << endl;
 				SDL_Quit();
@@ -1018,5 +1174,65 @@ void Editor::handle_input()
 	}
 	view.updateInput(keystate);
 	dummy.updateInput(0, x, y, 0);
+}
+
+struct BoneDistance
+{
+	float distance;
+	size_t index;
+
+	bool operator<(const BoneDistance& rhs) const
+	{
+		return distance < rhs.distance;
+	}
+};
+
+void Editor::calculate_nearest_bones()
+{
+	for(size_t j = 0; j < skeletal_model.triangles.size(); ++j)
+	{
+		WeightedTriangle& wtriangle = skeletal_model.triangles[j];
+		ObjectTri& triangle = wtriangle.triangle;
+		// Find out the closest child bone joint.
+		for(size_t i = 0; i < 3; ++i)
+		{
+			Vec3 vertex(triangle.x[i], triangle.y[i], triangle.z[i]);
+
+			vector<BoneDistance> bone_distances;
+			for(size_t k = 0; k < skeletal_model.bones.size(); ++k)
+			{
+				Bone& bone = skeletal_model.bones[k];
+				Vec3 bone_loc1(bone.start_x, bone.start_y, bone.start_z);
+				Vec3 bone_loc2(bone.end_x, bone.end_y, bone.end_z);
+				float distance1 = (vertex - bone_loc2).lengthSquared();
+				float distance2 = (vertex - bone_loc2).lengthSquared();
+				float distance = min(distance1, distance2);
+				BoneDistance bone_distance = { distance, k };
+				bone_distances.push_back(bone_distance);
+			}
+			sort(bone_distances.begin(), bone_distances.end());
+
+			float dist1 = bone_distances[0].distance;
+			float dist2 = bone_distances[1].distance;
+			float sum = dist1 + dist2;
+			float weight1 = (sum - dist1) / sum;
+			float weight2 = (sum - dist2) / sum;
+			size_t index1 = bone_distances[0].index;
+			size_t index2 = bone_distances[1].index;
+			if(weight1 > 0.65)
+			{
+				weight1 = 1.0;
+				weight2 = 0.0;
+				cerr << "Separated " << skeletal_model.bones[index1].name << " and " << skeletal_model.bones[index2].name << endl;
+			}
+			wtriangle.bone1[i] = index1;
+			wtriangle.bone2[i] = index2;
+			wtriangle.weight1[i] = weight1;
+			wtriangle.weight2[i] = weight2;
+			cerr << "Nearest: " << skeletal_model.bones[index1].name << " " << weight1
+				<< ", second: " << skeletal_model.bones[index2].name << " " << weight2 << endl;
+		}
+	}
+	view.pushMessage(green("Calculated nearest bones"));
 }
 

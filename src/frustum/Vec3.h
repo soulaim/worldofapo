@@ -28,10 +28,12 @@ public:
 
 	Vec3 operator *(const Vec3 &v) const;
 	Vec3 operator -() const;
+	float operator[](int i) const;
 
-	float length();
+	float length() const;
+	float lengthSquared() const;
 	void normalize();
-	float innerProduct(const Vec3  &v);
+	float innerProduct(const Vec3& v) const;
 	void set(float x, float y, float z);
 
 	void print();

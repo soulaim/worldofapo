@@ -13,11 +13,11 @@ all: $(target1) $(target2) $(target3) $(target4)
 
 debug: CXXFLAGS += -O0 -g
 debug: LDLIBS += -g
-debug: $(target1)
+debug: all
 
 prof: CXXFLAGS += -pg
 prof: LDLIBS += -pg
-prof: $(target1) $(target4)
+prof: all
 
 obj1 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/main,   $(wildcard $(dir)/*.cpp)))
 obj2 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/editor, $(wildcard $(dir)/*.cpp)))

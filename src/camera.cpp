@@ -94,6 +94,7 @@ void Camera::updateInput(int keystate)
 	}
 	*/
 	
+	/*
 	if(keystate & 1 << 12)
 	{
 		position.x += 1;
@@ -118,6 +119,7 @@ void Camera::updateInput(int keystate)
 	{
 		position.z -= 1;
 	}
+	*/
 	if(keystate & 1 << 18)
 	{
 		setMode(Camera::RELATIVE);

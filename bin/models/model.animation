@@ -13,17 +13,17 @@ HIP jump    8    0.000  300.000    0.000
 HIP jump    8    0.000  330.000    0.000
 
 LEFT_ARM idle    8    0.000    0.000    0.000
-LEFT_ARM idle    8    0.000   30.000    0.000
-LEFT_ARM idle    8    0.000   60.000    0.000
-LEFT_ARM idle    8    0.000   90.000    0.000
-LEFT_ARM idle    8    0.000  120.000    0.000
-LEFT_ARM idle    8    0.000  150.000    0.000
-LEFT_ARM idle    8    0.000  180.000    0.000
-LEFT_ARM idle    8    0.000  210.000    0.000
-LEFT_ARM idle    8    0.000  240.000    0.000
-LEFT_ARM idle    8    0.000  270.000    0.000
-LEFT_ARM idle    8    0.000  300.000    0.000
-LEFT_ARM idle    8    0.000  330.000    0.000
+LEFT_ARM idle    8   30.000    0.000    0.000
+LEFT_ARM idle    8   60.000    0.000    0.000
+LEFT_ARM idle    8   90.000    0.000    0.000
+LEFT_ARM idle    8  120.000    0.000    0.000
+LEFT_ARM idle    8  150.000    0.000    0.000
+LEFT_ARM idle    8  180.000    0.000    0.000
+LEFT_ARM idle    8  210.000    0.000    0.000
+LEFT_ARM idle    8  240.000    0.000    0.000
+LEFT_ARM idle    8  270.000    0.000    0.000
+LEFT_ARM idle    8  300.000    0.000    0.000
+LEFT_ARM idle    8  330.000    0.000    0.000
 LEFT_ARM walk    2    0.000    0.000    0.000
 
 
@@ -36,49 +36,50 @@ LEFT_FOOT walk    2    0.000    0.000    0.000
 LEFT_FOOT walk    2    0.000    0.000    0.000
 LEFT_FOOT walk    2    0.000    0.000    0.000
 LEFT_FOOT walk    2    0.000    0.000    0.000
-LEFT_FOOT walk    2    0.000    5.000    0.000
-LEFT_FOOT walk    2    0.000   10.000    0.000
-LEFT_FOOT walk    2    0.000   15.000    0.000
-LEFT_FOOT walk    2    0.000   20.000    0.000
-LEFT_FOOT walk    2    0.000   25.000    0.000
-LEFT_FOOT walk    2    0.000   30.000    0.000
-LEFT_FOOT walk    2    0.000   30.000    0.000
-LEFT_FOOT walk    2    0.000   30.000    0.000
-LEFT_FOOT walk    2    0.000   30.000    0.000
-LEFT_FOOT walk    2    0.000   20.000    0.000
-LEFT_FOOT walk    2    0.000   10.000    0.000
+LEFT_FOOT walk    2    5.000    0.000    0.000
+LEFT_FOOT walk    2   10.000    0.000    0.000
+LEFT_FOOT walk    2   15.000    0.000    0.000
+LEFT_FOOT walk    2   20.000    0.000    0.000
+LEFT_FOOT walk    2   25.000    0.000    0.000
+LEFT_FOOT walk    2   30.000    0.000    0.000
+LEFT_FOOT walk    2   30.000    0.000    0.000
+LEFT_FOOT walk    2   30.000    0.000    0.000
+LEFT_FOOT walk    2   30.000    0.000    0.000
+LEFT_FOOT walk    2   20.000    0.000    0.000
+LEFT_FOOT walk    2   10.000    0.000    0.000
 
 
 LEFT_LEG idle    2    0.000    0.000    0.000
-LEFT_LEG walk    2    0.000   -0.000    0.000
-LEFT_LEG walk    2    0.000  -10.000    0.000
-LEFT_LEG walk    2    0.000  -20.000    0.000
-LEFT_LEG walk    2    0.000  -30.000    0.000
-LEFT_LEG walk    2    0.000  -25.000    0.000
-LEFT_LEG walk    2    0.000  -20.000    0.000
-LEFT_LEG walk    2    0.000  -15.000    0.000
-LEFT_LEG walk    2    0.000  -10.000    0.000
-LEFT_LEG walk    2    0.000   -5.000    0.000
+LEFT_LEG walk    2   -0.000    0.000    0.000
+LEFT_LEG walk    2  -10.000    0.000    0.000
+LEFT_LEG walk    2  -20.000    0.000    0.000
+LEFT_LEG walk    2  -30.000    0.000    0.000
+LEFT_LEG walk    2  -25.000    0.000    0.000
+LEFT_LEG walk    2  -20.000    0.000    0.000
+LEFT_LEG walk    2  -15.000    0.000    0.000
+LEFT_LEG walk    2  -10.000    0.000    0.000
+LEFT_LEG walk    2   -5.000    0.000    0.000
 LEFT_LEG walk    2    0.000    0.000    0.000
-LEFT_LEG walk    2    0.000   13.333    0.000
-LEFT_LEG walk    2    0.000   26.667    0.000
-LEFT_LEG walk    2    0.000   40.000    0.000
-LEFT_LEG walk    2    0.000   26.667    0.000
-LEFT_LEG walk    2    0.000   13.333    0.000
+LEFT_LEG walk    2   13.333    0.000    0.000
+LEFT_LEG walk    2   26.667    0.000    0.000
+LEFT_LEG walk    2   40.000    0.000    0.000
+LEFT_LEG walk    2   26.667    0.000    0.000
+LEFT_LEG walk    2   13.333    0.000    0.000
+
 
 
 RIGHT_ARM idle    8    0.000    0.000    0.000
-RIGHT_ARM idle    8    0.000   30.000    0.000
-RIGHT_ARM idle    8    0.000   60.000    0.000
-RIGHT_ARM idle    8    0.000   90.000    0.000
-RIGHT_ARM idle    8    0.000  120.000    0.000
-RIGHT_ARM idle    8    0.000  150.000    0.000
-RIGHT_ARM idle    8    0.000  180.000    0.000
-RIGHT_ARM idle    8    0.000  210.000    0.000
-RIGHT_ARM idle    8    0.000  240.000    0.000
-RIGHT_ARM idle    8    0.000  270.000    0.000
-RIGHT_ARM idle    8    0.000  300.000    0.000
-RIGHT_ARM idle    8    0.000  330.000    0.000
+RIGHT_ARM idle    8   30.000    0.000    0.000
+RIGHT_ARM idle    8   60.000    0.000    0.000
+RIGHT_ARM idle    8   90.000    0.000    0.000
+RIGHT_ARM idle    8  120.000    0.000    0.000
+RIGHT_ARM idle    8  150.000    0.000    0.000
+RIGHT_ARM idle    8  180.000    0.000    0.000
+RIGHT_ARM idle    8  210.000    0.000    0.000
+RIGHT_ARM idle    8  240.000    0.000    0.000
+RIGHT_ARM idle    8  270.000    0.000    0.000
+RIGHT_ARM idle    8  300.000    0.000    0.000
+RIGHT_ARM idle    8  330.000    0.000    0.000
 RIGHT_ARM walk    2    0.000    0.000    0.000
 
 
@@ -91,35 +92,36 @@ RIGHT_FOOT walk    2    0.000    0.000    0.000
 RIGHT_FOOT walk    2    0.000    0.000    0.000
 RIGHT_FOOT walk    2    0.000    0.000    0.000
 RIGHT_FOOT walk    2    0.000    0.000    0.000
-RIGHT_FOOT walk    2    0.000    5.000    0.000
-RIGHT_FOOT walk    2    0.000   10.000    0.000
-RIGHT_FOOT walk    2    0.000   15.000    0.000
-RIGHT_FOOT walk    2    0.000   20.000    0.000
-RIGHT_FOOT walk    2    0.000   25.000    0.000
-RIGHT_FOOT walk    2    0.000   30.000    0.000
-RIGHT_FOOT walk    2    0.000   30.000    0.000
-RIGHT_FOOT walk    2    0.000   30.000    0.000
-RIGHT_FOOT walk    2    0.000   30.000    0.000
-RIGHT_FOOT walk    2    0.000   20.000    0.000
-RIGHT_FOOT walk    2    0.000   10.000    0.000
+RIGHT_FOOT walk    2    5.000    0.000    0.000
+RIGHT_FOOT walk    2   10.000    0.000    0.000
+RIGHT_FOOT walk    2   15.000    0.000    0.000
+RIGHT_FOOT walk    2   20.000    0.000    0.000
+RIGHT_FOOT walk    2   25.000    0.000    0.000
+RIGHT_FOOT walk    2   30.000    0.000    0.000
+RIGHT_FOOT walk    2   30.000    0.000    0.000
+RIGHT_FOOT walk    2   30.000    0.000    0.000
+RIGHT_FOOT walk    2   30.000    0.000    0.000
+RIGHT_FOOT walk    2   20.000    0.000    0.000
+RIGHT_FOOT walk    2   10.000    0.000    0.000
 
 
 RIGHT_LEG idle    2    0.000    0.000    0.000
-RIGHT_LEG walk    2    0.000   -0.000    0.000
-RIGHT_LEG walk    2    0.000  -10.000    0.000
-RIGHT_LEG walk    2    0.000  -20.000    0.000
-RIGHT_LEG walk    2    0.000  -30.000    0.000
-RIGHT_LEG walk    2    0.000  -25.000    0.000
-RIGHT_LEG walk    2    0.000  -20.000    0.000
-RIGHT_LEG walk    2    0.000  -15.000    0.000
-RIGHT_LEG walk    2    0.000  -10.000    0.000
-RIGHT_LEG walk    2    0.000   -5.000    0.000
+RIGHT_LEG walk    2   -0.000    0.000    0.000
+RIGHT_LEG walk    2  -10.000    0.000    0.000
+RIGHT_LEG walk    2  -20.000    0.000    0.000
+RIGHT_LEG walk    2  -30.000    0.000    0.000
+RIGHT_LEG walk    2  -25.000    0.000    0.000
+RIGHT_LEG walk    2  -20.000    0.000    0.000
+RIGHT_LEG walk    2  -15.000    0.000    0.000
+RIGHT_LEG walk    2  -10.000    0.000    0.000
+RIGHT_LEG walk    2   -5.000    0.000    0.000
 RIGHT_LEG walk    2    0.000    0.000    0.000
-RIGHT_LEG walk    2    0.000   13.333    0.000
-RIGHT_LEG walk    2    0.000   26.667    0.000
-RIGHT_LEG walk    2    0.000   40.000    0.000
-RIGHT_LEG walk    2    0.000   26.667    0.000
-RIGHT_LEG walk    2    0.000   13.333    0.000
+RIGHT_LEG walk    2   13.333    0.000    0.000
+RIGHT_LEG walk    2   26.667    0.000    0.000
+RIGHT_LEG walk    2   40.000    0.000    0.000
+RIGHT_LEG walk    2   26.667    0.000    0.000
+RIGHT_LEG walk    2   13.333    0.000    0.000
+
 
 
 

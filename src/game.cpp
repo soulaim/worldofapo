@@ -58,7 +58,7 @@ bool Game::joinInternetGame(const string& hostname)
 	while(!clientSocket.open(SERVER_ID, hostname, port))
 	{
 		port--;
-		if(port < 12000)
+		if(port < 12320)
 		{
 			cerr << "superfail :(" << endl;
 			return false;
