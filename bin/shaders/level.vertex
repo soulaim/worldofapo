@@ -1,6 +1,7 @@
-varying vec4 diffuse,ambientGlobal,ambient;
-varying vec3 normal,lightDir,halfVector;
-varying float dist;
+varying vec4 diffuse[3],ambientGlobal;
+varying vec3 normal,lightDir[3],halfVector[3];
+varying float dist[3];
+
 varying vec2 varTexCoord;
 
 void main()
@@ -10,22 +11,19 @@ void main()
 	
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 	
-	/* these are the new lines of code to compute the light's direction */
 	ecPos = gl_ModelViewMatrix * gl_Vertex;
-	aux = vec3(gl_LightSource[0].position-ecPos);
-	lightDir = normalize(aux);
-	dist = length(aux);
 	
-	halfVector = normalize(gl_LightSource[0].halfVector.xyz);
+	for(int i=0; i<3; i++)
+	{
+		aux = vec3(gl_LightSource[i].position-ecPos);
+		lightDir[i] = normalize(aux);
+		dist[i] = length(aux);
+		
+		halfVector[i] = normalize(gl_LightSource[i].halfVector.xyz);
+		diffuse[i] = gl_FrontMaterial.diffuse * gl_LightSource[i].diffuse;
+	}
 	
-	/* Compute the diffuse, ambient and globalAmbient terms */
-	diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;
-	
-	/* The ambient terms have been separated since one of them */
-	/* suffers attenuation */
-	ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
 	ambientGlobal = gl_LightModel.ambient * gl_FrontMaterial.ambient;
-	
 	varTexCoord = vec2(gl_MultiTexCoord0);
 	gl_Position = ftransform();
-} 
+}

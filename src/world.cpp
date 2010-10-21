@@ -58,6 +58,16 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	event.position.y += FixedPoint(2);
 	event.velocity.y = FixedPoint(200,1000);
 	
+	// ALERT code for creating lights should have it's own function.
+	LightObject& light = lights[nextUnitID()];
+	light.setDiffuse(8.f, 8.f, 8.f);
+	light.setSpecular(0.f, 0.f, 0.f);
+	light.setLife(50); // 50 frames of LIGHT!
+	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
+	light.activateLight(); // ACTIVATE :D
+	light.position = event.position;
+	light.position.y += FixedPoint(3, 2);
+	
 	if(unit.human())
 	{
 		event.type = DEATH_PLAYER;
@@ -119,7 +129,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	// find the nearest human controlled unit
 	for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
 	{
-		if(it->second.controllerTypeID == Unit::HUMAN_INPUT) // MMM!! MAYBE I CAN GO KILL THIS PLAYER ?:DD
+		if(it->second.controllerTypeID == Unit::HUMAN_INPUT) // MMM!! MAYBE I CAN GO KILL THIS PLAYER ? :DD
 		{
 			FixedPoint tmp_dist = (it->second.position - unit.position).lengthSquared();
 			if( tmp_dist < bestSquaredDistance )
@@ -236,6 +246,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
+		// TODO: Heavy landings should have a gameplay effect!
 		if(unit.velocity.y < FixedPoint(-4, 10))
 			unit.soundInfo = "jump_land";
 		FixedPoint friction = FixedPoint(88, 100);
@@ -345,12 +356,14 @@ void World::tickUnit(Unit& unit, Model& model)
 			FixedPoint x = position.x;
 			FixedPoint y = position.y;
 			FixedPoint z = position.z;
+			
 			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
 			relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
 			relative_position.y =      -upsin * x           +       upcos * y;
 
 			Location weapon_position = unit.position;
-			Location projectile_direction = unit.position + relative_position;
+			Location projectile_direction = relative_position;
+			
 			weapon_position.y += 4;
 			projectile_direction.y += 4;
 
@@ -359,13 +372,14 @@ void World::tickUnit(Unit& unit, Model& model)
 			
 			Projectile& projectile = projectiles[id];
 			
-			projectile.velocity = projectile_direction - weapon_position;
-			projectile.velocity.normalize();
-			projectile.velocity *= FixedPoint(10, 1);
+			projectile_direction.normalize();
+			projectile.velocity = projectile_direction * FixedPoint(45, 10) + unit.velocity;
+			projectile.tick(); // need to move projectile out of self-range (don't want to shoot self)
+			
+			projectile.velocity = projectile_direction * FixedPoint(10, 1) + unit.velocity;
 			projectile.id = id;
 			projectile.owner = unit.id;
 			
-			projectile.tick();
 			projectile.lifetime = 50;
 		}
 	}
@@ -512,14 +526,56 @@ void World::updateModel(Model& model, Unit& unit)
 
 void World::worldTick(int tickCount)
 {
+	
+	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	 *    \  Handling of light objects \
+	 *    \_/""""""""""""""""""""""""""""/
+	 */
+	
+	vector<int> deadLights;
+	for(auto iter = lights.begin(); iter != lights.end(); iter++)
+	{
+		LightObject& light = iter->second;
+		
+		// TODO should have a world.tickMovableObject(&light); call here
+		
+		// update light qualities
+		if(!light.tickLight())
+		{
+			// if light has died out, should maybe like prepare to erase it or something.
+			light.deactivateLight();
+			deadLights.push_back(iter->first);
+			
+			cerr << "DEAD LIGHT! ERASING" << endl;
+		}
+	}
+	
+	for(size_t i=0; i<deadLights.size(); i++)
+		lights.erase(deadLights[i]);
+	deadLights.clear();
+	
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*     \  Unit ticks + reconstruct octree \
+	*     \_/""""""""""""""""""""""""""""""""""/
+	*/
+	
 	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(150), FixedPoint(lvl.max_z()))));
-
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		tickUnit(iter->second, models[iter->first]);
 		o->insertUnit(&(iter->second));
 	}
+	
+	
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*     \  Projectile ticks + collisions   \
+	*     \_/""""""""""""""""""""""""""""""""""/
+	*/
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
@@ -534,8 +590,15 @@ void World::worldTick(int tickCount)
 	{
 		removeUnit(deadUnits[i]);
 	}
-	
 	deadUnits.clear();
+	
+	
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*     \  Debug stuff                     \
+	*     \_/""""""""""""""""""""""""""""""""""/
+	*/
+	
 	
 	if(show_errors && (currentWorldFrame % 200) == 0)
 	{
@@ -549,7 +612,6 @@ void World::worldTick(int tickCount)
 			}
 		}
 	}
-	
 }
 
 void World::viewTick()
@@ -577,7 +639,7 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].birthTime = currentWorldFrame;
 	
 	models[id] = Model();
-	models[id].load("models/model.bones");
+	models[id].load("models/model.bones"); // TODO: don't load from file! Make some prototype.
 	
 	
 	if(!playerCharacter)
@@ -595,12 +657,17 @@ void World::addUnit(int id, bool playerCharacter)
 
 void World::addProjectile(Location& location, int id)
 {
+	static Model prototype;
+	if(prototype.root == -1)
+	{
+		prototype.load("models/bullet.bones");
+	}
 	Vec3 position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id].load("models/bullet.bones");
+	models[id] = prototype; // TODO: still copies some extra constants.
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
 

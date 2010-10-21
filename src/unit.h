@@ -7,8 +7,9 @@
 
 #include "location.h"
 #include "apomath.h"
+#include "lightsource.h"
 
-class Unit
+class Unit : LightSource
 {
 	public:
 		
@@ -29,6 +30,8 @@ class Unit
 		
 		
 		Unit();
+		
+		const Location& getPosition() const; // definition demanded by LightSource
 		
 		Location velocity;
 		Location position;

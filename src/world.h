@@ -13,6 +13,8 @@
 #include "apomath.h"
 #include "octree.h"
 
+#include "light_object.h"
+
 struct WorldEvent
 {
 	int type;
@@ -57,6 +59,11 @@ public:
 	std::map<int, Unit> units;
 	std::map<int, Model> models;
 	std::map<int, Projectile> projectiles;
+	
+	std::map<int, LightObject> lights;
+	
+	// TODO: Have some fun with explosions :D (BERBERI DO NOT TOUCH THIS!!)
+	// std::map<int, Explosion> explosions;
 	
 	Level lvl;
 	ApoMath apomath;

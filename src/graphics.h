@@ -26,6 +26,8 @@
 #include "particle.h"
 #include "primitives.h"
 
+#include "light_object.h"
+
 struct Level;
 struct MenuButton;
 
@@ -44,7 +46,7 @@ class Graphics
 	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawSkeletalModel(SkeletalModel& model, const string& animation_name, int animation_state, bool draw_skeleton, size_t hilight);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
-	void drawLevel(const Level&);
+	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawModels(std::map<int, Model>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
@@ -117,10 +119,10 @@ public:
 	void setCamera(const Camera& camera);
 	bool loadObjects(const std::string&);
 	bool saveObjects(const std::string&);
-	
+// 	
 	void setTime(unsigned);
 	
-	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units, const std::shared_ptr<Octree> o);
+	void draw(std::map<int, Model>&, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o);
 	void draw(std::map<int, Model>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
