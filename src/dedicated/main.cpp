@@ -1,14 +1,22 @@
-
-
 #include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <csignal>
 
 #include "dedicated.h"
 #include "../logger.h"
 
 using namespace std;
+
+bool running = true;
+
+void stop_server(int dummy)
+{
+	dummy = dummy; // ...
+
+	running = false;
+}
 
 int main()
 {
@@ -28,12 +36,17 @@ int main()
 			return 0;
 		}
 	}
+
+	signal(SIGINT, stop_server);
 	
-	while(true)
+	while(running)
 	{
 		master.host_tick();
 	}
 	
-	cerr << "apparently exiting now" << endl;
-	return 1;
+	// TODO: stop cleanly by closing connections and/or telling clients.
+
+	cerr << "Server stopped" << endl;
+	return 0;
 }
+

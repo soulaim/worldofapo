@@ -17,7 +17,7 @@ debug: $(target1)
 
 prof: CXXFLAGS += -pg
 prof: LDLIBS += -pg
-prof: $(target1)
+prof: $(target1) $(target4)
 
 obj1 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/main,   $(wildcard $(dir)/*.cpp)))
 obj2 = $(patsubst %.cpp,%.o, $(foreach dir,$(DIRS) + src/editor, $(wildcard $(dir)/*.cpp)))
