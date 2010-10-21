@@ -2,6 +2,7 @@
 #include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
+#include "frustum/matrix4.h"
 
 #include <iostream>
 #include <iomanip>
@@ -579,6 +580,107 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	
 	glTranslatef(-node.offset_x, -node.offset_y, -node.offset_z);
 }
+
+void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
+{
+	Bone& bone = model.bones[current_bone];
+
+	Animation& animation = Animation::getAnimation(bone.name, animation_name);
+	// left and right sides of the body are in polarized animation_name states
+	int ani_addition = 0;
+	if(bone.name.substr(0, 4) == "LEFT")
+	{
+		ani_addition = animation.totalTime() / 2;
+	}
+	animation.getAnimationState(animation_state + ani_addition, bone.rotation_x, bone.rotation_y, bone.rotation_z);
+//	cerr << animation_state+ani_addition << " " << node.rotation_x << " " << node.rotation_y << " " << node.rotation_z << "\n";
+
+	offset *= Matrix4(0,0,0, bone.start_x - prev.x, bone.start_y - prev.y, bone.start_z - prev.z);
+
+	offset *= Matrix4(bone.rotation_x, 0, 0, 0,0,0);
+	offset *= Matrix4(0, bone.rotation_y, 0, 0,0,0);
+	offset *= Matrix4(0, 0, bone.rotation_z, 0,0,0);
+
+	rotations[current_bone] = offset;
+
+	for(size_t i = 0; i < bone.children.size(); ++i)
+	{
+		calcMatrices(model, Vec3(bone.start_x, bone.start_y, bone.start_z), bone.children[i], rotations, offset, animation_name, animation_state);
+	}
+}
+
+void Graphics::drawSkeletalModel(SkeletalModel& model, const string& animation_name, int animation_state, bool draw_skeleton, size_t hilight)
+{
+	vector<Matrix4> rotations;
+	rotations.resize(model.bones.size());
+	calcMatrices(model, Vec3(), 0, rotations, Matrix4(), animation_name, animation_state);
+
+	for(size_t i = 0; i < model.triangles.size(); ++i)
+	{
+		++TRIANGLES_DRAWN_THIS_FRAME;
+		const WeightedTriangle& wtriangle = model.triangles[i];
+		const ObjectTri& triangle = wtriangle.triangle;
+/*		if(triangles[i].hilight)
+		{
+			glUniform4f(unit_color_location, 1.0, 0.0, 0.0, 1.0);
+		}
+		else
+		{
+			glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
+		}
+*/		glBegin(GL_TRIANGLES);
+		for(int i = 0; i < 3; ++i)
+		{
+			const Matrix4& offset1 = rotations[wtriangle.bone1[i]];
+			const Matrix4& offset2 = rotations[wtriangle.bone2[i]];
+			float weight1 = wtriangle.weight1[i];
+			float weight2 = wtriangle.weight2[i];
+			Bone& bone1 = model.bones[wtriangle.bone1[i]];
+			Bone& bone2 = model.bones[wtriangle.bone2[i]];
+
+			Vec3 v1(triangle.x[i], triangle.y[i], triangle.z[i]);
+			Vec3 vc1(bone1.start_x, bone1.start_y, bone1.start_z);
+			v1 -= vc1;
+
+			Vec3 v2(triangle.x[i], triangle.y[i], triangle.z[i]);
+			Vec3 vc2(bone2.start_x, bone2.start_y, bone2.start_z);
+			v2 -= vc2;
+
+			Vec3 v = offset1 * v1 * weight1 + offset2 * v2 * weight2;
+
+			if(wtriangle.bone1[i] == hilight)
+			{
+				glColor3f(0, 1,1);
+			}
+			else
+			{
+				glColor3f(0.5*i, 0.5*i,0.5*i);
+			}
+
+			glVertex3f(v.x, v.y, v.z);
+		}
+		glEnd();
+	}
+
+	if(draw_skeleton)
+	{
+		glColor3f(0.0,0.0,1.0);
+		for(size_t i = 0; i < model.bones.size(); ++i)
+		{
+			const Bone& bone = model.bones[i];
+			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
+			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
+			Vec3 line_start = rotations[i] * Vec3(0,0,0);
+			Vec3 line_end = rotations[i] * (end - start);
+			glBegin(GL_LINES);
+			glVertex3f(line_start.x, line_start.y, line_start.z);
+			glVertex3f(line_end.x, line_end.y, line_end.z);
+			glEnd();
+//			cerr << i << " has start at " << line_start << "\n";
+		}
+	}
+}
+
 
 void Graphics::setCamera(const Camera& cam)
 {

@@ -229,7 +229,7 @@ void World::tickUnit(Unit& unit, Model& model)
 	unit.soundInfo = "";
 	
 	// update the information according to which the unit model will be updated from now on
-	model.parts[model.root].rotation_x = unit.getAngle(apomath);
+	model.parts[model.root].rotation_y = unit.getAngle(apomath);
 	model.updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	
 	// some physics & game world information
@@ -432,7 +432,7 @@ void World::tickUnit(Unit& unit, Model& model)
 
 void World::tickProjectile(Projectile& projectile, Model& model, int id)
 {
-	// model.parts[model.root].rotation_x = projectile.getAngle(apomath);
+	// model.parts[model.root].rotation_y = projectile.getAngle(apomath);
 	model.updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
 
 	// cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";

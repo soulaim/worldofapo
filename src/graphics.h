@@ -13,6 +13,7 @@
 #include <SDL/SDL.h>
 
 #include "model.h"
+#include "skeletalmodel.h"
 #include "animation.h"
 #include "frustum/FrustumR.h"
 #include "camera.h"
@@ -41,6 +42,7 @@ class Graphics
 	
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
+	void drawSkeletalModel(SkeletalModel& model, const string& animation_name, int animation_state, bool draw_skeleton, size_t hilight);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawLevel(const Level&);
 	void drawModels(std::map<int, Model>& models);
