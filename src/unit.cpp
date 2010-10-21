@@ -11,6 +11,7 @@ Unit::Unit():
 	angle(0),
 	upangle(0),
 	keyState(0),
+	mouseButtons(0),
 	weapon_cooldown(0),
 	leap_cooldown(0)
 {

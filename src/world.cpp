@@ -549,7 +549,6 @@ void World::worldTick(int tickCount)
 			}
 		}
 	}
-	
 }
 
 void World::viewTick()
@@ -577,7 +576,7 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].birthTime = currentWorldFrame;
 	
 	models[id] = Model();
-	models[id].load("models/model.bones");
+	models[id].load("models/model.bones"); // TODO: don't load from file! Make some prototype.
 	
 	
 	if(!playerCharacter)
@@ -595,12 +594,17 @@ void World::addUnit(int id, bool playerCharacter)
 
 void World::addProjectile(Location& location, int id)
 {
+	static Model prototype;
+	if(prototype.root == -1)
+	{
+		prototype.load("models/bullet.bones");
+	}
 	Vec3 position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id].load("models/bullet.bones");
+	models[id] = prototype; // TODO: still copies some extra constants.
 	models[id].realUnitPos = position;
 	models[id].currentModelPos = position;
 
