@@ -31,7 +31,7 @@ class Unit : LightSource
 		
 		Unit();
 		
-		const Location& getPosition(); // definition demanded by LightSource
+		const Location& getPosition() const; // definition demanded by LightSource
 		
 		Location velocity;
 		Location position;

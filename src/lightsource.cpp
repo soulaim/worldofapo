@@ -38,7 +38,7 @@ void LightSource::setSpecular(float r, float g, float b)
 	colourValues_specular[2] = b;
 }
 
-void LightSource::getDiffuse(float& r, float& g, float& b)
+void LightSource::getDiffuse(float& r, float& g, float& b) const
 {
 	float mul = float(life_current) / float(life_maximum);
 	
@@ -47,7 +47,7 @@ void LightSource::getDiffuse(float& r, float& g, float& b)
 	b = colourValues_diffuse[2] * mul;
 }
 
-void LightSource::getSpecular(float& r, float& g, float& b)
+void LightSource::getSpecular(float& r, float& g, float& b) const
 {
 	float mul = float(life_current) / float(life_maximum);
 	
@@ -66,6 +66,11 @@ void LightSource::setLife(int max_life)
 void LightSource::activateLight()
 {
 	lightActive = true;
+}
+
+void LightSource::deactivateLight()
+{
+	lightActive = false;
 }
 
 bool LightSource::tickLight()

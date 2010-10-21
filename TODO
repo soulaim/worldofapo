@@ -1,54 +1,29 @@
 TODO:
+      GREP TODO FROM CODE FOR MORE TODOS :DD
+      
+      OLISI KIVA   - Convey player info (local player, team id, hitpoints, etc) to Graphics for minimap drawing.
+
       OLISI KIVA   - Login stuffa
 
-      TARKEA       - 3DS file loader
-      
       TARKEA       - Bone definitions + model descriptions make-over
-
-      OLISI KIVA   - Seiselle esittelymateriaalia (verkkosivu/blogi?) tämänhetkisestä tilanteesta ja tiestä tähän asti.
 
       OLISI KURJA  - Aimbot for aliens
 
-      OLISI KIVA   - Light manager (more than one light active in the level)
-
-      OLISI KIVA   - Shaders for different things (level drawing, units)
-
       OLISI KIVA   - Windows binary
 
-      OLISI KIVA   - Improve the FPS! Precalculate stuff for drawing the level! Dont swap the texture all the fucking time! (Square root is less accurate now (saves about 66% time there))
+      OLISI KIVA   - Always improve the FPS!
       
       OLISI KIVA   - Figure out something else to do than shooting (and the interaction methods to do that)
-
-DaeD  OLISI KIVA   - Better minimap. Convey player info (local player, team id, hitpoints, etc).
       
-      OLISI KIVA   - Transfer 
-
       OLISI KIVA   - Art content (sounds, music, models, animations, textures, effects..)
-
-Mika  OLISI KIVA   - Sound system
-
-Sami/Lolx/Topi  OLISI KIVA   - Minimap
 
       OLISI KIVA   - Weapon definitions
 
       OLISI KIVA   - Ability to cast light in areas (flares)
-
-MIKA  VITUN TARKEA - DEVOURING does not cause death, nor do sufficient damage. FIX.
       
-      OLISI KIVA   - Better handling of debug messages during gameplay.
-      
-      OLISI KIVA   - Smarter enemy behaviour
-      VITUN TARKEA - NPC behaviour.
-
-Mika  VITUN TARKEA - Server crashes with the following events: Client connect, client disconnect, client connect, client disconnect. Find out why, and fix.
-
-Mika  VITUN TARKEA - Connecting to active games results in randomly getting out of sync. Why? (if starts in sync, stays in sync)
-
-      VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
+      OLISI KIVA   - Smarter enemy behaviour and NPC behaviour in general.
 
       VITUN TARKEA - data structures for level information (terrain, enemies, objects and what-not)
-
-Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just needs to work..)
 
       OLISI KIVA   - Smart object to object collision detection. ( meaning better than O(n^2) )
 
@@ -59,8 +34,8 @@ Mika  VITUN TARKEA - automatic level generator (doesnt need to be great, just ne
       OLISI KIVA   - Animator. A separate program that allows the creation of animations for models.
       
       OLISI KIVA   - model significant forces (units can be thrown around by explosions, heavy collisions, etc..) (maybe Ossi can do some magic here.. :D)
-            
-Mika/Sami  VITUN TARKEA - Menu UI & Menu IO
+      
+      VITUN TARKEA - FIX MESSAGE HANDLING AND THE UNIT INFORMATION CONTAINER
 
 LUKEMISTA:
 Index:    http://www.opengl.org/sdk/docs/tutorials/
@@ -72,6 +47,8 @@ Model loading: http://www.spacesimulator.net/wiki/index.php/Tutorials:3ds_Loader
 Collision detection: http://www.gamasutra.com/view/feature/3190/advanced_collision_detection_.php?page=2
 
 DONE
+DaeD: Better minimap
+Mika: automatic level generator (doesnt need to be great, just needs to work..)
 7.10  Mika: Fixed normal calculations for level surfaces, lighting is not as ridiculous as it was.
 7.10  Mika: Added health indicator for local player
 7.10  Mika: Added kill messages.

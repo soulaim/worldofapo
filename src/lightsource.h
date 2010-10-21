@@ -12,20 +12,22 @@ class LightSource
 public:
 	LightSource();
 	
-	virtual const Location& getPosition() = 0;
+	virtual const Location& getPosition() const = 0;
 	const FixedPoint& getIntensity(); // lights can have an effect on game data, so return value in FixedPoint format.
 	
 	void setDiffuse(float r, float g, float b);
 	void setSpecular(float r, float g, float b);
 	
-	void getDiffuse(float& r, float& g, float& b);
-	void getSpecular(float& r, float& g, float& b);
+	void getDiffuse(float& r, float& g, float& b) const;
+	void getSpecular(float& r, float& g, float& b) const;
 	
 	void setPower(int pow);
 	void setLife(int max_life);
-	void activateLight();
 	
-	void tickLight();
+	void activateLight();
+	void deactivateLight();
+	
+	bool tickLight();
 	
 	// TODO: Copy message for light source information. Structure must retain information about where the light source is tied to.
 	

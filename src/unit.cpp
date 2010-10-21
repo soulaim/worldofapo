@@ -17,7 +17,7 @@ Unit::Unit():
 }
 
 
-const Location& Unit::getPosition()
+const Location& Unit::getPosition() const
 {
 	return position;
 }

@@ -88,14 +88,14 @@ void Graphics::initLight()
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
 	
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.f);
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0002f);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light0ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light0specular);
-	
-	// lights should be defined somewhere else maybe. hard to say.
-	glEnable(GL_LIGHT0);
+	for(int i=0; i<3; i++)
+	{
+		glLightf(GL_LIGHT0+i , GL_LINEAR_ATTENUATION, 0.f);
+		glLightf(GL_LIGHT0+i , GL_QUADRATIC_ATTENUATION, 0.0002f);
+		glLightfv(GL_LIGHT0+i, GL_AMBIENT, light0ambient);
+		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, light0diffuse);
+		glLightfv(GL_LIGHT0+i, GL_SPECULAR, light0specular);
+	}
 }
 
 void Graphics::toggleLightingStatus()
@@ -592,7 +592,7 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
-void Graphics::drawLevel(const Level& lvl)
+void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
 	
@@ -628,15 +628,15 @@ void Graphics::drawLevel(const Level& lvl)
 					continue;
 				
 				FixedPoint fpx(x);
-				FixedPoint fpy(z);
+				FixedPoint fpz(z);
 				fpx += FixedPoint(1,2);
-				fpy += FixedPoint(1,2);
+				fpz += FixedPoint(1,2);
 				fpx *= FixedPoint(multiplier);
-				fpy *= FixedPoint(multiplier);
+				fpz *= FixedPoint(multiplier);
 
 				semiAverage.x = multiplier * (x + 0.5f);
 				semiAverage.z = multiplier * (z + 0.5f);
-				semiAverage.y = lvl.getHeight(fpx, fpy).getFloat();
+				semiAverage.y = lvl.getHeight(fpx, fpz).getFloat();
 				
 				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 				{
@@ -659,6 +659,65 @@ void Graphics::drawLevel(const Level& lvl)
 						glEnd();
 						
 						glColor3f(1.0, 1.0, 1.0);
+					}
+					
+					
+					// set active lights
+					vector<int> indexes;
+					vector<FixedPoint> distances;
+					
+					distances.resize(2, FixedPoint(40000));
+					indexes.resize(2, -1);
+					
+					Location fixMe;
+					fixMe.x = fpx;
+					fixMe.y = lvl.getHeight(fpx, fpz);
+					fixMe.z = fpz;
+					
+					for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+					{
+						const LightObject& light = iter->second;
+						FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
+						
+						
+						if(lightDistance < distances[0])
+						{
+							distances[1] = distances[0];
+							indexes[1]   = indexes[0];
+							
+							distances[0] = lightDistance;
+							indexes[0]  = iter->first;
+						}
+						else if(lightDistance < distances[1])
+						{
+							distances[1] = lightDistance;
+							indexes[1]  = iter->first;
+						}
+					}
+					
+					for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+					{
+						if(indexes[light_i] >= 0)
+						{
+							float rgb[4]; rgb[3] = 1.0f;
+							int light_key = indexes[light_i];
+							lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+							
+							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+							
+							Location pos = lightsContainer.find(light_key)->second.getPosition();
+							
+							rgb[0] = pos.x.getFloat();
+							rgb[1] = pos.y.getFloat();
+							rgb[2] = pos.z.getFloat();
+							
+							glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+						}
+						else
+						{
+							float rgb[4] = { };
+							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+						}
 					}
 					
 					
@@ -831,13 +890,13 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
-void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units, const std::shared_ptr<Octree> o)
+void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o)
 {
 	updateCamera(lvl);
 
 	startDrawing();
 
-	drawLevel(lvl);
+	drawLevel(lvl, lights);
 	drawDebugLines();
 	drawHitboxes(units);
 	drawModels(models);
