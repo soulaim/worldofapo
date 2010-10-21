@@ -10,13 +10,14 @@ Matrix4::Matrix4(float rotx, float roty, float rotz, float dx, float dy, float d
 {
 	// http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
-	float sx = sin(rotx);
-	float sy = sin(roty);
-	float sz = sin(rotz);
+	const float conv = M_PI / 180.0f;
+	float sx = sin(rotx * conv);
+	float sy = sin(roty * conv);
+	float sz = sin(rotz * conv);
 
-	float cx = cos(rotx);
-	float cy = cos(roty);
-	float cz = cos(rotz);
+	float cx = cos(rotx * conv);
+	float cy = cos(roty * conv);
+	float cz = cos(rotz * conv);
 
 	T[0] = cy * cz;
 	T[4] = cy * sz;
@@ -26,9 +27,9 @@ Matrix4::Matrix4(float rotx, float roty, float rotz, float dx, float dy, float d
 	T[5] =  cx * cz + sx * sy * sz;
 	T[9] =  sx * cy;
 
-	T[2] = -cx * sz + sx * sy * cz;
-	T[6] =  cx * cz + sx * sy * sz;
-	T[10] =  sx * cy;
+	T[2] =  sx * sz + cx * sy * cz;
+	T[6] = -sx * cz + cx * sy * sz;
+	T[10] = cx * cy;
 
 	T[3] = dx;
 	T[7] = dy;

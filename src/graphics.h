@@ -23,33 +23,10 @@
 #include "image.h"
 #include "location.h"
 #include "particle.h"
+#include "primitives.h"
 
 struct Level;
 struct MenuButton;
-
-struct ObjectTri
-{
-	float x[3];
-	float y[3];
-	float z[3];
-};
-/*
-struct ObjectQuad
-{
-	float x[4];
-	float y[4];
-	float z[4];
-};
-*/
-struct ObjectPart
-{
-//	std::vector<ObjectQuad> quads;
-	std::vector<ObjectTri> triangles;
-	
-	float end_x;
-	float end_y;
-	float end_z;
-};
 
 class Graphics
 {
@@ -69,6 +46,7 @@ class Graphics
 	void drawModels(std::map<int, Model>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
+	void finishDrawing();
 
 
 	// HUD Stuff

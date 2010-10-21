@@ -305,37 +305,37 @@ void Graphics::megaFuck()
 	// walking, step #1
 	for(int i=0; i<num_frames; i++)
 	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, 0.f, -30.f * i / num_frames, 0.f);
+		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, -30.f * i / num_frames, 0.f, 0.f);
 		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, 0.f, -30.f * i / num_frames, 0.f);
+		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, -30.f * i / num_frames, 0.f, 0.f);
 		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
 	}
 	
 	// walking, step #2
 	for(int i=0; i< 2 * num_frames; i++)
 	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, 0.f, -30.f + 30.f * i / (2*num_frames), 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f * i / (2*num_frames), 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, 0.f, -30.f + 30.f * i / (2*num_frames), 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f * i / (2*num_frames), 0.f);
+		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, -30.f + 30.f * i / (2*num_frames), 0.f, 0.f);
+		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f * i / (2*num_frames), 0.f, 0.f);
+		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, -30.f + 30.f * i / (2*num_frames), 0.f, 0.f);
+		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f * i / (2*num_frames), 0.f, 0.f);
 	}
 	
 	// walking, step #3
 	for(int i=0; i<num_frames; i++)
 	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, 0.f, +40.f * i / num_frames, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, 0.f, +40.f * i / num_frames, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f, 0.f);
+		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, +40.f * i / num_frames, 0.f, 0.f);
+		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f, 0.f, 0.f);
+		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, +40.f * i / num_frames, 0.f, 0.f);
+		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f, 0.f, 0.f);
 	}
 	
 	// walking, step #4
 	for(int i=0; i<num_frames; i++)
 	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, 0.f, +40.f - 40.f * i / num_frames, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f - 30.f * i / num_frames, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, 0.f, +40.f - 40.f * i / num_frames, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, 0.f, +30.f - 30.f * i / num_frames, 0.f);
+		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, +40.f - 40.f * i / num_frames, 0.f, 0.f);
+		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f - 30.f * i / num_frames, 0.f, 0.f);
+		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, +40.f - 40.f * i / num_frames, 0.f, 0.f);
+		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f - 30.f * i / num_frames, 0.f, 0.f);
 	}
 	Animation::getAnimation("LEFT_ARM", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
 	Animation::getAnimation("RIGHT_ARM", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
@@ -350,8 +350,8 @@ void Graphics::megaFuck()
 	// when idle, SWING YOUR ARMS AROUND WILDLY :DD
 	for(int i=0; i<4*num_frames; i++)
 	{
-		Animation::getAnimation("LEFT_ARM", "idle").insertAnimationState(4*anim_time, 0.f, 360.f * i / (4 * num_frames), 0.f);
-		Animation::getAnimation("RIGHT_ARM", "idle").insertAnimationState(4*anim_time, 0.f, 360.f * i / (4 * num_frames), 0.f);
+		Animation::getAnimation("LEFT_ARM", "idle").insertAnimationState(4*anim_time, 360.f * i / (4 * num_frames), 0.f, 0.f);
+		Animation::getAnimation("RIGHT_ARM", "idle").insertAnimationState(4*anim_time, 360.f * i / (4 * num_frames), 0.f, 0.f);
 	}
 	
 	for(int i=0; i<4 * num_frames; i++)
@@ -523,34 +523,27 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	{
 		return;
 	}
-	glTranslatef(model.parts[current_node].offset_x, model.parts[current_node].offset_y, model.parts[current_node].offset_z);
-	
 	ModelNode& node = model.parts[current_node];
 	ObjectPart& obj_part = objects[node.wireframe];
-
+	
+	Animation& animation = Animation::getAnimation(node.name, animation_name);
+	// left and right sides of the body are in polarized animation_name states
+	int ani_addition = 0;
+	if(node.name.substr(0, 4) == "LEFT")
+	{
+		ani_addition = animation.totalTime() / 2;
+	}
+	animation.getAnimationState(animation_state + ani_addition, node.rotation_x, node.rotation_y, node.rotation_z);
+	
 	if(node.hilight)
 	{
 		glUniform4f(unit_color_location, 1.0, 0.0, 0.0, 1.0);
 	}
+	glTranslatef(node.offset_x, node.offset_y, node.offset_z);
 	
-	Animation& animation = Animation::getAnimation(node.name, animation_name);
-	
-	// left and right sides of the body are in polarized animation_name states
-	int ani_addition = 0;
-	if(model.parts[current_node].name.substr(0, 4) == "LEFT")
-	{
-		//ani_addition = obj_part.animations[animation_name].totalTime() / 2;
-		ani_addition = animation.totalTime() / 2;
-	}
-
-//	cerr << "Drawing: " << model.parts[current_node].name << "\n";
-	
-	animation.getAnimationState(animation_state + ani_addition, model.parts[current_node].rotation_x, model.parts[current_node].rotation_y, model.parts[current_node].rotation_z);
-	
-	
-	glRotatef(model.parts[current_node].rotation_x, 0, 1, 0);
-	glRotatef(model.parts[current_node].rotation_y, 1, 0, 0);
-	glRotatef(model.parts[current_node].rotation_z, 0, 0, 1);
+	glRotatef(node.rotation_x, 1, 0, 0);
+	glRotatef(node.rotation_y, 0, 1, 0);
+	glRotatef(node.rotation_z, 0, 0, 1);
 	
 	glBegin(GL_TRIANGLES);
 	for(size_t i=0; i<obj_part.triangles.size(); i++)
@@ -568,9 +561,9 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	glEnd();
 	
 	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
-	for(size_t i=0; i<model.parts[current_node].children.size(); i++)
+	for(size_t i=0; i<node.children.size(); i++)
 	{
-		drawPartsRecursive(model, model.parts[current_node].children[i], animation_name, animation_state);
+		drawPartsRecursive(model, node.children[i], animation_name, animation_state);
 	}
 	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
 	
@@ -580,11 +573,11 @@ void Graphics::drawPartsRecursive(Model& model, int current_node, const string& 
 	}
 	
 	// restore rotations
-	glRotatef(-model.parts[current_node].rotation_z, 0, 0, 1);
-	glRotatef(-model.parts[current_node].rotation_y, 1, 0, 0);
-	glRotatef(-model.parts[current_node].rotation_x, 0, 1, 0);
+	glRotatef(-node.rotation_z, 0, 0, 1);
+	glRotatef(-node.rotation_y, 0, 1, 0);
+	glRotatef(-node.rotation_x, 1, 0, 0);
 	
-	glTranslatef(-model.parts[current_node].offset_x, -model.parts[current_node].offset_y, -model.parts[current_node].offset_z);
+	glTranslatef(-node.offset_x, -node.offset_y, -node.offset_z);
 }
 
 void Graphics::setCamera(const Camera& cam)
@@ -721,19 +714,21 @@ void Graphics::drawModels(map<int, Model>& models)
 	glUseProgram(shaders["unit_program"]);
 	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
-		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
-
-		if(iter->second.root < 0)
+		Model& model = iter->second;
+		if(model.root < 0)
 		{
 			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 			continue;
 		}
+
+		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
 		
-		if(frustum.sphereInFrustum(iter->second.currentModelPos, 5) != FrustumR::OUTSIDE)
+		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
-			glTranslatef(iter->second.currentModelPos.x, iter->second.currentModelPos.y - modelGround(iter->second), iter->second.currentModelPos.z);
-			drawPartsRecursive(iter->second, iter->second.root, iter->second.animation_name, iter->second.animation_time);
-			glTranslatef(-iter->second.currentModelPos.x, -iter->second.currentModelPos.y + modelGround(iter->second), -iter->second.currentModelPos.z);
+			glTranslatef(model.currentModelPos.x, model.currentModelPos.y - modelGround(model), model.currentModelPos.z);
+			drawPartsRecursive(model, model.root, model.animation_name, model.animation_time);
+
+			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y + modelGround(model), -model.currentModelPos.z);
 		}
 	}
 	glUseProgram(0);
@@ -845,6 +840,11 @@ void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<in
 	drawOctree(o);
 	drawHUD();
 
+	finishDrawing();
+}
+
+void Graphics::finishDrawing()
+{
 	SDL_GL_SwapBuffers();
 }
 
@@ -855,7 +855,7 @@ void Graphics::draw(std::map<int, Model>& models, const std::string& status_mess
 	drawModels(models);
 	drawMessages();
 	drawString(status_message, -0.9, 0.9, 1.5, true);
-	SDL_GL_SwapBuffers();
+	finishDrawing();
 }
 
 void Graphics::updateInput(int keystate)

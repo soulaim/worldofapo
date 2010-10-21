@@ -26,6 +26,7 @@ void checkEqual(const T& a, const T& b, int line)
 
 int main()
 {
+	// Unit matrix
 	{
 		Matrix4 m;
 		Vec3 v1(4, 3, 2);
@@ -33,9 +34,40 @@ int main()
 		assertEqual(v1, v2);
 	}
 
+	{
+		Matrix4 m(0,0,0, 0,0,0);
+		Vec3 v1(4, 3, 2);
+		Vec3 v2 = m*v1;
+		assertEqual(v1, v2);
+	}
+
+	// Translation matrix
+	{
+		Vec3 v0(3, 22, 777);
+		Matrix4 m1(12,  0,  0, 0, 0, 0);
+		Matrix4 m2(0,  34,  0, 0, 0, 0);
+		Matrix4 m3(0,   0, 16, 0, 0, 0);
+		Matrix4 m4(0,   0,  0, 1, 2, 3);
+		Vec3 v1 = v0;
+		v1 = m1 * v1;
+		v1 = m2 * v1;
+		v1 = m3 * v1;
+		v1 = m4 * v1;
+		Matrix4 m5(12, 34, 16, 1, 2, 3);
+		Vec3 v2 = v0;
+		v2 = m5 * v2;
+		assertEqual(v2, v1);
+	}
+	{
+		Matrix4 m(0,0,0, 10,20,30);
+		Vec3 v1(4, 3, 2);
+		Vec3 v2 = m*v1;
+		assertEqual(v2, Vec3(14,23,32));
+	}
+
 	// Rotate around X axis.
 	{
-		Matrix4 m(M_PI, 0, 0, 0,0,0);
+		Matrix4 m(180.0f, 0, 0, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(2, 0, 0));
@@ -43,19 +75,19 @@ int main()
 
 	// Rotate around Y axis.
 	{
-		Matrix4 m(0, M_PI, 0, 0,0,0);
+		Matrix4 m(0, 180.0f, 0, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(-2, 0, 0));
 	}
 	{
-		Matrix4 m(0, M_PI/2, 0, 0,0,0);
+		Matrix4 m(0, 180.0f/2, 0, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(0, 0, -2));
 	}
 	{
-		Matrix4 m(0, -M_PI/2, 0, 0,0,0);
+		Matrix4 m(0, -180.0f/2, 0, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(0, 0, 2));
@@ -63,19 +95,19 @@ int main()
 
 	// Rotate around Z axis.
 	{
-		Matrix4 m(0, 0, M_PI, 0,0,0);
+		Matrix4 m(0, 0, 180.0f, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(-2, 0, 0));
 	}
 	{
-		Matrix4 m(0, 0, M_PI/2, 0,0,0);
+		Matrix4 m(0, 0, 180.0f/2, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(0, 2, 0));
 	}
 	{
-		Matrix4 m(0, 0, -M_PI/2, 0,0,0);
+		Matrix4 m(0, 0, -180.0f/2, 0,0,0);
 		Vec3 v1(2, 0, 0);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(0, -2, 0));
