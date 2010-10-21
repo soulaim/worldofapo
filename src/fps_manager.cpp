@@ -1,6 +1,10 @@
 
 #include "fps_manager.h"
 
+// if you remove the warning message down there, remove these as well.
+#include <iostream>
+using std::cerr;
+using std::endl;
 
 FPS_Manager::FPS_Manager(long long time, long long fps)
 {
@@ -11,6 +15,9 @@ FPS_Manager::FPS_Manager(long long time, long long fps)
 
 int FPS_Manager::reset(const long long& time)
 {
+	// if you remove this warning message down here, remove all std references as well.
+	cerr << "WARNING: FPS MANAGER RESET" << endl;
+	
 	setStartTime(time);
 	frame_count = 0;
 	return 0;

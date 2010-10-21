@@ -62,7 +62,7 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	LightObject& light = lights[nextUnitID()];
 	light.setDiffuse(8.f, 8.f, 8.f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(50); // 50 frames of LIGHT!
+	light.setLife(100); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
 	light.position = event.position;
@@ -562,6 +562,7 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
+	
 	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(150), FixedPoint(lvl.max_z()))));
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
@@ -577,15 +578,19 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
+	
+	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
-
+	
+	
 	std::vector<std::pair<Unit*,Unit*>> u2u;
 	o->potUnitUnitColl(u2u);
 	handleUnitUnitCollisions(u2u);
-
+	
+	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
 		removeUnit(deadUnits[i]);

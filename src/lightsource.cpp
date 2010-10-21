@@ -16,6 +16,7 @@ LightSource::LightSource()
 	life_maximum = 0;
 	life_current = 0;
 	power_maximum = 0;
+	behaviour = ONLY_DIE;
 }
 
 const FixedPoint& LightSource::getIntensity()
@@ -40,11 +41,24 @@ void LightSource::setSpecular(float r, float g, float b)
 
 void LightSource::getDiffuse(float& r, float& g, float& b) const
 {
-	float mul = float(life_current) / float(life_maximum);
-	
-	r = colourValues_diffuse[0] * mul;
-	g = colourValues_diffuse[1] * mul;
-	b = colourValues_diffuse[2] * mul;
+	if(behaviour == RISE_AND_DIE)
+	{
+		float countDown = float(life_current) / float(life_maximum);
+		float mul = (countDown - 1) * (countDown - 1) * countDown * countDown * 8;
+		
+		r = colourValues_diffuse[0] * mul;
+		g = colourValues_diffuse[1] * mul;
+		b = colourValues_diffuse[2] * mul;
+	}
+	else if(behaviour == ONLY_DIE)
+	{
+		float countDown = float(life_current) / float(life_maximum);
+		float mul = countDown;
+		
+		r = colourValues_diffuse[0] * mul;
+		g = colourValues_diffuse[1] * mul;
+		b = colourValues_diffuse[2] * mul;
+	}
 }
 
 void LightSource::getSpecular(float& r, float& g, float& b) const

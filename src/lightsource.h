@@ -12,6 +12,12 @@ class LightSource
 public:
 	LightSource();
 	
+	enum
+	{
+		RISE_AND_DIE = 0,
+		ONLY_DIE = 1
+	};
+	
 	virtual const Location& getPosition() const = 0;
 	const FixedPoint& getIntensity(); // lights can have an effect on game data, so return value in FixedPoint format.
 	
@@ -41,6 +47,8 @@ private:
 	bool lightActive;
 	int life_maximum;
 	int life_current;
+	
+	int behaviour;
 	
 	int power_maximum;
 	FixedPoint intensity; // member just so we can return references instead of copies.

@@ -81,9 +81,9 @@ void Graphics::initLight()
 	GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 	
-	GLfloat	light0ambient[ 4 ]	= {.1f, .1f,  .1f, 1.0f};
+	GLfloat	light0ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
 	GLfloat	light0specular[ 4 ]	= {1.0f, .4f,  .4f, 1.0f};
-	GLfloat	light0diffuse[ 4 ]	= {2.8f, .8f,  .8f, 1.0f};
+	GLfloat	light0diffuse[ 4 ]	= {0.8f, .3f,  .3f, 1.0f};
 	
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
@@ -91,7 +91,7 @@ void Graphics::initLight()
 	for(int i=0; i<3; i++)
 	{
 		glLightf(GL_LIGHT0+i , GL_LINEAR_ATTENUATION, 0.f);
-		glLightf(GL_LIGHT0+i , GL_QUADRATIC_ATTENUATION, 0.0002f);
+		glLightf(GL_LIGHT0+i , GL_QUADRATIC_ATTENUATION, 0.0006f);
 		glLightfv(GL_LIGHT0+i, GL_AMBIENT, light0ambient);
 		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, light0diffuse);
 		glLightfv(GL_LIGHT0+i, GL_SPECULAR, light0specular);
