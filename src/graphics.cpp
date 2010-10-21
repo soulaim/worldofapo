@@ -1,8 +1,6 @@
-
 #include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
-#include "frustum/matrix4.h"
 
 #include <iostream>
 #include <iomanip>
@@ -19,6 +17,10 @@ int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
 GLint unit_color_location;
+GLint color_index_location;
+
+std::map<std::string, ObjectPart> Graphics::objects;
+
 
 char* file2string(const char *path);
 
@@ -456,8 +458,10 @@ void Graphics::init()
 
 	glUseProgram(shaders["unit_program"]);
 	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
+	color_index_location = glGetAttribLocation(shaders["unit_program"], "color_index" );
 	glUseProgram(0);
 	cerr << "unit_color location: " << unit_color_location << endl;
+	cerr << "color_index location: " << color_index_location << endl;
 
 	
 	glLineWidth(5.0f);
@@ -517,170 +521,6 @@ void Graphics::createWindow()
 		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
 }
-
-void Graphics::drawPartsRecursive(Model& model, int current_node, const string& animation_name, int animation_state)
-{
-	if(current_node < 0 || size_t(current_node) >= model.parts.size())
-	{
-		return;
-	}
-	ModelNode& node = model.parts[current_node];
-	ObjectPart& obj_part = objects[node.wireframe];
-	
-	Animation& animation = Animation::getAnimation(node.name, animation_name);
-	// left and right sides of the body are in polarized animation_name states
-	int ani_addition = 0;
-	if(node.name.substr(0, 4) == "LEFT")
-	{
-		ani_addition = animation.totalTime() / 2;
-	}
-	animation.getAnimationState(animation_state + ani_addition, node.rotation_x, node.rotation_y, node.rotation_z);
-	
-	if(node.hilight)
-	{
-		glUniform4f(unit_color_location, 1.0, 0.0, 0.0, 1.0);
-	}
-	glTranslatef(node.offset_x, node.offset_y, node.offset_z);
-	
-	glRotatef(node.rotation_x, 1, 0, 0);
-	glRotatef(node.rotation_y, 0, 1, 0);
-	glRotatef(node.rotation_z, 0, 0, 1);
-	
-	glBegin(GL_TRIANGLES);
-	for(size_t i=0; i<obj_part.triangles.size(); i++)
-	{
-		++TRIANGLES_DRAWN_THIS_FRAME;
-		// how to choose textures??
-		ObjectTri& tri = obj_part.triangles[i];
-		glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
-
-		glVertex3f(tri.x[1], tri.y[1], tri.z[1]);
-
-		glVertex3f(tri.x[2], tri.y[2], tri.z[2]);
-//		cerr << current_node << "\n";
-	}
-	glEnd();
-	
-	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
-	for(size_t i=0; i<node.children.size(); i++)
-	{
-		drawPartsRecursive(model, node.children[i], animation_name, animation_state);
-	}
-	glTranslatef(-obj_part.end_x, -obj_part.end_y, -obj_part.end_z);
-	
-	if(node.hilight)
-	{
-		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
-	}
-	
-	// restore rotations
-	glRotatef(-node.rotation_z, 0, 0, 1);
-	glRotatef(-node.rotation_y, 0, 1, 0);
-	glRotatef(-node.rotation_x, 1, 0, 0);
-	
-	glTranslatef(-node.offset_x, -node.offset_y, -node.offset_z);
-}
-
-void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
-{
-	Bone& bone = model.bones[current_bone];
-
-	Animation& animation = Animation::getAnimation(bone.name, animation_name);
-	// left and right sides of the body are in polarized animation_name states
-	int ani_addition = 0;
-	if(bone.name.substr(0, 4) == "LEFT")
-	{
-		ani_addition = animation.totalTime() / 2;
-	}
-	animation.getAnimationState(animation_state + ani_addition, bone.rotation_x, bone.rotation_y, bone.rotation_z);
-//	cerr << animation_state+ani_addition << " " << node.rotation_x << " " << node.rotation_y << " " << node.rotation_z << "\n";
-
-	offset *= Matrix4(0,0,0, bone.start_x - prev.x, bone.start_y - prev.y, bone.start_z - prev.z);
-
-	offset *= Matrix4(bone.rotation_x, 0, 0, 0,0,0);
-	offset *= Matrix4(0, bone.rotation_y, 0, 0,0,0);
-	offset *= Matrix4(0, 0, bone.rotation_z, 0,0,0);
-
-	rotations[current_bone] = offset;
-
-	for(size_t i = 0; i < bone.children.size(); ++i)
-	{
-		calcMatrices(model, Vec3(bone.start_x, bone.start_y, bone.start_z), bone.children[i], rotations, offset, animation_name, animation_state);
-	}
-}
-
-void Graphics::drawSkeletalModel(SkeletalModel& model, const string& animation_name, int animation_state, bool draw_skeleton, size_t hilight)
-{
-	vector<Matrix4> rotations;
-	rotations.resize(model.bones.size());
-	calcMatrices(model, Vec3(), 0, rotations, Matrix4(), animation_name, animation_state);
-
-	for(size_t i = 0; i < model.triangles.size(); ++i)
-	{
-		++TRIANGLES_DRAWN_THIS_FRAME;
-		const WeightedTriangle& wtriangle = model.triangles[i];
-		const ObjectTri& triangle = wtriangle.triangle;
-/*		if(triangles[i].hilight)
-		{
-			glUniform4f(unit_color_location, 1.0, 0.0, 0.0, 1.0);
-		}
-		else
-		{
-			glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
-		}
-*/		glBegin(GL_TRIANGLES);
-		for(int i = 0; i < 3; ++i)
-		{
-			const Matrix4& offset1 = rotations[wtriangle.bone1[i]];
-			const Matrix4& offset2 = rotations[wtriangle.bone2[i]];
-			float weight1 = wtriangle.weight1[i];
-			float weight2 = wtriangle.weight2[i];
-			Bone& bone1 = model.bones[wtriangle.bone1[i]];
-			Bone& bone2 = model.bones[wtriangle.bone2[i]];
-
-			Vec3 v1(triangle.x[i], triangle.y[i], triangle.z[i]);
-			Vec3 vc1(bone1.start_x, bone1.start_y, bone1.start_z);
-			v1 -= vc1;
-
-			Vec3 v2(triangle.x[i], triangle.y[i], triangle.z[i]);
-			Vec3 vc2(bone2.start_x, bone2.start_y, bone2.start_z);
-			v2 -= vc2;
-
-			Vec3 v = offset1 * v1 * weight1 + offset2 * v2 * weight2;
-
-			if(wtriangle.bone1[i] == hilight)
-			{
-				glColor3f(0, 1,1);
-			}
-			else
-			{
-				glColor3f(0.5*i, 0.5*i,0.5*i);
-			}
-
-			glVertex3f(v.x, v.y, v.z);
-		}
-		glEnd();
-	}
-
-	if(draw_skeleton)
-	{
-		glColor3f(0.0,0.0,1.0);
-		for(size_t i = 0; i < model.bones.size(); ++i)
-		{
-			const Bone& bone = model.bones[i];
-			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
-			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
-			Vec3 line_start = rotations[i] * Vec3(0,0,0);
-			Vec3 line_end = rotations[i] * (end - start);
-			glBegin(GL_LINES);
-			glVertex3f(line_start.x, line_start.y, line_start.z);
-			glVertex3f(line_end.x, line_end.y, line_end.z);
-			glEnd();
-//			cerr << i << " has start at " << line_start << "\n";
-		}
-	}
-}
-
 
 void Graphics::setCamera(const Camera& cam)
 {
@@ -870,25 +710,19 @@ void Graphics::drawDebugLines()
 	}
 }
 
-void Graphics::drawModels(map<int, Model>& models)
+void Graphics::drawModels(map<int, Model*>& models)
 {
 	glUseProgram(shaders["unit_program"]);
-	for(map<int, Model>::iterator iter = models.begin(); iter != models.end(); ++iter)
+	for(map<int, Model*>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
-		Model& model = iter->second;
-		if(model.root < 0)
-		{
-			cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
-			continue;
-		}
+		Model& model = *iter->second;
 
 		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
 		
 		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
 			glTranslatef(model.currentModelPos.x, model.currentModelPos.y - modelGround(model), model.currentModelPos.z);
-			drawPartsRecursive(model, model.root, model.animation_name, model.animation_time);
-
+			model.draw();
 			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y + modelGround(model), -model.currentModelPos.z);
 		}
 	}
@@ -987,7 +821,7 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
-void Graphics::draw(map<int, Model>& models, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o)
+void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o)
 {
 	updateCamera(lvl);
 
@@ -1009,7 +843,7 @@ void Graphics::finishDrawing()
 	SDL_GL_SwapBuffers();
 }
 
-void Graphics::draw(std::map<int, Model>& models, const std::string& status_message)
+void Graphics::draw(std::map<int, Model*>& models, const std::string& status_message)
 {
 	startDrawing();
 	drawDebugLines();

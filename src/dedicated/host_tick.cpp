@@ -267,7 +267,7 @@ void DedicatedServer::host_tick()
 	}
 	
 	// handle any server commands intended for this frame
-	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
+	while(!UnitInput.empty() && (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
 		Order server_command = UnitInput.back();
 		UnitInput.pop_back();

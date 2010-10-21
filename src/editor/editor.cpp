@@ -129,19 +129,16 @@ void Editor::start()
 			message = ss.str();
 		}
 
-		std::map<int,Model> models;
-		models[0] = edited_model;
-
 		view.startDrawing();
 		if(skele)
 		{
-			view.drawSkeletalModel(skeletal_model, skeletal_model.animation_name, skeletal_model.animation_time, !drawing_model, selected_part);
+			skeletal_model.draw(!drawing_model, selected_part);
 		}
 		else
 		{
 			if(drawing_model)
 			{
-				view.drawModels(models);
+				edited_model.draw();
 			}
 		}
 		view.drawDebugLines();
@@ -251,7 +248,7 @@ void Editor::loadModel(const string& file)
 	string pathed_file = "models/" + file;
 	view.pushMessage("Loading model from '" + pathed_file + "'");
 
-	Model model;
+	ApoModel model;
 	bool ok = model.load(pathed_file);
 	if(ok)
 	{
@@ -571,7 +568,7 @@ void Editor::type_helper(const std::string& type)
 	edited_type->end_z = 0.0f;
 
 	stored_model = edited_model;
-	Model dummy;
+	ApoModel dummy;
 	dummy.root = 0;
 	dummy.currentModelPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
 	dummy.realUnitPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);

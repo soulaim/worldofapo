@@ -28,9 +28,9 @@ struct WorldEvent
 
 class World
 {
-	void tickUnit(Unit&, Model&);       // world frame update
-	void tickProjectile(Projectile&, Model&, int id); // world frame update
-	void updateModel(Model&, Unit&); // view frame update
+	void tickUnit(Unit&, Model*);       // world frame update
+	void tickProjectile(Projectile&, Model*, int id); // world frame update
+	void updateModel(Model*, Unit&); // view frame update
 	
 	int currentWorldFrame;
 	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
@@ -57,7 +57,7 @@ public:
 	std::shared_ptr<Octree> o;
 	
 	std::map<int, Unit> units;
-	std::map<int, Model> models;
+	std::map<int, Model*> models;
 	std::map<int, Projectile> projectiles;
 	
 	std::map<int, LightObject> lights;

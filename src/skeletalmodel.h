@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "frustum/Vec3.h"
 #include "primitives.h"
+#include "model.h"
 
 struct Bone
 {
@@ -62,32 +63,17 @@ struct WeightedTriangle
 	}
 };
 
-struct SkeletalModel
+struct SkeletalModel: public Model
 {
-	std::string animation_name;
-	int animation_time;
-
 	std::vector<Bone> bones;
 	std::vector<WeightedTriangle> triangles;
 
-	Vec3 realUnitPos;
-	Vec3 currentModelPos;
-
-	SkeletalModel():
-		animation_time(0)
-	{
-	}
-
-	void updatePosition(float x, float y, float z);
-
-	void tick(int current_frame);
-
+	float height() const;
 	bool load(const std::string& filename);
 	bool save(const std::string& filename) const;
-	void setAction(const std::string&);
-
-	float height() const;
-
+	void draw(bool draw_skeleton = 0, size_t hilight = -1);
+	void draw();
+	void rotate_y(float angle);
 };
 
 #endif

@@ -30,7 +30,7 @@ int main()
 	int port = 12345;
 	while(!master.start(port))
 	{
-		if(--port < 12000)
+		if(--port < 12320)
 		{
 			cerr << "STUPID USER :((" << endl;
 			return 0;

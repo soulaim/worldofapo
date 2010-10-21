@@ -55,6 +55,7 @@ void Localplayer::init()
 	view->loadObjects("models/model.parts");
 	view->loadObjects("models/bullet.parts");
 	Animation::load("models/model.animation");
+	Animation::load("models/skeleani.animation");
 	
 	view->setPlayerInfo(&game.Players);
 

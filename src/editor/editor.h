@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include "../model.h"
+#include "../apomodel.h"
 #include "../skeletalmodel.h"
 #include "../userio.h"
 #include "../graphics.h"
@@ -64,10 +65,10 @@ class Editor
 	bool editing_single_part;
 	size_t selected_part;
 
-	Model edited_model;
+	ApoModel edited_model;
 	std::string edited_type_name;
 	ObjectPart* edited_type;
-	Model stored_model;
+	ApoModel stored_model;
 
 	bool skele;
 	SkeletalModel skeletal_model;
