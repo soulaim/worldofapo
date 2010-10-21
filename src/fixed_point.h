@@ -10,6 +10,9 @@
 // for debugging
 #include <cassert>
 
+#define FIXED_POINT_ONE 1000
+
+
 class FixedPoint
 {
 	long long number;
@@ -22,7 +25,7 @@ public:
 	{
 	}
 	FixedPoint(int a, int b = 1):
-		number( (a * 1000) / b )
+	number( (a * FIXED_POINT_ONE) / b )
 	{
 	}
 
@@ -33,17 +36,17 @@ public:
 
 	float getFloat() const
 	{
-		return number / 1000.0;
+		return number / float(FIXED_POINT_ONE);
 	}
 	
 	int getInteger() const
 	{
-		return number / 1000;
+		return number / FIXED_POINT_ONE;
 	}
 	
 	int getDesimal() const
 	{
-		return number % 1000;
+		return number % FIXED_POINT_ONE;
 	}
 	
 	FixedPoint abs()
@@ -115,7 +118,7 @@ public:
 	FixedPoint& operator *= (const FixedPoint& a)
 	{
 		number *= a.number;
-		number /= 1000;
+		number /= FIXED_POINT_ONE;
 		return *this;
 	}
 	
@@ -123,7 +126,7 @@ public:
 	{
 		assert(a.number != 0);
 		
-		number *= 1000;
+		number *= FIXED_POINT_ONE;
 		number /= a.number;
 		return *this;
 	}

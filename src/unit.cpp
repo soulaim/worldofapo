@@ -18,6 +18,12 @@ Unit::Unit():
 }
 
 
+const Location& Unit::getPosition() const
+{
+	return position;
+}
+
+
 void Unit::setName(const string& newName)
 {
 	name = newName;
