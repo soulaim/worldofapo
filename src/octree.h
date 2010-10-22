@@ -7,7 +7,8 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-
+#include <set>
+#include <utility>
 
 class Octree
 {
@@ -33,12 +34,13 @@ public:
 	std::shared_ptr<Octree> children[2][2][2];
 	int depth;
 	int n;
-	std::vector<Unit*> units;
+	std::set<Unit*> units;
 
 	void split();
 	void insertUnit(Unit* u);
-	const std::vector<Unit*>& potProjectileUnitColl(const Projectile&) const;
+	const std::set<Unit*>& potProjectileUnitColl(const Projectile&) const;
 	void potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l);
 };
+
 
 #endif

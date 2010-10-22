@@ -73,6 +73,8 @@ class Unit : LightSource
 		Location hitbox_top() const;
 		Location hitbox_bot() const;
 
+		bool operator<(const Unit& u) const;
+
 };
 
 #endif

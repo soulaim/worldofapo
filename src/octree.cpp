@@ -51,7 +51,7 @@ void Octree::split() {
 		}
 	}
 	hasChildren = true;
-	for(std::vector<Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
+	for(std::set<Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
 		insertUnit(*it);
 	}
 	units.clear();
@@ -64,7 +64,7 @@ void Octree::insertUnit(Unit* u)
 			split();
 			n = 0;
 		} else {
-			units.push_back(u);
+			units.insert(u);
 			n += 1;
 			return;
 		}
@@ -104,7 +104,7 @@ void Octree::insertUnit(Unit* u)
 	}
 }
 
-const std::vector<Unit*>& Octree::potProjectileUnitColl(const Projectile& p) const {
+const std::set<Unit*>& Octree::potProjectileUnitColl(const Projectile& p) const {
 	if (!hasChildren)
 		return units;
 	int x = (p.curr_position.x < c.x) ? 0 : 1;
@@ -114,10 +114,10 @@ const std::vector<Unit*>& Octree::potProjectileUnitColl(const Projectile& p) con
 }
 
 void Octree::potUnitUnitColl(std::vector<std::pair<Unit*, Unit*>>& l) {
-	for(std::vector<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
-		std::vector<Unit*>::iterator u2_it = u_it;
+	for(std::set<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
+		std::set<Unit*>::iterator u2_it = u_it;
 		for(++u2_it; u2_it != units.end(); ++u2_it)
-			l.push_back(make_pair<Unit*,Unit*>(*u_it, *u2_it));
+			l.push_back(std::pair<Unit*,Unit*>(*u_it, *u2_it));
 	}
 
 	if (hasChildren)

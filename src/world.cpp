@@ -458,8 +458,8 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 		{
 			deadUnits.push_back(id);
 		}
-		const std::vector<Unit*> potColl = o->potProjectileUnitColl(projectile);
-		for(std::vector<Unit*>::const_iterator it = potColl.begin(); it != potColl.end(); ++it)
+		const std::set<Unit*> potColl = o->potProjectileUnitColl(projectile);
+		for(std::set<Unit*>::const_iterator it = potColl.begin(); it != potColl.end(); ++it)
 		{
 			Unit* u = *it;
 			if(projectile.collides(*u))
