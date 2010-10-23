@@ -42,31 +42,43 @@ struct Bone
 	std::vector<size_t> children;
 };
 
-
-struct WeightedTriangle
+struct WeightedVertex
 {
-	ObjectTri triangle;
-	size_t bone1[3];
-	size_t bone2[3];
-	float weight1[3];
-	float weight2[3];
+	size_t bone1;
+	size_t bone2;
+	float weight1;
+	float weight2;
 
-	WeightedTriangle()
+	WeightedVertex()
 	{
-		for(size_t i = 0; i < 3; ++i)
-		{
-			bone1[i] = 0;
-			bone2[i] = 0;
-			weight1[i] = 1.0f;
-			weight2[i] = 0.0f;
-		}
+		bone1 = 0;
+		bone2 = 0;
+		weight1 = 1.0f;
+		weight2 = 0.0f;
 	}
+};
+
+struct TextureCoordinate
+{
+	float x;
+	float y;
+};
+
+struct Triangle
+{
+	size_t vertices[3];
 };
 
 struct SkeletalModel: public Model
 {
+	// These stay constant over different model instances.
+	std::vector<Vec3> vertices;
+	std::vector<TextureCoordinate> texture_coordinates;
+	std::vector<Triangle> triangles;
+	std::vector<WeightedVertex> weighted_vertices;
+
+	// These change with animations.
 	std::vector<Bone> bones;
-	std::vector<WeightedTriangle> triangles;
 
 	float height() const;
 	bool load(const std::string& filename);

@@ -1190,49 +1190,46 @@ struct BoneDistance
 
 void Editor::calculate_nearest_bones()
 {
-	for(size_t j = 0; j < skeletal_model.triangles.size(); ++j)
+	for(size_t j = 0; j < skeletal_model.vertices.size(); ++j)
 	{
-		WeightedTriangle& wtriangle = skeletal_model.triangles[j];
-		ObjectTri& triangle = wtriangle.triangle;
+		Vec3& vertex = skeletal_model.vertices[j];
 		// Find out the closest child bone joint.
-		for(size_t i = 0; i < 3; ++i)
+		vector<BoneDistance> bone_distances;
+		for(size_t k = 0; k < skeletal_model.bones.size(); ++k)
 		{
-			Vec3 vertex(triangle.x[i], triangle.y[i], triangle.z[i]);
-
-			vector<BoneDistance> bone_distances;
-			for(size_t k = 0; k < skeletal_model.bones.size(); ++k)
-			{
-				Bone& bone = skeletal_model.bones[k];
-				Vec3 bone_loc1(bone.start_x, bone.start_y, bone.start_z);
-				Vec3 bone_loc2(bone.end_x, bone.end_y, bone.end_z);
-				float distance1 = (vertex - bone_loc2).lengthSquared();
-				float distance2 = (vertex - bone_loc2).lengthSquared();
-				float distance = min(distance1, distance2);
-				BoneDistance bone_distance = { distance, k };
-				bone_distances.push_back(bone_distance);
-			}
-			sort(bone_distances.begin(), bone_distances.end());
-
-			float dist1 = bone_distances[0].distance;
-			float dist2 = bone_distances[1].distance;
-			float sum = dist1 + dist2;
-			float weight1 = (sum - dist1) / sum;
-			float weight2 = (sum - dist2) / sum;
-			size_t index1 = bone_distances[0].index;
-			size_t index2 = bone_distances[1].index;
-			if(weight1 > 0.65)
-			{
-				weight1 = 1.0;
-				weight2 = 0.0;
-				cerr << "Separated " << skeletal_model.bones[index1].name << " and " << skeletal_model.bones[index2].name << endl;
-			}
-			wtriangle.bone1[i] = index1;
-			wtriangle.bone2[i] = index2;
-			wtriangle.weight1[i] = weight1;
-			wtriangle.weight2[i] = weight2;
-			cerr << "Nearest: " << skeletal_model.bones[index1].name << " " << weight1
-				<< ", second: " << skeletal_model.bones[index2].name << " " << weight2 << endl;
+			Bone& bone = skeletal_model.bones[k];
+			Vec3 bone_loc1(bone.start_x, bone.start_y, bone.start_z);
+			Vec3 bone_loc2(bone.end_x, bone.end_y, bone.end_z);
+			float distance1 = (vertex - bone_loc2).lengthSquared();
+			float distance2 = (vertex - bone_loc2).lengthSquared();
+			float distance = min(distance1, distance2);
+			BoneDistance bone_distance = { distance, k };
+			bone_distances.push_back(bone_distance);
 		}
+		sort(bone_distances.begin(), bone_distances.end());
+
+		float dist1 = bone_distances[0].distance;
+		float dist2 = bone_distances[1].distance;
+		float sum = dist1 + dist2;
+		float weight1 = (sum - dist1) / sum;
+		float weight2 = (sum - dist2) / sum;
+		size_t index1 = bone_distances[0].index;
+		size_t index2 = bone_distances[1].index;
+		if(weight1 > 0.65)
+		{
+			weight1 = 1.0;
+			weight2 = 0.0;
+			cerr << "Separated " << skeletal_model.bones[index1].name << " and " << skeletal_model.bones[index2].name << endl;
+		}
+	
+		WeightedVertex& wv = skeletal_model.weighted_vertices[j];
+
+		wv.bone1 = index1;
+		wv.bone2 = index2;
+		wv.weight1 = weight1;
+		wv.weight2 = weight2;
+		cerr << "Nearest: " << skeletal_model.bones[index1].name << " " << weight1
+			<< ", second: " << skeletal_model.bones[index2].name << " " << weight2 << endl;
 	}
 	view.pushMessage(green("Calculated nearest bones"));
 }
