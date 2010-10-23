@@ -46,8 +46,8 @@ class Graphics
 	void drawModels(std::map<int, Model*>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
+	void updateParticles();
 	void finishDrawing();
-
 
 	// HUD Stuff
 	void drawHUD();
