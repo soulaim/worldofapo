@@ -12,6 +12,7 @@
 
 #include <SDL/SDL.h>
 
+#include "btt.h"
 #include "model.h"
 #include "skeletalmodel.h"
 #include "animation.h"
@@ -45,7 +46,9 @@ class Graphics
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
+	// void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
+	
 	void drawModels(std::map<int, Model*>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
@@ -84,6 +87,7 @@ class Graphics
 	
 	// define some character widths in our particular font
 	std::vector<float> charWidth;
+	std::vector<BTT_Triangle> level_triangles;
 	
 	SDL_Surface* drawContext;
 	Camera camera;

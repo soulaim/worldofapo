@@ -37,6 +37,30 @@ Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 		h_diff[i].resize(pointheight_info[i].size(), FixedPoint(0));
 }
 
+
+
+
+void Level::buildVarianceTree()
+{
+	variance_tree.resize(2048, FixedPoint(0));
+	cerr << "Maximum encountered variance error: " << btt.buildVarianceTree(h_diff, variance_tree) << endl;
+	
+	for(int i=1; i<256; i++)
+		cerr << variance_tree[i] << endl;
+	
+	btt.doSplit(h_diff, variance_tree);
+	btt.draw(5, 5);
+	
+	vector<BTT_Triangle> tris;
+	
+	btt.getTriangles(tris);
+	cerr << "There are like, about " << tris.size() << " triangles in this shit" << endl;
+	
+}
+
+
+
+
 Location Level::getRandomLocation(int seed)
 {
 	Location result;
@@ -263,7 +287,7 @@ void Level::generate(int seed)
 	
 	
 	// create long walls
-	for(int i=0; i<350; i++)
+	for(int i=0; i<150; i++)
 	{
 		
 		int x_p = rand() % pointheight_info.size();
@@ -295,7 +319,6 @@ void Level::generate(int seed)
 	// create some valleys
 	for(int i=0; i<150; i++)
 	{
-		
 		int x_p = rand() % pointheight_info.size();
 		int y_p = rand() % pointheight_info[x_p].size();
 		FixedPoint height = FixedPoint(-2);
@@ -355,18 +378,8 @@ void Level::generate(int seed)
 		}
 	}
 	
-	
-	
-	/*
-	// create bounding mountains
-	for(size_t i = 0; i < pointheight_info.size(); ++i)
-	{
-		updateHeight(i, 0, FixedPoint(80));
-		updateHeight(0, i, FixedPoint(80));
-		updateHeight(i, pointheight_info[i].size()-1, FixedPoint(80));
-		updateHeight(pointheight_info.size()-1, i, FixedPoint(80));
-	}
-	*/
+	// after level has been fully defined, build the corresponding variance tree.
+	buildVarianceTree();
 }
 
 

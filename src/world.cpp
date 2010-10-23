@@ -498,6 +498,13 @@ void World::updateModel(Model* model, Unit& unit)
 		model.setAction("jump");
 	}
 	else */
+	
+	if(model == 0)
+	{
+		cerr << "Model doesnt exist ffs" << endl;
+		return;
+	}
+	
 	if(unit.getKeyAction(Unit::MOVE_FRONT | Unit::MOVE_BACK | Unit::MOVE_LEFT | Unit::MOVE_RIGHT))
 	{
 		model->setAction("walk");
