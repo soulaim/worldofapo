@@ -16,10 +16,12 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
-void World::doDeathFor(Unit& unit, int causeOfDeath)
+void World::doDeathFor(Unit& unit)
 {
 	stringstream msg;
 	string killer = "an unknown entity";
+	
+	int causeOfDeath = unit.last_damage_dealt_by;
 	
 	int actor_id  = -1;
 	int target_id = -1;
@@ -126,8 +128,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	{
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
-		if(units[unitID].hitpoints < 1)
-			doDeathFor(units[unitID], unit.id);
+		units[unitID].last_damage_dealt_by = unit.id;
 		
 		// save this information for later use.
 		WorldEvent event;
@@ -220,8 +221,17 @@ void World::tickUnit(Unit& unit, Model* model)
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
 	{
 		// TODO: Heavy landings should have a gameplay effect!
-		if(unit.velocity.y < FixedPoint(-4, 10))
+		if(unit.velocity.y < FixedPoint(-7, 10))
 			unit.soundInfo = "jump_land";
+		if(unit.velocity.y < FixedPoint(-12, 10))
+		{
+			unit.velocity.x *= FixedPoint(10, 100);
+			unit.velocity.z *= FixedPoint(10, 100);
+			unit.hitpoints -= 50;
+			
+			unit.last_damage_dealt_by = unit.id;
+		}
+		
 		FixedPoint friction = FixedPoint(88, 100);
 		
 		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
@@ -233,6 +243,11 @@ void World::tickUnit(Unit& unit, Model* model)
 	else
 	{
 		unit.velocity.y -= FixedPoint(35,1000);
+		
+		// air resistance :DD
+		FixedPoint friction = FixedPoint(995, 1000);
+		unit.velocity.x *= friction;
+		unit.velocity.z *= friction;
 	}
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
@@ -461,11 +476,7 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 				
 				u->hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
 				u->velocity += projectile.velocity * FixedPoint(1, 100);
-				
-				if(u->hitpoints < 1)
-				{
-					doDeathFor(*u, projectile.owner);
-				}
+				u->last_damage_dealt_by = projectile.owner;
 				
 				deadUnits.push_back(projectile.id);
 				break;
@@ -524,12 +535,14 @@ void World::worldTick(int tickCount)
 			light.deactivateLight();
 			deadLights.push_back(iter->first);
 			
-//			cerr << "DEAD LIGHT! ERASING" << endl;
+			// cerr << "DEAD LIGHT! ERASING" << endl;
 		}
 	}
 	
 	for(size_t i=0; i<deadLights.size(); i++)
+	{
 		lights.erase(deadLights[i]);
+	}
 	deadLights.clear();
 	
 	
@@ -563,6 +576,19 @@ void World::worldTick(int tickCount)
 	
 	
 	o->doCollisions();
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*     \  Find dead units                 \
+	*     \_/""""""""""""""""""""""""""""""""""/
+	*/
+	
+	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if(iter->second.hitpoints < 1)
+		{
+			doDeathFor(iter->second);
+		}
+	}
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
@@ -631,11 +657,13 @@ void World::addUnit(int id, bool playerCharacter)
 	{
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
+		units[id].hitpoints = 1000;
 	}
 	else
 	{
 		units[id].name = "Unknown Player";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
+		units[id].hitpoints = 1000;
 	}
 	
 }

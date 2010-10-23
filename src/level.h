@@ -6,6 +6,7 @@
 
 #include "fixed_point.h"
 #include "location.h"
+#include "btt.h"
 
 struct Level
 {
@@ -35,6 +36,8 @@ struct Level
 	int max_z() const;
 
 private:
+	
+	BinaryTriangleTree btt;
 	
 	FixedPoint fpZero;
 	

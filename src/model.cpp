@@ -10,6 +10,7 @@
 
 using namespace std;
 
+// ALERT: Why are these here..?
 extern GLint unit_color_location;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
@@ -26,7 +27,6 @@ void Model::tick(int current_frame)
 {
 	// Smoothed out model movement. Doesnt correspond 100% to actual unit coordinates.
 	currentModelPos += (realUnitPos - currentModelPos) * 0.2;
-	
 	animation_time = current_frame;
 }
 
