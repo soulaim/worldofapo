@@ -87,6 +87,10 @@ void Animation::setAnimationState(size_t aniIndex, float xrot, float yrot, float
 */
 void Animation::insertAnimationState(size_t time, float x, float y, float z)
 {
+	if(time == 0)
+	{
+		cerr << "Warning, animation step with length 0: " << x << " " << y << " " << z << endl;
+	}
 	rot_x.push_back(x);
 	rot_y.push_back(y);
 	rot_z.push_back(z);

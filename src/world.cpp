@@ -524,7 +524,7 @@ void World::worldTick(int tickCount)
 			light.deactivateLight();
 			deadLights.push_back(iter->first);
 			
-			cerr << "DEAD LIGHT! ERASING" << endl;
+//			cerr << "DEAD LIGHT! ERASING" << endl;
 		}
 	}
 	
@@ -616,12 +616,16 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
+
+	static SkeletalModel prototype;
+	static bool loaded = false;
+	if(!loaded)
+	{
+		loaded = true;
+		prototype.load("models/model.skeleton");
+	}
 	
-//	models[id] = new ApoModel();
-//	models[id]->load("models/model.bones"); // TODO: don't load from file! Make some prototype.
-	models[id] = new SkeletalModel();
-	models[id]->load("models/model.skeleton"); // TODO: don't load from file! Make some prototype.
-	
+	models[id] = new SkeletalModel(prototype);
 	
 	if(!playerCharacter)
 	{

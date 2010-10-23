@@ -48,7 +48,8 @@ Editor::Editor()
 	handle_command("load objects model.parts");
 //	handle_command("load model model.bones");
 	handle_command("load skele model.skeleton");
-//	handle_command("load animations model.animation");
+	handle_command("load animations model.animation");
+	handle_command("load animations skeleani.animation");
 	handle_command("load objects bullet.parts");
 //	handle_command("edit type HEAD");
 
