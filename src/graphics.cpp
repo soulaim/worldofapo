@@ -37,12 +37,12 @@ void Graphics::depthSortParticles(Vec3& d)
 void Graphics::initLight()
 {
 	lightsActive = false;
-	GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+	GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 	
-	GLfloat	light0ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
-	GLfloat	light0specular[ 4 ]	= {1.0f, .4f,  .4f, 1.0f};
-	GLfloat	light0diffuse[ 4 ]	= {0.8f, .3f,  .3f, 1.0f};
+	GLfloat light0ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
+	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
+	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
 	
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
@@ -61,13 +61,13 @@ void Graphics::toggleLightingStatus()
 {
 	if(lightsActive)
 	{
-		GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+		GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 		drawDebuglines = false;
 	}
 	else
 	{
-		GLfloat	global_ambient[ 4 ]	= {0.6f, 0.6f,  0.6f, 1.0f};
+		GLfloat global_ambient[ 4 ] = {0.6f, 0.6f,  0.6f, 1.0f};
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 		drawDebuglines = true;
 	}
@@ -454,6 +454,84 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
+void drawNormal(const Level& lvl, int x, int z, int multiplier)
+{
+	Location n = lvl.getNormal(x, z) * 10;
+	Location start;
+	start.x = FixedPoint(int(x * multiplier));
+	start.y = lvl.getHeight(x * multiplier, z * multiplier);
+	start.z = FixedPoint(int(z * multiplier));
+	
+	Location end = start + n;
+	
+	glBegin(GL_LINES);
+	glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+	glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+	glEnd();
+	
+	glColor3f(1.0, 1.0, 1.0);
+}
+
+void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPoint& fpx, const FixedPoint& fpy, const FixedPoint& fpz)
+{
+	vector<int> indexes;
+	vector<FixedPoint> distances;
+
+	distances.resize(2, FixedPoint(40000));
+	indexes.resize(2, -1);
+
+	Location fixMe;
+	fixMe.x = fpx;
+	fixMe.y = fpy;
+	fixMe.z = fpz;
+
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	{
+		const LightObject& light = iter->second;
+		FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
+
+
+		if(lightDistance < distances[0])
+		{
+			distances[1] = distances[0];
+			indexes[1]   = indexes[0];
+
+			distances[0] = lightDistance;
+			indexes[0]  = iter->first;
+		}
+		else if(lightDistance < distances[1])
+		{
+			distances[1] = lightDistance;
+			indexes[1]  = iter->first;
+		}
+	}
+
+	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+	{
+		if(indexes[light_i] >= 0)
+		{
+			float rgb[4]; rgb[3] = 1.0f;
+			int light_key = indexes[light_i];
+			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+
+			Location pos = lightsContainer.find(light_key)->second.getPosition();
+
+			rgb[0] = pos.x.getFloat();
+			rgb[1] = pos.y.getFloat();
+			rgb[2] = pos.z.getFloat();
+
+			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+		}
+		else
+		{
+			float rgb[4] = { };
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+		}
+	}
+}
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
@@ -491,6 +569,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				
 				FixedPoint fpx(x);
 				FixedPoint fpz(z);
+				FixedPoint fpy( lvl.getHeight(fpx, fpz) );
 				fpx += FixedPoint(1,2);
 				fpz += FixedPoint(1,2);
 				fpx *= FixedPoint(multiplier);
@@ -498,96 +577,23 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 				semiAverage.x = multiplier * (x + 0.5f);
 				semiAverage.z = multiplier * (z + 0.5f);
-				semiAverage.y = lvl.getHeight(fpx, fpz).getFloat();
+				semiAverage.y = fpy.getFloat();
 				
 				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 				{
-					
-					Location n;
-					
 					if(drawDebuglines)
 					{
-						n = lvl.getNormal(x, z) * 10;
-						Location start;
-						start.x = FixedPoint(int(x * multiplier));
-						start.y = lvl.getHeight(x * multiplier, z * multiplier);
-						start.z = FixedPoint(int(z * multiplier));
-						
-						Location end = start + n;
-						
-						glBegin(GL_LINES);
-						glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-						glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-						glEnd();
-						
-						glColor3f(1.0, 1.0, 1.0);
+						drawNormal(lvl, x, z, multiplier);
 					}
-					
-					
-					// set active lights
-					vector<int> indexes;
-					vector<FixedPoint> distances;
-					
-					distances.resize(2, FixedPoint(40000));
-					indexes.resize(2, -1);
-					
-					Location fixMe;
-					fixMe.x = fpx;
-					fixMe.y = lvl.getHeight(fpx, fpz);
-					fixMe.z = fpz;
-					
-					for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-					{
-						const LightObject& light = iter->second;
-						FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-						
-						
-						if(lightDistance < distances[0])
-						{
-							distances[1] = distances[0];
-							indexes[1]   = indexes[0];
-							
-							distances[0] = lightDistance;
-							indexes[0]  = iter->first;
-						}
-						else if(lightDistance < distances[1])
-						{
-							distances[1] = lightDistance;
-							indexes[1]  = iter->first;
-						}
-					}
-					
-					for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-					{
-						if(indexes[light_i] >= 0)
-						{
-							float rgb[4]; rgb[3] = 1.0f;
-							int light_key = indexes[light_i];
-							lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-							
-							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-							
-							Location pos = lightsContainer.find(light_key)->second.getPosition();
-							
-							rgb[0] = pos.x.getFloat();
-							rgb[1] = pos.y.getFloat();
-							rgb[2] = pos.z.getFloat();
-							
-							glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-						}
-						else
-						{
-							float rgb[4] = { };
-							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-						}
-					}
-					
+
+					setActiveLights(lightsContainer, fpx, fpy, fpz);
 					
 					Vec3 A(multiplier * x, lvl.pointheight_info[x][z].getFloat(), multiplier * z);
 					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][z].getFloat(), multiplier * z);
 					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][z+1].getFloat(), multiplier * (z+1));
 					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][z+1].getFloat()  , multiplier * (z+1));
 					
+					Location n;
 					glBegin(GL_QUADS);
 					n=lvl.getNormal(x, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
