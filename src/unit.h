@@ -55,6 +55,7 @@ class Unit : LightSource, public OctreeObject
 		int weapon_cooldown;
 		int leap_cooldown;
 		
+		int last_damage_dealt_by;
 		int id;
 		int birthTime;
 		std::string name;
