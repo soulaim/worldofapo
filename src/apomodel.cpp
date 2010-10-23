@@ -2,7 +2,7 @@
 #include "primitives.h"
 #include "graphics.h"
 
-#include <GL/gl.h>
+#include "shaders.h"
 
 #include <fstream>
 #include <queue>
@@ -11,7 +11,6 @@
 
 using namespace std;
 
-extern GLint unit_color_location;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 ApoModel::~ApoModel()

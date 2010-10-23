@@ -5,14 +5,10 @@
 #include <queue>
 #include <iomanip>
 
-#include "glew/glew.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include "shaders.h"
 
 using namespace std;
 
-extern GLint unit_color_location;
-extern GLint color_index_location;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 void SkeletalModel::rotate_y(float angle)

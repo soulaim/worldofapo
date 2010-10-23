@@ -4,6 +4,7 @@
 using namespace std;
 
 int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, char **image_data_ptr, bool&);
+void pngUnload(char* data);
 
 void Image::loadImage(const string& filename)
 {
@@ -12,8 +13,7 @@ void Image::loadImage(const string& filename)
 
 void Image::unload()
 {
-	if(data == 0)
-		return;
-	delete[] data;
+	pngUnload(data);
 	data = 0;
 }
+
