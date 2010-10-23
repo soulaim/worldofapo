@@ -361,8 +361,8 @@ void DedicatedServer::acceptConnections()
 	static int id = world.nextPlayerID();
 	if(sockets.accept(id))
 	{
+		cerr << "looks like someone is connecting :O" << endl;
 		Players[id].connectionState = 0;
-		cerr << "looks like " << id << " is connecting :O" << endl;
 		id = world.nextPlayerID();
 	}
 }

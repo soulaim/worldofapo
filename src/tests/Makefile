@@ -6,5 +6,5 @@ all:
 	g++ fixedpointtest.cpp $(CXXFLAGS) ../apomath.cpp -o fixedpointtest
 	g++ squareroot_and_crossproduct.cpp $(CXXFLAGS) ../fixed_point.cpp ../location.cpp -o squareroot_and_crossproduct
 #	g++ socket_test.cpp $(CXXFLAGS) ../net/socket.cpp ../net/socket_handler.cpp -o socket_test
-
+	g++ btt_test.cpp $(CXXFLAGS) -o btt_test
 

@@ -124,7 +124,7 @@ bool SkeletalModel::save(const string& filename) const
 
 float SkeletalModel::height() const
 {
-	return -2.f;
+	return 0.f;
 }
 
 void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
@@ -218,6 +218,7 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
 			Vec3 line_start = rotations[i] * Vec3(0,0,0);
 			Vec3 line_end = rotations[i] * (end - start);
+			
 			glBegin(GL_LINES);
 			glVertex3f(line_start.x, line_start.y, line_start.z);
 			glVertex3f(line_end.x, line_end.y, line_end.z);

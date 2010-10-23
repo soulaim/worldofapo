@@ -19,6 +19,13 @@ void Animation::getAnimationState(size_t time, float& xrot, float& yrot, float& 
 	if(times.empty())
 	{
 //		cerr << "ERROR: animation of size 0 was requested for data!" << endl;
+		
+		/*
+		xrot = 0;
+		yrot = 0;
+		zrot = 0;
+		*/
+		
 		return;
 	}
 
@@ -67,24 +74,7 @@ void Animation::getAnimationState(size_t time, float& xrot, float& yrot, float& 
 	
 }
 
-/*
-void Animation::setAnimationState(size_t aniIndex, float xrot, float yrot, float zrot)
-{
-	size_t size = rot_x.size();
-	
-	if(size <= aniIndex)
-	{
-		rot_x.resize(aniIndex + 1, 0.f);
-		rot_y.resize(aniIndex + 1, 0.f);
-		rot_z.resize(aniIndex + 1, 0.f);
-		return;
-	}
-	
-	rot_x[ aniIndex ] = xrot;
-	rot_y[ aniIndex ] = yrot;
-	rot_z[ aniIndex ] = zrot;
-}
-*/
+
 void Animation::insertAnimationState(size_t time, float x, float y, float z)
 {
 	rot_x.push_back(x);
@@ -94,23 +84,28 @@ void Animation::insertAnimationState(size_t time, float x, float y, float z)
 	total_time += time;
 }
 
+
 size_t Animation::getSize() const
 {
 	return times.size();
 }
+
 
 size_t Animation::totalTime() const
 {
 	return total_time;
 }
 
-std::map<std::string, std::map<std::string, Animation>> ANIMATIONS;
+
+std::map<std::string, std::map<std::string, Animation> > ANIMATIONS;
+
 
 Animation& Animation::getAnimation(const std::string& modelnode_name, const std::string& animation_name)
 {
 	// TODO: this can be made constant time with simple indexing, if necessary.
 	return ANIMATIONS[modelnode_name][animation_name];
 }
+
 
 bool Animation::load(const std::string& filename)
 {

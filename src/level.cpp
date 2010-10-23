@@ -6,7 +6,10 @@
 
 using namespace std;
 
-Level::Level()
+// level size should be ((2^n) + 1) because binary triangle trees work best then.
+#define LEVEL_LVLSIZE 129
+
+Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
 	fpZero = FixedPoint(0);
 	
@@ -15,10 +18,10 @@ Level::Level()
 	unitVectorUp.z = FixedPoint(0);
 	
 	
-	pointheight_info.resize(101);
+	pointheight_info.resize(LEVEL_LVLSIZE);
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
-		pointheight_info[i].resize( 101 );
+		pointheight_info[i].resize(LEVEL_LVLSIZE);
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 		{
 			pointheight_info[i][k] = FixedPoint(3);
@@ -37,8 +40,8 @@ Level::Level()
 Location Level::getRandomLocation(int seed)
 {
 	Location result;
-	result.x = ((43  * seed) % 100) * 8;
-	result.z = ((73 * seed) % 100) * 8;
+	result.x = ((173  * seed) % LEVEL_LVLSIZE) * 8;
+	result.z = ((833 * seed) % LEVEL_LVLSIZE) * 8;
 	result.y = FixedPoint(100);
 	return result;
 }
@@ -260,32 +263,60 @@ void Level::generate(int seed)
 	
 	
 	// create long walls
-	for(int i=0; i<150; i++)
+	for(int i=0; i<350; i++)
 	{
 		
 		int x_p = rand() % pointheight_info.size();
 		int y_p = rand() % pointheight_info[x_p].size();
+		FixedPoint height = FixedPoint(15);
 		
 		for(int k=0; k<15; k++)
 		{
-			updateHeight(x_p, y_p, FixedPoint(28));
+			height += FixedPoint(1);
+			updateHeight(x_p, y_p, height);
+			
+			int x_size = pointheight_info.size() - 2;
+			int y_size = pointheight_info[0].size() - 2;
+			
+			if(x_p > 0 && x_p < x_size)
+			if(y_p > 0 && y_p < y_size)
+			{
+				updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
+				updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
+				updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
+				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
+			}
+			
 			x_p += (rand() % 3) - 1;
 			y_p += (rand() % 3) - 1;
 		}
 	}
 	
-	// create some accessible higher ground
+	// create some valleys
 	for(int i=0; i<150; i++)
 	{
 		
 		int x_p = rand() % pointheight_info.size();
 		int y_p = rand() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(3);
+		FixedPoint height = FixedPoint(-2);
 		
-		for(int k=0; k<10; k++)
+		for(int k=0; k<20; k++)
 		{
-			height += FixedPoint(1);
+			height -= FixedPoint(1, 2);
+			
 			updateHeight(x_p, y_p, height);
+			
+			int x_size = pointheight_info.size() - 2;
+			int y_size = pointheight_info[0].size() - 2;
+			
+			if(x_p > 0 && x_p < x_size)
+			if(y_p > 0 && y_p < y_size)
+			{
+				updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
+				updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
+				updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
+				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
+			}
 			
 			x_p += (rand() % 3) - 1;
 			y_p += (rand() % 3) - 1;
@@ -293,6 +324,40 @@ void Level::generate(int seed)
 	}
 	
 	
+	// create some semihigh-ground
+	for(int i=0; i<150; i++)
+	{
+		
+		int x_p = rand() % pointheight_info.size();
+		int y_p = rand() % pointheight_info[x_p].size();
+		FixedPoint height = FixedPoint(2);
+		
+		for(int k=0; k<20; k++)
+		{
+			height += FixedPoint(2, 5);
+			
+			updateHeight(x_p, y_p, height);
+			
+			int x_size = pointheight_info.size() - 2;
+			int y_size = pointheight_info[0].size() - 2;
+			
+			if(x_p > 0 && x_p < x_size)
+				if(y_p > 0 && y_p < y_size)
+				{
+					updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
+					updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
+					updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
+					updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
+				}
+				
+				x_p += (rand() % 3) - 1;
+			y_p += (rand() % 3) - 1;
+		}
+	}
+	
+	
+	
+	/*
 	// create bounding mountains
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
@@ -301,7 +366,7 @@ void Level::generate(int seed)
 		updateHeight(i, pointheight_info[i].size()-1, FixedPoint(80));
 		updateHeight(pointheight_info.size()-1, i, FixedPoint(80));
 	}
-
+	*/
 }
 
 
@@ -321,11 +386,11 @@ FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
 
 int Level::max_x() const
 {
-	return pointheight_info.size() * 8 - 8;
+	return pointheight_info.size() * 8 - 9;
 }
 
 int Level::max_z() const
 {
-	return pointheight_info.front().size() * 8 - 8;
+	return pointheight_info.front().size() * 8 - 9;
 }
 

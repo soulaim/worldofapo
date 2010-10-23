@@ -37,7 +37,7 @@ class World
 	void generateInput_RabidAlien(Unit& unit);
 	void handleUnitUnitCollisions(std::vector<std::pair<Unit*,Unit*>>& l);
 	void resolveUnitCollision(Unit& a, Unit& b);
-	void doDeathFor(Unit& unit, int causeOfDeath);
+	void doDeathFor(Unit& unit);
 
 public:
 	
@@ -87,13 +87,13 @@ public:
 	
 	int nextUnitID();
 	int nextPlayerID();
-
+	
 	int show_errors;
-
+	
 	int getZombies();
 	
 	void terminate(); // don't call this unless you mean it :D
-
+	
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
 };
