@@ -246,7 +246,7 @@ struct BTT_Node
 	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex)
 	{
 		// lets just try something simple first.
-		if(myLod > 11)
+		if(myLod > 14)
 		{
 			return;
 		}
@@ -275,7 +275,7 @@ struct BTT_Node
 				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z]) / FixedPoint(2);
 			}
 			
-			if(error > FixedPoint(1, 2))
+			if(error > FixedPoint(0))
 			{
 				split();
 				left_child->doSplitting(var_tree, h_diffs, myIndex * 2);

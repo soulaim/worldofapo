@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#include <cassert>
 
 using namespace std;
 
@@ -33,21 +34,35 @@ struct ObjMesh
 	Vertex* vtx;
 	Vertex* norm;
 	int nVtx;
+
 	int nFace;
-	int nUV;
 	Face* face;
+
+	int nUV;
 	UVCoord* UV;
+
 	char MatName[64];
 	
 	void print()
 	{
-		for(int i=0; i<nFace; i++)
+		assert(nVtx == nUV);
+		for(int i = 0; i < nVtx; ++i)
+		{
+			cerr << "VERTEX ";
+			cerr << fixed << setprecision(3);
+			cerr << vtx[i].x << " " << vtx[i].y << " " << vtx[i].z << endl;
+			cerr << "TEXTURE_COORDINATES ";
+			cerr << UV[i].U << " " << UV[i].V << endl;
+		}
+		for(int i = 0; i < nFace; ++i)
 		{
 			cerr << "TRIANGLE ";
-			cerr << fixed << setprecision(2) << vtx[face[i].p1].x << " " << vtx[face[i].p1].y << " " << vtx[face[i].p1].z << endl;
+			cerr << face[i].p1 << " " << face[i].p2 << " " << face[i].p3 << endl;
+/*			cerr << fixed << setprecision(3);
+			cerr << vtx[face[i].p1].x << " " << vtx[face[i].p1].y << " " << vtx[face[i].p1].z << endl;
 			cerr << "         " << vtx[face[i].p2].x << " " << vtx[face[i].p2].y << " " << vtx[face[i].p2].z << endl;
 			cerr << "         " << vtx[face[i].p3].x << " " << vtx[face[i].p3].y << " " << vtx[face[i].p3].z << endl;
-		}
+*/		}
 	}
 };
 

@@ -10,6 +10,7 @@
 
 struct Model
 {
+	std::string texture_name;
 	std::string animation_name;
 	int animation_time;
 

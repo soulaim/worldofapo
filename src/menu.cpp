@@ -102,7 +102,7 @@ std::string Menu::menu_tick()
 				serverpid = pid;
 				atexit(server_killer);
 				cerr << "Started server process with pid " << serverpid << endl;
-				sleep(1);
+				sleep(2);
 				ret = "localhost";
 				dont_exit = false;
 			}

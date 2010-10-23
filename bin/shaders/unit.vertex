@@ -1,5 +1,8 @@
+varying vec2 varTexCoord;
 
 void main()
 {
+	varTexCoord = vec2(gl_MultiTexCoord0);
 	gl_Position = ftransform();
 }
+
