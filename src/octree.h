@@ -9,6 +9,7 @@
 #include <memory>
 #include <set>
 #include <utility>
+#include <algorithm>
 
 class Octree
 {
@@ -28,7 +29,7 @@ public:
 	Octree(Location _bot, Location _top, int _depth = 1);
 	Location top;
 	Location bot;
-	Location c;
+	Location center;
 
 	bool hasChildren;
 	std::shared_ptr<Octree> children[2][2][2];
@@ -39,7 +40,8 @@ public:
 	void split();
 	void insertUnit(Unit* u);
 	const std::set<Unit*>& potProjectileUnitColl(const Projectile&) const;
-	void potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l);
+	void getUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l) const;
+	void potUnitUnitColl(std::vector<std::pair<Unit*,Unit*>>& l) const;
 };
 
 

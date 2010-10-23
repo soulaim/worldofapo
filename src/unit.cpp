@@ -109,4 +109,3 @@ Location Unit::hitbox_bot() const
 bool Unit::operator<(const Unit& u) const {
 	return id < u.id;
 }
-

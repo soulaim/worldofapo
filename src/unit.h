@@ -74,7 +74,6 @@ class Unit : LightSource
 		Location hitbox_bot() const;
 
 		bool operator<(const Unit& u) const;
-
 };
 
 #endif
