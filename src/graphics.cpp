@@ -131,12 +131,12 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
 		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
 		
-		p.max_life = 70;
-		p.cur_life = 70;
+		p.max_life = 40 + (rand() % 30);
+		p.cur_life = p.max_life;
 		
-		p.r = r;
-		p.g = g;
-		p.b = b;
+		p.r = r * ((rand() % 40) + 80) / 100;
+		p.g = g * ((rand() % 40) + 80) / 100;
+		p.b = b * ((rand() % 40) + 80) / 100;
 		
 		p.scale = scale;
 		
@@ -863,10 +863,27 @@ void Graphics::bindCamera(Unit* unit)
 	camera.bind(unit, Camera::RELATIVE);
 }
 
+void Graphics::updateParticles()
+{
+	for(size_t i = 0; i < viewParticles.size(); ++i)
+	{
+		viewParticles[i].decrementLife();
+		if(!viewParticles[i].alive())
+		{
+			viewParticles[i] = viewParticles.back();
+			viewParticles.pop_back();
+			i--;
+			continue;
+		}
+		viewParticles[i].tick();
+	}
+}
+
 void Graphics::world_tick()
 {
 	// Don't draw anything here!
 	++world_ticks;
+	updateParticles();
 }
 
 void Graphics::tick()
@@ -887,22 +904,6 @@ void Graphics::tick()
 	velocity.x = FixedPoint(100,1000);
 	velocity.y = FixedPoint(900,1000);
 	velocity.z = FixedPoint(0);
-
-	
-	genParticles(position, velocity, 1, 0.5, 1.0, 0.9, 0.2, 0.2);
-	
-	for(size_t i = 0; i < viewParticles.size(); ++i)
-	{
-		viewParticles[i].decrementLife();
-		if(!viewParticles[i].alive())
-		{
-			viewParticles[i] = viewParticles.back();
-			viewParticles.pop_back();
-			i--;
-			continue;
-		}
-		viewParticles[i].tick();
-	}
 }
 
 void Graphics::toggleFullscreen()

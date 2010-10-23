@@ -13,7 +13,11 @@ Unit::Unit():
 	keyState(0),
 	mouseButtons(0),
 	weapon_cooldown(0),
-	leap_cooldown(0)
+	leap_cooldown(0),
+	last_damage_dealt_by(-1),
+	id(-1),
+	birthTime(0)
+	
 {
 	type = OctreeObject::UNIT;
 }
