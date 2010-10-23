@@ -38,9 +38,10 @@ Editor::Editor()
 	selected_dot = 0;
 	userio.init();
 
-//	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
-//	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
-//	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
+	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
 
 	view.bindCamera(&dummy);
 	view.toggleLightingStatus();
@@ -278,6 +279,7 @@ void Editor::loadSkeletalModel(const string& file)
 		selected_part = 0;
 		editing_single_part = false;
 		skeletal_model = model;
+		skeletal_model.texture_name = "marine";
 		view.pushMessage(green("Success"));
 		modelFile = file;
 		skele = true;

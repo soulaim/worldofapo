@@ -634,7 +634,7 @@ void World::viewTick()
 }
 
 
-// trololol..
+// TODO: FIX THIS trololol..
 void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
@@ -649,6 +649,7 @@ void World::addUnit(int id, bool playerCharacter)
 	{
 		loaded = true;
 		prototype.load("models/model.skeleton");
+		prototype.texture_name = "marine";
 	}
 	
 	models[id] = new SkeletalModel(prototype);

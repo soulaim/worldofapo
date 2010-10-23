@@ -1,5 +1,6 @@
 #include "skeletalmodel.h"
 #include "frustum/matrix4.h"
+#include "texturehandler.h"
 
 #include <fstream>
 #include <queue>
@@ -196,11 +197,14 @@ void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<M
 
 void SkeletalModel::draw()
 {
-	draw(false, false);
+	draw(false, -1);
 }
 
 void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 {
+	glEnable(GL_TEXTURE_2D);
+	TextureHandler::getSingleton().bindTexture(texture_name);
+
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	calcMatrices(*this, Vec3(), 0, rotations, Matrix4(), animation_name, animation_time);
@@ -243,6 +247,7 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 			{
 				glColor3f(0.5*j, 0.5*j,0.5*j);
 			}
+			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
 			glVertex3f(v.x, v.y, v.z);
 		}
 		glEnd();
@@ -266,6 +271,7 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 //			cerr << i << " has start at " << line_start << "\n";
 		}
 	}
+	glDisable(GL_TEXTURE_2D);
 }
 
 
