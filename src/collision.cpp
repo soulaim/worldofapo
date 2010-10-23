@@ -1,40 +1,54 @@
 #include "collision.h"
 
-// from http://www.3dkingdoms.com/weekly/weekly.php?a=3
-int Collision::GetIntersection(FixedPoint fDst1, FixedPoint fDst2, Location P1, Location P2, Location &Hit) {
-	if ( (fDst1 * fDst2) >= 0.0f) return 0;
-	if ( fDst1 == fDst2) return 0;
-	Hit = P1 + (P2-P1) * ( -fDst1/(fDst2-fDst1) );
-	return 1;
+bool Collision::lineBox(Location b_bot, Location b_top, Location l1, Location l2) {
+	FixedPoint top_x;
+	FixedPoint top_y;
+	FixedPoint top_z;
+
+	FixedPoint bot_x;
+	FixedPoint bot_y;
+	FixedPoint bot_z;
+	
+	if (l1.x < l2.x)
+	{
+		bot_x = l1.x;
+		top_x = l2.x;
+	}
+	else
+	{
+		bot_x = l2.x;
+		top_x = l1.x;
+	}
+	if (l1.y < l2.y)
+	{
+		bot_y = l1.y;
+		top_y = l2.y;
+	}
+	else
+	{
+		bot_y = l2.y;
+		top_y = l1.y;
+	}
+	if (l1.z < l2.z)
+	{
+		bot_z = l1.z;
+		top_z = l2.z;
+	}
+	else
+	{
+		bot_z = l2.z;
+		top_z = l1.z;
+	}
+	
+	return boxBox(b_bot, b_top, Location(bot_x, bot_y, bot_z), Location(top_x, top_y, top_z));
 }
 
-int Collision::InBox(Location Hit, Location B1, Location B2, const int Axis)
-{
-	if ( Axis==1 && Hit.z > B1.z && Hit.z < B2.z && Hit.y > B1.y && Hit.y < B2.y) return 1;
-	if ( Axis==2 && Hit.z > B1.z && Hit.z < B2.z && Hit.x > B1.x && Hit.x < B2.x) return 1;
-	if ( Axis==3 && Hit.x > B1.x && Hit.x < B2.x && Hit.y > B1.y && Hit.y < B2.y) return 1;
-	return 0;
-}
-
-// returns true if line (L1, L2) intersects with the box (B1, B2)
-bool Collision::lineBox(Location B1, Location B2, Location L1, Location L2)
-{
-	if (L2.x < B1.x && L1.x < B1.x) return false;
-	if (L2.x > B2.x && L1.x > B2.x) return false;
-	if (L2.y < B1.y && L1.y < B1.y) return false;
-	if (L2.y > B2.y && L1.y > B2.y) return false;
-	if (L2.z < B1.z && L1.z < B1.z) return false;
-	if (L2.z > B2.z && L1.z > B2.z) return false;
-
-	if (L1.x > B1.x && L1.x < B2.x && L1.y > B1.y && L1.y < B2.y &&
-	    L1.z > B1.z && L1.z < B2.z)
-		return true;
-
-	Location Hit;
-	return ( (GetIntersection( L1.x-B1.x, L2.x-B1.x, L1, L2, Hit) && InBox( Hit, B1, B2, 1 ))
-	  || (GetIntersection( L1.y-B1.y, L2.y-B1.y, L1, L2, Hit) && InBox( Hit, B1, B2, 2 ))
-	  || (GetIntersection( L1.z-B1.z, L2.z-B1.z, L1, L2, Hit) && InBox( Hit, B1, B2, 3 ))
-	  || (GetIntersection( L1.x-B2.x, L2.x-B2.x, L1, L2, Hit) && InBox( Hit, B1, B2, 1 ))
-	  || (GetIntersection( L1.y-B2.y, L2.y-B2.y, L1, L2, Hit) && InBox( Hit, B1, B2, 2 ))
-	  || (GetIntersection( L1.z-B2.z, L2.z-B2.z, L1, L2, Hit) && InBox( Hit, B1, B2, 3 )));
+bool Collision::boxBox(Location b1_bot, Location b1_top, Location b2_bot, Location b2_top) {
+	if (b1_top.x < b2_bot.x || b2_top.x < b1_bot.x)
+		return false;
+	if (b1_top.y < b2_bot.y || b2_top.y < b1_bot.y)
+		return false;
+	if (b1_top.z < b2_bot.z || b2_top.z < b1_bot.z)
+		return false;
+	return true;
 }

@@ -124,7 +124,7 @@ bool SkeletalModel::save(const string& filename) const
 
 float SkeletalModel::height() const
 {
-	return -2.f;
+	return 0;
 }
 
 void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)

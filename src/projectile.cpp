@@ -7,7 +7,7 @@ using namespace std;
 
 bool Projectile::collides(const Unit& unit)
 {
-	return Collision::lineBox(unit.hitbox_bot(), unit.hitbox_top(), curr_position, prev_position);
+	return Collision::lineBox(unit.bb_bot(), unit.bb_top(), curr_position, prev_position);
 }
 
 bool Projectile::collidesTerrain(Level& lvl) const

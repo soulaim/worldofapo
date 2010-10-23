@@ -45,7 +45,7 @@ void Graphics::drawStatusBar()
 
 void Graphics::drawBanner()
 {
-	drawString("World of Apo, alpha build 715517");
+	drawString("World of Apo");
 }
 
 void Graphics::drawZombiesLeft()

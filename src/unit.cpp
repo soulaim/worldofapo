@@ -15,6 +15,7 @@ Unit::Unit():
 	weapon_cooldown(0),
 	leap_cooldown(0)
 {
+	type = OctreeObject::UNIT;
 }
 
 
@@ -96,14 +97,27 @@ string Unit::copyOrder(int ID)
 	return hero_msg.str();
 }
 
-Location Unit::hitbox_top() const
+Location Unit::bb_top() const
 {
-	return Location(position.x+1, position.y+6, position.z+1);
+	return Location(position.x+1, position.y+5, position.z+1);
 }
 
-Location Unit::hitbox_bot() const
+Location Unit::bb_bot() const
 {
 	return Location(position.x-1, position.y, position.z-1);
+}
+
+void Unit::collides(OctreeObject& o)
+{
+	if (o.type != OctreeObject::UNIT)
+		return;
+	Unit& u = (Unit&) o;
+	Location direction = (position - u.position);
+	direction.normalize();
+	direction *= FixedPoint(1, 5);
+	
+	velocity += direction;
+	u.velocity -= direction;
 }
 
 bool Unit::operator<(const Unit& u) const {

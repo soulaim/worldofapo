@@ -8,8 +8,9 @@
 #include "location.h"
 #include "apomath.h"
 #include "lightsource.h"
+#include "octree_object.h"
 
-class Unit : LightSource
+class Unit : LightSource, public OctreeObject
 {
 	public:
 		
@@ -70,8 +71,9 @@ class Unit : LightSource
 		
 		float getAngle(ApoMath&);
 
-		Location hitbox_top() const;
-		Location hitbox_bot() const;
+		Location bb_top() const;
+		Location bb_bot() const;
+		void collides(OctreeObject&);
 
 		bool operator<(const Unit& u) const;
 };

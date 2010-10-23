@@ -125,7 +125,7 @@ public:
 	void draw(std::map<int, Model*>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
-	void drawHitboxes(const std::map<int,Unit>& units);
+	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	

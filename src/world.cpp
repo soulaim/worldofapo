@@ -94,34 +94,6 @@ void World::doDeathFor(Unit& unit, int causeOfDeath)
 	events.push_back(event);
 }
 
-void World::handleUnitUnitCollisions(std::vector<std::pair<Unit*,Unit*>>& l) {
-	// do something about unit to unit collisions
-	for(std::vector<std::pair<Unit*, Unit*>>::iterator it = l.begin(); it != l.end(); ++it)
-	{
-		Unit* u = it->first;
-		Unit* u2 = it->second;
-		if((u->position - u2->position).lengthSquared() < FixedPoint(4))
-		{
-			resolveUnitCollision(*u, *u2);
-			
-			// dont activate this until the sound actually exists, if ever.
-			//unit.soundInfo = "unitbump";
-		}
-	}
-}
-
-void World::resolveUnitCollision(Unit& a, Unit& b)
-{
-	
-	Location direction = (a.position - b.position);
-	direction.normalize();
-	direction *= FixedPoint(1, 5);
-	
-	a.velocity += direction;
-	b.velocity -= direction;
-}
-
-
 void World::generateInput_RabidAlien(Unit& unit)
 {
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
@@ -458,10 +430,13 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 		{
 			deadUnits.push_back(id);
 		}
-		const std::set<Unit*> potColl = o->potProjectileUnitColl(projectile);
-		for(std::set<Unit*>::const_iterator it = potColl.begin(); it != potColl.end(); ++it)
+		auto potColl = o->nearObjects(projectile.curr_position);
+		for(auto it = potColl.begin(); it != potColl.end(); ++it)
 		{
-			Unit* u = *it;
+			if ((*it)->type != OctreeObject::UNIT)
+				continue;
+
+			Unit* u = (Unit*) *it;
 			if(projectile.collides(*u))
 			{
 				bool shooterIsMonster = false;
@@ -564,12 +539,12 @@ void World::worldTick(int tickCount)
 	*/
 	
 	
-	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(150), FixedPoint(lvl.max_z()))));
+	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		tickUnit(iter->second, models[iter->first]);
-		o->insertUnit(&(iter->second));
+		o->insertObject(&(iter->second));
 	}
 	
 	
@@ -587,10 +562,7 @@ void World::worldTick(int tickCount)
 	}
 	
 	
-	std::vector<std::pair<Unit*,Unit*>> u2u;
-	o->potUnitUnitColl(u2u);
-	handleUnitUnitCollisions(u2u);
-	
+	o->doCollisions();
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{

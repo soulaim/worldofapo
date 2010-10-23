@@ -464,7 +464,7 @@ void Graphics::init()
 	cerr << "color_index location: " << color_index_location << endl;
 
 	
-	glLineWidth(5.0f);
+	glLineWidth(3.0f);
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
@@ -829,7 +829,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 
 	drawLevel(lvl, lights);
 	drawDebugLines();
-	drawHitboxes(units);
+	drawBoundingBoxes(units);
 	drawModels(models);
 	drawParticles();
 	drawOctree(o);
@@ -991,6 +991,7 @@ void Graphics::setHumanPositions(const std::vector<Location>& positions)
 void Graphics::drawBox(const Location& top, const Location& bot,
 	GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
 	glColor4f(r, g, b, a);
+	glLineWidth(1.0f);
 	glBegin(GL_LINES);
 	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
 	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
@@ -1034,14 +1035,14 @@ void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
 	}
 }
 
-void Graphics::drawHitboxes(const std::map<int,Unit>& units)
+void Graphics::drawBoundingBoxes(const std::map<int,Unit>& units)
 {
 	if (!drawDebuglines)
 		return;
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Unit& u = iter->second;
-		drawBox(u.hitbox_top(), u.hitbox_bot());
+		drawBox(u.bb_top(), u.bb_bot());
 	}
 }
 

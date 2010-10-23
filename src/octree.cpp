@@ -51,27 +51,27 @@ void Octree::split() {
 		}
 	}
 	hasChildren = true;
-	for(std::set<Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
-		insertUnit(*it);
+	for(auto it = units.begin(); it != units.end(); ++it) {
+		insertObject(*it);
 	}
 	units.clear();
 }
 
-void Octree::insertUnit(Unit* u)
+void Octree::insertObject(OctreeObject* o)
 {
 	if (!hasChildren) {
 		if (n >= MAX_OBJ && depth < MAX_DEPTH) {
 			split();
 			n = 0;
 		} else {
-			units.insert(u);
+			units.insert(o);
 			n += 1;
 			return;
 		}
 	}
 
-	Location top = u->hitbox_top();
-	Location bot = u->hitbox_bot();
+	Location top = o->bb_top();
+	Location bot = o->bb_bot();
 	int pos = 0;
 
 	if (bot.x <= center.x) pos |= BOT_X;
@@ -83,42 +83,57 @@ void Octree::insertUnit(Unit* u)
 	if (bot.z <= center.z) pos |= BOT_Z;
 	if (top.z >= center.z) pos |= TOP_Z;
 
-	if ((pos & BOT_X) && (pos & BOT_Y) && (pos & BOT_Z)) children[0][0][0]->insertUnit(u);
-	if ((pos & BOT_X) && (pos & BOT_Y) && (pos & TOP_Z)) children[0][0][1]->insertUnit(u);
-	if ((pos & BOT_X) && (pos & TOP_Y) && (pos & BOT_Z)) children[0][1][0]->insertUnit(u);
-	if ((pos & BOT_X) && (pos & TOP_Y) && (pos & TOP_Z)) children[0][1][1]->insertUnit(u);
-	if ((pos & TOP_X) && (pos & BOT_Y) && (pos & BOT_Z)) children[1][0][0]->insertUnit(u);
-	if ((pos & TOP_X) && (pos & BOT_Y) && (pos & TOP_Z)) children[1][0][1]->insertUnit(u);
-	if ((pos & TOP_X) && (pos & TOP_Y) && (pos & BOT_Z)) children[1][1][0]->insertUnit(u);
-	if ((pos & TOP_X) && (pos & TOP_Y) && (pos & TOP_Z)) children[1][1][1]->insertUnit(u);
+	if ((pos & BOT_X) && (pos & BOT_Y) && (pos & BOT_Z)) children[0][0][0]->insertObject(o);
+	if ((pos & BOT_X) && (pos & BOT_Y) && (pos & TOP_Z)) children[0][0][1]->insertObject(o);
+	if ((pos & BOT_X) && (pos & TOP_Y) && (pos & BOT_Z)) children[0][1][0]->insertObject(o);
+	if ((pos & BOT_X) && (pos & TOP_Y) && (pos & TOP_Z)) children[0][1][1]->insertObject(o);
+	if ((pos & TOP_X) && (pos & BOT_Y) && (pos & BOT_Z)) children[1][0][0]->insertObject(o);
+	if ((pos & TOP_X) && (pos & BOT_Y) && (pos & TOP_Z)) children[1][0][1]->insertObject(o);
+	if ((pos & TOP_X) && (pos & TOP_Y) && (pos & BOT_Z)) children[1][1][0]->insertObject(o);
+	if ((pos & TOP_X) && (pos & TOP_Y) && (pos & TOP_Z)) children[1][1][1]->insertObject(o);
 }
 
-const std::set<Unit*>& Octree::potProjectileUnitColl(const Projectile& p) const {
+const std::set<OctreeObject*>& Octree::nearObjects(const Location& p) const {
 	if (!hasChildren)
 		return units;
-	int x = (p.curr_position.x < center.x) ? 0 : 1;
-	int y = (p.curr_position.y < center.y) ? 0 : 1;
-	int z = (p.curr_position.z < center.z) ? 0 : 1;
-	return children[x][y][z]->potProjectileUnitColl(p);
+	int x = (p.x < center.x) ? 0 : 1;
+	int y = (p.y < center.y) ? 0 : 1;
+	int z = (p.z < center.z) ? 0 : 1;
+	return children[x][y][z]->nearObjects(p);
 }
 
-void Octree::potUnitUnitColl(std::vector<std::pair<Unit*, Unit*> >& l) const {
+std::vector<std::pair<OctreeObject*, OctreeObject*>> Octree::potUnitUnitColl() const {
+	std::vector<std::pair<OctreeObject*, OctreeObject*>> l;
 	getUnitUnitColl(l);
 	sort(l.begin(), l.end());
 	l.erase(std::unique(l.begin(), l.end()), l.end());
+	return l;
 }
 
-void Octree::getUnitUnitColl(std::vector<std::pair<Unit*, Unit*> >& l) const {
-	for(std::set<Unit*>::iterator u_it = units.begin(); u_it != units.end(); ++u_it) {
-		std::set<Unit*>::iterator u2_it = u_it;
+void Octree::getUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*> >& l) const {
+	for(auto u_it = units.begin(); u_it != units.end(); ++u_it) {
+		auto u2_it = u_it;
 		for(++u2_it; u2_it != units.end(); ++u2_it)
-			l.push_back(std::pair<Unit*,Unit*>(*u_it, *u2_it));
+			l.push_back(std::pair<OctreeObject*,OctreeObject*>(*u_it, *u2_it));
 	}
 
 	if (hasChildren)
 		for (int i = 0; i < 2; ++i)
 			for (int j = 0; j < 2; ++j)
 				for (int k = 0; k < 2; ++k)
-					children[i][j][k]->potUnitUnitColl(l);
+					children[i][j][k]->getUnitUnitColl(l);
+}
+
+void Octree::doCollisions() {
+	auto l = potUnitUnitColl();
+	for(auto it = l.begin(); it != l.end(); ++it)
+	{
+		auto o = it->first;
+		auto o2 = it->second;
+		if (Collision::boxBox(o->bb_bot(), o->bb_top(), o2->bb_bot(), o2->bb_top()))
+		{
+			o->collides(*o2);
+		}
+	}
 }
 
