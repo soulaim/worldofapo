@@ -1,18 +1,16 @@
 #include "skeletalmodel.h"
 #include "frustum/matrix4.h"
+#include "texturehandler.h"
 
 #include <fstream>
 #include <queue>
 #include <iomanip>
+#include <iostream>
 
-#include "glew/glew.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include "shaders.h"
 
 using namespace std;
 
-extern GLint unit_color_location;
-extern GLint color_index_location;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 void SkeletalModel::rotate_y(float angle)
@@ -33,6 +31,9 @@ bool SkeletalModel::load(const string& filename)
 	{
 		if(cmd == "MODEL")
 		{
+			vertices.clear();
+			weighted_vertices.clear();
+			texture_coordinates.clear();
 			bones.clear();
 			triangles.clear();
 		}
@@ -53,25 +54,54 @@ bool SkeletalModel::load(const string& filename)
 			}
 			bones.push_back(bone);
 		}
+		else if(cmd == "VERTEX")
+		{
+			Vec3 v;
+			in >> v.x >> v.y >> v.z;
+			vertices.push_back(v);
+		}
+		else if(cmd == "TEXTURE_COORDINATES")
+		{
+			TextureCoordinate tc;
+			in >> tc.x >> tc.y;
+			texture_coordinates.push_back(tc);
+		}
+		else if(cmd == "VERTEX_WEIGHTS")
+		{
+			WeightedVertex v;
+			in >> v.bone1 >> v.weight1;
+			in >> v.bone2 >> v.weight2;
+			weighted_vertices.push_back(v);
+		}
 		else if(cmd == "TRIANGLE")
 		{
-			WeightedTriangle wtriangle;
-			ObjectTri& triangle = wtriangle.triangle;
+			Triangle triangle;
 			for(size_t i = 0; i < 3; ++i)
 			{
-				in >> triangle.x[i] >> triangle.y[i] >> triangle.z[i];
+				in >> triangle.vertices[i];
+				if(triangle.vertices[i] >= vertices.size())
+				{
+					cerr << "Malformed: " << filename << endl;
+				}
 			}
-			triangles.push_back(wtriangle);
+			triangles.push_back(triangle);
 		}
-		else if(cmd == "TRIANGLE_WEIGHTS")
+		else
 		{
-			WeightedTriangle& wtriangle = triangles.back();
-			for(size_t i = 0; i < 3; ++i)
-			{
-				in >> wtriangle.bone1[i] >> wtriangle.weight1[i];
-				in >> wtriangle.bone2[i] >> wtriangle.weight2[i];
-			}
+			cerr << "Error loading skeleton model " << filename << " cmd = " << cmd << endl;
+			return false;
 		}
+	}
+	cerr << "Loaded model " << filename << " with " << vertices.size() << " vertices, " << weighted_vertices.size()
+		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
+		<< " triangles, and " << bones.size() << " bones." << endl;
+
+	size_t n = vertices.size();
+	if(texture_coordinates.size() != n || weighted_vertices.size() != n)
+	{
+		cerr << "Warning: incomplete skeleton model: " << filename << endl;
+		weighted_vertices.resize(n);
+		texture_coordinates.resize(n);
 	}
 
 	return true;
@@ -103,21 +133,31 @@ bool SkeletalModel::save(const string& filename) const
 	}
 	out << endl;
 
+	for(size_t i = 0; i < vertices.size(); ++i)
+	{
+		out << "VERTEX" << endl;
+		out << fixed << setprecision(3);
+		out << "    " << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << endl;
+
+		out << "TEXTURE_COORDINATES" << endl;
+		out << fixed << setprecision(3);
+		out << "    " << texture_coordinates[i].x << " " << texture_coordinates[i].y << endl;
+
+		out << "VERTEX_WEIGHTS" << endl;
+		out << fixed << setprecision(3);
+		out << "    " << weighted_vertices[i].bone1 << " " << weighted_vertices[i].weight1 << endl;
+		out << "    " << weighted_vertices[i].bone2 << " " << weighted_vertices[i].weight2 << endl;
+	}
+
 	for(size_t i = 0; i < triangles.size(); ++i)
 	{
-		const WeightedTriangle& wtriangle = triangles[i];
-		const ObjectTri& triangle = wtriangle.triangle;
 		out << "TRIANGLE" << endl;
+		out << "   ";
 		for(size_t j = 0; j < 3; ++j)
 		{
-			out << "    " << triangle.x[j] << " " << triangle.y[j] << " " << triangle.z[j] << endl;
+			out << " " << triangles[i].vertices[j];
 		}
-		out << "TRIANGLE_WEIGHTS" << endl;
-		for(size_t j = 0; j < 3; ++j)
-		{
-			out << "    " << wtriangle.bone1[j] << " " << wtriangle.weight1[j] << endl;
-			out << "    " << wtriangle.bone2[j] << " " << wtriangle.weight2[j] << endl;
-		}
+		out << endl;
 	}
 	return bool(out);
 }
@@ -157,11 +197,14 @@ void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<M
 
 void SkeletalModel::draw()
 {
-	draw(false, false);
+	draw(false, -1);
 }
 
 void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 {
+	glEnable(GL_TEXTURE_2D);
+	TextureHandler::getSingleton().bindTexture(texture_name);
+
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	calcMatrices(*this, Vec3(), 0, rotations, Matrix4(), animation_name, animation_time);
@@ -169,40 +212,42 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 	for(size_t i = 0; i < triangles.size(); ++i)
 	{
 		++TRIANGLES_DRAWN_THIS_FRAME;
-		const WeightedTriangle& wtriangle = triangles[i];
-		const ObjectTri& triangle = wtriangle.triangle;
 
 		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 1.0);
 
 		glBegin(GL_TRIANGLES);
-		for(int i = 0; i < 3; ++i)
+		for(int j = 0; j < 3; ++j)
 		{
-			const Matrix4& offset1 = rotations[wtriangle.bone1[i]];
-			const Matrix4& offset2 = rotations[wtriangle.bone2[i]];
-			float weight1 = wtriangle.weight1[i];
-			float weight2 = wtriangle.weight2[i];
-			Bone& bone1 = bones[wtriangle.bone1[i]];
-			Bone& bone2 = bones[wtriangle.bone2[i]];
+			size_t vi = triangles[i].vertices[j];
+			WeightedVertex& wv = weighted_vertices[vi];
 
-			Vec3 v1(triangle.x[i], triangle.y[i], triangle.z[i]);
+			const Matrix4& offset1 = rotations[wv.bone1];
+			const Matrix4& offset2 = rotations[wv.bone2];
+			float weight1 = wv.weight1;
+			float weight2 = wv.weight2;
+			Bone& bone1 = bones[wv.bone1];
+			Bone& bone2 = bones[wv.bone2];
+
+			Vec3 v1 = vertices[vi];
 			Vec3 vc1(bone1.start_x, bone1.start_y, bone1.start_z);
 			v1 -= vc1;
 
-			Vec3 v2(triangle.x[i], triangle.y[i], triangle.z[i]);
+			Vec3 v2 = vertices[vi];
 			Vec3 vc2(bone2.start_x, bone2.start_y, bone2.start_z);
 			v2 -= vc2;
 
 			Vec3 v = offset1 * v1 * weight1 + offset2 * v2 * weight2;
 
 
-			if(wtriangle.bone1[i] == hilight)
+			if(wv.bone1 == hilight)
 			{
 				glColor3f(0, 1, 1);
 			}
 			else
 			{
-				glColor3f(0.5*i, 0.5*i,0.5*i);
+				glColor3f(0.5*j, 0.5*j,0.5*j);
 			}
+			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
 			glVertex3f(v.x, v.y, v.z);
 		}
 		glEnd();
@@ -226,6 +271,7 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 //			cerr << i << " has start at " << line_start << "\n";
 		}
 	}
+	glDisable(GL_TEXTURE_2D);
 }
 
 

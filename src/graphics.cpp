@@ -1,6 +1,7 @@
 #include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
+#include "shaders.h"
 
 #include <iostream>
 #include <iomanip>
@@ -16,52 +17,7 @@ vector<Vec3> DOTS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
-GLint unit_color_location;
-GLint color_index_location;
-
 std::map<std::string, ObjectPart> Graphics::objects;
-
-
-char* file2string(const char *path);
-
-
-void printLog(GLuint obj)
-{
-	int infologLength = 0;
-	char infoLog[1024];
-	
-	if (glIsShader(obj))
-		glGetShaderInfoLog(obj, 1024, &infologLength, infoLog);
-	else
-		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
-	
-	if (infologLength > 0)
-		printf("%s\n", infoLog);
-}
-
-
-
-void Graphics::loadVertexShader(string name, string filename)
-{
-	const char* code = file2string(filename.c_str());
-	
-	shaders[name] = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(shaders[name], 1, &code, NULL);
-	glCompileShader(shaders[name]);
-	printLog(shaders[name]);
-}
-
-void Graphics::loadFragmentShader(string name, string filename)
-{
-	const char* code = file2string(filename.c_str());
-	
-	shaders[name] = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(shaders[name], 1, &code, NULL);
-	glCompileShader(shaders[name]);
-	printLog(shaders[name]);
-}
-
-
 
 float Graphics::modelGround(const Model& model)
 {
@@ -81,12 +37,12 @@ void Graphics::depthSortParticles(Vec3& d)
 void Graphics::initLight()
 {
 	lightsActive = false;
-	GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+	GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 	
-	GLfloat	light0ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
-	GLfloat	light0specular[ 4 ]	= {1.0f, .4f,  .4f, 1.0f};
-	GLfloat	light0diffuse[ 4 ]	= {0.8f, .3f,  .3f, 1.0f};
+	GLfloat light0ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
+	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
+	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
 	
 	glClearColor(0.0f,0.0f,0.0f,0.5f);
 	glClearDepth(1.0f);
@@ -105,13 +61,13 @@ void Graphics::toggleLightingStatus()
 {
 	if(lightsActive)
 	{
-		GLfloat	global_ambient[ 4 ]	= {0.f, 0.f,  0.f, 1.0f};
+		GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 		drawDebuglines = false;
 	}
 	else
 	{
-		GLfloat	global_ambient[ 4 ]	= {0.6f, 0.6f,  0.6f, 1.0f};
+		GLfloat global_ambient[ 4 ] = {0.6f, 0.6f,  0.6f, 1.0f};
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 		drawDebuglines = true;
 	}
@@ -131,12 +87,12 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
 		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
 		
-		p.max_life = 70;
-		p.cur_life = 70;
+		p.max_life = 40 + (rand() % 30);
+		p.cur_life = p.max_life;
 		
-		p.r = r;
-		p.g = g;
-		p.b = b;
+		p.r = r * ((rand() % 40) + 80) / 100;
+		p.g = g * ((rand() % 40) + 80) / 100;
+		p.b = b * ((rand() % 40) + 80) / 100;
 		
 		p.scale = scale;
 		
@@ -433,37 +389,8 @@ void Graphics::init()
 	
 	createWindow(); // let SDL handle this part..
 	
-	if(glewInit() == GLEW_OK)
-		cerr << "GLEW JIHUU :DD" << endl;
-	else
-		cerr << "GLEW VITYYY DD:" << endl;
-	
-	loadFragmentShader("level_frag", "shaders/level.fragment");
-	loadVertexShader("level_vert", "shaders/level.vertex");
-	
-	loadFragmentShader("unit_frag", "shaders/unit.fragment");
-	loadVertexShader("unit_vert", "shaders/unit.vertex");
-	
-	shaders["level_program"] = glCreateProgram();
-	glAttachShader(shaders["level_program"], shaders["level_frag"]);
-	glAttachShader(shaders["level_program"], shaders["level_vert"]);
-	glLinkProgram(shaders["level_program"]);
-	printLog(shaders["level_program"]);
-	
-	shaders["unit_program"] = glCreateProgram();
-	glAttachShader(shaders["unit_program"], shaders["unit_frag"]);
-	glAttachShader(shaders["unit_program"], shaders["unit_vert"]);
-	glLinkProgram(shaders["unit_program"]);
-	printLog(shaders["unit_program"]);
+	initShaders();
 
-	glUseProgram(shaders["unit_program"]);
-	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
-	color_index_location = glGetAttribLocation(shaders["unit_program"], "color_index" );
-	glUseProgram(0);
-	cerr << "unit_color location: " << unit_color_location << endl;
-	cerr << "color_index location: " << color_index_location << endl;
-
-	
 	glLineWidth(3.0f);
 	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
@@ -527,6 +454,84 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
+void drawNormal(const Level& lvl, int x, int z, int multiplier)
+{
+	Location n = lvl.getNormal(x, z) * 10;
+	Location start;
+	start.x = FixedPoint(int(x * multiplier));
+	start.y = lvl.getHeight(x * multiplier, z * multiplier);
+	start.z = FixedPoint(int(z * multiplier));
+	
+	Location end = start + n;
+	
+	glBegin(GL_LINES);
+	glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+	glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+	glEnd();
+	
+	glColor3f(1.0, 1.0, 1.0);
+}
+
+void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPoint& fpx, const FixedPoint& fpy, const FixedPoint& fpz)
+{
+	vector<int> indexes;
+	vector<FixedPoint> distances;
+
+	distances.resize(2, FixedPoint(40000));
+	indexes.resize(2, -1);
+
+	Location fixMe;
+	fixMe.x = fpx;
+	fixMe.y = fpy;
+	fixMe.z = fpz;
+
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	{
+		const LightObject& light = iter->second;
+		FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
+
+
+		if(lightDistance < distances[0])
+		{
+			distances[1] = distances[0];
+			indexes[1]   = indexes[0];
+
+			distances[0] = lightDistance;
+			indexes[0]  = iter->first;
+		}
+		else if(lightDistance < distances[1])
+		{
+			distances[1] = lightDistance;
+			indexes[1]  = iter->first;
+		}
+	}
+
+	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+	{
+		if(indexes[light_i] >= 0)
+		{
+			float rgb[4]; rgb[3] = 1.0f;
+			int light_key = indexes[light_i];
+			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+
+			Location pos = lightsContainer.find(light_key)->second.getPosition();
+
+			rgb[0] = pos.x.getFloat();
+			rgb[1] = pos.y.getFloat();
+			rgb[2] = pos.z.getFloat();
+
+			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+		}
+		else
+		{
+			float rgb[4] = { };
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+		}
+	}
+}
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
@@ -564,6 +569,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				
 				FixedPoint fpx(x);
 				FixedPoint fpz(z);
+				FixedPoint fpy( lvl.getHeight(fpx, fpz) );
 				fpx += FixedPoint(1,2);
 				fpz += FixedPoint(1,2);
 				fpx *= FixedPoint(multiplier);
@@ -571,96 +577,23 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 				semiAverage.x = multiplier * (x + 0.5f);
 				semiAverage.z = multiplier * (z + 0.5f);
-				semiAverage.y = lvl.getHeight(fpx, fpz).getFloat();
+				semiAverage.y = fpy.getFloat();
 				
 				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
 				{
-					
-					Location n;
-					
 					if(drawDebuglines)
 					{
-						n = lvl.getNormal(x, z) * 10;
-						Location start;
-						start.x = FixedPoint(int(x * multiplier));
-						start.y = lvl.getHeight(x * multiplier, z * multiplier);
-						start.z = FixedPoint(int(z * multiplier));
-						
-						Location end = start + n;
-						
-						glBegin(GL_LINES);
-						glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-						glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-						glEnd();
-						
-						glColor3f(1.0, 1.0, 1.0);
+						drawNormal(lvl, x, z, multiplier);
 					}
-					
-					
-					// set active lights
-					vector<int> indexes;
-					vector<FixedPoint> distances;
-					
-					distances.resize(2, FixedPoint(40000));
-					indexes.resize(2, -1);
-					
-					Location fixMe;
-					fixMe.x = fpx;
-					fixMe.y = lvl.getHeight(fpx, fpz);
-					fixMe.z = fpz;
-					
-					for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-					{
-						const LightObject& light = iter->second;
-						FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-						
-						
-						if(lightDistance < distances[0])
-						{
-							distances[1] = distances[0];
-							indexes[1]   = indexes[0];
-							
-							distances[0] = lightDistance;
-							indexes[0]  = iter->first;
-						}
-						else if(lightDistance < distances[1])
-						{
-							distances[1] = lightDistance;
-							indexes[1]  = iter->first;
-						}
-					}
-					
-					for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-					{
-						if(indexes[light_i] >= 0)
-						{
-							float rgb[4]; rgb[3] = 1.0f;
-							int light_key = indexes[light_i];
-							lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-							
-							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-							
-							Location pos = lightsContainer.find(light_key)->second.getPosition();
-							
-							rgb[0] = pos.x.getFloat();
-							rgb[1] = pos.y.getFloat();
-							rgb[2] = pos.z.getFloat();
-							
-							glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-						}
-						else
-						{
-							float rgb[4] = { };
-							glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-						}
-					}
-					
+
+					setActiveLights(lightsContainer, fpx, fpy, fpz);
 					
 					Vec3 A(multiplier * x, lvl.pointheight_info[x][z].getFloat(), multiplier * z);
 					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][z].getFloat(), multiplier * z);
 					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][z+1].getFloat(), multiplier * (z+1));
 					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][z+1].getFloat()  , multiplier * (z+1));
 					
+					Location n;
 					glBegin(GL_QUADS);
 					n=lvl.getNormal(x, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 					glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
@@ -873,10 +806,27 @@ void Graphics::bindCamera(Unit* unit)
 	camera.bind(unit, Camera::RELATIVE);
 }
 
+void Graphics::updateParticles()
+{
+	for(size_t i = 0; i < viewParticles.size(); ++i)
+	{
+		viewParticles[i].decrementLife();
+		if(!viewParticles[i].alive())
+		{
+			viewParticles[i] = viewParticles.back();
+			viewParticles.pop_back();
+			i--;
+			continue;
+		}
+		viewParticles[i].tick();
+	}
+}
+
 void Graphics::world_tick()
 {
 	// Don't draw anything here!
 	++world_ticks;
+	updateParticles();
 }
 
 void Graphics::tick()
@@ -897,22 +847,6 @@ void Graphics::tick()
 	velocity.x = FixedPoint(100,1000);
 	velocity.y = FixedPoint(900,1000);
 	velocity.z = FixedPoint(0);
-
-	
-	genParticles(position, velocity, 1, 0.5, 1.0, 0.9, 0.2, 0.2);
-	
-	for(size_t i = 0; i < viewParticles.size(); ++i)
-	{
-		viewParticles[i].decrementLife();
-		if(!viewParticles[i].alive())
-		{
-			viewParticles[i] = viewParticles.back();
-			viewParticles.pop_back();
-			i--;
-			continue;
-		}
-		viewParticles[i].tick();
-	}
 }
 
 void Graphics::toggleFullscreen()

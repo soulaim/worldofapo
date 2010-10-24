@@ -34,9 +34,6 @@ struct MenuButton;
 
 class Graphics
 {
-	GLfloat m[16]; // storage for OGL ModelView matrix
-	float terrainDrawn;
-	
 	void init();
 	void initLight();
 	
@@ -50,8 +47,8 @@ class Graphics
 	void drawModels(std::map<int, Model*>& models);
 	void drawDebugLines();
 	void updateCamera(const Level&);
+	void updateParticles();
 	void finishDrawing();
-
 
 	// HUD Stuff
 	void drawHUD();
@@ -75,8 +72,9 @@ class Graphics
 	std::vector<Location> humanPositions;
 	
 
-	void loadVertexShader(std::string name, std::string filename);
-	void loadFragmentShader(std::string name, std::string filename);
+	void loadVertexShader(const std::string& name, const std::string& filename);
+	void loadFragmentShader(const std::string& name, const std::string& filename);
+	void initShaders();
 
 
 	std::vector<Particle> viewParticles;

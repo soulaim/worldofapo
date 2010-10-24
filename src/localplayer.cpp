@@ -63,6 +63,7 @@ void Localplayer::init()
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
 	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
 	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
 }
 
 bool Localplayer::client_tick()
@@ -285,19 +286,19 @@ void Localplayer::handleWorldEvents()
 				ss << "hit" << x;
 				playSound(ss.str(), event.position);
 				
-				view->genParticles(event.position, event.velocity, 5*4, 0.3, 0.4f, 0.6f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 60, 0.7, 0.4f, 0.6f, 0.2f, 0.2f);
 				break;
 			}
 			case World::DAMAGE_DEVOUR:
 			{
 				playSound("hit0", event.position);
-				view->genParticles(event.position, event.velocity, 5*9, 0.7, 0.4f, 0.9f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 60, 1.5, 0.4f, 0.9f, 0.2f, 0.2f);
 				break;
 			}
 			case World::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.position);
-				view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 0.1f, 0.5f, 0.2f);
+				view->genParticles(event.position, event.velocity, 300, 2.0, 1.0f, 0.9f, 0.4f, 0.2f);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -308,7 +309,7 @@ void Localplayer::handleWorldEvents()
 			case World::DEATH_PLAYER:
 			{
 				playSound("player_death", event.position);
-				view->genParticles(event.position, event.velocity, 5*30, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+				view->genParticles(event.position, event.velocity, 300, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{

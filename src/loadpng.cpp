@@ -127,17 +127,8 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	
 	/* Allocate the image_data buffer. */
-	if ((image_data = (char *) malloc(rowbytes * height))==NULL) {
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-		return 4;
-	}
-	
-	if ((row_pointers = (png_bytepp)malloc(height*sizeof(png_bytep))) == NULL) {
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-		free(image_data);
-		image_data = NULL;
-		return 4;
-	}
+	image_data = new char[rowbytes * height];
+	row_pointers = new png_bytep[height];
 	
 	/* set the individual row_pointers to point at the correct offsets */
 	for (i = 0;  i < height;  ++i)
@@ -151,7 +142,7 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	* post-IDAT text/time/etc. is desired) */
 	
 	/* Clean up. */
-	free(row_pointers);
+	delete[] row_pointers;
 	
 	/* Clean up. */
 	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
@@ -161,3 +152,9 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	
 	return 1;
 }
+
+void pngUnload(char* data)
+{
+	delete[] data;
+}
+
