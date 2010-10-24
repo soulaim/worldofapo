@@ -19,10 +19,11 @@ public:
 	
 	MovableObject();
 	void movableEnable(int);
+	void applyGravity();
+	void tick(FixedPoint height);
 	
 	int flags;
 	
-	FixedPoint radius; // ??
 	Location position;
 	Location velocity;
 };

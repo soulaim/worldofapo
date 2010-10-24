@@ -188,8 +188,18 @@ void World::init()
 	_playerID_next_player = 0;
 
 	lvl.generate(50);
+	spawnMedikits(1000);
 	
 	show_errors = 0;
+}
+
+void World::spawnMedikits(int n)
+{
+	while (--n)
+	{
+		int id = nextUnitID();
+		medikits[id].position = lvl.getRandomLocation(n);
+	}
 }
 
 void World::terminate()
@@ -197,6 +207,7 @@ void World::terminate()
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 	
+	//medikits.clear();
 	units.clear();
 	models.clear();
 	projectiles.clear();
@@ -574,7 +585,14 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
 	
-	
+
+	for(auto it = medikits.begin(); it != medikits.end(); ++it)
+	{
+		Medikit& kit = it->second;
+		kit.tick(lvl.getHeight(kit.position.x, kit.position.z));
+		o->insertObject(&kit);
+	}
+
 	o->doCollisions();
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -708,6 +726,7 @@ void World::removeUnit(int id)
 {
 	units.erase(id);
 	projectiles.erase(id);
+	medikits.erase(id);
 	delete models[id];
 	models.erase(id);
 }

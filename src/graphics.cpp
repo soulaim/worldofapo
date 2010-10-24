@@ -821,7 +821,9 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
-void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o)
+void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<int,Unit>& units,
+	const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o,
+	const std::map<int, Medikit>& medikits)
 {
 	updateCamera(lvl);
 
@@ -829,6 +831,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 
 	drawLevel(lvl, lights);
 	drawDebugLines();
+	drawMedikits(medikits);
 	drawBoundingBoxes(units);
 	drawModels(models);
 	drawParticles();
@@ -841,6 +844,13 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 void Graphics::finishDrawing()
 {
 	SDL_GL_SwapBuffers();
+}
+
+void Graphics::drawMedikits(const std::map<int, Medikit>& medikits) {
+	for (auto it = medikits.begin(); it != medikits.end(); ++it) {
+		Medikit kit = it->second;
+		drawBox(kit.bb_top(), kit.bb_bot());
+	}
 }
 
 void Graphics::draw(std::map<int, Model*>& models, const std::string& status_message)

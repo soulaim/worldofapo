@@ -109,15 +109,20 @@ Location Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
-	if (o.type != OctreeObject::UNIT)
-		return;
-	Unit& u = (Unit&) o;
-	Location direction = (position - u.position);
-	direction.normalize();
-	direction *= FixedPoint(1, 5);
-	
-	velocity += direction;
-	u.velocity -= direction;
+	if (o.type == OctreeObject::UNIT)
+	{
+		Unit& u = (Unit&) o;
+		Location direction = (position - u.position);
+		direction.normalize();
+		direction *= FixedPoint(1, 5);
+		
+		velocity += direction;
+		u.velocity -= direction;
+	}
+	else if (o.type == OctreeObject::MEDIKIT)
+	{
+		hitpoints += 100;
+	}
 }
 
 bool Unit::operator<(const Unit& u) const {

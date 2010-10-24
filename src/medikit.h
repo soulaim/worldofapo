@@ -3,20 +3,15 @@
 
 #include <iostream>
 #include "octree_object.h"
+#include "movable_object.h"
 #include "location.h"
 
-class Medikit: public OctreeObject
+class Medikit: public OctreeObject, public MovableObject
 {
 public:
-	Medikit()
-	{
-		type = OctreeObject::MEDIKIT;
-		pos = Location(5, 5, 5);
-	};
-
-	Location pos;
-	Location bb_top();
-	Location bb_bot();
+	Medikit();
+	Location bb_top() const;
+	Location bb_bot() const;
 	void collides(OctreeObject&);
 };
 

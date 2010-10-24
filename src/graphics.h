@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "primitives.h"
 
+#include "medikit.h"
 #include "light_object.h"
 
 struct Level;
@@ -121,12 +122,15 @@ public:
 // 	
 	void setTime(unsigned);
 	
-	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o);
+	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
+		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o,
+		const std::map<int, Medikit>& medikits);
 	void draw(std::map<int, Model*>&, const std::string& status_message);
 	void drawMenu(std::vector<MenuButton>&);
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
+	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void toggleLightingStatus();
