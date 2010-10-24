@@ -64,6 +64,13 @@ int main()
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(14,23,32));
 	}
+	{
+		Matrix4 m1(0,0,0, 10,20,30);
+		Matrix4 m2(0,0,0, 3,4,5);
+		Vec3 v1(0, 0, 0);
+		Vec3 v2 = m1*m2*v1;
+		assertEqual(v2, Vec3(13,24,35));
+	}
 
 	// Rotate around X axis.
 	{
