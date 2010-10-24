@@ -535,84 +535,138 @@ void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPo
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
+	//glEnable(GL_TEXTURE_2D);
+	TextureHandler::getSingleton().bindTexture("grass");
 	
-	glEnable(GL_TEXTURE_2D);
-	// TextureHandler::getSingleton().bindTexture("grass");
+	// this should only be done at world ticks! not at draw ticks..
+	level_triangles.clear();
+	lvl.btt.getTriangles(level_triangles);
 	
 	int multiplier = 8;
 	
 	Vec3 semiAverage;
-	
-	const int textures_size = 3;
-	const char* textures[textures_size] = { "grass", "highground", "mountain" };
-	for(int i = 0; i < textures_size; ++i)
+	Vec3 points[3];
+	for(size_t k=0; k<level_triangles.size(); k++)
 	{
-		// Changing the active texture is avoided by drawing similar coordinates together.
-		TextureHandler::getSingleton().bindTexture(textures[i]);
-
-		for(size_t x=0; x < lvl.pointheight_info.size()-1; x++)
+		BTT_Triangle& tri = level_triangles[k];
+		
+		points[0].x = tri.points[0].x * multiplier;
+		points[0].z = tri.points[0].z * multiplier;
+		points[0].y = lvl.getHeight(points[0].x, points[0].z).getFloat();
+		
+		points[1].x = tri.points[1].x * multiplier;
+		points[1].z = tri.points[1].z * multiplier;
+		points[1].y = lvl.getHeight(points[1].x, points[1].z).getFloat();
+		
+		points[2].x = tri.points[2].x * multiplier;
+		points[2].z = tri.points[2].z * multiplier;
+		points[2].y = lvl.getHeight(points[2].x, points[2].z).getFloat();
+		
+		semiAverage = (points[0] + points[1] + points[2]) / 3;
+		float r = (semiAverage - points[0]).length();
+		
+		if(frustum.sphereInFrustum(semiAverage, r) != FrustumR::OUTSIDE)
 		{
-			for(size_t z=0; z < lvl.pointheight_info[x].size()-1; z++)
+			Location n;
+			
+			if(drawDebuglines)
 			{
-				// These estimates ARE PRECALCULATED! The environment can still be changed dynamically with lvl.updateHeight(x, y, h);
-				FixedPoint h_diff = lvl.getHeightDifference(x, z);
-				int lololol = -1;
-				if(h_diff < FixedPoint(35, 10))
-					lololol = 0;
-				else if(h_diff < FixedPoint(10))
-					lololol = 1;
-				else
-					lololol = 2;
+				n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
+				Location start;
+				start.x = FixedPoint(int(points[0].x));
+				start.y = lvl.getHeight(points[0].x, points[0].z);
+				start.z = FixedPoint(int(points[0].z));
 				
-				if(lololol != i)
-					continue;
+				Location end = start + n;
 				
-				FixedPoint fpx(x);
-				FixedPoint fpz(z);
-				FixedPoint fpy( lvl.getHeight(fpx, fpz) );
-				fpx += FixedPoint(1,2);
-				fpz += FixedPoint(1,2);
-				fpx *= FixedPoint(multiplier);
-				fpz *= FixedPoint(multiplier);
-
-				semiAverage.x = multiplier * (x + 0.5f);
-				semiAverage.z = multiplier * (z + 0.5f);
-				semiAverage.y = fpy.getFloat();
+				glBegin(GL_LINES);
+				glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+				glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+				glEnd();
 				
-				if(frustum.sphereInFrustum(semiAverage, h_diff.getFloat() + multiplier * 1.f) != FrustumR::OUTSIDE)
+				glColor3f(1.0, 1.0, 1.0);
+			}
+			
+			lightsContainer.empty();
+			
+			/*
+			
+			// set active lights
+			vector<int> indexes;
+			vector<FixedPoint> distances;
+			
+			distances.resize(2, FixedPoint(40000));
+			indexes.resize(2, -1);
+			
+			Location fixMe;
+			fixMe.x = int(semiAverage.x);
+			fixMe.y = 10;
+			fixMe.z = int(semiAverage.z);
+			
+			for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+			{
+				const LightObject& light = iter->second;
+				FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
+				
+				if(lightDistance < distances[0])
 				{
-					if(drawDebuglines)
-					{
-						drawNormal(lvl, x, z, multiplier);
-					}
-
-					setActiveLights(lightsContainer, fpx, fpy, fpz);
+					distances[1] = distances[0];
+					indexes[1]   = indexes[0];
 					
-					Vec3 A(multiplier * x, lvl.pointheight_info[x][z].getFloat(), multiplier * z);
-					Vec3 B(multiplier * (x+1), lvl.pointheight_info[x+1][z].getFloat(), multiplier * z);
-					Vec3 C(multiplier * (x+1) , lvl.pointheight_info[x+1][z+1].getFloat(), multiplier * (z+1));
-					Vec3 D(multiplier * (x)   , lvl.pointheight_info[x][z+1].getFloat()  , multiplier * (z+1));
-					
-					Location n;
-					glBegin(GL_QUADS);
-					n=lvl.getNormal(x, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-					glTexCoord2f(0.f, 0.0f); glVertex3f( A.x, A.y, A.z );
-					
-					n=lvl.getNormal(x+1, z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-					glTexCoord2f(1.f, 0.0f); glVertex3f( B.x, B.y, B.z );
-					
-					n=lvl.getNormal(x+1, z+1); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-					glTexCoord2f(1.f, 1.0f); glVertex3f( C.x, C.y, C.z );
-					
-					n=lvl.getNormal(x, z+1); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-					glTexCoord2f(0.f, 1.0f); glVertex3f( D.x, D.y, D.z );
-					glEnd();
-					++QUADS_DRAWN_THIS_FRAME;
+					distances[0] = lightDistance;
+					indexes[0]  = iter->first;
+				}
+				else if(lightDistance < distances[1])
+				{
+					distances[1] = lightDistance;
+					indexes[1]  = iter->first;
 				}
 			}
+			
+			for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+			{
+				if(indexes[light_i] >= 0)
+				{
+					float rgb[4]; rgb[3] = 1.0f;
+					int light_key = indexes[light_i];
+					lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+					
+					glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+					
+					Location pos = lightsContainer.find(light_key)->second.getPosition();
+					
+					rgb[0] = pos.x.getFloat();
+					rgb[1] = pos.y.getFloat();
+					rgb[2] = pos.z.getFloat();
+					
+					glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+				}
+				else
+				{
+					float rgb[4] = { };
+					glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+				}
+			}
+			
+			*/
+			
+			// TODO: Terrain texture
+			glBegin(GL_TRIANGLES);
+			n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+			glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
+			
+			n=lvl.getNormal(tri.points[1].x, tri.points[1].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+			glTexCoord2f(1.f, 0.0f); glVertex3f( points[1].x, points[1].y, points[1].z );
+			
+			n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+			glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
+			glEnd();
+			
+			++TRIANGLES_DRAWN_THIS_FRAME;
+			
 		}
 	}
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	
