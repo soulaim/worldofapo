@@ -1,7 +1,9 @@
 
 #include "movable_object.h"
 
-MovableObject::MovableObject()
+MovableObject::MovableObject():
+	flags(0),
+	dead(false)
 {
 }
 
@@ -15,8 +17,11 @@ void MovableObject::applyGravity()
 	velocity.y -= FixedPoint(35,1000);
 }
 
-void MovableObject::tick(FixedPoint height)
+int MovableObject::tick(FixedPoint height)
 {
+	if (dead)
+		return true;
+
 	if (flags & AFFECTED_BY_GRAVITY_BIT)
 		applyGravity();
 
@@ -26,5 +31,7 @@ void MovableObject::tick(FixedPoint height)
 		velocity.y = 0;
 	}
 	position += velocity;
+
+	return false;
 }
 

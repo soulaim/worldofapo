@@ -589,7 +589,8 @@ void World::worldTick(int tickCount)
 	for(auto it = medikits.begin(); it != medikits.end(); ++it)
 	{
 		Medikit& kit = it->second;
-		kit.tick(lvl.getHeight(kit.position.x, kit.position.z));
+		if (kit.tick(lvl.getHeight(kit.position.x, kit.position.z)))
+			deadUnits.push_back(it->first);
 		o->insertObject(&kit);
 	}
 

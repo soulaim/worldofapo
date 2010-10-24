@@ -125,6 +125,8 @@ void Unit::collides(OctreeObject& o)
 	}
 	else if (o.type == OctreeObject::MEDIKIT)
 	{
+		MovableObject& m = (MovableObject&) o;
+		m.dead = true;
 		hitpoints += 100;
 	}
 }
