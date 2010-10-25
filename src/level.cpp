@@ -249,22 +249,15 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const FixedPoint& C = pointheight_info[x_index][z_index+1];
 	const FixedPoint& D = pointheight_info[x_index+1][z_index+1];
 	
-	/*
 	if((z_index + x_index) & 1)
 	{
 		if(x_desimal < z_desimal)
 		{
 			// working in upper triangle (CDA)
-			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
 		}
 		else
 		{
 			// working in lower triangle (ABD)
-			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
 		}
 	}
 	else
@@ -272,20 +265,14 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 		if(FIXED_POINT_ONE - x_desimal < z_desimal)
 		{
 			// upper triangle (CDB)
-			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
 		}
 		else
 		{
 			// lower triangle (ABC)
-			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
 		}
 	}
-	*/
 	
+	/*
 	FixedPoint remainder_x = x - FixedPoint(x_index << 3);
 	FixedPoint remainder_z = z - FixedPoint(z_index << 3);
 	
@@ -295,6 +282,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	FixedPoint height_value;
 	height_value = bot_val + (top_val - bot_val) * remainder_z / FixedPoint(8);
 	return height_value;
+	*/
 }
 
 
