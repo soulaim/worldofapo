@@ -3,29 +3,24 @@
 
 #include <ostream>
 #include <istream>
-
-// for square root message only
 #include <iostream>
-
-// for debugging
 #include <cassert>
-
-#define FIXED_POINT_ONE 1000
-
 
 class FixedPoint
 {
 	long long number;
+	enum { FIXED_POINT_ONE = 1000 };
 
 public:
 	static const FixedPoint ZERO;
+
 
 	FixedPoint(const FixedPoint& a):
 		number(a.number)
 	{
 	}
 	FixedPoint(int a, int b = 1):
-	number( (a * FIXED_POINT_ONE) / b )
+		number( (a * FIXED_POINT_ONE) / b )
 	{
 	}
 

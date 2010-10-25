@@ -267,12 +267,18 @@ struct BTT_Node
 			int sqr_dist = (avg.x - x)*(avg.x - x) + (avg.z - z)*(avg.z - z);
 			*/
 			
-			FixedPoint error = var_tree[myIndex];
+			FixedPoint error;
 			if(myIndex >= var_tree.size())
 			{
 				BTT_Point mid = p_left + p_right;
 				mid /= 2;
 				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2);
+				if(error < 0)
+					error = -error;
+			}
+			else
+			{
+				error = var_tree[myIndex];
 			}
 			
 			if(error > FixedPoint(0))
