@@ -1,10 +1,24 @@
 CXXFLAGS = -O0 -g -Wall
 
-all:
-	g++ matrixtest.cpp $(CXXFLAGS) ../frustum/Vec3.cpp ../frustum/matrix4.cpp -o matrixtest
-	g++ point_in_line.cpp $(CXXFLAGS) ../fixed_point.cpp ../location.cpp ../algorithms.cpp ../apomath.cpp -o pointlinetest
-	g++ fixedpointtest.cpp $(CXXFLAGS) ../apomath.cpp -o fixedpointtest
-	g++ squareroot_and_crossproduct.cpp $(CXXFLAGS) ../fixed_point.cpp ../location.cpp -o squareroot_and_crossproduct
-#	g++ socket_test.cpp $(CXXFLAGS) ../net/socket.cpp ../net/socket_handler.cpp -o socket_test
-	g++ btt_test.cpp $(CXXFLAGS) -o btt_test
+targets= \
+	matrixtest \
+	point_in_line \
+	fixedpointtest \
+	squareroot_and_crossproduct \
+	interpolationtest \
+#	socket_test \
+#	btt_test \
+
+all: $(targets)
+
+matrixtest: matrixtest.cpp ../frustum/Vec3.cpp ../frustum/matrix4.cpp test.h
+point_in_line: point_in_line.cpp ../fixed_point.cpp ../location.cpp ../algorithms.cpp ../apomath.cpp
+fixedpointtest: fixedpointtest.cpp ../apomath.cpp
+squareroot_and_crossproduct: squareroot_and_crossproduct.cpp ../fixed_point.cpp ../location.cpp
+socket_test: socket_test.cpp ../net/socket.cpp ../net/socket_handler.cpp
+btt_test: btt_test.cpp
+interpolationtest: interpolationtest.cpp ../frustum/Vec3.cpp ../location.cpp ../fixed_point.cpp test.h ../level.cpp
+
+clean:
+	$(RM) $(targets)
 

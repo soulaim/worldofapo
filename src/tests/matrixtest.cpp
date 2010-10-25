@@ -1,28 +1,11 @@
 #include "../frustum/matrix4.h"
+#include "test.h"
 
 #include <cassert>
 #include <iostream>
 #include <cmath>
 
 using namespace std;
-
-const float epsilon = 0.0001;
-
-bool equal(const Vec3& a, const Vec3& b)
-{
-	return (a - b).lengthSquared() < epsilon;
-}
-
-template<typename T>
-void checkEqual(const T& a, const T& b, int line)
-{
-	if(!equal(a, b))
-	{
-		cout << "FAIL line " << line << ": got " << a << " != " << b << " expected.\n";
-	}
-}
-
-#define assertEqual(a,b) checkEqual(a,b, __LINE__)
 
 int main()
 {
@@ -63,6 +46,13 @@ int main()
 		Vec3 v1(4, 3, 2);
 		Vec3 v2 = m*v1;
 		assertEqual(v2, Vec3(14,23,32));
+	}
+	{
+		Matrix4 m1(0,0,0, 10,20,30);
+		Matrix4 m2(0,0,0, 3,4,5);
+		Vec3 v1(0, 0, 0);
+		Vec3 v2 = m1*m2*v1;
+		assertEqual(v2, Vec3(13,24,35));
 	}
 
 	// Rotate around X axis.

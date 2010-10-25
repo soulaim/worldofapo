@@ -27,6 +27,7 @@ std::string green(const std::string& s)
 Editor::Editor()
 {
 	drawing_model = true;
+	drawing_skeleton = true;
 	skele = false;
 	speed = 0.1f;
 	rotate_speed = 45.0f/2.0f;
@@ -132,17 +133,28 @@ void Editor::start()
 		}
 
 		view.startDrawing();
+		map<int, Model*> models;
 		if(skele)
 		{
-			skeletal_model.draw(!drawing_model, selected_part);
+			if(drawing_skeleton)
+			{
+				skeletal_model.draw(true, selected_part);
+			}
+			if(drawing_model)
+			{
+//				skeletal_model.draw(false, selected_part);
+				models[0] = &skeletal_model;
+			}
 		}
 		else
 		{
 			if(drawing_model)
 			{
-				edited_model.draw();
+//				edited_model.draw();
+				models[0] = &edited_model;
 			}
 		}
+		view.drawModels(models);
 		view.drawDebugLines();
 		view.drawMessages();
 		view.drawString(message, -0.9, 0.9, 1.5, true);
@@ -1002,6 +1014,10 @@ void Editor::handle_input()
 		else if(key == "f6")
 		{
 			drawing_model = !drawing_model;
+		}
+		else if(key == "f7")
+		{
+			drawing_skeleton = !drawing_skeleton;
 		}
 		else if(key == "f11")
 		{

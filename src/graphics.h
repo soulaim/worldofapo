@@ -44,14 +44,15 @@ class Graphics
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
-	// void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	
 	void drawModels(std::map<int, Model*>& models);
-	void drawDebugLines();
 	void updateCamera(const Level&);
 	void updateParticles();
 	void finishDrawing();
+
+	void drawDebugHeightDots(const Level& lvl);
+	void drawDebugLines();
 
 	// HUD Stuff
 	void drawHUD();

@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "frustum/matrix4.h"
 
 const double head_level = 6.0;
 
@@ -61,10 +62,18 @@ void Camera::tick()
 {
 	if(unit)
 	{
-		if (mode == RELATIVE)
+		if(mode == RELATIVE)
+		{
 			relativeTick();
-		else if (mode == FIRST_PERSON)
+		}
+		else if(mode == FIRST_PERSON)
+		{
 			fpsTick();
+		}
+		else
+		{
+			staticTick();
+		}
 	}
 }
 
@@ -86,40 +95,23 @@ bool Camera::isFirstPerson() const
 
 void Camera::updateInput(int keystate)
 {
-	// f11? dont fuck up everything permanently, when the user makes the mistake of trying this button out..
-	/*
-	if(keystate & 1 << 11)
+	if(mode == STATIC)
 	{
-		position = Vec3();
+		Vec3 delta = (currentTarget - currentPosition);
+		delta.normalize();
+		delta *= position.length() / 30.0;
+		if(keystate & 4)
+		{
+			currentPosition += delta;
+			currentTarget += delta;
+		}
+		if(keystate & 8)
+		{
+			currentPosition -= delta;
+			currentTarget -= delta;
+		}
 	}
-	*/
-	
-	/*
-	if(keystate & 1 << 12)
-	{
-		position.x += 1;
-	}
-	if(keystate & 1 << 13)
-	{
-		position.x -= 1;
-	}
-	if(keystate & 1 << 14)
-	{
-		position.y += 1;
-	}
-	if(keystate & 1 << 15)
-	{
-		position.y -= 1;
-	}
-	if(keystate & 1 << 16)
-	{
-		position.z += 1;
-	}
-	if(keystate & 1 << 17)
-	{
-		position.z -= 1;
-	}
-	*/
+
 	if(keystate & 1 << 18)
 	{
 		setMode(Camera::RELATIVE);
@@ -127,6 +119,12 @@ void Camera::updateInput(int keystate)
 	if(keystate & 1 << 19)
 	{
 		setMode(Camera::FIRST_PERSON);
+	}
+	if(keystate & 1 << 11)
+	{
+		Vec3 position = getPosition();
+		setMode(Camera::STATIC);
+		currentPosition = position;
 	}
 }
 
@@ -162,6 +160,17 @@ void Camera::fpsTick()
 	fps_direction.z -= relative_position.z;
 }
 
+void Camera::staticTick()
+{
+	ApoMath math;
+	double angle1 = math.getDegrees(unit->angle);
+	double angle2 = math.getDegrees(unit->upangle) + 90;
+	Matrix4 rotation1(0, angle1, 0, 0,0,0);
+	Matrix4 rotation2(0, 0, angle2, 0,0,0);
+
+	currentTarget = currentPosition + rotation1 * rotation2 * position;
+}
+
 void Camera::relativeTick()
 {
 	ApoMath math;
@@ -195,7 +204,7 @@ void Camera::relativeTick()
 
 void Camera::zoomIn()
 {
-	if(mode == RELATIVE)
+	if(mode == RELATIVE || mode == STATIC)
 	{
 		if(position.length() > 1.0)
 		{
@@ -206,7 +215,7 @@ void Camera::zoomIn()
 
 void Camera::zoomOut()
 {
-	if(mode == RELATIVE)
+	if(mode == RELATIVE || mode == STATIC)
 	{
 		if(position.length() < 100.0)
 		{
