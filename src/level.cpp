@@ -9,6 +9,26 @@ using namespace std;
 // level size should be ((2^n) + 1) because binary triangle trees work best then.
 #define LEVEL_LVLSIZE 129
 
+void interpolate(const Location& A, const Location& B, const Location& C, Location& p)
+{
+	Location direction1 = B - A;
+	Location direction2 = C - A;
+
+	// A + t*(direction1) + u*(direction2) = p;
+	//
+	// or in other words:
+	//
+	// t*(direction11.x) + u*(direction2.x) = p.x - A.x
+	// t*(direction11.z) + u*(direction2.z) = p.z - A.z
+	//
+	// Solution for t and u is:
+	FixedPoint t = ( direction2.x * (p.z - A.z) - direction2.z * (p.x - A.x) ) / ( direction2.x * direction1.z - direction1.x * direction2.z  );
+	FixedPoint u = ( direction1.x * (p.z - A.z) - direction1.z * (p.x - A.x) ) / ( direction1.x * direction2.z - direction2.x * direction1.z  );
+
+	p = A + direction1 * t + direction2 * u;
+}
+
+
 Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
 	fpZero = FixedPoint(0);
