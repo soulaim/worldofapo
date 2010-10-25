@@ -55,6 +55,7 @@ private:
 
 	void fpsTick();
 	void relativeTick();
+	void staticTick();
 };
 
 #endif
