@@ -82,7 +82,7 @@ bool Localplayer::client_tick()
 			
 			game.TICK();
 
-			view->world_tick();
+			view->world_tick(world.lvl);
 			handleWorldEvents();
 			
 			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)

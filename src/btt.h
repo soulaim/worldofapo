@@ -247,11 +247,23 @@ struct BTT_Node
 	{
 		// lets just try something simple first.
 		
-		if( (h_diffs.size() - 1) )
+		static int taulukko1[] = {0, 1, 2, 0, 3, 0, 0, 0, 4};
+		static int taulukko2[] = {0, 5, 6, 0, 7, 0, 0, 0, 8};
+		static int taulukko3[] = {0, 9, 10, 0, 11, 0, 0, 0, 12};
+		static int taulukko4[] = {0, 13, 14, 0, 15, 0, 0, 0, 16};
 		
-		if(myLod > 14)
+		int number = (h_diffs.size() - 1);
+		
+		int bitti = 0;
+		bitti += taulukko1[number & (1 | 2 | 4 | 8)];
+		bitti += taulukko2[(number >> 4) & (1 | 2 | 4 | 8)];
+		bitti += taulukko3[(number >> 8) & (1 | 2 | 4 | 8)];
+		bitti += taulukko4[(number >> 12) & (1 | 2 | 4 | 8)];
+		
+		assert(bitti < 12);
+		
+		if(myLod > ((bitti - 1) * 2))
 		{
-			
 			return;
 		}
 		
@@ -272,7 +284,6 @@ struct BTT_Node
 			// if player character in triangle, split
 			
 			
-			
 			FixedPoint error;
 			if(myIndex >= var_tree.size())
 			{
@@ -281,9 +292,11 @@ struct BTT_Node
 				error = (h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2)) .abs();
 			}
 			else
+			{
 				error = var_tree[myIndex];
+			}
 			
-			if(error > FixedPoint(1, 10))
+			if(error > FixedPoint(0))
 			{
 				split();
 				left_child->doSplitting(var_tree, h_diffs, myIndex * 2);

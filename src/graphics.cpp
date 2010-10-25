@@ -599,10 +599,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	//glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture("grass");
 	
-	// this should only be done at world ticks! not at draw ticks..
-	level_triangles.clear();
-	lvl.btt.getTriangles(level_triangles);
-	
 	int multiplier = 8;
 	
 	Vec3 semiAverage;
@@ -924,11 +920,14 @@ void Graphics::updateParticles()
 	}
 }
 
-void Graphics::world_tick()
+void Graphics::world_tick(const Level& lvl)
 {
 	// Don't draw anything here!
 	++world_ticks;
 	updateParticles();
+	
+	level_triangles.clear();
+	lvl.btt.getTriangles(level_triangles);
 }
 
 void Graphics::tick()

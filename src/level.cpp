@@ -262,8 +262,8 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	if(z_index < 1 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	
-	int x_desimal = ((x.getInteger() % 8) * FIXED_POINT_ONE + x.getDesimal()) / 8;
-	int z_desimal = ((z.getInteger() % 8) * FIXED_POINT_ONE + z.getDesimal()) / 8;
+	FixedPoint x_desimal = (x - x_index * 8) / 8;
+	FixedPoint z_desimal = (z - z_index * 8) / 8;
 	
 	const FixedPoint& A = pointheight_info[x_index][z_index];
 	const FixedPoint& B = pointheight_info[x_index+1][z_index];
@@ -280,7 +280,8 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const Location* p2 = 0;
 	const Location* p3 = 0;
 	
-	if((z_index + x_index) & 1)
+	
+	// if((z_index + x_index) & 1)
 	{
 		p1 = &pD;
 		p2 = &pA;
@@ -295,11 +296,13 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pB;
 		}
 	}
+	/*
 	else
 	{
+	
 		p1 = &pB;
 		p2 = &pC;
-		if(FIXED_POINT_ONE - x_desimal < z_desimal)
+		if(FixedPoint(1) - x_desimal < z_desimal)
 		{
 			// upper triangle (CDB)
 			p3 = &pD;
@@ -310,6 +313,8 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pA;
 		}
 	}
+	*/
+	
 	Location p(x, 0, z);
 	interpolate(*p1, *p2, *p3, p);
 	return p.y;
