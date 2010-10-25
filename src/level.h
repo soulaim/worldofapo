@@ -18,6 +18,7 @@ struct Level
 	
 	void generate(int);
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
+	const FixedPoint& getVertexHeight(const int& x, const int& z) const;
 	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int);
