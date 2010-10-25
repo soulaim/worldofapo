@@ -61,10 +61,13 @@ Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 void Level::buildVarianceTree()
 {
 	variance_tree.resize(2048, FixedPoint(0));
-	cerr << "Maximum encountered variance error: " << btt.buildVarianceTree(pointheight_info, variance_tree) << endl;
+	FixedPoint max_error = btt.buildVarianceTree(pointheight_info, variance_tree);
+	cerr << "Maximum encountered variance error: " << max_error << endl;
 	
 	for(int i=1; i<256; i++)
-		cerr << variance_tree[i] << endl;
+	{
+//		cerr << variance_tree[i] << endl;
+	}
 	
 	btt.doSplit(pointheight_info, variance_tree);
 	btt.draw(5, 5);
@@ -72,7 +75,7 @@ void Level::buildVarianceTree()
 	vector<BTT_Triangle> tris;
 	
 	btt.getTriangles(tris);
-	cerr << "There are like, about " << tris.size() << " triangles in this shit" << endl;
+	cerr << "There is " << tris.size() << " triangles in BTT" << endl;
 }
 
 
@@ -251,70 +254,64 @@ const FixedPoint& Level::getVertexHeight(const int& x, const int& z) const
 
 FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
-	// Division by eight.
-	int x_index = x.getInteger() >> 3;
-	int z_index = z.getInteger() >> 3;
+	int x_index = x.getInteger() / 8;
+	int z_index = z.getInteger() / 8;
 
-	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+	if(x_index < 1 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
-	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+	if(z_index < 1 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	
-	int x_desimal = ((x.getInteger() & 7) * FIXED_POINT_ONE + x.getDesimal()) >> 3;
-	int z_desimal = ((z.getInteger() & 7) * FIXED_POINT_ONE + z.getDesimal()) >> 3;
+	int x_desimal = ((x.getInteger() % 8) * FIXED_POINT_ONE + x.getDesimal()) / 8;
+	int z_desimal = ((z.getInteger() % 8) * FIXED_POINT_ONE + z.getDesimal()) / 8;
 	
 	const FixedPoint& A = pointheight_info[x_index][z_index];
 	const FixedPoint& B = pointheight_info[x_index+1][z_index];
 	
 	const FixedPoint& C = pointheight_info[x_index][z_index+1];
 	const FixedPoint& D = pointheight_info[x_index+1][z_index+1];
+
+	Location pA(8*x_index,     A, 8*z_index);
+	Location pB(8*(x_index+1), B, 8*z_index);
+	Location pC(8*x_index,     C, 8*(z_index+1));
+	Location pD(8*(x_index+1), D, 8*(z_index+1));
+	const Location* p1 = 0;
+	const Location* p2 = 0;
+	const Location* p3 = 0;
 	
-	/*
-	if((z_index + x_index) & 1)
+	if((z_index + x_index) % 2)
 	{
+		p1 = &pD;
+		p2 = &pA;
 		if(x_desimal < z_desimal)
 		{
 			// working in upper triangle (CDA)
-			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
+			p3 = &pC;
 		}
 		else
 		{
 			// working in lower triangle (ABD)
-			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
+			p3 = &pB;
 		}
 	}
 	else
 	{
+		p1 = &pB;
+		p2 = &pC;
 		if(FIXED_POINT_ONE - x_desimal < z_desimal)
 		{
 			// upper triangle (CDB)
-			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
+			p3 = &pD;
 		}
 		else
 		{
 			// lower triangle (ABC)
-			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
-			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
-			return (y_from_x + y_from_z);
+			p3 = &pA;
 		}
 	}
-	*/
-	
-	FixedPoint remainder_x = x - FixedPoint(x_index << 3);
-	FixedPoint remainder_z = z - FixedPoint(z_index << 3);
-	
-	FixedPoint top_val = C + (D - C) * remainder_x / FixedPoint(8);
-	FixedPoint bot_val = A + (B - A) * remainder_x / FixedPoint(8);
-	
-	FixedPoint height_value;
-	height_value = bot_val + (top_val - bot_val) * remainder_z / FixedPoint(8);
-	return height_value;
+	Location p(x, 0, z);
+	interpolate(*p1, *p2, *p3, p);
+	return p.y;
 }
 
 

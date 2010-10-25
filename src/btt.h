@@ -272,7 +272,7 @@ struct BTT_Node
 			{
 				BTT_Point mid = p_left + p_right;
 				mid /= 2;
-				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z]) / FixedPoint(2);
+				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2);
 			}
 			
 			if(error > FixedPoint(0))
@@ -308,7 +308,8 @@ struct BTT_Node
 		
 		BTT_Point mid = p_left + p_right;
 		mid /= 2;
-		var_tree[myIndex] = h_diffs[mid.x][mid.z] - ((h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z])) / FixedPoint(2);
+		FixedPoint error = h_diffs[mid.x][mid.z] - ((h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z])) / FixedPoint(2);
+		var_tree[myIndex] = error;
 		
 		if(var_tree[myIndex] < FixedPoint(0))
 			var_tree[myIndex] *= -1;
