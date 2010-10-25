@@ -3,6 +3,7 @@
 #ifndef H_QUADTREE_TERRAIN
 #define H_QUADTREE_TERRAIN
 
+#include "fixed_point.h"
 #include <iostream>
 #include <vector>
 
@@ -54,7 +55,7 @@ struct BTT_Node
 	{
 	}
 	
-	bool hasChildren()
+	bool hasChildren() const
 	{
 		if(left_child == 0)
 			return false;
@@ -135,7 +136,6 @@ struct BTT_Node
 	{
 		if(hasChildren())
 		{
-			cerr << "cannot split more than once!" << endl;
 			return;
 		}
 		
@@ -213,7 +213,7 @@ struct BTT_Node
 	}
 	
 	
-	void getTriangles(std::vector<BTT_Triangle>& triangles)
+	void getTriangles(std::vector<BTT_Triangle>& triangles) const
 	{
 		if(!hasChildren())
 		{
@@ -243,44 +243,46 @@ struct BTT_Node
 		}
 	}
 	
-	void doSplitting(int x, int z)
+	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex)
 	{
 		// lets just try something simple first.
-		
-		if(myLod > 10)
+		if(myLod > 14)
 		{
 			return;
 		}
 		
 		if(hasChildren())
 		{
-			left_child->doSplitting(x, z);
-			right_child->doSplitting(x, z);
+			left_child->doSplitting(var_tree, h_diffs, myIndex * 2);
+			right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1);
 			return;
 		}
 		else
 		{
 			// ok, so when do I need to split?
+			
+			/*
 			BTT_Point avg = p_top + p_left + p_right;
 			avg /= 3;
-			
 			int sqr_dist = (avg.x - x)*(avg.x - x) + (avg.z - z)*(avg.z - z);
-			if(myLod < 4)
+			*/
+			
+			FixedPoint error = var_tree[myIndex];
+			if(myIndex >= var_tree.size())
 			{
-				split();
-				left_child->doSplitting(x, z);
-				right_child->doSplitting(x, z);
-			}
-			else if(sqr_dist < 250)
-			{
-				split();
-				left_child->doSplitting(x, z);
-				right_child->doSplitting(x, z);
+				BTT_Point mid = p_left + p_right;
+				mid /= 2;
+				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z]) / FixedPoint(2);
 			}
 			
+			if(error > FixedPoint(0))
+			{
+				split();
+				left_child->doSplitting(var_tree, h_diffs, myIndex * 2);
+				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1);
+			}
 		}
 	}
-	
 	
 	void shutDown()
 	{
@@ -296,6 +298,31 @@ struct BTT_Node
 			left_child = 0;
 			right_child = 0;
 		}
+	}
+	
+	
+	FixedPoint buildVarianceTree(const std::vector<std::vector<FixedPoint> >& h_diffs, std::vector<FixedPoint>& var_tree, unsigned myIndex)
+	{
+		if(myIndex >= var_tree.size())
+			return FixedPoint(0);
+		
+		BTT_Point mid = p_left + p_right;
+		mid /= 2;
+		var_tree[myIndex] = h_diffs[mid.x][mid.z] - ((h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z])) / FixedPoint(2);
+		
+		if(var_tree[myIndex] < FixedPoint(0))
+			var_tree[myIndex] *= -1;
+		
+		split();
+		FixedPoint v_left  = left_child->buildVarianceTree(h_diffs, var_tree, myIndex * 2);
+		FixedPoint v_right = right_child->buildVarianceTree(h_diffs, var_tree, myIndex * 2 + 1);
+		
+		if(v_left > var_tree[myIndex])
+			var_tree[myIndex] = v_left;
+		if(v_right > var_tree[myIndex])
+			var_tree[myIndex] = v_right;
+		
+		return var_tree[myIndex];
 	}
 	
 	/*
@@ -338,6 +365,25 @@ public:
 		lower_right.shutDown();
 	}
 	
+	
+	FixedPoint buildVarianceTree(const std::vector<std::vector<FixedPoint> >& h_diffs, std::vector<FixedPoint>& var_tree)
+	{
+		FixedPoint max(0);
+		
+		FixedPoint a = upper_left.buildVarianceTree(h_diffs, var_tree, 1);
+		FixedPoint b = lower_right.buildVarianceTree(h_diffs, var_tree, 2);
+		
+		upper_left.shutDown();
+		lower_right.shutDown();
+		
+		if(a > max)
+			max = a;
+		if(b > max)
+			max = b;
+		return max;
+	}
+	
+	
 	void reset(int max_x, int max_z)
 	{
 		// release memory.
@@ -367,7 +413,7 @@ public:
 		lower_right.p_right.z = 0;
 	}
 	
-	void setViewPoint(int x, int z)
+	void doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree)
 	{
 		/*
 		upper_left.killChildren();
@@ -385,8 +431,8 @@ public:
 		lower_right.left = 0;
 		lower_right.right = 0;
 		
-		upper_left.doSplitting(x, z);
-		lower_right.doSplitting(x, z);
+		upper_left.doSplitting(var_tree, h_diffs, 1);
+		lower_right.doSplitting(var_tree, h_diffs, 2);
 	}
 	
 	void print()
@@ -396,7 +442,7 @@ public:
 	}
 	
 	
-	void getTriangles(std::vector<BTT_Triangle>& tris)
+	void getTriangles(std::vector<BTT_Triangle>& tris) const
 	{
 		upper_left.getTriangles(tris);
 		lower_right.getTriangles(tris);

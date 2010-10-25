@@ -12,10 +12,13 @@ struct Level
 {
 	Level();
 	
+	friend class Graphics;
+	
 	std::vector<std::vector<FixedPoint> > pointheight_info;
 	
 	void generate(int);
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
+	const FixedPoint& getVertexHeight(const int& x, const int& z) const;
 	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int);
@@ -32,12 +35,15 @@ struct Level
 	// Dynamic environment changes can be done with this function
 	void updateHeight(int x, int z, FixedPoint h);
 	
+	void updateBTT();
+	
 	int max_x() const;
 	int max_z() const;
 
 private:
 	
 	BinaryTriangleTree btt;
+	std::vector<FixedPoint> variance_tree;
 	
 	FixedPoint fpZero;
 	
@@ -48,6 +54,8 @@ private:
 	FixedPoint estimateHeightDifference(int x, int z) const;
 	void updateHeightDifference(int x, int z);
 	void updateNormal(int x, int z);
+	
+	void buildVarianceTree();
 	
 	Location unitVectorUp;
 	Location estimateNormal(int x, int z);
