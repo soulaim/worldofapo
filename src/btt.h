@@ -283,7 +283,6 @@ struct BTT_Node
 			
 			// if player character in triangle, split
 			
-			
 			FixedPoint error;
 			if(myIndex >= var_tree.size())
 			{
