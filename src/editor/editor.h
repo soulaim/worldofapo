@@ -86,6 +86,7 @@ class Editor
 	std::string animation_name;
 
 	bool drawing_model;
+	bool drawing_skeleton;
 public:
 	Editor();
 	void start();

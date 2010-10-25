@@ -243,11 +243,15 @@ struct BTT_Node
 		}
 	}
 	
-	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex, int importance_x, int importance_z)
+	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex)
 	{
 		// lets just try something simple first.
+		
+		if( (h_diffs.size() - 1) )
+		
 		if(myLod > 14)
 		{
+			
 			return;
 		}
 		
@@ -266,18 +270,20 @@ struct BTT_Node
 			// if variance error too high for distance -> split
 			
 			// if player character in triangle, split
-			importance_x importance_z
 			
 			
-			FixedPoint error = var_tree[myIndex];
+			
+			FixedPoint error;
 			if(myIndex >= var_tree.size())
 			{
 				BTT_Point mid = p_left + p_right;
 				mid /= 2;
-				error = h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2);
+				error = (h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2)) .abs();
 			}
+			else
+				error = var_tree[myIndex];
 			
-			if(error > FixedPoint(0))
+			if(error > FixedPoint(1, 10))
 			{
 				split();
 				left_child->doSplitting(var_tree, h_diffs, myIndex * 2);
@@ -310,7 +316,8 @@ struct BTT_Node
 		
 		BTT_Point mid = p_left + p_right;
 		mid /= 2;
-		var_tree[myIndex] = h_diffs[mid.x][mid.z] - ((h_diffs[p_left.x][p_left.z] + h_diffs[p_left.x][p_left.z])) / FixedPoint(2);
+		FixedPoint error = h_diffs[mid.x][mid.z] - ((h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z])) / FixedPoint(2);
+		var_tree[myIndex] = error;
 		
 		if(var_tree[myIndex] < FixedPoint(0))
 			var_tree[myIndex] *= -1;

@@ -532,6 +532,67 @@ void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPo
 	}
 }
 
+void Graphics::drawDebugHeightDots(const Level& lvl)
+{
+	int multiplier = 8;
+	Vec3 points[3];
+
+	// this should only be done at world ticks! not at draw ticks..
+	level_triangles.clear();
+	lvl.btt.getTriangles(level_triangles);
+
+	// Draw triangles with lines.
+	glPointSize(1.0f);
+	glColor3f(0,0,1);
+	glBegin(GL_LINES);
+	for(size_t k=0; k<level_triangles.size(); k++)
+	{
+		BTT_Triangle& tri = level_triangles[k];
+		for(size_t i = 0; i < 3; ++i)
+		{
+			points[i].x = tri.points[i].x * multiplier;
+			points[i].z = tri.points[i].z * multiplier;
+			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+		}
+		
+		for(size_t i = 0; i < 3; ++i)
+		{
+			glVertex3f(points[i].x, points[i].y, points[i].z);
+			int next = (i+1+3) % 3;
+			glVertex3f(points[next].x, points[next].y, points[next].z);
+		}
+	}
+	glEnd();
+
+	// Draw heights with dots.
+	glColor3f(1,0,0);
+	glPointSize(2.0f);
+	glBegin(GL_POINTS);
+	for(size_t x = 0; x < 500; x += 2)
+	{
+		for(size_t z = 0; z < 1000; z += 2)
+		{
+			Vec3 v(x, 0, z);
+			v.y = lvl.getHeight(x,z).getFloat();
+			glVertex3f(v.x, v.y, v.z);
+		}
+	}
+	glEnd();
+	glColor3f(0,1,0);
+	glPointSize(4.0f);
+	glBegin(GL_POINTS);
+	for(int x = 0; x < lvl.max_x(); x += 8)
+	{
+		for(int z = 0; z < lvl.max_z(); z += 8)
+		{
+			Vec3 v(x, 0, z);
+			v.y = lvl.getHeight(x,z).getFloat();
+			glVertex3f(v.x, v.y, v.z);
+		}
+	}
+	glEnd();
+}
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
@@ -546,21 +607,17 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	
 	Vec3 semiAverage;
 	Vec3 points[3];
+
+	glColor3f(1.0,1.0,1.0);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
 		BTT_Triangle& tri = level_triangles[k];
-		
-		points[0].x = tri.points[0].x * multiplier;
-		points[0].z = tri.points[0].z * multiplier;
-		points[0].y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z).getFloat(); // lvl.getHeight(points[0].x, points[0].z).getFloat();
-		
-		points[1].x = tri.points[1].x * multiplier;
-		points[1].z = tri.points[1].z * multiplier;
-		points[1].y = lvl.getVertexHeight(tri.points[1].x, tri.points[1].z).getFloat();
-		
-		points[2].x = tri.points[2].x * multiplier;
-		points[2].z = tri.points[2].z * multiplier;
-		points[2].y = lvl.getVertexHeight(tri.points[2].x, tri.points[2].z).getFloat();
+		for(size_t i = 0; i < 3; ++i)
+		{
+			points[i].x = tri.points[i].x * multiplier;
+			points[i].z = tri.points[i].z * multiplier;
+			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+		}
 		
 		semiAverage = (points[0] + points[1] + points[2]) / 3;
 		float r = (semiAverage - points[0]).length();
@@ -815,6 +872,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 	startDrawing();
 
 	drawLevel(lvl, lights);
+//	drawDebugHeightDots(lvl);
 	drawDebugLines();
 	drawBoundingBoxes(units);
 	drawModels(models);

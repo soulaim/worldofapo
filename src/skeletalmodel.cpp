@@ -6,6 +6,7 @@
 #include <queue>
 #include <iomanip>
 #include <iostream>
+#include <cassert>
 
 #include "shaders.h"
 
@@ -167,7 +168,7 @@ float SkeletalModel::height() const
 	return 0.f;
 }
 
-void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
+void calcMatrices(SkeletalModel& model, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
 {
 	Bone& bone = model.bones[current_bone];
 
@@ -181,17 +182,19 @@ void calcMatrices(SkeletalModel& model, Vec3 prev, size_t current_bone, vector<M
 	animation.getAnimationState(animation_state + ani_addition, bone.rotation_x, bone.rotation_y, bone.rotation_z);
 //	cerr << animation_state+ani_addition << " " << node.rotation_x << " " << node.rotation_y << " " << node.rotation_z << "\n";
 
-	offset *= Matrix4(0,0,0, bone.start_x - prev.x, bone.start_y - prev.y, bone.start_z - prev.z);
+	// TODO: pass only angles and bone locations to shader and do matrix calculation there.
 
+	offset *= Matrix4(0,0,0, bone.start_x, bone.start_y, bone.start_z);
 	offset *= Matrix4(bone.rotation_x, 0, 0, 0,0,0);
 	offset *= Matrix4(0, bone.rotation_y, 0, 0,0,0);
 	offset *= Matrix4(0, 0, bone.rotation_z, 0,0,0);
+	offset *= Matrix4(0,0,0, -bone.start_x, -bone.start_y, -bone.start_z);
 
 	rotations[current_bone] = offset;
 
 	for(size_t i = 0; i < bone.children.size(); ++i)
 	{
-		calcMatrices(model, Vec3(bone.start_x, bone.start_y, bone.start_z), bone.children[i], rotations, offset, animation_name, animation_state);
+		calcMatrices(model, bone.children[i], rotations, offset, animation_name, animation_state);
 	}
 }
 
@@ -200,14 +203,47 @@ void SkeletalModel::draw()
 	draw(false, -1);
 }
 
-void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
+void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 {
+	vector<Matrix4> rotations;
+	rotations.resize(bones.size());
+	calcMatrices(*this, 0, rotations, Matrix4(), animation_name, animation_time);
+
+	if(draw_only_skeleton)
+	{
+		for(size_t i = 0; i < bones.size(); ++i)
+		{
+			const Bone& bone = bones[i];
+			if(i == hilight)
+			{
+				glColor3f(1.0,0.0,0.0);
+			}
+			else
+			{
+				glColor3f(0.0,0.0,1.0);
+			}
+			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
+			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
+//			Vec3 line_start = rotations[i] * Vec3(0,0,0);
+//			Vec3 line_end = rotations[i] * (end - start);
+			Vec3 line_start = rotations[i] * start;
+			Vec3 line_end = rotations[i] * end;
+			
+			glBegin(GL_LINES);
+			glVertex3f(line_start.x, line_start.y, line_start.z);
+			glVertex3f(line_end.x, line_end.y, line_end.z);
+			glEnd();
+//			cerr << i << " has start at " << line_start << "\n";
+		}
+		return;
+	}
+
 	glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture(texture_name);
 
-	vector<Matrix4> rotations;
-	rotations.resize(bones.size());
-	calcMatrices(*this, Vec3(), 0, rotations, Matrix4(), animation_name, animation_time);
+
+	assert(rotations.size() <= 23);
+	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 
 	for(size_t i = 0; i < triangles.size(); ++i)
 	{
@@ -221,25 +257,10 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 			size_t vi = triangles[i].vertices[j];
 			WeightedVertex& wv = weighted_vertices[vi];
 
-			const Matrix4& offset1 = rotations[wv.bone1];
-			const Matrix4& offset2 = rotations[wv.bone2];
-			float weight1 = wv.weight1;
-			float weight2 = wv.weight2;
-			Bone& bone1 = bones[wv.bone1];
-			Bone& bone2 = bones[wv.bone2];
+			size_t bone1i = wv.bone1;
+			size_t bone2i = wv.bone2;
 
-			Vec3 v1 = vertices[vi];
-			Vec3 vc1(bone1.start_x, bone1.start_y, bone1.start_z);
-			v1 -= vc1;
-
-			Vec3 v2 = vertices[vi];
-			Vec3 vc2(bone2.start_x, bone2.start_y, bone2.start_z);
-			v2 -= vc2;
-
-			Vec3 v = offset1 * v1 * weight1 + offset2 * v2 * weight2;
-
-
-			if(wv.bone1 == hilight)
+			if(bone1i == hilight)
 			{
 				glColor3f(0, 1, 1);
 			}
@@ -247,29 +268,25 @@ void SkeletalModel::draw(bool draw_skeleton, size_t hilight)
 			{
 				glColor3f(0.5*j, 0.5*j,0.5*j);
 			}
-			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
+
+//			const Matrix4& offset1 = rotations[bone1i];
+//			const Matrix4& offset2 = rotations[bone2i];
+
+			float weight1 = wv.weight1;
+			float weight2 = wv.weight2;
+
+//			Bone& bone1 = bones[bone1i];
+//			Bone& bone2 = bones[bone2i];
+
+			Vec3 v = vertices[vi];
+//			v = offset1 * v * weight1 + offset2 * v * weight2; // This is already done in the vertex shader.
+
+			glVertexAttrib2f(bone_index_location, bone1i, bone2i);
+			glVertexAttrib2f(bone_weight_location, weight1, weight2);
 			glVertex3f(v.x, v.y, v.z);
+			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
 		}
 		glEnd();
-	}
-
-	if(draw_skeleton)
-	{
-		glColor3f(0.0,0.0,1.0);
-		for(size_t i = 0; i < bones.size(); ++i)
-		{
-			const Bone& bone = bones[i];
-			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
-			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
-			Vec3 line_start = rotations[i] * Vec3(0,0,0);
-			Vec3 line_end = rotations[i] * (end - start);
-			
-			glBegin(GL_LINES);
-			glVertex3f(line_start.x, line_start.y, line_start.z);
-			glVertex3f(line_end.x, line_end.y, line_end.z);
-			glEnd();
-//			cerr << i << " has start at " << line_start << "\n";
-		}
 	}
 	glDisable(GL_TEXTURE_2D);
 }

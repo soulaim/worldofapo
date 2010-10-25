@@ -83,7 +83,7 @@ struct SkeletalModel: public Model
 	float height() const;
 	bool load(const std::string& filename);
 	bool save(const std::string& filename) const;
-	void draw(bool draw_skeleton = 0, size_t hilight = -1);
+	void draw(bool draw_only_skeleton = 0, size_t hilight = -1);
 	void draw();
 	void rotate_y(float angle);
 };

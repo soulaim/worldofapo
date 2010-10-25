@@ -1,6 +1,8 @@
 fixedpointtest
-pointlinetest
+point_in_line
 socket_test
 squareroot_and_crossproduct
 matrixtest
 btt_test
+interpolationtest
+

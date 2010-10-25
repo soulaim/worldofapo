@@ -7,6 +7,9 @@
 
 extern GLint unit_color_location;
 extern GLint color_index_location;
+extern GLint bones_location;
+extern GLint bone_index_location;
+extern GLint bone_weight_location;
 
 char* readFile(const char *path);
 void releaseFile(char* data);
