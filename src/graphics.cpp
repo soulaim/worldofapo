@@ -459,7 +459,7 @@ void drawNormal(const Level& lvl, int x, int z, int multiplier)
 	Location n = lvl.getNormal(x, z) * 10;
 	Location start;
 	start.x = FixedPoint(int(x * multiplier));
-	start.y = lvl.getHeight(x * multiplier, z * multiplier);
+	start.y = lvl.getVertexHeight(x, z);
 	start.z = FixedPoint(int(z * multiplier));
 	
 	Location end = start + n;
@@ -552,15 +552,15 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		points[0].x = tri.points[0].x * multiplier;
 		points[0].z = tri.points[0].z * multiplier;
-		points[0].y = lvl.getHeight(points[0].x, points[0].z).getFloat();
+		points[0].y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z).getFloat(); // lvl.getHeight(points[0].x, points[0].z).getFloat();
 		
 		points[1].x = tri.points[1].x * multiplier;
 		points[1].z = tri.points[1].z * multiplier;
-		points[1].y = lvl.getHeight(points[1].x, points[1].z).getFloat();
+		points[1].y = lvl.getVertexHeight(tri.points[1].x, tri.points[1].z).getFloat();
 		
 		points[2].x = tri.points[2].x * multiplier;
 		points[2].z = tri.points[2].z * multiplier;
-		points[2].y = lvl.getHeight(points[2].x, points[2].z).getFloat();
+		points[2].y = lvl.getVertexHeight(tri.points[2].x, tri.points[2].z).getFloat();
 		
 		semiAverage = (points[0] + points[1] + points[2]) / 3;
 		float r = (semiAverage - points[0]).length();
@@ -574,7 +574,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
 				Location start;
 				start.x = FixedPoint(int(points[0].x));
-				start.y = lvl.getHeight(points[0].x, points[0].z);
+				start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
 				start.z = FixedPoint(int(points[0].z));
 				
 				Location end = start + n;
@@ -589,7 +589,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 			
 			lightsContainer.empty();
 			
-			/*
+			
 			
 			// set active lights
 			vector<int> indexes;
@@ -648,7 +648,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				}
 			}
 			
-			*/
+			
 			
 			// TODO: Terrain texture
 			glBegin(GL_TRIANGLES);

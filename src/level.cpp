@@ -38,24 +38,21 @@ Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 }
 
 
-
-
 void Level::buildVarianceTree()
 {
 	variance_tree.resize(2048, FixedPoint(0));
-	cerr << "Maximum encountered variance error: " << btt.buildVarianceTree(h_diff, variance_tree) << endl;
+	cerr << "Maximum encountered variance error: " << btt.buildVarianceTree(pointheight_info, variance_tree) << endl;
 	
 	for(int i=1; i<256; i++)
 		cerr << variance_tree[i] << endl;
 	
-	btt.doSplit(h_diff, variance_tree);
+	btt.doSplit(pointheight_info, variance_tree);
 	btt.draw(5, 5);
 	
 	vector<BTT_Triangle> tris;
 	
 	btt.getTriangles(tris);
 	cerr << "There are like, about " << tris.size() << " triangles in this shit" << endl;
-	
 }
 
 
@@ -227,51 +224,77 @@ const Location& Level::getNormal(int x_index, int z_index) const
 }
 
 
-
+const FixedPoint& Level::getVertexHeight(const int& x, const int& z) const
+{
+	return pointheight_info[x][z];
+}
 
 FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
-	int x_index = x.getInteger() / 8;
-	int z_index = z.getInteger() / 8;
+	// Division by eight.
+	int x_index = x.getInteger() >> 3;
+	int z_index = z.getInteger() >> 3;
 
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	
-	FixedPoint A = pointheight_info[x_index][z_index];
-	FixedPoint B = pointheight_info[x_index+1][z_index];
+	int x_desimal = ((x.getInteger() & 7) * FIXED_POINT_ONE + x.getDesimal()) >> 3;
+	int z_desimal = ((z.getInteger() & 7) * FIXED_POINT_ONE + z.getDesimal()) >> 3;
 	
-	FixedPoint C = pointheight_info[x_index][z_index+1];
-	FixedPoint D = pointheight_info[x_index+1][z_index+1];
+	const FixedPoint& A = pointheight_info[x_index][z_index];
+	const FixedPoint& B = pointheight_info[x_index+1][z_index];
+	
+	const FixedPoint& C = pointheight_info[x_index][z_index+1];
+	const FixedPoint& D = pointheight_info[x_index+1][z_index+1];
 	
 	/*
-	if(x_desimal + z_desimal < 8000)
+	if((z_index + x_index) & 1)
 	{
-		// use bottom triangle
-		FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, true) / FixedPoint(8);
-		FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, true) / FixedPoint(8);
-		return y_from_x + y_from_z;
+		if(x_desimal < z_desimal)
+		{
+			// working in upper triangle (CDA)
+			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
+			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
+			return (y_from_x + y_from_z);
+		}
+		else
+		{
+			// working in lower triangle (ABD)
+			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
+			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
+			return (y_from_x + y_from_z);
+		}
 	}
 	else
 	{
-		// use top triangle
-		FixedPoint y_from_x; y_from_x.number = D.number + (C - D).number * (8000 - x_desimal) / 8000;
-		FixedPoint y_from_z; y_from_z.number = D.number + (B - D).number * (8000 - z_desimal) / 8000;
-		return y_from_x + y_from_z;
+		if(FIXED_POINT_ONE - x_desimal < z_desimal)
+		{
+			// upper triangle (CDB)
+			FixedPoint y_from_x = C + (D - C) * FixedPoint(x_desimal, FIXED_POINT_ONE);
+			FixedPoint y_from_z = B + (D - B) * FixedPoint(z_desimal, FIXED_POINT_ONE);
+			return (y_from_x + y_from_z);
+		}
+		else
+		{
+			// lower triangle (ABC)
+			FixedPoint y_from_x = A + (B - A) * FixedPoint(x_desimal, FIXED_POINT_ONE);
+			FixedPoint y_from_z = A + (C - A) * FixedPoint(z_desimal, FIXED_POINT_ONE);
+			return (y_from_x + y_from_z);
+		}
 	}
 	*/
-
-	FixedPoint remainder_x = x - FixedPoint(x_index * 8);
-	FixedPoint remainder_z = z - FixedPoint(z_index * 8);
-
+	
+	FixedPoint remainder_x = x - FixedPoint(x_index << 3);
+	FixedPoint remainder_z = z - FixedPoint(z_index << 3);
+	
 	FixedPoint top_val = C + (D - C) * remainder_x / FixedPoint(8);
 	FixedPoint bot_val = A + (B - A) * remainder_x / FixedPoint(8);
 	
 	FixedPoint height_value;
 	height_value = bot_val + (top_val - bot_val) * remainder_z / FixedPoint(8);
 	return height_value;
-	
 }
 
 
@@ -287,7 +310,7 @@ void Level::generate(int seed)
 	
 	
 	// create long walls
-	for(int i=0; i<150; i++)
+	for(int i=0; i<350; i++)
 	{
 		
 		int x_p = rand() % pointheight_info.size();
