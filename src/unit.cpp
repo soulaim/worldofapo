@@ -121,16 +121,14 @@ void Unit::collides(OctreeObject& o)
 		direction *= FixedPoint(1, 5);
 		
 		velocity += direction;
-		u.velocity -= direction;
 	}
 	else if (o.type == OctreeObject::MEDIKIT)
 	{
-		MovableObject& m = (MovableObject&) o;
-		m.dead = true;
 		hitpoints += 100;
 	}
 }
 
-bool Unit::operator<(const Unit& u) const {
-	return id < u.id;
+void Unit::init(World& w) {
+	weapon.reset(new MachineGun(w, *this));
 }
+

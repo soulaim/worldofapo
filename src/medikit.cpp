@@ -21,5 +21,5 @@ Location Medikit::bb_bot() const
 
 void Medikit::collides(OctreeObject& o) {
 	if (o.type == OctreeObject::UNIT)
-		o.collides(*this);
+		dead = true;
 }

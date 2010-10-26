@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "unit.h"
 #include "frustum/matrix4.h"
 
 const double head_level = 6.0;

@@ -188,7 +188,7 @@ void World::init()
 	_playerID_next_player = 0;
 
 	lvl.generate(50);
-	spawnMedikits(1000);
+	spawnMedikits(100);
 	
 	show_errors = 0;
 }
@@ -329,65 +329,12 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 
 	// TODO: THIS SHOULD DEFINITELY NOT LOOK SO FUCKING UGLY
-	if(unit.weapon_cooldown == 0)
-	{
-		if(unit.getMouseAction(Unit::ATTACK_BASIC))
-		{
-			unit.weapon_cooldown = 2;
-			unit.soundInfo = "shoot";
-
-			// TODO: Following is somewhat duplicated from Camera :G
-
-			Location position;
-			position.x = 30;
-			position.z = 0;
-			position.y = 0;
-
-			int angle   = unit.angle;
-			int upangle = unit.upangle;
-
-			FixedPoint cos = apomath.getCos(angle);
-			FixedPoint sin = apomath.getSin(angle);
-			FixedPoint upcos = apomath.getCos(upangle);
-			FixedPoint upsin = apomath.getSin(upangle);
-			
-			Location relative_position;
-			FixedPoint x = position.x;
-			FixedPoint y = position.y;
-			FixedPoint z = position.z;
-			
-			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-			relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-			relative_position.y =      -upsin * x           +       upcos * y;
-
-			Location weapon_position = unit.position;
-			Location projectile_direction = relative_position;
-			
-			weapon_position.y += 4;
-			projectile_direction.y += 4;
-
-			int id = nextUnitID();
-			addProjectile(weapon_position, id);
-			
-			Projectile& projectile = projectiles[id];
-			
-			projectile_direction.normalize();
-			projectile.velocity = projectile_direction * FixedPoint(45, 10) + unit.velocity;
-			projectile.tick(); // need to move projectile out of self-range (don't want to shoot self)
-			
-			projectile.velocity = projectile_direction * FixedPoint(10, 1) + unit.velocity;
-			projectile.id = id;
-			projectile.owner = unit.id;
-			
-			projectile.lifetime = 50;
-		}
-	}
+	//
+	if (unit.getMouseAction(Unit::ATTACK_BASIC))
+		unit.weapon->shoot();
 	else
-	{
-		--unit.weapon_cooldown;
-	}
-	
-	
+		unit.weapon->tick();
+
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;
 	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
@@ -664,6 +611,7 @@ void World::viewTick()
 void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
+	units[id].init(*this);
 	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	

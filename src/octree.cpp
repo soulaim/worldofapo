@@ -135,6 +135,7 @@ void Octree::doCollisions() {
 		if (Collision::boxBox(o->bb_bot(), o->bb_top(), o2->bb_bot(), o2->bb_top()))
 		{
 			o->collides(*o2);
+			o2->collides(*o);
 		}
 	}
 }

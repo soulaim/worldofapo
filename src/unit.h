@@ -4,7 +4,11 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <memory>
 
+#include "world.h"
+#include "weapon.h"
+#include "machinegun.h"
 #include "location.h"
 #include "apomath.h"
 #include "lightsource.h"
@@ -37,8 +41,9 @@ class Unit : LightSource, public OctreeObject
 		Location velocity;
 		Location position;
 
-		
 		std::string soundInfo;
+
+		std::shared_ptr<Weapon> weapon;
 		
 		// This should really be done soon.
 //		map<std::string, Location> vectors;
@@ -75,6 +80,8 @@ class Unit : LightSource, public OctreeObject
 		Location bb_top() const;
 		Location bb_bot() const;
 		void collides(OctreeObject&);
+
+		void init(World& w);
 
 		bool operator<(const Unit& u) const;
 };

@@ -1,9 +1,9 @@
 #ifndef OCTREE_H
 #define OCTREE_H
 
+#include "octree_object.h"
+#include "collision.h"
 #include "location.h"
-#include "unit.h"
-#include "projectile.h"
 #include <iostream>
 #include <vector>
 #include <memory>

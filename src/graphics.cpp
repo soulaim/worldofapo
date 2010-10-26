@@ -8,6 +8,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -1095,10 +1096,9 @@ void Graphics::drawBoundingBoxes(const std::map<int,Unit>& units)
 {
 	if (!drawDebuglines)
 		return;
-	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); iter++)
+	for(auto iter = units.begin(); iter != units.end(); iter++)
 	{
-		const Unit& u = iter->second;
-		drawBox(u.bb_top(), u.bb_bot());
+		drawBox(iter->second.bb_top(), iter->second.bb_bot());
 	}
 }
 

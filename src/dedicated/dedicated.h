@@ -18,6 +18,7 @@
 #include <queue>
 #include <map>
 #include <set>
+#include <sstream>
 
 
 // information regarding how much of the simulation is allowed to play now,
@@ -89,7 +90,7 @@ private:
 	
 	void handleWorldEvents();
 
-	void sendWorldCopy(const string& areaName, int plrID);
+	void sendWorldCopy(const std::string& areaName, int plrID);
 	void update_kills();
 	void update_deaths();
 

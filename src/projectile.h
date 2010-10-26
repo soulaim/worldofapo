@@ -9,9 +9,8 @@
 #include "location.h"
 #include "level.h"
 #include "apomath.h"
-#include "unit.h"
 
-using namespace std;
+class Unit;
 
 class Projectile
 {
@@ -30,7 +29,7 @@ class Projectile
 		int lifetime;
 		void tick();
 		
-		bool collides(const Unit& unit);
+		bool collides(const Unit&);
 		bool collidesTerrain(Level& lvl) const;
 		std::string copyOrder(int);
 		void handleCopyOrder(std::stringstream& ss);

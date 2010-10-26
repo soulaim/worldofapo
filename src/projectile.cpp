@@ -1,9 +1,9 @@
 
 #include "projectile.h"
 #include "algorithms.h"
+#include "unit.h"
 
 using namespace std;
-
 
 bool Projectile::collides(const Unit& unit)
 {

@@ -44,7 +44,7 @@ void releaseFile(char* file)
 	delete[] file;
 }
 
-void Graphics::loadVertexShader(const string& name, const string& filename)
+void Graphics::loadVertexShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 	
@@ -57,7 +57,7 @@ void Graphics::loadVertexShader(const string& name, const string& filename)
 	releaseFile(data);
 }
 
-void Graphics::loadFragmentShader(const string& name, const string& filename)
+void Graphics::loadFragmentShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 

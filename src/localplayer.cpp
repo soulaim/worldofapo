@@ -85,7 +85,7 @@ bool Localplayer::client_tick()
 			view->world_tick();
 			handleWorldEvents();
 			
-			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
+			for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 			{
 				playSound(iter->second.soundInfo, iter->second.position);
 			}
@@ -105,7 +105,7 @@ void Localplayer::draw()
 	}
 }
 
-void Localplayer::playSound(const string& name, Location& position)
+void Localplayer::playSound(const std::string& name, Location& position)
 {
 	// play sounds!
 	if(game.myID != -1)
@@ -176,7 +176,7 @@ void Localplayer::handleClientLocalInput()
 {
 	camera_handling();
 	
-	string key = userio->getSingleKey();
+	std::string key = userio->getSingleKey();
 	
 	if(key.size() == 0)
 		return;
@@ -192,7 +192,7 @@ void Localplayer::handleClientLocalInput()
 	
 	if(client_input_state & 2) // chat message
 	{
-		string nick;
+		std::string nick;
 		nick.append("<");
 		nick.append(game.Players[game.myID].name);
 		nick.append("> ");
@@ -281,7 +281,7 @@ void Localplayer::handleWorldEvents()
 		{
 			case World::DAMAGE_BULLET:
 			{
-				stringstream ss;
+				std::stringstream ss;
 				int x = (rand() % 4);
 				ss << "hit" << x;
 				playSound(ss.str(), event.position);
