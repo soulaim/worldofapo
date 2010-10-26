@@ -52,6 +52,8 @@ class Graphics
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
+	void drawDebugLevelNormals(const Level& lvl);
+
 	void setActiveLights(const map<int, LightObject>&, const Location&);
 
 	void loadVertexShader(const std::string& name, const std::string& filename);

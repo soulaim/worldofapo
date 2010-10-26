@@ -380,6 +380,39 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 
 
 
+void Graphics::drawDebugLevelNormals(const Level& lvl)
+{
+	int multiplier = 8;
+	Vec3 points[3];
+
+	glBegin(GL_LINES);
+	for(size_t k=0; k<level_triangles.size(); k++)
+	{
+		BTT_Triangle& tri = level_triangles[k];
+		for(size_t i = 0; i < 3; ++i)
+		{
+			points[i].x = tri.points[i].x * multiplier;
+			points[i].z = tri.points[i].z * multiplier;
+			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+		}
+		
+		Location n;
+		
+		n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
+		Location start;
+		start.x = FixedPoint(int(points[0].x));
+		start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
+		start.z = FixedPoint(int(points[0].z));
+		
+		Location end = start + n;
+		
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+	}
+	glEnd();
+}
 
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
@@ -400,6 +433,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	Vec3 semiAverage;
 	Vec3 points[3];
 
+	glBegin(GL_TRIANGLES);
 	glColor3f(1.0,1.0,1.0);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
@@ -415,24 +449,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		Location n;
 		
-		if(drawDebuglines)
-		{
-			n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
-			Location start;
-			start.x = FixedPoint(int(points[0].x));
-			start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
-			start.z = FixedPoint(int(points[0].z));
-			
-			Location end = start + n;
-			
-			glBegin(GL_LINES);
-			glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-			glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-			glEnd();
-			
-			glColor3f(1.0, 1.0, 1.0);
-		}
-		
 		// set active lights
 		Location pos;
 		pos.x = int(semiAverage.x);
@@ -443,7 +459,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		
 		// TODO: Terrain texture
-		glBegin(GL_TRIANGLES);
 		n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 		glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
 		
@@ -452,11 +467,11 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 		glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
-		glEnd();
 		
 		++TRIANGLES_DRAWN_THIS_FRAME;
 		
 	}
+	glEnd();
 
 //	glDisable(GL_TEXTURE_2D);
 	
@@ -608,6 +623,10 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 
 	startDrawing();
 
+	if(drawDebuglines)
+	{
+		drawDebugLevelNormals(lvl);
+	}
 	drawLevel(lvl, lights);
 //	drawDebugHeightDots(lvl);
 	drawDebugLines();
