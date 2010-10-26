@@ -4,7 +4,7 @@
 class Weapon
 {
 public:
-	virtual void shoot() = 0;
+	virtual void fire() = 0;
 	virtual void tick() = 0;
 };
 

@@ -328,10 +328,8 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
-	// TODO: THIS SHOULD DEFINITELY NOT LOOK SO FUCKING UGLY
-	//
 	if (unit.getMouseAction(Unit::ATTACK_BASIC))
-		unit.weapon->shoot();
+		unit.weapon->fire();
 	else
 		unit.weapon->tick();
 

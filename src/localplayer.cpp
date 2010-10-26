@@ -235,7 +235,7 @@ void Localplayer::handleClientLocalInput()
 			game.endGame();
 			
 			// then proceed with local shutdown.
-			cerr << "User pressed ESC, shutting down." << endl;
+			std::cerr << "User pressed ESC, shutting down." << std::endl;
 			SDL_Quit();
 			exit(0);
 		}
@@ -325,14 +325,14 @@ void Localplayer::handleWorldEvents()
 			{
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
-					cerr << "Binding camera to unit " << event.actor_id << endl;
+					std::cerr << "Binding camera to unit " << event.actor_id << std::endl;
 					view->bindCamera(&world.units[event.actor_id]);
 				}
 				break;
 			}
 			default:
 			{
-				cerr << "UNKNOWN world EVENT OCCURRED" << endl;
+				std::cerr << "UNKNOWN world EVENT OCCURRED" << std::endl;
 			}
 		}
 	}

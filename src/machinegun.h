@@ -26,7 +26,7 @@ public:
 	int cooldown_left;
 	int cooldown;
 
-	void shoot();
+	void fire();
 	void tick();
 };
 

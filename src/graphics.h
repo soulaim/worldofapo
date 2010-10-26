@@ -53,7 +53,7 @@ class Graphics
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
-	void setActiveLights(const map<int, LightObject>&, const Location&);
+	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 	
 	// HUD Stuff
 	void drawHUD();

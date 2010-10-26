@@ -2,7 +2,7 @@
 #include "world.h"
 #include "unit.h"
 
-void MachineGun::shoot()
+void MachineGun::fire()
 {
 	if(cooldown_left > 0)
 	{

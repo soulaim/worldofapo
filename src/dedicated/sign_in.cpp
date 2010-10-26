@@ -33,7 +33,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 	std::string cmd;
 	ss >> cmd;
 	
-	cerr << "GOT SIGN-IN MSG: " << order << endl;
+	std::cerr << "GOT SIGN-IN MSG: " << order << std::endl;
 	
 	if(cmd == "OPTION") // client wants to know more about a particular option. send something back.
 	{
@@ -73,7 +73,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	{
 		// Set the new character's "password"
 		Players[playerID_val].key = generateKey();
-		cerr << "Starting a new new player profile with key: " << Players[playerID_val].key << endl;
+		std::cerr << "Starting a new new player profile with key: " << Players[playerID_val].key << std::endl;
 		
 		// transmit player key to client
 		std::stringstream characterKey_msg;
@@ -82,15 +82,15 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	}
 	else
 	{
-		cerr << "resurrecting a previous profile with key: " << choice << " by name: " << dormantPlayers[choice].name << endl;
+		std::cerr << "resurrecting a previous profile with key: " << choice << " by name: " << dormantPlayers[choice].name << std::endl;
 		Players[playerID_val] = dormantPlayers[choice];
 	}
 	
-	cerr << "Sending a copy of the world" << endl;
+	std::cerr << "Sending a copy of the world" << std::endl;
 	sendWorldCopy("test_area", playerID_val);
 	
 	
-	cerr << "Sending PLAYER ID" << endl;
+	std::cerr << "Sending PLAYER ID" << std::endl;
 	// tell the new player what his player ID is.
 	std::stringstream playerID_msg;
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
@@ -101,7 +101,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	// send the new player some generic info about other players
 	for(auto iter = Players.begin(); iter != Players.end(); iter++)
 	{
-		cerr << "sending info!" << endl;
+		std::cerr << "sending info!" << std::endl;
 		std::stringstream playerInfo_msg;
 		std::string clientName = iter->second.name;
 		if(clientName == "")
@@ -110,7 +110,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		sockets.write(playerID_val, playerInfo_msg.str());
 	}
 	
-	cerr << "SENDING ADDHERO" << endl;
+	std::cerr << "SENDING ADDHERO" << std::endl;
 	// send to everyone the ADDHERO msg
 	int birth_time = simulRules.currentFrame + simulRules.windowSize;
 	
@@ -119,7 +119,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	
 	createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
 	serverMsgs.push_back(createHero_msg.str());
-	cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << endl;
+	std::cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << std::endl;
 	
 	std::stringstream nextUnit_msg;
 	nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
