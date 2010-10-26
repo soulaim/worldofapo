@@ -473,65 +473,6 @@ void drawNormal(const Level& lvl, int x, int z, int multiplier)
 	glColor3f(1.0, 1.0, 1.0);
 }
 
-void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPoint& fpx, const FixedPoint& fpy, const FixedPoint& fpz)
-{
-	vector<int> indexes;
-	vector<FixedPoint> distances;
-
-	distances.resize(2, FixedPoint(40000));
-	indexes.resize(2, -1);
-
-	Location fixMe;
-	fixMe.x = fpx;
-	fixMe.y = fpy;
-	fixMe.z = fpz;
-
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-	{
-		const LightObject& light = iter->second;
-		FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-
-
-		if(lightDistance < distances[0])
-		{
-			distances[1] = distances[0];
-			indexes[1]   = indexes[0];
-
-			distances[0] = lightDistance;
-			indexes[0]  = iter->first;
-		}
-		else if(lightDistance < distances[1])
-		{
-			distances[1] = lightDistance;
-			indexes[1]  = iter->first;
-		}
-	}
-
-	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-	{
-		if(indexes[light_i] >= 0)
-		{
-			float rgb[4]; rgb[3] = 1.0f;
-			int light_key = indexes[light_i];
-			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-
-			Location pos = lightsContainer.find(light_key)->second.getPosition();
-
-			rgb[0] = pos.x.getFloat();
-			rgb[1] = pos.y.getFloat();
-			rgb[2] = pos.z.getFloat();
-
-			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-		}
-		else
-		{
-			float rgb[4] = { };
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-		}
-	}
-}
 
 void Graphics::drawDebugHeightDots(const Level& lvl)
 {
@@ -594,15 +535,72 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 	glEnd();
 }
 
+
+
+
+
+void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
+{
+	vector<int> indexes;
+	vector<FixedPoint> distances;
+	
+	distances.resize(2, FixedPoint(40000));
+	indexes.resize(2, -1);
+	
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	{
+		const LightObject& light = iter->second;
+		FixedPoint lightDistance = (light.position - pos).lengthSquared();
+		
+		if(lightDistance < distances[0])
+		{
+			distances[1] = distances[0];
+			indexes[1]   = indexes[0];
+			
+			distances[0] = lightDistance;
+			indexes[0]  = iter->first;
+		}
+		else if(lightDistance < distances[1])
+		{
+			distances[1] = lightDistance;
+			indexes[1]  = iter->first;
+		}
+	}
+	
+	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+	{
+		if(indexes[light_i] >= 0)
+		{
+			float rgb[4]; rgb[3] = 1.0f;
+			int light_key = indexes[light_i];
+			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+			
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+			
+			Location pos = lightsContainer.find(light_key)->second.getPosition();
+			
+			rgb[0] = pos.x.getFloat();
+			rgb[1] = pos.y.getFloat();
+			rgb[2] = pos.z.getFloat();
+			
+			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+		}
+		else
+		{
+			float rgb[4] = { };
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+		}
+	}
+}
+
+
+
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
 	//glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture("grass");
-	
-	// this should only be done at world ticks! not at draw ticks..
-	level_triangles.clear();
-	lvl.btt.getTriangles(level_triangles);
 	
 	int multiplier = 8;
 	
@@ -621,108 +619,50 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		}
 		
 		semiAverage = (points[0] + points[1] + points[2]) / 3;
-		float r = (semiAverage - points[0]).length();
 		
-		if(frustum.sphereInFrustum(semiAverage, r) != FrustumR::OUTSIDE)
+		Location n;
+		
+		if(drawDebuglines)
 		{
-			Location n;
+			n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
+			Location start;
+			start.x = FixedPoint(int(points[0].x));
+			start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
+			start.z = FixedPoint(int(points[0].z));
 			
-			if(drawDebuglines)
-			{
-				n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
-				Location start;
-				start.x = FixedPoint(int(points[0].x));
-				start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
-				start.z = FixedPoint(int(points[0].z));
-				
-				Location end = start + n;
-				
-				glBegin(GL_LINES);
-				glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-				glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-				glEnd();
-				
-				glColor3f(1.0, 1.0, 1.0);
-			}
+			Location end = start + n;
 			
-			lightsContainer.empty();
-			
-			
-			
-			// set active lights
-			vector<int> indexes;
-			vector<FixedPoint> distances;
-			
-			distances.resize(2, FixedPoint(40000));
-			indexes.resize(2, -1);
-			
-			Location fixMe;
-			fixMe.x = int(semiAverage.x);
-			fixMe.y = 10;
-			fixMe.z = int(semiAverage.z);
-			
-			for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-			{
-				const LightObject& light = iter->second;
-				FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-				
-				if(lightDistance < distances[0])
-				{
-					distances[1] = distances[0];
-					indexes[1]   = indexes[0];
-					
-					distances[0] = lightDistance;
-					indexes[0]  = iter->first;
-				}
-				else if(lightDistance < distances[1])
-				{
-					distances[1] = lightDistance;
-					indexes[1]  = iter->first;
-				}
-			}
-			
-			for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-			{
-				if(indexes[light_i] >= 0)
-				{
-					float rgb[4]; rgb[3] = 1.0f;
-					int light_key = indexes[light_i];
-					lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-					
-					glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-					
-					Location pos = lightsContainer.find(light_key)->second.getPosition();
-					
-					rgb[0] = pos.x.getFloat();
-					rgb[1] = pos.y.getFloat();
-					rgb[2] = pos.z.getFloat();
-					
-					glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-				}
-				else
-				{
-					float rgb[4] = { };
-					glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-				}
-			}
-			
-			
-			
-			// TODO: Terrain texture
-			glBegin(GL_TRIANGLES);
-			n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-			glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
-			
-			n=lvl.getNormal(tri.points[1].x, tri.points[1].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-			glTexCoord2f(1.f, 0.0f); glVertex3f( points[1].x, points[1].y, points[1].z );
-			
-			n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-			glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
+			glBegin(GL_LINES);
+			glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+			glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
 			glEnd();
 			
-			++TRIANGLES_DRAWN_THIS_FRAME;
-			
+			glColor3f(1.0, 1.0, 1.0);
 		}
+		
+		// set active lights
+		Location pos;
+		pos.x = int(semiAverage.x);
+		pos.y = int(semiAverage.x);
+		pos.z = int(semiAverage.x);
+		
+		setActiveLights(lightsContainer, pos);
+		
+		
+		// TODO: Terrain texture
+		glBegin(GL_TRIANGLES);
+		n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+		glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
+		
+		n=lvl.getNormal(tri.points[1].x, tri.points[1].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+		glTexCoord2f(1.f, 0.0f); glVertex3f( points[1].x, points[1].y, points[1].z );
+		
+		n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
+		glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
+		glEnd();
+		
+		++TRIANGLES_DRAWN_THIS_FRAME;
+		
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -935,11 +875,20 @@ void Graphics::updateParticles()
 	}
 }
 
-void Graphics::world_tick()
+void Graphics::world_tick(Level& lvl)
 {
 	// Don't draw anything here!
 	++world_ticks;
 	updateParticles();
+	
+	Location pos;
+	
+	// position and frustum
+	lvl.splitBTT(pos, frustum);
+	
+	level_triangles.clear();
+	lvl.btt.getTriangles(level_triangles);
+	// cerr << "total triangles: " << level_triangles.size() << endl;
 }
 
 void Graphics::tick()

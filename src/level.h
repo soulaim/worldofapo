@@ -20,9 +20,11 @@ struct Level
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
 	const FixedPoint& getVertexHeight(const int& x, const int& z) const;
 	
+	void splitBTT(const Location& pos, const FrustumR& frustum);
+	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int);
-
+	
 	// wtf physics ffs this is bullshit..
 	FixedPoint getJumpPower(FixedPoint& x, FixedPoint& z);
 
@@ -34,8 +36,6 @@ struct Level
 	
 	// Dynamic environment changes can be done with this function
 	void updateHeight(int x, int z, FixedPoint h);
-	
-	void updateBTT();
 	
 	int max_x() const;
 	int max_z() const;

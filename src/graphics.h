@@ -53,7 +53,8 @@ class Graphics
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
-
+	void setActiveLights(const map<int, LightObject>&, const Location&);
+	
 	// HUD Stuff
 	void drawHUD();
 	void drawMessages();
@@ -82,7 +83,6 @@ class Graphics
 
 
 	std::vector<Particle> viewParticles;
-
 	std::map<std::string, GLuint> shaders;
 	
 	// define some character widths in our particular font
@@ -142,7 +142,7 @@ public:
 	void mouseUp();
 	void mouseDown();
 	void tick();
-	void world_tick();
+	void world_tick(Level& lvl);
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);
