@@ -11,9 +11,9 @@ using namespace std;
 
 DedicatedServer::DedicatedServer(): fps_world(0)
 {
-	client_state = 0;
+	client_state = PAUSED;
 	myID = -1;
-	state_descriptor = 0;
+	state_descriptor = PAUSED;
 	serverAllow = 0;
 	init();
 }
@@ -26,18 +26,5 @@ void DedicatedServer::init()
 	fps_world.reset(milliseconds);
 	
 	srand(time(0));
-	readConfig();
 }
 
-void DedicatedServer::readConfig()
-{
-	//ifstream configFile("config.cfg");
-	//configFile >> localPlayer.name;
-	string name;
-	char *e = getenv("USERNAME");
-	if(e)
-	  name.assign(e);
-	else
-	  name = "failname";
-	localPlayer.name = name;
-}

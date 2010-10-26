@@ -54,9 +54,9 @@ class DedicatedServer
 	World world;
 	
 public:
-	MU_Socket serverSocket; // for hosting games
+//	MU_Socket serverSocket; // for hosting games
 private:
-	MU_Socket clientSocket; // for connecting to all games (also local games)
+//	MU_Socket clientSocket; // for connecting to all games (also local games)
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	
 	OrderContainer clientOrders;
@@ -66,14 +66,19 @@ private:
 	
 	std::map<std::string, PlayerInfo> dormantPlayers;
 	std::map<int        , PlayerInfo> Players;
-	PlayerInfo localPlayer;
 	
-	int state_descriptor;
-	int client_state;
+	enum PausedState
+	{
+		PAUSED = 0,
+		GO
+	};
+	PausedState state_descriptor;
+	PausedState client_state; // Could these separate pause states be merged?
 	
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
 	void handleSignInMessage(int, std::string);
+	void disconnect(int leaver);
 	
 	// some message sending stuff
 	void serverSendMonsterSpawn(int n);
@@ -85,17 +90,16 @@ private:
 	int myID;
 	
 	void init();
-	void readConfig();
 	
-	void handleWorldEvents();
-
 	void sendWorldCopy(const string& areaName, int plrID);
-	void update_kills();
-	void update_deaths();
 
-	// for dedicated server
-	void ServerProcessClientMsgs();
+	void parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player);
+	void handleWorldEvents();
+	void simulateWorldFrame();
+
 	void ServerHandleServerMessage(const Order&);
+	void processClientMsgs();
+	void processClientMsg(const std::string& msg);
 	
 	void send_to_all(const std::string& msg);
 	void acceptConnections();
