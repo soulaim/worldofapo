@@ -920,14 +920,20 @@ void Graphics::updateParticles()
 	}
 }
 
-void Graphics::world_tick(const Level& lvl)
+void Graphics::world_tick(Level& lvl)
 {
 	// Don't draw anything here!
 	++world_ticks;
 	updateParticles();
 	
+	Location pos;
+	
+	// position and frustum
+	lvl.splitBTT(pos, frustum);
+	
 	level_triangles.clear();
 	lvl.btt.getTriangles(level_triangles);
+	// cerr << "total triangles: " << level_triangles.size() << endl;
 }
 
 void Graphics::tick()

@@ -138,7 +138,7 @@ public:
 	void mouseUp();
 	void mouseDown();
 	void tick();
-	void world_tick(const Level& lvl);
+	void world_tick(Level& lvl);
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);

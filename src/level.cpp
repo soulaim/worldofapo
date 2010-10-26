@@ -29,6 +29,11 @@ void interpolate(const Location& A, const Location& B, const Location& C, Locati
 }
 
 
+void Level::splitBTT(const Location& position, const FrustumR& frustum)
+{
+	btt.doSplit(pointheight_info, variance_tree, position, frustum);
+}
+
 Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
 	fpZero = FixedPoint(0);
@@ -64,18 +69,11 @@ void Level::buildVarianceTree()
 	FixedPoint max_error = btt.buildVarianceTree(pointheight_info, variance_tree);
 	cerr << "Maximum encountered variance error: " << max_error << endl;
 	
-	for(int i=1; i<256; i++)
-	{
-//		cerr << variance_tree[i] << endl;
-	}
-	
-	btt.doSplit(pointheight_info, variance_tree);
-	btt.draw(5, 5);
-	
-	vector<BTT_Triangle> tris;
-	
-	btt.getTriangles(tris);
-	cerr << "There is " << tris.size() << " triangles in BTT" << endl;
+	// btt.doSplit(pointheight_info, variance_tree);
+	// btt.draw(5, 5);
+	// vector<BTT_Triangle> tris;
+	// btt.getTriangles(tris);
+	// cerr << "There is " << tris.size() << " triangles in BTT" << endl;
 }
 
 
