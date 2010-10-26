@@ -82,6 +82,7 @@ bool Localplayer::client_tick()
 			
 			game.TICK();
 
+			hud.world_tick();
 			view->world_tick(world.lvl);
 			handleWorldEvents();
 			
