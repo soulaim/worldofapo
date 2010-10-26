@@ -481,25 +481,25 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 void Graphics::drawDebugLines()
 {
 	glColor3f(1.0f, 1.0f, 0.0f);
+	glBegin(GL_LINES);
 	for(size_t i = 0; i < LINES.size(); ++i)
 	{
 		Vec3& p1 = LINES[i].first;
 		Vec3& p2 = LINES[i].second;
-		glBegin(GL_LINES);
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);
-		glEnd();
 	}
+	glEnd();
 
 	glPointSize(5.0f);
 	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POINTS);
 	for(size_t i = 0; i < DOTS.size(); ++i)
 	{
 		Vec3& p1 = DOTS[i];
-		glBegin(GL_POINTS);
 		glVertex3f(p1.x, p1.y, p1.z);
-		glEnd();
 	}
+	glEnd();
 }
 
 void Graphics::drawModels(map<int, Model*>& models)
@@ -542,6 +542,7 @@ void Graphics::drawParticles()
 	
 	glPushMatrix();
 	
+	glBegin(GL_QUADS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		float px = viewParticles[i].pos.x.getFloat();
@@ -560,12 +561,10 @@ void Graphics::drawParticles()
 		
 		float s = viewParticles[i].scale;
 		
-		glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
 		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
-		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		
 		glRotatef(-y_angle, 1.0, 0.0, 0.0);
@@ -573,6 +572,7 @@ void Graphics::drawParticles()
 		
 		glTranslatef(-px, -py, -pz);
 	}
+	glEnd();
 	
 	glPopMatrix();
 	

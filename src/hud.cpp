@@ -338,9 +338,9 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	// reset default colour to white.
 	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
 	
+	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
-		
 		if(msg[i] == '^')
 		{
 			++i;
@@ -368,7 +368,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 			continue;
 		}
 		
-		
 		currentWidth = 0.05 * charWidth[msg[i]];
 		
 		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
@@ -379,14 +378,12 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		int x = msg[i] % 16;
 		int y = 15 - (msg[i] / 16);
 		
-		glBegin(GL_QUADS);
 		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
 		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
 		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
 		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(x_now , y_top, -1);
-		glEnd();
 	}
-	
+	glEnd();
 	glDisable(GL_BLEND);
 	
 	glEnable(GL_DEPTH_TEST);
@@ -394,9 +391,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	
-//	if(lightsActive)
-//		glEnable(GL_LIGHTING);
 }
 
 void Hud::drawMinimap() const
