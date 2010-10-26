@@ -1,5 +1,7 @@
 #include "btt.h"
 #include "fixed_point.h"
+#include "location.h"
+#include "frustum/FrustumR.h"
 
 #include <iostream>
 #include <vector>
@@ -200,7 +202,7 @@ struct BTT_Node
 		}
 	}
 	
-	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex)
+	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex, const Location& position, const FrustumR& frustum)
 	{
 		// lets just try something simple first.
 		
@@ -219,33 +221,57 @@ struct BTT_Node
 		
 		assert(bitti < 12);
 		
-		if(myLod > ((bitti - 1) * 2))
+		// I have ABSOLUTELY no clue whether this is correct or not.
+		if(myLod > ((bitti - 1) * 2) - 1)
 		{
 			return;
 		}
 		
 		if(hasChildren())
 		{
-			left_child->doSplitting(var_tree, h_diffs, myIndex * 2);
-			right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1);
+			left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);
+			right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum);
 			return;
 		}
 		else
 		{
 			// ok, so when do I need to split?
 			
+			// TODO ALERT: ffs.. EIGHT?? should maybe somehow get the number from level.
+			// TODO ALERT: heights of points are not zero. need to fix this.
+			Vec3 points[3];
+			points[0].x = p_left.x * 8;
+			points[0].z = p_left.z * 8;
+			points[0].y = 0; // lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
+			
+			points[1].x = p_right.x * 8;
+			points[1].z = p_right.z * 8;
+			points[1].y = 0; // lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
+			
+			points[2].x = p_top.x * 8;
+			points[2].z = p_top.z * 8;
+			points[2].y = 0; // lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
+			
+			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
+			float r = (semiAverage - points[0]).length();
+			
+			
 			// if not in frustum -> can disable triangle (set neighbour's appropriate neighbour pointer to zero.
+			if(frustum.sphereInFrustum(semiAverage, r) == FrustumR::OUTSIDE)
+			{
+				// well, lets just not split it at this time.
+				// TODO ALERT: SHOULD COMPLETELY DESTROY THIS TRIANGLE, SO IT WONT BE HANDLED LATER ON
+				return;
+			}
+			
 			
 			// if variance error too high for distance -> split
-			
-			// if player character in triangle, split
-			
 			FixedPoint error;
 			if(myIndex >= var_tree.size())
 			{
 				BTT_Point mid = p_left + p_right;
 				mid /= 2;
-				error = (h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2)) .abs();
+				error = (h_diffs[mid.x][mid.z] - (h_diffs[p_left.x][p_left.z] + h_diffs[p_right.x][p_right.z]) / FixedPoint(2)).abs();
 			}
 			else
 			{
@@ -255,9 +281,35 @@ struct BTT_Node
 			if(error > FixedPoint(0))
 			{
 				split();
-				left_child->doSplitting(var_tree, h_diffs, myIndex * 2);
-				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1);
+				left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);
+				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum);
 			}
+			
+			/*
+			float x_diff = (semiAverage.x - position.x.getFloat());
+			float y_diff = (semiAverage.y - position.y.getFloat());
+			float z_diff = (semiAverage.z - position.z.getFloat());
+			float sqrDist = x_diff * x_diff + y_diff * y_diff + z_diff * z_diff;
+			
+			// if error compared to distance is great enough, split
+			if(error > sqrDist / 100.f)
+			{
+				split();
+				left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);
+				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum);
+			}
+			*/
+			
+			/*
+			else if()
+			{
+				// if player character in triangle, split
+				// TODO:
+				
+				return;
+			}
+			*/
+			
 		}
 	}
 	
@@ -390,7 +442,7 @@ void BinaryTriangleTree::reset(int max_x, int max_z)
 	lower_right->p_right.z = 0;
 }
 
-void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree)
+void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum)
 {
 	/*
 	upper_left->killChildren();
@@ -408,8 +460,8 @@ void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_
 	lower_right->left = 0;
 	lower_right->right = 0;
 	
-	upper_left->doSplitting(var_tree, h_diffs, 1);
-	lower_right->doSplitting(var_tree, h_diffs, 2);
+	upper_left->doSplitting(var_tree, h_diffs, 1, position, frustum);
+	lower_right->doSplitting(var_tree, h_diffs, 2, position, frustum);
 }
 
 void BinaryTriangleTree::print() const
