@@ -411,7 +411,7 @@ public:
 		upper_left.shutDown();
 		lower_right.shutDown();
 		
-		upper_left.down = &lower_right;
+		upper_left.down  = &lower_right;
 		lower_right.down = &upper_left;
 		
 		upper_left.p_top.x = 0;
