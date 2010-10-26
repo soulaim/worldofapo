@@ -253,13 +253,13 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 	assert(rotations.size() <= 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 
+	glBegin(GL_TRIANGLES);
 	for(size_t i = 0; i < triangles.size(); ++i)
 	{
 		++TRIANGLES_DRAWN_THIS_FRAME;
 
 		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 1.0);
 
-		glBegin(GL_TRIANGLES);
 		for(int j = 0; j < 3; ++j)
 		{
 			size_t vi = triangles[i].vertices[j];
@@ -294,8 +294,8 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 			glVertex3f(v.x, v.y, v.z);
 			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
 		}
-		glEnd();
 	}
+	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }
 
