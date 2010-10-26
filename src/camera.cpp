@@ -10,7 +10,7 @@ Camera::Camera():
 {
 }
 
-Vec3& Camera::getCurrentTarget()
+Vec3& Camera::getTarget()
 {
 	if(mode == FIRST_PERSON)
 		return fps_direction;
@@ -29,7 +29,7 @@ void Camera::setAboveGround(float min_cam_y)
 	}
 }
 
-Location Camera::getUnitPosition() const
+Location Camera::getUnitLocation() const
 {
 	if(unit)
 	{

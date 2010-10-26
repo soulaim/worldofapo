@@ -57,7 +57,7 @@ void Localplayer::init()
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");
 	
-	view->setPlayerInfo(&game.Players);
+	hud.setPlayerInfo(&game.Players);
 
 	// TODO: Should not be done here? FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -96,12 +96,12 @@ bool Localplayer::client_tick()
 
 void Localplayer::draw()
 {
-	view->setTime( SDL_GetTicks() );
+	hud.setTime( SDL_GetTicks() );
 	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
 		world.viewTick();
 		view->tick();
-		view->draw(world.models, world.lvl, world.units, world.lights, world.o);
+		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud);
 	}
 }
 
@@ -214,7 +214,7 @@ void Localplayer::handleClientLocalInput()
 			clientCommand.append(" ");
 		
 		nick.append(clientCommand);
-		view->setCurrentClientCommand(nick);
+		hud.setCurrentClientCommand(nick);
 	}
 	else
 	{
@@ -227,7 +227,7 @@ void Localplayer::handleClientLocalInput()
 			}
 			
 			clientCommand = "";
-			view->setCurrentClientCommand(clientCommand);
+			hud.setCurrentClientCommand(clientCommand);
 		}
 		
 		if(key == "escape")
@@ -259,17 +259,17 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID != -1)
 	{
-		view->setLocalPlayerName(game.Players[game.myID].name);
-		view->setLocalPlayerHP(world.units[game.myID].hitpoints);
+		hud.setLocalPlayerName(game.Players[game.myID].name);
+		hud.setLocalPlayerHP(world.units[game.myID].hitpoints);
 	}
 
-	view->setZombiesLeft(world.getZombies());
-	view->setHumanPositions(world.humanPositions());
+	hud.setZombiesLeft(world.getZombies());
+	hud.setMinimapHumanPositions(world.humanPositions());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < world.worldMessages.size(); ++i)
 	{
-		view->pushMessage(world.worldMessages[i]);
+		hud.pushMessage(world.worldMessages[i]);
 	}
 	world.worldMessages.clear();
 	
@@ -338,8 +338,8 @@ void Localplayer::handleWorldEvents()
 	}
 	
 	world.events.clear();
-	view->setLocalPlayerKills(game.Players[game.myID].kills);
-	view->setLocalPlayerDeaths(game.Players[game.myID].deaths);
+	hud.setLocalPlayerKills(game.Players[game.myID].kills);
+	hud.setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
 
 

@@ -10,9 +10,7 @@
 #include "order.h"
 #include "playerinfo.h"
 #include "gamesound.h"
-
-#include "net/socket.h"
-#include "net/socket_handler.h"
+#include "hud.h"
 
 #include <string>
 #include <vector>
@@ -55,6 +53,7 @@ private:
 	std::string clientCommand;
 
 	Game game;
+	Hud hud;
 	Graphics* view;
 	UserIO* userio;
 	GameSound soundsystem;

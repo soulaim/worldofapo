@@ -7,6 +7,7 @@
 #include "../userio.h"
 #include "../graphics.h"
 #include "../unit.h"
+#include "../hud.h"
 
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@ class Editor
 {
 	UserIO userio;
 	Graphics view;
+	Hud hud;
 
 	void handle_input();
 	void tick();

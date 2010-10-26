@@ -76,7 +76,7 @@ void Editor::start()
 		last_tick = ticks;
 
 		tick();
-		view.setTime( ticks );
+		hud.setTime( ticks );
 		view.tick();
 		edited_model.tick(world_ticks);
 		skeletal_model.tick(world_ticks);
@@ -156,8 +156,8 @@ void Editor::start()
 		}
 		view.drawModels(models);
 		view.drawDebugLines();
-		view.drawMessages();
-		view.drawString(message, -0.9, 0.9, 1.5, true);
+		hud.drawMessages();
+		hud.drawString(message, -0.9, 0.9, 1.5, true);
 		view.finishDrawing();
 	}
 	else
@@ -181,86 +181,86 @@ bool Editor::type_exists(const std::string& type)
 void Editor::saveModel(const std::string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Saving model to '" + pathed_file + "'");
+	hud.pushMessage("Saving model to '" + pathed_file + "'");
 	if(edited_model.save(pathed_file))
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		modelFile = file;
 		skele = false;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::saveSkeletalModel(const std::string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Saving skeletal model to '" + pathed_file + "'");
+	hud.pushMessage("Saving skeletal model to '" + pathed_file + "'");
 	if(skeletal_model.save(pathed_file))
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		modelFile = file;
 		skele = true;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::saveObjects(const std::string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Saving objects to '" + pathed_file + "'");
+	hud.pushMessage("Saving objects to '" + pathed_file + "'");
 	if(view.saveObjects(pathed_file))
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		objectsFile = file;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::saveAnimations(const std::string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Saving animations to '" + pathed_file + "'");
+	hud.pushMessage("Saving animations to '" + pathed_file + "'");
 	if(Animation::save(pathed_file))
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		animationsFile = file;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::loadObjects(const string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Loading objects from '" + pathed_file + "'");
+	hud.pushMessage("Loading objects from '" + pathed_file + "'");
 	if(view.loadObjects(pathed_file))
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		objectsFile = file;
 		selected_part = 0;
 		editing_single_part = false;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::loadModel(const string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Loading model from '" + pathed_file + "'");
+	hud.pushMessage("Loading model from '" + pathed_file + "'");
 
 	ApoModel model;
 	bool ok = model.load(pathed_file);
@@ -269,20 +269,20 @@ void Editor::loadModel(const string& file)
 		selected_part = 0;
 		editing_single_part = false;
 		edited_model = model;
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		modelFile = file;
 		skele = false;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::loadSkeletalModel(const string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Loading skeletal model from '" + pathed_file + "'");
+	hud.pushMessage("Loading skeletal model from '" + pathed_file + "'");
 
 	SkeletalModel model;
 	bool ok = model.load(pathed_file);
@@ -292,30 +292,30 @@ void Editor::loadSkeletalModel(const string& file)
 		editing_single_part = false;
 		skeletal_model = model;
 		skeletal_model.texture_name = "marine";
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		modelFile = file;
 		skele = true;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
 void Editor::loadAnimations(const string& file)
 {
 	string pathed_file = "models/" + file;
-	view.pushMessage("Loading animations from '" + pathed_file + "'");
+	hud.pushMessage("Loading animations from '" + pathed_file + "'");
 
 	bool ok = Animation::load(pathed_file);
 	if(ok)
 	{
-		view.pushMessage(green("Success"));
+		hud.pushMessage(green("Success"));
 		animationsFile = file;
 	}
 	else
 	{
-		view.pushMessage(red("Fail"));
+		hud.pushMessage(red("Fail"));
 	}
 }
 
@@ -342,7 +342,7 @@ void Editor::move_part(double dx, double dy, double dz)
 {
 	if(edited_model.parts.size() <= selected_part)
 	{
-		view.pushMessage("Failed to move part, no selected part");
+		hud.pushMessage("Failed to move part, no selected part");
 		return;
 	}
 
@@ -353,7 +353,7 @@ void Editor::move_part(double dx, double dy, double dz)
 
 	stringstream ss;
 	ss << "(" << dx << ", " << dy << ", " << dz << ")";
-	view.pushMessage(green("Moved " + modelnode.name + ss.str()));
+	hud.pushMessage(green("Moved " + modelnode.name + ss.str()));
 }
 
 void Editor::rotate_part(double dx, double dy, double dz)
@@ -369,7 +369,7 @@ void Editor::rotate_part(double dx, double dy, double dz)
 	{
 		if(edited_model.parts.size() <= selected_part)
 		{
-			view.pushMessage("Failed to rotate part, no selected part");
+			hud.pushMessage("Failed to rotate part, no selected part");
 			return;
 		}
 		ModelNode& modelnode = edited_model.parts[selected_part];
@@ -379,7 +379,7 @@ void Editor::rotate_part(double dx, double dy, double dz)
 
 		stringstream ss;
 		ss << "(" << dx << ", " << dy << ", " << dz << ")";
-		view.pushMessage(green("Rotated " + modelnode.name + ss.str()));
+		hud.pushMessage(green("Rotated " + modelnode.name + ss.str()));
 	}
 }
 
@@ -392,11 +392,11 @@ void Editor::select_part(const string& part)
 			if(skeletal_model.bones[i].name == part)
 			{
 				selected_part = i;
-				view.pushMessage(green("Selected part " + part));
+				hud.pushMessage(green("Selected part " + part));
 				return;
 			}
 		}
-		view.pushMessage(red("Failed to select part " + part));
+		hud.pushMessage(red("Failed to select part " + part));
 		return;
 	}
 	for(size_t i = 0; i < edited_model.parts.size(); ++i)
@@ -410,18 +410,18 @@ void Editor::select_part(const string& part)
 
 			selected_part = i;
 			edited_model.parts[i].hilight = true;
-			view.pushMessage(green("Selected part " + part));
+			hud.pushMessage(green("Selected part " + part));
 			return;
 		}
 	}
-	view.pushMessage(red("Failed to select part " + part));
+	hud.pushMessage(red("Failed to select part " + part));
 }
 
 void Editor::remove_part()
 {
 	if(edited_model.parts.size() <= selected_part)
 	{
-		view.pushMessage("Failed to remove part, no selected part");
+		hud.pushMessage("Failed to remove part, no selected part");
 		return;
 	}
 	queue<size_t> to_be_removed;
@@ -482,12 +482,12 @@ void Editor::add_part(const std::string& part_name, const std::string& type)
 {
 	if(!edited_model.parts.empty() && selected_part >= edited_model.parts.size())
 	{
-		view.pushMessage(red("Add part failed, select part first"));
+		hud.pushMessage(red("Add part failed, select part first"));
 		return;
 	}
 	if(!type_exists(type))
 	{
-		view.pushMessage(red("Add part failed, type '" + type + "' doesn't exist"));
+		hud.pushMessage(red("Add part failed, type '" + type + "' doesn't exist"));
 		return;
 	}
 	ModelNode new_node;
@@ -501,11 +501,11 @@ void Editor::add_part(const std::string& part_name, const std::string& type)
 	{
 		ModelNode& selected_node = edited_model.parts[selected_part];
 		selected_node.children.push_back(edited_model.parts.size()-1);
-		view.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as child of '" + selected_node.name));
+		hud.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as child of '" + selected_node.name));
 	}
 	else
 	{
-		view.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as root"));
+		hud.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as root"));
 		edited_model.root = 1;
 	}
 
@@ -518,7 +518,7 @@ void Editor::print_model()
 		for(size_t i = 0; i < skeletal_model.bones.size(); ++i)
 		{
 			const Bone& bone = skeletal_model.bones[i];
-			view.pushMessage(bone.name);
+			hud.pushMessage(bone.name);
 
 			cerr << bone.name << ":\n";
 			cerr << "    x: " << bone.start_x << "\n";
@@ -533,7 +533,7 @@ void Editor::print_model()
 	{
 		for(size_t i = 0; i < edited_model.parts.size(); ++i)
 		{
-			view.pushMessage(edited_model.parts[i].name);
+			hud.pushMessage(edited_model.parts[i].name);
 		}
 	}
 }
@@ -543,7 +543,7 @@ void Editor::print_types()
 	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
 	{
 		const std::string& name = it->first;
-		view.pushMessage(name);
+		hud.pushMessage(name);
 	}
 }
 
@@ -556,7 +556,7 @@ void Editor::print_animations()
 		for(auto it2 = it->second.animations.begin(); it2 != it->second.animations.end(); ++it2)
 		{
 			const std::string& animation_name = it2->first;
-			view.pushMessage(type_name + ": '" + animation_name + "'");
+			hud.pushMessage(type_name + ": '" + animation_name + "'");
 		}
 	}
 	*/
@@ -567,7 +567,7 @@ void Editor::print_animations()
 		for(auto it2 = it->animations.begin(); it2 != it->animations.end(); ++it2)
 		{
 			const std::string& animation_name = it2->first;
-			view.pushMessage(part_name + ": '" + animation_name + "'");
+			hud.pushMessage(part_name + ": '" + animation_name + "'");
 		}
 	}
 	*/
@@ -598,7 +598,7 @@ void Editor::type_helper(const std::string& type)
 	edited_model = dummy;
 
 	editing_single_part = true;
-	view.pushMessage("Editing parttype '" + type + "'");
+	hud.pushMessage("Editing parttype '" + type + "'");
 	selected_dot = edited_type->triangles.size() * 3 - 1;
 }
 
@@ -606,7 +606,7 @@ void Editor::edit_type(const std::string& type)
 {
 	if(!type_exists(type))
 	{
-		view.pushMessage(red("Edit part failed, type '" + type + "' doesn't exist"));
+		hud.pushMessage(red("Edit part failed, type '" + type + "' doesn't exist"));
 		return;
 	}
 	type_helper(type);
@@ -616,7 +616,7 @@ void Editor::add_type(const std::string& type)
 {
 	if(type_exists(type))
 	{
-		view.pushMessage(red("Add part type failed, type '" + type + "' exists already"));
+		hud.pushMessage(red("Add part type failed, type '" + type + "' exists already"));
 		return;
 	}
 	type_helper(type);
@@ -626,7 +626,7 @@ void Editor::edit_model()
 {
 	if(!editing_single_part)
 	{
-		view.pushMessage(red("Already editing model."));
+		hud.pushMessage(red("Already editing model."));
 		return;
 	}
 	editing_single_part = false;
@@ -640,7 +640,7 @@ void Editor::dot()
 {
 	if(!editing_single_part)
 	{
-		view.pushMessage(red("dot works only when editing part types."));
+		hud.pushMessage(red("dot works only when editing part types."));
 		return;
 	}
 	new_dots.push_back(current_dot);
@@ -662,7 +662,7 @@ void Editor::dot()
 		selected_dot = edited_type->triangles.size() * 3 - 1;
 		new_dots.clear();
 
-		view.pushMessage(green("Added new triangle: " + ss.str()));
+		hud.pushMessage(green("Added new triangle: " + ss.str()));
 	}
 }
 
@@ -670,7 +670,7 @@ void Editor::next_dot()
 {
 	if(!editing_single_part)
 	{
-		view.pushMessage(red("dot works only when editing part types."));
+		hud.pushMessage(red("dot works only when editing part types."));
 		return;
 	}
 	if(selected_dot < edited_type->triangles.size() * 3 - 1)
@@ -688,7 +688,7 @@ void Editor::prev_dot()
 {
 	if(!editing_single_part)
 	{
-		view.pushMessage(red("dot works only when editing part types."));
+		hud.pushMessage(red("dot works only when editing part types."));
 		return;
 	}
 	if(selected_dot > 0)
@@ -712,12 +712,12 @@ void Editor::play_animation(const string& animation)
 	{
 		edited_model.setAction(animation);
 	}
-	view.pushMessage(green("Playing " + animation));
+	hud.pushMessage(green("Playing " + animation));
 }
 
 void Editor::record_animation(const string& animation)
 {
-	view.pushMessage(green("Recording " + animation));
+	hud.pushMessage(green("Recording " + animation));
 	animation_name = animation;
 }
 
@@ -725,7 +725,7 @@ void Editor::record_step(size_t time)
 {
 	stringstream ss;
 	ss << time;
-	view.pushMessage(green("Recorded step of length " + ss.str()));
+	hud.pushMessage(green("Recorded step of length " + ss.str()));
 
 	if(skele)
 	{
@@ -755,7 +755,7 @@ void Editor::scale(float scalar)
 {
 	if(!editing_single_part)
 	{
-		view.pushMessage(red("Scale works only when editing part types."));
+		hud.pushMessage(red("Scale works only when editing part types."));
 		return;
 	}
 	
@@ -775,13 +775,13 @@ void Editor::scale(float scalar)
 
 	stringstream ss;
 	ss << scalar;
-	view.pushMessage(green("Scaled to " + ss.str()));
+	hud.pushMessage(green("Scaled to " + ss.str()));
 }
 
 
 void Editor::handle_command(const string& command)
 {
-	view.pushMessage(command);
+	hud.pushMessage(command);
 	stringstream ss(command);
 
 	string word1;
@@ -903,7 +903,7 @@ void Editor::handle_command(const string& command)
 		ss1 >> word1 >> speed;
 		stringstream ss2;
 		ss2 << speed;
-		view.pushMessage("Move speed set to " + ss2.str());
+		hud.pushMessage("Move speed set to " + ss2.str());
 	}
 	else if(word1 == "rotate_speed")
 	{
@@ -911,7 +911,7 @@ void Editor::handle_command(const string& command)
 		ss1 >> word1 >> rotate_speed;
 		stringstream ss2;
 		ss2 << rotate_speed;
-		view.pushMessage("Rotate speed set to " + ss2.str());
+		hud.pushMessage("Rotate speed set to " + ss2.str());
 	}
 	else if(word1 == "dot")
 	{
@@ -1090,17 +1090,17 @@ void Editor::handle_input()
 				}
 
 				clientCommand = "";
-				view.setCurrentClientCommand(clientCommand);
+				hud.setCurrentClientCommand(clientCommand);
 			}
 			else if(key == "escape")
 			{
 				writing = false;
 				clientCommand = "";
-				view.setCurrentClientCommand(clientCommand);
+				hud.setCurrentClientCommand(clientCommand);
 			}
 			else
 			{
-				view.setCurrentClientCommand("> " + clientCommand);
+				hud.setCurrentClientCommand("> " + clientCommand);
 			}
 		}
 		else
@@ -1168,7 +1168,7 @@ void Editor::handle_input()
 			else if(key == "return")
 			{
 				writing = true;
-				view.setCurrentClientCommand("> " + clientCommand);
+				hud.setCurrentClientCommand("> " + clientCommand);
 			}
 			else if(key == "escape")
 			{
@@ -1249,6 +1249,6 @@ void Editor::calculate_nearest_bones()
 		cerr << "Nearest: " << skeletal_model.bones[index1].name << " " << weight1
 			<< ", second: " << skeletal_model.bones[index2].name << " " << weight2 << endl;
 	}
-	view.pushMessage(green("Calculated nearest bones"));
+	hud.pushMessage(green("Calculated nearest bones"));
 }
 

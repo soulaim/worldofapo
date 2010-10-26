@@ -23,9 +23,9 @@ public:
 
 
 	Camera();
-	Vec3& getCurrentTarget();
+	Vec3& getTarget();
 	Vec3 getPosition() const;
-	Location getUnitPosition() const;
+	Location getUnitLocation() const;
 
 	void tick();
 
