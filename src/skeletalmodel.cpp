@@ -97,6 +97,14 @@ bool SkeletalModel::load(const string& filename)
 		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
 		<< " triangles, and " << bones.size() << " bones." << endl;
 
+	if(bones.empty())
+	{
+		cerr << "Warning: no bones on skeleton model: " << filename << endl;
+		Bone bone;
+		bone.name = "default";
+		bones.push_back(bone);
+	}
+
 	size_t n = vertices.size();
 	if(texture_coordinates.size() != n || weighted_vertices.size() != n)
 	{
