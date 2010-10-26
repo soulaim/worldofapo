@@ -50,13 +50,8 @@ struct StateInfo
 class DedicatedServer
 {
 	FPS_Manager fps_world;
-	
 	World world;
 	
-public:
-//	MU_Socket serverSocket; // for hosting games
-private:
-//	MU_Socket clientSocket; // for connecting to all games (also local games)
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	
 	OrderContainer clientOrders;
@@ -87,7 +82,6 @@ private:
 	
 	unsigned serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
-	int myID;
 	
 	void init();
 	
@@ -105,7 +99,6 @@ private:
 	void acceptConnections();
 public:
 	DedicatedServer();
-	std::string state;
 	
 	bool start(int port);
 	void host_tick();

@@ -20,7 +20,6 @@ long long time_now()
 DedicatedServer::DedicatedServer(): fps_world(0)
 {
 	client_state = PAUSED;
-	myID = -1;
 	state_descriptor = PAUSED;
 	serverAllow = 0;
 	init();
@@ -28,9 +27,7 @@ DedicatedServer::DedicatedServer(): fps_world(0)
 
 void DedicatedServer::init()
 {
-	timeval t;
-	gettimeofday(&t,NULL);
-	long long milliseconds = t.tv_sec * 1000 + t.tv_usec / 1000;
+	long long milliseconds = time_now();
 	fps_world.reset(milliseconds);
 	
 	srand(time(0));
@@ -138,7 +135,7 @@ void DedicatedServer::host_tick()
 	}
 	
 	// transmit serverMsgs to players
-	for(int k=0; k < static_cast<int>(serverMsgs.size()); k++)
+	for(size_t k = 0; k < serverMsgs.size(); ++k)
 	{
 		// give msg to local handling and send to others.
 		clientOrders.insert(serverMsgs[k]);
@@ -194,9 +191,7 @@ void DedicatedServer::host_tick()
 	}
 	
 	long long milliseconds = time_now();
-	
-	//																									// this seems like THE wrong way to do it.
-	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) ) //|| (sockets.sockets.size() == 0) )
+	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
 		simulateWorldFrame();
 	}
@@ -361,7 +356,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		// just to be sure.
 		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
 		
-		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << ", myID = " << myID << endl;
+		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << endl;
 		cerr << "Creating dummy input for new hero." << endl;
 		
 		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
@@ -380,7 +375,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
-		myID = server_msg.keyState; // trololol. nice place to store the info.
+		cerr << "SERVER HAS NO ID, CAN NOT CHANGE IT" << endl;
 	}
 	else
 	{
