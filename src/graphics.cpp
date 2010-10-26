@@ -472,65 +472,6 @@ void drawNormal(const Level& lvl, int x, int z, int multiplier)
 	glColor3f(1.0, 1.0, 1.0);
 }
 
-void setActiveLights(const map<int, LightObject>& lightsContainer, const FixedPoint& fpx, const FixedPoint& fpy, const FixedPoint& fpz)
-{
-	vector<int> indexes;
-	vector<FixedPoint> distances;
-
-	distances.resize(2, FixedPoint(40000));
-	indexes.resize(2, -1);
-
-	Location fixMe;
-	fixMe.x = fpx;
-	fixMe.y = fpy;
-	fixMe.z = fpz;
-
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-	{
-		const LightObject& light = iter->second;
-		FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-
-
-		if(lightDistance < distances[0])
-		{
-			distances[1] = distances[0];
-			indexes[1]   = indexes[0];
-
-			distances[0] = lightDistance;
-			indexes[0]  = iter->first;
-		}
-		else if(lightDistance < distances[1])
-		{
-			distances[1] = lightDistance;
-			indexes[1]  = iter->first;
-		}
-	}
-
-	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-	{
-		if(indexes[light_i] >= 0)
-		{
-			float rgb[4]; rgb[3] = 1.0f;
-			int light_key = indexes[light_i];
-			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-
-			Location pos = lightsContainer.find(light_key)->second.getPosition();
-
-			rgb[0] = pos.x.getFloat();
-			rgb[1] = pos.y.getFloat();
-			rgb[2] = pos.z.getFloat();
-
-			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-		}
-		else
-		{
-			float rgb[4] = { };
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-		}
-	}
-}
 
 void Graphics::drawDebugHeightDots(const Level& lvl)
 {
@@ -593,6 +534,67 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 	glEnd();
 }
 
+
+
+
+
+void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
+{
+	vector<int> indexes;
+	vector<FixedPoint> distances;
+	
+	distances.resize(2, FixedPoint(40000));
+	indexes.resize(2, -1);
+	
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	{
+		const LightObject& light = iter->second;
+		FixedPoint lightDistance = (light.position - pos).lengthSquared();
+		
+		if(lightDistance < distances[0])
+		{
+			distances[1] = distances[0];
+			indexes[1]   = indexes[0];
+			
+			distances[0] = lightDistance;
+			indexes[0]  = iter->first;
+		}
+		else if(lightDistance < distances[1])
+		{
+			distances[1] = lightDistance;
+			indexes[1]  = iter->first;
+		}
+	}
+	
+	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
+	{
+		if(indexes[light_i] >= 0)
+		{
+			float rgb[4]; rgb[3] = 1.0f;
+			int light_key = indexes[light_i];
+			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+			
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+			
+			Location pos = lightsContainer.find(light_key)->second.getPosition();
+			
+			rgb[0] = pos.x.getFloat();
+			rgb[1] = pos.y.getFloat();
+			rgb[2] = pos.z.getFloat();
+			
+			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
+		}
+		else
+		{
+			float rgb[4] = { };
+			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
+		}
+	}
+}
+
+
+
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
@@ -637,67 +639,13 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 			glColor3f(1.0, 1.0, 1.0);
 		}
 		
-		lightsContainer.empty();
-		
-		
-		
 		// set active lights
-		vector<int> indexes;
-		vector<FixedPoint> distances;
+		Location pos;
+		pos.x = int(semiAverage.x);
+		pos.y = int(semiAverage.x);
+		pos.z = int(semiAverage.x);
 		
-		distances.resize(2, FixedPoint(40000));
-		indexes.resize(2, -1);
-		
-		Location fixMe;
-		fixMe.x = int(semiAverage.x);
-		fixMe.y = 10;
-		fixMe.z = int(semiAverage.z);
-		
-		for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
-		{
-			const LightObject& light = iter->second;
-			FixedPoint lightDistance = (light.position - fixMe).lengthSquared();
-			
-			if(lightDistance < distances[0])
-			{
-				distances[1] = distances[0];
-				indexes[1]   = indexes[0];
-				
-				distances[0] = lightDistance;
-				indexes[0]  = iter->first;
-			}
-			else if(lightDistance < distances[1])
-			{
-				distances[1] = lightDistance;
-				indexes[1]  = iter->first;
-			}
-		}
-		
-		for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-		{
-			if(indexes[light_i] >= 0)
-			{
-				float rgb[4]; rgb[3] = 1.0f;
-				int light_key = indexes[light_i];
-				lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-				
-				glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-				
-				Location pos = lightsContainer.find(light_key)->second.getPosition();
-				
-				rgb[0] = pos.x.getFloat();
-				rgb[1] = pos.y.getFloat();
-				rgb[2] = pos.z.getFloat();
-				
-				glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-			}
-			else
-			{
-				float rgb[4] = { };
-				glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-			}
-		}
-		
+		setActiveLights(lightsContainer, pos);
 		
 		
 		// TODO: Terrain texture

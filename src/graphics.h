@@ -52,7 +52,8 @@ class Graphics
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
-
+	void setActiveLights(const map<int, LightObject>&, const Location&);
+	
 	// HUD Stuff
 	void drawHUD();
 	void drawMessages();
@@ -81,7 +82,6 @@ class Graphics
 
 
 	std::vector<Particle> viewParticles;
-
 	std::map<std::string, GLuint> shaders;
 	
 	// define some character widths in our particular font
