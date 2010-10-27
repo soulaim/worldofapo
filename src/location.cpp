@@ -24,17 +24,6 @@ Location Location::operator/(const FixedPoint& scalar) const
 	return Location(*this) /= scalar;
 }
 
-void Location::normalize()
-{
-	FixedPoint length = (x*x + y*y + z*z).squareRoot();
-	
-	if(length == FixedPoint::ZERO)
-		return;
-	x /= length;
-	y /= length;
-	z /= length;
-}
-
 Location& Location::operator*=(const FixedPoint& scalar)
 {
 	x *= scalar;
