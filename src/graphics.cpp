@@ -58,6 +58,11 @@ void Graphics::initLight()
 	}
 }
 
+void Graphics::toggleWireframeStatus()
+{
+	drawDebugWireframe = !drawDebugWireframe;
+}
+
 void Graphics::toggleLightingStatus()
 {
 	if(lightsActive)
@@ -210,6 +215,7 @@ void Graphics::init()
 	glMatrixMode(GL_MODELVIEW);
 
 	drawDebuglines = false;
+	drawDebugWireframe = false;
 }
 
 void Graphics::createWindow()
@@ -627,8 +633,15 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 	{
 		drawDebugLevelNormals(lvl);
 	}
-	drawLevel(lvl, lights);
-//	drawDebugHeightDots(lvl);
+
+	if(drawDebugWireframe)
+	{
+		drawDebugHeightDots(lvl);
+	}
+	else
+	{
+		drawLevel(lvl, lights);
+	}
 	drawDebugLines();
 	drawBoundingBoxes(units);
 	drawModels(models);

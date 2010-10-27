@@ -188,6 +188,8 @@ void Localplayer::handleClientLocalInput()
 		view->toggleFullscreen();
 	else if(key == "f10")
 		view->toggleLightingStatus();
+	else if(key == "f8")
+		view->toggleWireframeStatus();
 	else if(key == "f9")
 		world.show_errors ^= 1;
 	
