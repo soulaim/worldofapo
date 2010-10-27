@@ -548,7 +548,6 @@ void Graphics::drawParticles()
 	
 	glPushMatrix();
 	
-	glBegin(GL_QUADS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		float px = viewParticles[i].pos.x.getFloat();
@@ -567,10 +566,12 @@ void Graphics::drawParticles()
 		
 		float s = viewParticles[i].scale;
 		
+		glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
 		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
+		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		
 		glRotatef(-y_angle, 1.0, 0.0, 0.0);
@@ -578,7 +579,6 @@ void Graphics::drawParticles()
 		
 		glTranslatef(-px, -py, -pz);
 	}
-	glEnd();
 	
 	glPopMatrix();
 	
