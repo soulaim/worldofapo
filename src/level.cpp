@@ -134,7 +134,13 @@ void Level::updateNormal(int x, int z)
 		return;
 	
 	normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1); // + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
-	normals[x][z].normalize();
+	
+	if(normals[x][z].length() == FixedPoint(0))
+	{
+		cerr << "update normal trying to normalize length 0 vector" << endl;
+	}
+	else
+		normals[x][z].normalize();
 }
 
 Location Level::estimateNormal(int x, int z)
@@ -161,7 +167,12 @@ Location Level::estimateNormal(int x, int z)
 	c.y = pointheight_info[x+1][z];
 	
 	result = (b-a).crossProduct(c-a);
-	result.normalize();
+	if(result.length() == FixedPoint(0))
+	{
+		cerr << "estimate normal trying to normalize length 0 vector" << endl;
+	}
+	else
+		result.normalize();
 	
 	return result;
 }
@@ -278,8 +289,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const Location* p2 = 0;
 	const Location* p3 = 0;
 	
-	
-	// if((z_index + x_index) & 1)
+	if( ((z_index + x_index) & 1) == 0)
 	{
 		p1 = &pD;
 		p2 = &pA;
@@ -294,10 +304,8 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pB;
 		}
 	}
-	/*
 	else
 	{
-	
 		p1 = &pB;
 		p2 = &pC;
 		if(FixedPoint(1) - x_desimal < z_desimal)
@@ -311,7 +319,6 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pA;
 		}
 	}
-	*/
 	
 	Location p(x, 0, z);
 	interpolate(*p1, *p2, *p3, p);

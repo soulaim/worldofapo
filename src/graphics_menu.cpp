@@ -7,7 +7,7 @@ using namespace std;
 
 
 
-void Graphics::drawMenu(vector<MenuButton>& buttons)
+void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 {
 	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_MODELVIEW);

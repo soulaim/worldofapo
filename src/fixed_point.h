@@ -9,7 +9,7 @@
 class FixedPoint
 {
 	long long number;
-	enum { FIXED_POINT_ONE = 1000 };
+	enum { FIXED_POINT_ONE = 1024, FP_BITS_DESIMALS = 9 };
 
 public:
 	static const FixedPoint ZERO;
@@ -20,7 +20,7 @@ public:
 	{
 	}
 	FixedPoint(int a, int b = 1):
-		number( (a * FIXED_POINT_ONE) / b )
+	number( a * FIXED_POINT_ONE / b )
 	{
 	}
 
@@ -37,11 +37,13 @@ public:
 	int getInteger() const
 	{
 		return number / FIXED_POINT_ONE;
+		// return number >> FP_BITS_DESIMALS;
 	}
 	
 	int getDesimal() const
 	{
 		return number % FIXED_POINT_ONE;
+		// return number & ((1 << (FP_BITS_DESIMALS)) - 1);
 	}
 	
 	FixedPoint abs()
@@ -114,14 +116,15 @@ public:
 	{
 		number *= a.number;
 		number /= FIXED_POINT_ONE;
+		// number >>= FP_BITS_DESIMALS;
 		return *this;
 	}
 	
 	FixedPoint& operator/=(const FixedPoint& a)
 	{
 		assert(a.number != 0);
-		
 		number *= FIXED_POINT_ONE;
+		// number <<= FP_BITS_DESIMALS;
 		number /= a.number;
 		return *this;
 	}
@@ -144,7 +147,7 @@ public:
 		for(int i = 0; i < 10; ++i)
 		{
 			currentVal += *this / currentVal;
-			currentVal /= FixedPoint(2);
+			currentVal *= FixedPoint(1, 2);
 		}
 		return currentVal;
 	}

@@ -18,7 +18,6 @@
 #include "animation.h"
 #include "frustum/FrustumR.h"
 #include "camera.h"
-#include "viewmessage.h"
 #include "playerinfo.h"
 
 #include "octree.h"
@@ -32,6 +31,7 @@
 
 struct Level;
 struct MenuButton;
+class Hud;
 
 class Graphics
 {
@@ -43,39 +43,19 @@ class Graphics
 	
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
-	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	
 	void drawModels(std::map<int, Model*>& models);
+	void drawParticles();
 	void updateCamera(const Level&);
 	void updateParticles();
 	void finishDrawing();
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
+	void drawDebugLevelNormals(const Level& lvl);
+
 	void setActiveLights(const std::map<int, LightObject>&, const Location&);
-	
-	// HUD Stuff
-	void drawHUD();
-	void drawMessages();
-	void drawCrossHair();
-	void drawStatusBar();
-	void drawZombiesLeft();
-	void drawBanner();
-	void drawParticles();
-	void drawMinimap();
-	void drawFPS();
-	
-	std::string currentClientCommand;
-	std::vector<ViewMessage> viewMessages;
-	std::string kills;
-	std::string deaths;
-	std::string health;
-	std::string plr_name;
-	std::map<int, PlayerInfo>* Players;
-	int zombieCount;
-	std::vector<Location> humanPositions;
-	
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
@@ -85,34 +65,18 @@ class Graphics
 	std::vector<Particle> viewParticles;
 	std::map<std::string, GLuint> shaders;
 	
-	// define some character widths in our particular font
-	std::vector<float> charWidth;
 	std::vector<BTT_Triangle> level_triangles;
 	
 	SDL_Surface* drawContext;
 	Camera camera;
 	
-	int world_ticks;
-	unsigned currentTime;
 	bool lightsActive;
 	bool drawDebuglines;
+	bool drawDebugWireframe;
 	
 public:
 	static std::map<std::string, ObjectPart> objects; // TODO: Maybe move this somewhere?
 	friend class Editor;
-
-	// HUD stuff
-	void setLocalPlayerName(const std::string&);
-	void setLocalPlayerHP(const int);
-	void setPlayerInfo(std::map<int,PlayerInfo>* pInfo);
-	void setZombiesLeft(int);
-	void setLocalPlayerKills(const int k);
-	void setLocalPlayerDeaths(const int d);
-	void drawStats();
-	void pushMessage(const std::string&);
-	void setCurrentClientCommand(const std::string&);
-	void setHumanPositions(const std::vector<Location>&);
-
 
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate);
@@ -122,14 +86,11 @@ public:
 	void setCamera(const Camera& camera);
 	bool loadObjects(const std::string&);
 	bool saveObjects(const std::string&);
-// 	
-	void setTime(unsigned);
 	
 	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
-		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o,
+		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
 		const std::map<int, Medikit>& medikits);
-	void draw(std::map<int, Model*>&, const std::string& status_message);
-	void drawMenu(std::vector<MenuButton>&);
+	void drawMenu(const std::vector<MenuButton>&) const;
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
@@ -137,6 +98,7 @@ public:
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void toggleLightingStatus();
+	void toggleWireframeStatus();
 	void toggleFullscreen();
 
 	void mouseUp();

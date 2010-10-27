@@ -115,6 +115,11 @@ void Unit::collides(OctreeObject& o)
 	{
 		Unit& u = (Unit&) o;
 		Location direction = (position - u.position);
+		if(direction.length() == FixedPoint(0))
+		{
+			// unresolvable collision. leave it be.
+			return;
+		}
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
 		

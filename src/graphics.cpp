@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "level.h"
 #include "shaders.h"
+#include "hud.h"
 
 #include <iostream>
 #include <iomanip>
@@ -58,6 +59,11 @@ void Graphics::initLight()
 	}
 }
 
+void Graphics::toggleWireframeStatus()
+{
+	drawDebugWireframe = !drawDebugWireframe;
+}
+
 void Graphics::toggleLightingStatus()
 {
 	if(lightsActive)
@@ -100,162 +106,6 @@ void Graphics::genParticles(const Location& position, const Location& velocity, 
 		viewParticles.push_back(p);
 	}
 	
-}
-
-void Graphics::setTime(unsigned time)
-{
-	currentTime = time;
-}
-
-void Graphics::drawCrossHair()
-{
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	
-	TextureHandler::getSingleton().bindTexture("crosshair");
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f, +0.08f, -1);
-	glEnd();
-	
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	
-	if(lightsActive)
-		glEnable(GL_LIGHTING);
-}
-
-void Graphics::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background)
-{
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	
-	TextureHandler::getSingleton().bindTexture("font");
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	float totalWidth = 0.025f;
-	for(size_t i = 0; i < msg.size(); ++i)
-	{
-		if(msg[i] == '^')
-		{
-			++i;
-			continue;
-		}
-		
-		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
-	}
-	
-	float x_now     = 0.0f;
-	float x_next    = pos_x + 0.05;
-	float y_bot     = pos_y;
-	float y_top     = pos_y + 0.05 * scale;
-	float edge_size = 1./16.;
-	
-	// draw a darker background box for the text if that was requested
-	if(background)
-	{
-		glDisable(GL_TEXTURE_2D);
-		glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
-		glBegin(GL_QUADS);
-		glVertex3f(pos_x - 0.01 * scale , y_bot, -1);
-		glVertex3f(pos_x + totalWidth    , y_bot, -1);
-		glVertex3f(pos_x + totalWidth    , y_top, -1);
-		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-	}
-	
-	float currentWidth = 0.f;
-	float lastWidth    = 0.f;
-	
-	// reset default colour to white.
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
-	
-	for(size_t i = 0; i < msg.size(); ++i)
-	{
-		
-		if(msg[i] == '^')
-		{
-			++i;
-			if(msg[i] == 'g')
-				glColor4f(0.1f, 0.6f, 0.1f, 1.0f);
-			else if(msg[i] == 'G')
-				glColor4f(0.1f, 1.0f, 0.1f, 1.0f);
-			else if(msg[i] == 'r')
-				glColor4f(0.6f, 0.1f, 0.1f, 1.0f);
-			else if(msg[i] == 'R')
-				glColor4f(1.0f, 0.1f, 0.1f, 1.0f);
-			else if(msg[i] == 'b')
-				glColor4f(0.1f, 0.1f, 0.6f, 1.0f);
-			else if(msg[i] == 'B')
-				glColor4f(0.1f, 0.1f, 1.0f, 1.0f);
-			else if(msg[i] == 'y')
-				glColor4f(0.7f, 0.7f, 0.0f, 1.0f);
-			else if(msg[i] == 'Y')
-				glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-			else if(msg[i] == 'W')
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-			else if(msg[i] == 'w')
-				glColor4f(0.6f, 0.6f, 0.6f, 1.0f);
-			
-			continue;
-		}
-		
-		
-		currentWidth = 0.05 * charWidth[msg[i]];
-		
-		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
-		x_next = x_now + 0.05f * scale;
-		
-		lastWidth = currentWidth;
-		
-		int x = msg[i] % 16;
-		int y = 15 - (msg[i] / 16);
-		
-		glBegin(GL_QUADS);
-		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
-		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(x_now , y_top, -1);
-		glEnd();
-	}
-	
-	glDisable(GL_BLEND);
-	
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	
-	if(lightsActive)
-		glEnable(GL_LIGHTING);
 }
 
 void Graphics::megaFuck()
@@ -324,70 +174,11 @@ void Graphics::megaFuck()
 
 Graphics::Graphics()
 {
-	currentTime = 0;
-	zombieCount = 0;
-	world_ticks = 0;
 	init();
 }
 
 void Graphics::init()
 {
-	
-	charWidth.resize(255, 1.f);
-	
-	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
-		charWidth[symbol] = 0.22;
-	for(char symbol = 'a'; symbol <= 'z'; symbol++)
-		charWidth[symbol] = 0.19;
-	for(char symbol = '0'; symbol <= '9'; symbol++)
-		charWidth[symbol] = 0.16;
-	
-	charWidth['9'] = 0.20;
-	charWidth['8'] = 0.20;
-	charWidth['4'] = 0.20;
-	charWidth['0'] = 0.23;
-	charWidth['l'] = 0.1;
-	charWidth['r'] = 0.1;
-	charWidth['f'] = 0.1;
-	charWidth['!'] = 0.1;
-	charWidth['t'] = 0.15;
-	charWidth['>'] = 0.15;
-	charWidth['<'] = 0.15;
-	charWidth['i'] = 0.1;
-	charWidth['w'] = 0.25;
-	charWidth['m'] = 0.25;
-	charWidth['j'] = 0.12;
-	charWidth['o'] = 0.19;
-	charWidth['s'] = 0.12;
-	charWidth['I'] = 0.1;
-	charWidth['J'] = 0.12;
-	charWidth['.'] = 0.1;
-	charWidth[','] = 0.1;
-	charWidth[':'] = 0.1;
-	charWidth['?'] = 0.15;
-	charWidth[' '] = 0.1;
-	charWidth[']'] = 0.1;
-	charWidth['['] = 0.1;
-	charWidth[')'] = 0.1;
-	charWidth['('] = 0.1;
-	charWidth['\''] = 0.1;
-	charWidth['-'] = 0.1;
-	charWidth['|'] = 0.1;
-	charWidth['/'] = 0.1;
-	charWidth['_'] = 0.1;
-	charWidth['%'] = 0.13;
-	charWidth['&'] = 0.12;
-	charWidth['='] = 0.13;
-	charWidth['"'] = 0.1;
-	
-	charWidth['S'] = 0.17;
-	charWidth['T'] = 0.19;
-	charWidth['W'] = 0.24;
-	charWidth['Q'] = 0.24;
-	charWidth['O'] = 0.3;
-	charWidth['Z'] = 0.1;
-	charWidth['M'] = 0.3;
-	
 	createWindow(); // let SDL handle this part..
 	
 	initShaders();
@@ -425,6 +216,7 @@ void Graphics::init()
 	glMatrixMode(GL_MODELVIEW);
 
 	drawDebuglines = false;
+	drawDebugWireframe = false;
 }
 
 void Graphics::createWindow()
@@ -595,9 +387,50 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 
 
 
+void Graphics::drawDebugLevelNormals(const Level& lvl)
+{
+	int multiplier = 8;
+	Vec3 points[3];
+
+	glBegin(GL_LINES);
+	for(size_t k=0; k<level_triangles.size(); k++)
+	{
+		BTT_Triangle& tri = level_triangles[k];
+		for(size_t i = 0; i < 3; ++i)
+		{
+			points[i].x = tri.points[i].x * multiplier;
+			points[i].z = tri.points[i].z * multiplier;
+			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+		}
+		
+		Location n;
+		
+		n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
+		Location start;
+		start.x = FixedPoint(int(points[0].x));
+		start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
+		start.z = FixedPoint(int(points[0].z));
+		
+		Location end = start + n;
+		
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
+	}
+	glEnd();
+}
 
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
+	if(lightsActive)
+	{
+		glEnable(GL_LIGHTING);
+	}
+	else
+	{
+		glDisable(GL_LIGHTING);
+	}
 	glUseProgram(shaders["level_program"]);
 	//glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture("grass");
@@ -607,6 +440,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	Vec3 semiAverage;
 	Vec3 points[3];
 
+	glBegin(GL_TRIANGLES);
 	glColor3f(1.0,1.0,1.0);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
@@ -622,24 +456,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		Location n;
 		
-		if(drawDebuglines)
-		{
-			n = lvl.getNormal(tri.points[0].x, tri.points[0].z) * 10;
-			Location start;
-			start.x = FixedPoint(int(points[0].x));
-			start.y = lvl.getVertexHeight(tri.points[0].x, tri.points[0].z);
-			start.z = FixedPoint(int(points[0].z));
-			
-			Location end = start + n;
-			
-			glBegin(GL_LINES);
-			glColor3f(1.0, 0.0, 0.0); glVertex3f(start.x.getFloat(), start.y.getFloat(), start.z.getFloat());
-			glColor3f(0.0, 1.0, 0.0); glVertex3f(end.x.getFloat(), end.y.getFloat(), end.z.getFloat());
-			glEnd();
-			
-			glColor3f(1.0, 1.0, 1.0);
-		}
-		
 		// set active lights
 		Location pos;
 		pos.x = int(semiAverage.x);
@@ -650,7 +466,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		
 		// TODO: Terrain texture
-		glBegin(GL_TRIANGLES);
 		n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 		glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
 		
@@ -659,14 +474,13 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 		n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 		glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
-		glEnd();
 		
 		++TRIANGLES_DRAWN_THIS_FRAME;
 		
 	}
+	glEnd();
 
-	glDisable(GL_TEXTURE_2D);
-	glColor3f(1.0f, 1.0f, 1.0f);
+//	glDisable(GL_TEXTURE_2D);
 	
 	glUseProgram(0);
 }
@@ -674,29 +488,37 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 void Graphics::drawDebugLines()
 {
 	glColor3f(1.0f, 1.0f, 0.0f);
+	glBegin(GL_LINES);
 	for(size_t i = 0; i < LINES.size(); ++i)
 	{
 		Vec3& p1 = LINES[i].first;
 		Vec3& p2 = LINES[i].second;
-		glBegin(GL_LINES);
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);
-		glEnd();
 	}
+	glEnd();
 
 	glPointSize(5.0f);
 	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POINTS);
 	for(size_t i = 0; i < DOTS.size(); ++i)
 	{
 		Vec3& p1 = DOTS[i];
-		glBegin(GL_POINTS);
 		glVertex3f(p1.x, p1.y, p1.z);
-		glEnd();
 	}
+	glEnd();
 }
 
 void Graphics::drawModels(map<int, Model*>& models)
 {
+	if(lightsActive)
+	{
+		glEnable(GL_LIGHTING);
+	}
+	else
+	{
+		glDisable(GL_LIGHTING);
+	}
 	glUseProgram(shaders["unit_program"]);
 	for(map<int, Model*>::iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
@@ -716,7 +538,7 @@ void Graphics::drawModels(map<int, Model*>& models)
 
 void Graphics::drawParticles()
 {
-	Vec3 direction_vector = camera.getCurrentTarget() - camera.getPosition();
+	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector);
 	
 	TextureHandler::getSingleton().bindTexture("particle");
@@ -764,10 +586,6 @@ void Graphics::drawParticles()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-
-	if(lightsActive)
-		glDisable(GL_LIGHTING);
-	
 }
 
 void Graphics::updateCamera(const Level& lvl)
@@ -789,7 +607,7 @@ void Graphics::startDrawing()
 	
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
-	camTarget = camera.getCurrentTarget();
+	camTarget = camera.getTarget();
 
 	upVector.x = 0.f;
 	upVector.y = 1.f;
@@ -807,22 +625,37 @@ void Graphics::startDrawing()
 }
 
 void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<int,Unit>& units,
-	const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o,
+	const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
 	const std::map<int, Medikit>& medikits)
 {
 	updateCamera(lvl);
 
 	startDrawing();
 
-	drawLevel(lvl, lights);
-//	drawDebugHeightDots(lvl);
+	if(drawDebuglines)
+	{
+		drawDebugLevelNormals(lvl);
+	}
+
+	if(drawDebugWireframe)
+	{
+		drawDebugHeightDots(lvl);
+	}
+	else
+	{
+		drawLevel(lvl, lights);
+	}
 	drawDebugLines();
 	drawMedikits(medikits);
 	drawBoundingBoxes(units);
 	drawModels(models);
 	drawParticles();
 	drawOctree(o);
-	drawHUD();
+	if(hud)
+	{
+		hud->setMinimap(-camera.getXrot(), camera.getUnitLocation());
+		hud->draw(camera.isFirstPerson());
+	}
 
 	finishDrawing();
 }
@@ -837,16 +670,6 @@ void Graphics::drawMedikits(const std::map<int, Medikit>& medikits) {
 		Medikit kit = it->second;
 		drawBox(kit.bb_top(), kit.bb_bot());
 	}
-}
-
-void Graphics::draw(std::map<int, Model*>& models, const std::string& status_message)
-{
-	startDrawing();
-	drawDebugLines();
-	drawModels(models);
-	drawMessages();
-	drawString(status_message, -0.9, 0.9, 1.5, true);
-	finishDrawing();
 }
 
 void Graphics::updateInput(int keystate)
@@ -878,7 +701,6 @@ void Graphics::updateParticles()
 void Graphics::world_tick(Level& lvl)
 {
 	// Don't draw anything here!
-	++world_ticks;
 	updateParticles();
 	
 	Location pos;
@@ -926,76 +748,9 @@ void Graphics::mouseDown()
 	camera.zoomOut();
 }
 
-void Graphics::setZombiesLeft(int count)
-{
-	zombieCount = count;
-}
-
-void Graphics::drawMinimap()
-{
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	
-	glTranslatef(0.0f, 0.0f, -1.0f);
-
-	glTranslatef(0.78f, -0.78f, 0.0f);
-	glRotatef(-camera.getXrot(), 0.0f, 0.0f, 1.0f);
-	glTranslatef(-0.78f, 0.78f, 0.0f);
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
-	glBegin(GL_QUADS);
-	glVertex3f(0.60f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.60f, 0.f);
-	glVertex3f(0.60f, -0.60f, 0.f);
-	glEnd();
-	
-	glPointSize(4.0f);
-
-	glBegin(GL_POINTS);
-	for(std::vector<Location>::const_iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
-	{
-		const Location& loc = *iter;
-		const Location& unitPos = camera.getUnitPosition();
-		if(loc == unitPos)
-		{
-			glColor3f(1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			glColor3f(0.0f, 0.0f, 1.0f);
-		}
-		glVertex3f(0.96f - (0.37*loc.x.getFloat())/800.0f, -0.96f + (0.37*loc.z.getFloat())/800.0f, 0.f);
-	}
-	glEnd();
-	
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	if(lightsActive)
-		glEnable(GL_LIGHTING);
-}
-
-void Graphics::setHumanPositions(const std::vector<Location>& positions)
-{
-	humanPositions = positions;
-}
-
 void Graphics::drawBox(const Location& top, const Location& bot,
-	GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+	GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+{
 	glColor4f(r, g, b, a);
 	glLineWidth(1.0f);
 	glBegin(GL_LINES);

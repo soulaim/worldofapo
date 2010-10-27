@@ -17,7 +17,7 @@ struct Location
 	FixedPoint y;
 	FixedPoint z;
 	
-	void normalize();
+	inline void normalize();
 	Location& operator*=(const FixedPoint& scalar);
 	Location& operator/=(const FixedPoint& scalar);
 	Location& operator+=(const Location&);
@@ -38,5 +38,15 @@ bool operator!=(const Location&, const Location&);
 
 std::ostream& operator<<(std::ostream& out, const Location& loc);
 
-#endif
+void Location::normalize()
+{
+	FixedPoint length = (x*x + y*y + z*z).squareRoot();
+	
+	assert(length > FixedPoint(0));
+	
+	x /= length;
+	y /= length;
+	z /= length;
+}
 
+#endif

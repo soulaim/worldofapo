@@ -490,14 +490,7 @@ void Game::processClientMsgs()
 			{
 				int nopause = 0;
 				ss >> nopause;
-				if(!nopause)
-				{
-					paused_state = PAUSED;
-				}
-				else
-				{
-					paused_state = GO;
-				}
+				paused_state = (nopause ? GO : PAUSED);
 			}
 			else
 			{
