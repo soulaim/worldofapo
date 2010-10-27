@@ -416,10 +416,10 @@ void Hud::drawMinimap() const
 	
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
-	glVertex3f(0.60f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.60f, 0.f);
 	glVertex3f(0.60f, -0.60f, 0.f);
+	glVertex3f(0.96f, -0.60f, 0.f);
+	glVertex3f(0.96f, -0.96f, 0.f);
+	glVertex3f(0.60f, -0.96f, 0.f);
 	glEnd();
 	
 	glPointSize(4.0f);
