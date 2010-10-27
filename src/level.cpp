@@ -279,7 +279,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const Location* p3 = 0;
 	
 	
-	// if((z_index + x_index) & 1)
+	if((z_index + x_index) % 2 == 0)
 	{
 		p1 = &pD;
 		p2 = &pA;
@@ -294,10 +294,8 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pB;
 		}
 	}
-	/*
 	else
 	{
-	
 		p1 = &pB;
 		p2 = &pC;
 		if(FixedPoint(1) - x_desimal < z_desimal)
@@ -311,7 +309,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pA;
 		}
 	}
-	*/
+	
 	
 	Location p(x, 0, z);
 	interpolate(*p1, *p2, *p3, p);
