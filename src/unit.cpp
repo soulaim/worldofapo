@@ -3,8 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(1000),
@@ -29,7 +27,7 @@ const Location& Unit::getPosition() const
 }
 
 
-void Unit::setName(const string& newName)
+void Unit::setName(const std::string& newName)
 {
 	name = newName;
 }
@@ -76,7 +74,7 @@ int Unit::getMouseAction(int type)
 }
 
 
-void Unit::handleCopyOrder(stringstream& ss)
+void Unit::handleCopyOrder(std::stringstream& ss)
 {
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
@@ -87,9 +85,9 @@ void Unit::handleCopyOrder(stringstream& ss)
 	getline(ss, name);
 }
 
-string Unit::copyOrder(int ID)
+std::string Unit::copyOrder(int ID)
 {
-	stringstream hero_msg;
+	std::stringstream hero_msg;
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
@@ -128,7 +126,17 @@ void Unit::collides(OctreeObject& o)
 	}
 }
 
-void Unit::init(World& w) {
-	weapon.reset(new MachineGun(w, *this));
+void Unit::init(World& w)
+{
+	weapons.push_back(new MachineGun(w, *this));
+	weapons.push_back(new MedikitWeapon(w, *this));
+	weapon = weapons[0];
+}
+
+void Unit::switchWeapon(unsigned x) {
+	if (x >= weapons.size())
+		return;
+	std::cerr << "switched weapon to " << x << std::endl;
+	weapon = weapons[x-1];
 }
 

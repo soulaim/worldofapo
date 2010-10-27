@@ -260,6 +260,16 @@ void World::tickUnit(Unit& unit, Model* model)
 		unit.velocity.x *= friction;
 		unit.velocity.z *= friction;
 	}
+
+	if(unit.getKeyAction(Unit::WEAPON1))
+	{
+		unit.switchWeapon(1);
+	}
+
+	if(unit.getKeyAction(Unit::WEAPON2))
+	{
+		unit.switchWeapon(2);
+	}
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
@@ -329,9 +339,13 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 
 	if (unit.getMouseAction(Unit::ATTACK_BASIC))
+	{
 		unit.weapon->fire();
+	}
 	else
+	{
 		unit.weapon->tick();
+	}
 
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;

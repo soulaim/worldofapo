@@ -8,6 +8,7 @@
 
 #include "world.h"
 #include "weapon.h"
+#include "medikit_weapon.h"
 #include "machinegun.h"
 #include "location.h"
 #include "apomath.h"
@@ -27,6 +28,8 @@ class Unit : LightSource, public OctreeObject
 			JUMP         = 16,
 			LEAP_LEFT    = 32,
 			LEAP_RIGHT   = 64,
+			WEAPON1      = 128,
+			WEAPON2      = 256,
 			ATTACK_BASIC = 1,
 			
 			HUMAN_INPUT = 0,
@@ -43,7 +46,9 @@ class Unit : LightSource, public OctreeObject
 
 		std::string soundInfo;
 
-		std::shared_ptr<Weapon> weapon;
+		Weapon* weapon;
+		std::vector<Weapon*> weapons;
+
 		
 		// This should really be done soon.
 //		map<std::string, Location> vectors;
@@ -82,6 +87,7 @@ class Unit : LightSource, public OctreeObject
 		void collides(OctreeObject&);
 
 		void init(World& w);
+		void switchWeapon(unsigned);
 
 		bool operator<(const Unit& u) const;
 };
