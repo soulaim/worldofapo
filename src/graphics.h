@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "primitives.h"
 
+#include "medikit.h"
 #include "light_object.h"
 
 struct Level;
@@ -54,7 +55,7 @@ class Graphics
 	void drawDebugLines();
 	void drawDebugLevelNormals(const Level& lvl);
 
-	void setActiveLights(const map<int, LightObject>&, const Location&);
+	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
@@ -86,11 +87,14 @@ public:
 	bool loadObjects(const std::string&);
 	bool saveObjects(const std::string&);
 	
-	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units, const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud);
+	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
+		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
+		const std::map<int, Medikit>& medikits);
 	void drawMenu(const std::vector<MenuButton>&) const;
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
+	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void toggleLightingStatus();

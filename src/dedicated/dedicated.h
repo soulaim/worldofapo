@@ -18,6 +18,7 @@
 #include <queue>
 #include <map>
 #include <set>
+#include <sstream>
 
 
 // information regarding how much of the simulation is allowed to play now,
@@ -85,7 +86,7 @@ class DedicatedServer
 	
 	void init();
 	
-	void sendWorldCopy(const string& areaName, int plrID);
+	void sendWorldCopy(const std::string& areaName, int plrID);
 
 	void parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player);
 	void handleWorldEvents();

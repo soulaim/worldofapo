@@ -12,6 +12,7 @@
 #include "level.h"
 #include "apomath.h"
 #include "octree.h"
+#include "medikit.h"
 
 #include "light_object.h"
 
@@ -57,6 +58,7 @@ public:
 	std::map<int, Unit> units;
 	std::map<int, Model*> models;
 	std::map<int, Projectile> projectiles;
+	std::map<int, Medikit> medikits;
 	
 	std::map<int, LightObject> lights;
 	

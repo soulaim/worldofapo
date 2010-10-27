@@ -2,8 +2,9 @@
 #define H_OCTREE_OBJECT
 
 #include "location.h"
+#include "movable_object.h"
 
-class OctreeObject
+class OctreeObject: public MovableObject
 {
 	public:
 		enum {

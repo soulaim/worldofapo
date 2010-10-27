@@ -86,7 +86,7 @@ bool Localplayer::client_tick()
 			view->world_tick(world.lvl);
 			handleWorldEvents();
 			
-			for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
+			for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 			{
 				playSound(iter->second.soundInfo, iter->second.position);
 			}
@@ -102,11 +102,11 @@ void Localplayer::draw()
 	{
 		world.viewTick();
 		view->tick();
-		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud);
+		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.medikits);
 	}
 }
 
-void Localplayer::playSound(const string& name, Location& position)
+void Localplayer::playSound(const std::string& name, Location& position)
 {
 	// play sounds!
 	if(game.myID != -1)
@@ -177,7 +177,7 @@ void Localplayer::handleClientLocalInput()
 {
 	camera_handling();
 	
-	string key = userio->getSingleKey();
+	std::string key = userio->getSingleKey();
 	
 	if(key.size() == 0)
 		return;
@@ -195,7 +195,7 @@ void Localplayer::handleClientLocalInput()
 	
 	if(client_input_state & 2) // chat message
 	{
-		string nick;
+		std::string nick;
 		nick.append("<");
 		nick.append(game.Players[game.myID].name);
 		nick.append("> ");
@@ -238,7 +238,7 @@ void Localplayer::handleClientLocalInput()
 			game.endGame();
 			
 			// then proceed with local shutdown.
-			cerr << "User pressed ESC, shutting down." << endl;
+			std::cerr << "User pressed ESC, shutting down." << std::endl;
 			SDL_Quit();
 			exit(0);
 		}
@@ -284,7 +284,7 @@ void Localplayer::handleWorldEvents()
 		{
 			case World::DAMAGE_BULLET:
 			{
-				stringstream ss;
+				std::stringstream ss;
 				int x = (rand() % 4);
 				ss << "hit" << x;
 				playSound(ss.str(), event.position);
@@ -328,14 +328,14 @@ void Localplayer::handleWorldEvents()
 			{
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
-					cerr << "Binding camera to unit " << event.actor_id << endl;
+					std::cerr << "Binding camera to unit " << event.actor_id << std::endl;
 					view->bindCamera(&world.units[event.actor_id]);
 				}
 				break;
 			}
 			default:
 			{
-				cerr << "UNKNOWN world EVENT OCCURRED" << endl;
+				std::cerr << "UNKNOWN world EVENT OCCURRED" << std::endl;
 			}
 		}
 	}

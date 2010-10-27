@@ -44,7 +44,7 @@ void releaseFile(char* file)
 	delete[] file;
 }
 
-void Graphics::loadVertexShader(const string& name, const string& filename)
+void Graphics::loadVertexShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 	
@@ -57,7 +57,7 @@ void Graphics::loadVertexShader(const string& name, const string& filename)
 	releaseFile(data);
 }
 
-void Graphics::loadFragmentShader(const string& name, const string& filename)
+void Graphics::loadFragmentShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 
@@ -87,9 +87,9 @@ void printLog(GLuint obj)
 void Graphics::initShaders()
 {
 	if(glewInit() == GLEW_OK)
-		cerr << "GLEW JIHUU :DD" << endl;
+		std::cerr << "GLEW JIHUU :DD" << std::endl;
 	else
-		cerr << "GLEW VITYYY DD:" << endl;
+		std::cerr << "GLEW VITYYY DD:" << std::endl;
 	
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
@@ -118,10 +118,10 @@ void Graphics::initShaders()
 	bone_index_location = glGetAttribLocation(shaders["unit_program"], "bone_index" );
 	glUseProgram(0);
 
-	cerr << "unit_color location: " << unit_color_location << endl;
-	cerr << "color_index location: " << color_index_location << endl;
-	cerr << "bones location: " << bones_location << endl;
-	cerr << "bone_index location: " << bone_index_location << endl;
-	cerr << "bone_weight location: " << bone_weight_location << endl;
+	std::cerr << "unit_color location: " << unit_color_location << std::endl;
+	std::cerr << "color_index location: " << color_index_location << std::endl;
+	std::cerr << "bones location: " << bones_location << std::endl;
+	std::cerr << "bone_index location: " << bone_index_location << std::endl;
+	std::cerr << "bone_weight location: " << bone_weight_location << std::endl;
 }
 

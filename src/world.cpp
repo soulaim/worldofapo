@@ -216,6 +216,7 @@ void World::terminate()
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 	
+	medikits.clear();
 	units.clear();
 	models.clear();
 	projectiles.clear();
@@ -267,6 +268,16 @@ void World::tickUnit(Unit& unit, Model* model)
 		FixedPoint friction = FixedPoint(995, 1000);
 		unit.velocity.x *= friction;
 		unit.velocity.z *= friction;
+	}
+
+	if(unit.getKeyAction(Unit::WEAPON1))
+	{
+		unit.switchWeapon(1);
+	}
+
+	if(unit.getKeyAction(Unit::WEAPON2))
+	{
+		unit.switchWeapon(2);
 	}
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
@@ -336,66 +347,15 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
-	// TODO: THIS SHOULD DEFINITELY NOT LOOK SO FUCKING UGLY
-	if(unit.weapon_cooldown == 0)
+	if (unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		if(unit.getMouseAction(Unit::ATTACK_BASIC))
-		{
-			unit.weapon_cooldown = 2;
-			unit.soundInfo = "shoot";
-
-			// TODO: Following is somewhat duplicated from Camera :G
-
-			Location position;
-			position.x = 30;
-			position.z = 0;
-			position.y = 0;
-
-			int angle   = unit.angle;
-			int upangle = unit.upangle;
-
-			FixedPoint cos = apomath.getCos(angle);
-			FixedPoint sin = apomath.getSin(angle);
-			FixedPoint upcos = apomath.getCos(upangle);
-			FixedPoint upsin = apomath.getSin(upangle);
-			
-			Location relative_position;
-			FixedPoint x = position.x;
-			FixedPoint y = position.y;
-			FixedPoint z = position.z;
-			
-			relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-			relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-			relative_position.y =      -upsin * x           +       upcos * y;
-
-			Location weapon_position = unit.position;
-			Location projectile_direction = relative_position;
-			
-			weapon_position.y += 4;
-			projectile_direction.y += 4;
-
-			int id = nextUnitID();
-			addProjectile(weapon_position, id);
-			
-			Projectile& projectile = projectiles[id];
-			
-			projectile_direction.normalize();
-			projectile.velocity = projectile_direction * FixedPoint(45, 10) + unit.velocity;
-			projectile.tick(); // need to move projectile out of self-range (don't want to shoot self)
-			
-			projectile.velocity = projectile_direction * FixedPoint(10, 1) + unit.velocity;
-			projectile.id = id;
-			projectile.owner = unit.id;
-			
-			projectile.lifetime = 50;
-		}
+		unit.weapon->fire();
 	}
 	else
 	{
-		--unit.weapon_cooldown;
+		unit.weapon->tick();
 	}
-	
-	
+
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;
 	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
@@ -600,7 +560,17 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, models[iter->first], iter->first);
 	}
 	
-	
+
+	for(auto it = medikits.begin(); it != medikits.end(); ++it)
+	{
+		Medikit& kit = it->second;
+		kit.tick(lvl.getHeight(kit.position.x, kit.position.z));
+		if (kit.dead)
+			deadUnits.push_back(it->first);
+		else
+			o->insertObject(&kit);
+	}
+
 	o->doCollisions();
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -664,6 +634,7 @@ void World::viewTick()
 void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
+	units[id].init(*this);
 	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	
@@ -735,6 +706,7 @@ void World::removeUnit(int id)
 {
 	units.erase(id);
 	projectiles.erase(id);
+	medikits.erase(id);
 	delete models[id];
 	models.erase(id);
 }

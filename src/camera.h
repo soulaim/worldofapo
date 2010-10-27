@@ -5,9 +5,9 @@
 #include "fixed_point.h"
 #include "apomath.h"
 #include "location.h"
-#include "unit.h"
 #include "frustum/Vec3.h"
 #include "level.h"
+#include "unit.h"
 
 #include <iostream>
 
