@@ -93,7 +93,6 @@ public:
 	int getZombies();
 	
 	void terminate(); // don't call this unless you mean it :D
-	void spawnMedikits(int n);
 	
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);

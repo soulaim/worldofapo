@@ -5,6 +5,7 @@ Medikit::Medikit()
 	type = OctreeObject::MEDIKIT;
 	flags = 0;
 	flags |= AFFECTED_BY_GRAVITY_BIT;
+	flags |= AFFECTED_BY_FRICTION_BIT;
 	flags |= TERRAIN_COLLISION_BIT;
 	flags |= OBJECT_COLLISION_BIT;
 }
@@ -23,3 +24,4 @@ void Medikit::collides(OctreeObject& o) {
 	if (o.type == OctreeObject::UNIT)
 		dead = true;
 }
+

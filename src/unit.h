@@ -28,8 +28,8 @@ class Unit : LightSource, public OctreeObject
 			JUMP         = 16,
 			LEAP_LEFT    = 32,
 			LEAP_RIGHT   = 64,
-			WEAPON1      = 128,
-			WEAPON2      = 256,
+			WEAPON1      = 1<<20,
+			WEAPON2      = 1<<21,
 			ATTACK_BASIC = 1,
 			
 			HUMAN_INPUT = 0,

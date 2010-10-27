@@ -12,10 +12,10 @@ void MedikitWeapon::fire() {
 
 	u.soundInfo = "shoot";
 
-	Location position;
-	position.x = 30;
-	position.z = 0;
-	position.y = 0;
+	Location pos;
+	pos.x = 30;
+	pos.z = 0;
+	pos.y = 0;
 
 	int angle   = u.angle;
 	int upangle = u.upangle;
@@ -25,38 +25,31 @@ void MedikitWeapon::fire() {
 	FixedPoint upcos = w.apomath.getCos(upangle);
 	FixedPoint upsin = w.apomath.getSin(upangle);
 	
-	Location relative_position;
-	FixedPoint x = position.x;
-	FixedPoint y = position.y;
-	FixedPoint z = position.z;
+	Location relative_pos;
+	FixedPoint x = pos.x;
+	FixedPoint y = pos.y;
+	FixedPoint z = pos.z;
 	
-	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-	relative_position.y =      -upsin * x           +       upcos * y;
+	relative_pos.x = cos * upcos * x - sin * z + cos * upsin * y;
+	relative_pos.z = sin * upcos * x + cos * z + sin * upsin * y;
+	relative_pos.y =      -upsin * x           +       upcos * y;
 
-	Location weapon_position = u.position;
-	Location projectile_direction = relative_position;
+	Location weapon_pos = u.position;
+	Location kit_direction = relative_pos;
 	
-	weapon_position.y += 4;
-	projectile_direction.y += 4;
+	weapon_pos.y += 4;
+	kit_direction.y += 4;
 
 	int id = w.nextUnitID();
-	w.addProjectile(weapon_position, id);
+	w.medikits[id].position = weapon_pos;
 	
-	Projectile& projectile = w.projectiles[id];
+	Medikit& kit = w.medikits[id];
 	
-	projectile_direction.normalize();
-	projectile.velocity = projectile_direction * FixedPoint(45, 10) + u.velocity;
-	projectile.tick(); // need to move projectile out of self-range (don't want to shoot self LOL)
+	kit_direction.normalize();
+	kit.position += kit_direction * FixedPoint(2);
+	kit.velocity = kit_direction * FixedPoint(1) + u.velocity;
 	
-	projectile.velocity = projectile_direction * FixedPoint(10, 1) + u.velocity;
-	projectile.id = id;
-	projectile.owner = u.id;
-	
-	projectile.lifetime = 50;
-
 	cooldown_left = cooldown;
-
 }
 
 void MedikitWeapon::tick() {

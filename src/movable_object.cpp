@@ -17,21 +17,22 @@ void MovableObject::applyGravity()
 	velocity.y -= FixedPoint(35,1000);
 }
 
-int MovableObject::tick(FixedPoint height)
+void MovableObject::tick(FixedPoint terrainHeight)
 {
-	if (dead)
-		return true;
-
 	if (flags & AFFECTED_BY_GRAVITY_BIT)
 		applyGravity();
 
-	if ((flags & TERRAIN_COLLISION_BIT) && (height > velocity.y + position.y))
+	if ((flags & TERRAIN_COLLISION_BIT) && (terrainHeight > velocity.y + position.y))
 	{
-		position.y = height;
+		position.y = terrainHeight;
 		velocity.y = 0;
+		if (flags & AFFECTED_BY_FRICTION_BIT)
+		{
+			FixedPoint friction = FixedPoint(88, 100);
+			velocity.x *= friction;
+			velocity.z *= friction;
+		}
 	}
 	position += velocity;
-
-	return false;
 }
 
