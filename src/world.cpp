@@ -685,8 +685,6 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 1000;
-		
-		cerr << "SPAWNING ALIEN AT FRAME #" << currentWorldFrame << " TO POSITION: " << units[id].position << endl;
 	}
 	else
 	{
@@ -712,7 +710,7 @@ void World::addProjectile(Location& location, int id)
 	models[id] = new ApoModel(prototype); // TODO: still copies some extra constants.
 	models[id]->realUnitPos = position;
 	models[id]->currentModelPos = position;
-
+	
 	projectiles[id].curr_position = location;
 	projectiles[id].owner = id;
 	
