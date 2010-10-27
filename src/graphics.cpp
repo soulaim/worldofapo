@@ -215,6 +215,10 @@ void Graphics::init()
 	
 	glMatrixMode(GL_MODELVIEW);
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+
 	drawDebuglines = false;
 	drawDebugWireframe = false;
 }
@@ -440,7 +444,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	Vec3 semiAverage;
 	Vec3 points[3];
 
-	glBegin(GL_TRIANGLES);
 	glColor3f(1.0,1.0,1.0);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
@@ -459,12 +462,13 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		// set active lights
 		Location pos;
 		pos.x = int(semiAverage.x);
-		pos.y = int(semiAverage.x);
-		pos.z = int(semiAverage.x);
+		pos.y = int(semiAverage.y);
+		pos.z = int(semiAverage.z);
 		
 		setActiveLights(lightsContainer, pos);
 		
 		
+		glBegin(GL_TRIANGLES);
 		// TODO: Terrain texture
 		n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
 		glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
@@ -476,9 +480,9 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
 		
 		++TRIANGLES_DRAWN_THIS_FRAME;
+		glEnd();
 		
 	}
-	glEnd();
 
 //	glDisable(GL_TEXTURE_2D);
 	
@@ -568,10 +572,10 @@ void Graphics::drawParticles()
 		float s = viewParticles[i].scale;
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
 		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		

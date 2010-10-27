@@ -266,10 +266,10 @@ void Hud::drawCrossHair() const
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
 	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f, +0.08f, -1);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
 	glEnd();
 	
 	glDisable(GL_BLEND);
@@ -377,11 +377,11 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		
 		int x = msg[i] % 16;
 		int y = 15 - (msg[i] / 16);
-		
-		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
+
 		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(x_now , y_top, -1);
+		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
+		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
+		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
 	}
 	glEnd();
 	glDisable(GL_BLEND);
@@ -416,10 +416,10 @@ void Hud::drawMinimap() const
 	
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
-	glVertex3f(0.60f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.96f, 0.f);
-	glVertex3f(0.96f, -0.60f, 0.f);
 	glVertex3f(0.60f, -0.60f, 0.f);
+	glVertex3f(0.96f, -0.60f, 0.f);
+	glVertex3f(0.96f, -0.96f, 0.f);
+	glVertex3f(0.60f, -0.96f, 0.f);
 	glEnd();
 	
 	glPointSize(4.0f);
