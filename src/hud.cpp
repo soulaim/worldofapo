@@ -266,10 +266,10 @@ void Hud::drawCrossHair() const
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
 	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f, +0.08f, -1);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
 	glEnd();
 	
 	glDisable(GL_BLEND);
