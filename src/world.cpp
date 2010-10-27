@@ -48,24 +48,33 @@ void World::doDeathFor(Unit& unit)
 	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
 	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
 	
-	int i = currentWorldFrame % killWords.size();
-	msg << killer << killWords[i] << unit.name << afterWords[i];
-	worldMessages.push_back(msg.str());
-	
 	WorldEvent event;
-	
 	event.target_id = target_id;
-	event.actor_id  = actor_id;
+	if(actor_id != target_id)
+	{
+		event.actor_id  = actor_id;
+		
+		int i = currentWorldFrame % killWords.size();
+		msg << killer << killWords[i] << unit.name << afterWords[i];
+		worldMessages.push_back(msg.str());
+	}
+	else
+	{
+		event.actor_id  = -1; // For a suicide, no points are to be awarded.
+		
+		msg << killer << " has committed suicide!" << endl;
+		worldMessages.push_back(msg.str());
+	}
 	
 	event.position = unit.position;
 	event.position.y += FixedPoint(2);
 	event.velocity.y = FixedPoint(200,1000);
 	
-	// ALERT code for creating lights should have it's own function.
+	// TODO ALERT code for creating lights should have it's own function.
 	LightObject& light = lights[nextUnitID()];
 	light.setDiffuse(8.f, 8.f, 8.f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(100); // Some frames of LIGHT!
+	light.setLife(50); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
 	light.position = event.position;

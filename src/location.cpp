@@ -1,9 +1,9 @@
 #include "location.h"
 
 Location::Location():
-	x(0),
-	y(0),
-	z(0)
+	x(FixedPoint(0)),
+	y(FixedPoint(0)),
+	z(FixedPoint(0))
 {
 }
 
