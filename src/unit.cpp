@@ -116,12 +116,21 @@ void Unit::collides(OctreeObject& o)
 	if (o.type != OctreeObject::UNIT)
 		return;
 	Unit& u = (Unit&) o;
+	
 	Location direction = (position - u.position);
+	
+	if(direction.length() == FixedPoint(0))
+	{
+		// unresolvable collision. leave it be.
+		return;
+	}
+	
 	direction.normalize();
 	direction *= FixedPoint(1, 5);
 	
 	velocity += direction;
 	u.velocity -= direction;
+	
 }
 
 bool Unit::operator<(const Unit& u) const {

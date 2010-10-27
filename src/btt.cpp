@@ -278,7 +278,7 @@ struct BTT_Node
 				error = var_tree[myIndex];
 			}
 			
-			if(error > FixedPoint(0))
+			// if(error > FixedPoint(0))
 			{
 				split();
 				left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);

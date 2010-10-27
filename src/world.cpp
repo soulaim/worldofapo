@@ -141,6 +141,16 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
 	Location direction = units[unitID].position - unit.position;
+	
+	if(direction.length() == 0)
+	{
+		// wtf, same position as my target? :G
+		
+		// so probably im devouring him alot ahahaha :DD
+		
+		return;
+	}
+	
 	direction.normalize();
 	
 	Location myDirection;
@@ -666,6 +676,8 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 1000;
+		
+		cerr << "SPAWNING ALIEN AT FRAME #" << currentWorldFrame << " TO POSITION: " << units[id].position << endl;
 	}
 	else
 	{
