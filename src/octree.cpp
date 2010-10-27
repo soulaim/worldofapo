@@ -51,10 +51,10 @@ void Octree::split() {
 		}
 	}
 	hasChildren = true;
-	for(auto it = units.begin(); it != units.end(); ++it) {
+	for(auto it = objects.begin(); it != objects.end(); ++it) {
 		insertObject(*it);
 	}
-	units.clear();
+	objects.clear();
 }
 
 void Octree::insertObject(OctreeObject* o)
@@ -64,7 +64,7 @@ void Octree::insertObject(OctreeObject* o)
 			split();
 			n = 0;
 		} else {
-			units.insert(o);
+			objects.insert(o);
 			n += 1;
 			return;
 		}
@@ -95,26 +95,27 @@ void Octree::insertObject(OctreeObject* o)
 
 const std::set<OctreeObject*>& Octree::nearObjects(const Location& p) const {
 	if (!hasChildren)
-		return units;
+		return objects;
 	int x = (p.x < center.x) ? 0 : 1;
 	int y = (p.y < center.y) ? 0 : 1;
 	int z = (p.z < center.z) ? 0 : 1;
 	return children[x][y][z]->nearObjects(p);
 }
 
-std::vector<std::pair<OctreeObject*, OctreeObject*>> Octree::potUnitUnitColl() const {
-	std::vector<std::pair<OctreeObject*, OctreeObject*>> l;
+void Octree::potUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*>>& l) const {
 	getUnitUnitColl(l);
 	sort(l.begin(), l.end());
 	l.erase(std::unique(l.begin(), l.end()), l.end());
-	return l;
 }
 
 void Octree::getUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*> >& l) const {
-	for(auto u_it = units.begin(); u_it != units.end(); ++u_it) {
-		auto u2_it = u_it;
-		for(++u2_it; u2_it != units.end(); ++u2_it)
-			l.push_back(std::pair<OctreeObject*,OctreeObject*>(*u_it, *u2_it));
+	for(auto o_it = objects.begin(); o_it != objects.end(); ++o_it)
+	{
+		auto o2_it = o_it;
+		for(++o2_it; o2_it != objects.end(); ++o2_it)
+		{
+			l.push_back(std::pair<OctreeObject*,OctreeObject*>(*o_it, *o2_it));
+		}
 	}
 
 	if (hasChildren)
@@ -125,7 +126,8 @@ void Octree::getUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*>
 }
 
 void Octree::doCollisions() {
-	auto l = potUnitUnitColl();
+	std::vector<std::pair<OctreeObject*, OctreeObject*>> l;
+	potUnitUnitColl(l);
 	for(auto it = l.begin(); it != l.end(); ++it)
 	{
 		auto o = it->first;
@@ -133,6 +135,7 @@ void Octree::doCollisions() {
 		if (Collision::boxBox(o->bb_bot(), o->bb_top(), o2->bb_bot(), o2->bb_top()))
 		{
 			o->collides(*o2);
+			o2->collides(*o);
 		}
 	}
 }

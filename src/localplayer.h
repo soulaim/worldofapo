@@ -43,7 +43,7 @@ private:
 	void process_sent_game_input();
 	
 	// fully 3D single channel sounds! :DD
-	void playSound(const string& name, Location& position);
+	void playSound(const std::string& name, Location& position);
 	
 	void enableGrab();
 	void disableGrab();

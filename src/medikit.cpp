@@ -1,15 +1,27 @@
 #include "medikit.h"
 
-Location Medikit::bb_top()
+Medikit::Medikit()
 {
-	return Location(pos.x+1, pos.y+1, pos.z+1);
+	type = OctreeObject::MEDIKIT;
+	flags = 0;
+	flags |= AFFECTED_BY_GRAVITY_BIT;
+	flags |= AFFECTED_BY_FRICTION_BIT;
+	flags |= TERRAIN_COLLISION_BIT;
+	flags |= OBJECT_COLLISION_BIT;
 }
 
-Location Medikit::bb_bot()
+Location Medikit::bb_top() const
 {
-	return Location(pos.x-1, pos.y, pos.z-1);
+	return Location(position.x+1, position.y+1, position.z+1);
 }
 
-void Medikit::collides(OctreeObject&) {
-	std::cerr << "medikit collided!!" <<std::endl;
+Location Medikit::bb_bot() const
+{
+	return Location(position.x-1, position.y, position.z-1);
 }
+
+void Medikit::collides(OctreeObject& o) {
+	if (o.type == OctreeObject::UNIT)
+		dead = true;
+}
+

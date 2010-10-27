@@ -51,9 +51,9 @@ class Editor
 	void undot();
 	void next_dot();
 	void prev_dot();
-	void play_animation(const string& animation);
+	void play_animation(const std::string& animation);
 	void record_step(size_t time);
-	void record_animation(const string& animation);
+	void record_animation(const std::string& animation);
 	void reset();
 	void scale(float scalar);
 	void calculate_nearest_bones();

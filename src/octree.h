@@ -1,9 +1,9 @@
 #ifndef OCTREE_H
 #define OCTREE_H
 
+#include "octree_object.h"
+#include "collision.h"
 #include "location.h"
-#include "unit.h"
-#include "projectile.h"
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -35,14 +35,14 @@ public:
 	std::shared_ptr<Octree> children[2][2][2];
 	int depth;
 	int n;
-	std::set<OctreeObject*> units;
+	std::set<OctreeObject*> objects;
 
 	void split();
 	void insertObject(OctreeObject*);
 	void doCollisions();
 	const std::set<OctreeObject*>& nearObjects(const Location&) const;
-	void getUnitUnitColl(std::vector<std::pair<OctreeObject*,OctreeObject*>>& l) const;
-	std::vector<std::pair<OctreeObject*, OctreeObject*>> potUnitUnitColl() const;
+	void getUnitUnitColl(std::vector<std::pair<OctreeObject*,OctreeObject*>>&) const;
+	void potUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*>>&) const;
 };
 
 
