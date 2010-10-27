@@ -214,6 +214,10 @@ void Graphics::init()
 	
 	glMatrixMode(GL_MODELVIEW);
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+
 	drawDebuglines = false;
 	drawDebugWireframe = false;
 }
@@ -567,10 +571,10 @@ void Graphics::drawParticles()
 		float s = viewParticles[i].scale;
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
 		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		
