@@ -128,6 +128,7 @@ void ApoModel::drawPartsRecursive(int current_node)
 	glRotatef(node.rotation_y, 0, 1, 0);
 	glRotatef(node.rotation_z, 0, 0, 1);
 	
+	glBegin(GL_TRIANGLES);
 	for(size_t i=0; i<obj_part.triangles.size(); i++)
 	{
 		++TRIANGLES_DRAWN_THIS_FRAME;
@@ -140,6 +141,7 @@ void ApoModel::drawPartsRecursive(int current_node)
 		glVertex3f(tri.x[2], tri.y[2], tri.z[2]);
 //		cerr << current_node << "\n";
 	}
+	glEnd();
 	
 	glTranslatef(obj_part.end_x, obj_part.end_y, obj_part.end_z);
 	for(size_t i=0; i<node.children.size(); i++)
@@ -168,9 +170,7 @@ void ApoModel::draw()
 		cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 		return;
 	}
-	glBegin(GL_TRIANGLES);
 	drawPartsRecursive(root);
-	glEnd();
 }
 
 void ApoModel::rotate_y(float angle)

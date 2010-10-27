@@ -71,6 +71,7 @@ class Graphics
 	
 	bool lightsActive;
 	bool drawDebuglines;
+	bool drawDebugWireframe;
 	
 public:
 	static std::map<std::string, ObjectPart> objects; // TODO: Maybe move this somewhere?
@@ -93,6 +94,7 @@ public:
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void toggleLightingStatus();
+	void toggleWireframeStatus();
 	void toggleFullscreen();
 
 	void mouseUp();

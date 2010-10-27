@@ -289,7 +289,6 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const Location* p2 = 0;
 	const Location* p3 = 0;
 	
-	
 	if( ((z_index + x_index) & 1) == 0)
 	{
 		p1 = &pD;
@@ -307,7 +306,6 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	}
 	else
 	{
-	
 		p1 = &pB;
 		p2 = &pC;
 		if(FixedPoint(1) - x_desimal < z_desimal)
