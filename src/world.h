@@ -97,7 +97,7 @@ public:
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
 
-	unsigned long checksum();
+	unsigned long checksum() const;
 };
 
 #endif
