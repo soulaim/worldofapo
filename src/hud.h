@@ -26,6 +26,7 @@ public:
 	void world_tick();
 	void setMinimap(float angle, const Location& unit_location);
 	void setMinimapHumanPositions(const std::vector<Location>&);
+	void setLevelSize(int x, int z);
 
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false) const;
 	void drawMessages();
@@ -42,6 +43,10 @@ private:
 	std::vector<float> charWidth;
 
 	float minimap_angle;
+
+	int level_max_z;
+	int level_max_x;
+
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
 	std::string kills;

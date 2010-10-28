@@ -27,6 +27,7 @@ Localplayer::Localplayer(Graphics* g, UserIO* u):
 	view(g),
 	userio(u)
 {
+	hud.setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 }
 
 

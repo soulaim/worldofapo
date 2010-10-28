@@ -73,6 +73,11 @@ Hud::Hud():
 	charWidth['M'] = 0.3;
 }
 
+void Hud::setLevelSize(int x, int z) {
+	level_max_x = x;
+	level_max_z = z;
+}
+
 void Hud::setLocalPlayerName(const std::string& name)
 {
 	plr_name = name;
@@ -437,7 +442,7 @@ void Hud::drawMinimap() const
 		{
 			glColor3f(0.0f, 0.0f, 1.0f);
 		}
-		glVertex3f(0.96f - (0.37*loc.x.getFloat())/800.0f, -0.96f + (0.37*loc.z.getFloat())/800.0f, 0.f);
+		glVertex3f(0.96f - (0.37*loc.x.getFloat())/level_max_x, -0.96f + (0.37*loc.z.getFloat())/level_max_z, 0.f);
 	}
 	glEnd();
 	
