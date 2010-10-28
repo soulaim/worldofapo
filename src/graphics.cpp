@@ -551,6 +551,8 @@ void Graphics::drawParticles()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	glDepthMask(GL_FALSE); // dont write to depth buffer.
+	
 	glPushMatrix();
 	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -587,6 +589,7 @@ void Graphics::drawParticles()
 	
 	glPopMatrix();
 	
+	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -655,6 +658,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 	drawModels(models);
 	drawParticles();
 	drawOctree(o);
+	
 	if(hud)
 	{
 		hud->setMinimap(-camera.getXrot(), camera.getUnitLocation());
