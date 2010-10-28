@@ -50,6 +50,8 @@ struct StateInfo
 
 class DedicatedServer
 {
+	enum { SERVER_ID = -1 };
+
 	FPS_Manager fps_world;
 	World world;
 	
@@ -93,8 +95,10 @@ class DedicatedServer
 	void simulateWorldFrame();
 
 	void ServerHandleServerMessage(const Order&);
+	void check_messages_from_clients();
 	void processClientMsgs();
 	void processClientMsg(const std::string& msg);
+	void processServerMsgs();
 	
 	void send_to_all(const std::string& msg);
 	void acceptConnections();

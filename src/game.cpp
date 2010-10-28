@@ -17,15 +17,15 @@ Game::Game(World* w):
 	world(w)
 {
 	paused_state = PAUSED;
-	myID = -1;
+	myID = NO_ID;
 }
 
 void Game::reset()
 {
-	Players[-1].name = "GOD";
+	Players[SERVER_ID].name = "GOD";
 	
 	cerr << "Reseting client state." << endl;
-	myID = -1;
+	myID = NO_ID;
 	
 	UnitInput.clear();
 	world->terminate();
@@ -52,7 +52,7 @@ void Game::readConfig()
 
 bool Game::joinInternetGame(const string& hostname)
 {
-	myID = -1;
+	myID = NO_ID;
 	int port = 12345;
 	
 	while(!clientSocket.open(SERVER_ID, hostname, port))
@@ -103,8 +103,8 @@ bool Game::getHeroes(map<string, string>& heroes)
 
 			for(size_t k=0; k<clientOrders.orders.size(); k++)
 			{
-				Logger log;
-				log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
+//				Logger log;
+//				log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
 
 				not_finished = false;
 				string cmd;
@@ -200,7 +200,7 @@ bool Game::client_tick_local()
 	sort(UnitInput.begin(), UnitInput.end());
 	
 	// handle any server commands intended for this frame
-	while((UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
+	while((UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
 		Order server_command = UnitInput.back();
 		UnitInput.pop_back();
@@ -209,7 +209,7 @@ bool Game::client_tick_local()
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) )
 	{
-		if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
+		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 
 		return true;
@@ -221,7 +221,7 @@ bool Game::client_tick_local()
 
 void Game::process_received_game_input()
 {
-	Logger log;
+//	Logger log;
 	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
@@ -230,9 +230,9 @@ void Game::process_received_game_input()
 		UnitInput.pop_back();
 		
 		// log all processed game data affecting commands in the order of processing
-		log.print(tmp.copyOrder() + "\n");
+//		log.print(tmp.copyOrder() + "\n");
 		
-		if(tmp.plr_id == -1)
+		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
@@ -346,8 +346,8 @@ void Game::processClientMsgs()
 		if(clientOrders.orders[i] == "")
 			continue;
 
-		Logger log;
-		log.print("Got message: ---" + clientOrders.orders[i] + "---\n");
+//		Logger log;
+//		log.print("Got message: ---" + clientOrders.orders[i] + "---\n");
 
 		stringstream ss(clientOrders.orders[i]);
 		
@@ -424,9 +424,8 @@ void Game::processClientMsgs()
 		
 		else if(order_type == -1) // A COMMAND message from GOD (server)
 		{
-			
 			Order tmp_order;
-			tmp_order.plr_id = -1;
+			tmp_order.plr_id = SERVER_ID;
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.serverCommand;
 			ss >> tmp_order.keyState;

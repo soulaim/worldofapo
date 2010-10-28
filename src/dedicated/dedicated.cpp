@@ -63,13 +63,8 @@ void DedicatedServer::disconnect(int leaver)
 	sockets.close(leaver);
 }
 
-void DedicatedServer::host_tick()
+void DedicatedServer::check_messages_from_clients()
 {
-	// Read and write network data.
-	sockets.tick();
-
-	acceptConnections();
-	
 	// if there are leavers, send a kill order against one of them
 	int leaver = -1;
 	
@@ -108,6 +103,30 @@ void DedicatedServer::host_tick()
 	{
 		disconnect(leaver);
 	}
+}
+
+void DedicatedServer::processServerMsgs()
+{
+	// this is acceptable because the size is guaranteed to be insignificantly small
+	sort(UnitInput.begin(), UnitInput.end());
+	
+	// handle any server commands intended for this frame
+	while(!UnitInput.empty() && (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
+	{
+		Order server_command = UnitInput.back();
+		UnitInput.pop_back();
+		ServerHandleServerMessage(server_command);
+	}
+}
+
+void DedicatedServer::host_tick()
+{
+	// Read and write network data.
+	sockets.tick();
+
+	acceptConnections();
+
+	check_messages_from_clients();
 	
 	unsigned minAllowed = UINT_MAX;
 	for(auto it = Players.begin(); it != Players.end(); ++it)
@@ -164,10 +183,6 @@ void DedicatedServer::host_tick()
 	// prepare to update game world.
 	processClientMsgs();
 	
-	// this is acceptable because the size is guaranteed to be insignificantly small
-	sort(UnitInput.begin(), UnitInput.end());
-	
-	
 	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
@@ -182,24 +197,22 @@ void DedicatedServer::host_tick()
 		return;
 	}
 	
-	// handle any server commands intended for this frame
-	while(!UnitInput.empty() && (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
-	{
-		Order server_command = UnitInput.back();
-		UnitInput.pop_back();
-		ServerHandleServerMessage(server_command);
-	}
+	processServerMsgs();
 	
 	long long milliseconds = time_now();
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
 		simulateWorldFrame();
 	}
+	else
+	{
+//		cerr << "No need to simulate yet!\n";
+	}
 }
 
 void DedicatedServer::simulateWorldFrame()
 {
-	if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
+	if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
 		cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 	
 	fps_world.insert();
@@ -210,7 +223,7 @@ void DedicatedServer::simulateWorldFrame()
 		Order tmp = UnitInput.back();
 		UnitInput.pop_back();
 		
-		if(tmp.plr_id == -1)
+		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
@@ -307,6 +320,10 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		stringstream chatmsg;
 		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
+	}
+	else
+	{
+		cerr << "BAD CLIENTMESSAGE: '" << msg << "'\n";
 	}
 	
 	// commands passed down to local message handling before sending to others.
@@ -522,7 +539,6 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		
 	}
-	
 	else if(order_type == -4) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message??" << endl;
