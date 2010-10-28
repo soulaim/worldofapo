@@ -171,11 +171,6 @@ bool SkeletalModel::save(const string& filename) const
 	return bool(out);
 }
 
-float SkeletalModel::height() const
-{
-	return 0.f;
-}
-
 void calcMatrices(SkeletalModel& model, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
 {
 	Bone& bone = model.bones[current_bone];
@@ -213,6 +208,8 @@ void SkeletalModel::draw()
 
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 {
+	glUniform1i(active_location, true);
+
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	calcMatrices(*this, 0, rotations, Matrix4(), animation_name, animation_time);

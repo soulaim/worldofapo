@@ -9,6 +9,7 @@ GLint color_index_location = -1;
 GLint bones_location = -1;
 GLint bone_index_location = -1;
 GLint bone_weight_location = -1;
+GLint active_location = -1;
 
 char* readFile(const char *path)
 {
@@ -112,6 +113,7 @@ void Graphics::initShaders()
 	glUseProgram(shaders["unit_program"]);
 	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
 	bones_location = glGetUniformLocation(shaders["unit_program"], "bones" );
+	active_location = glGetUniformLocation(shaders["unit_program"], "active" );
 
 	color_index_location = glGetAttribLocation(shaders["unit_program"], "color_index" );
 	bone_weight_location = glGetAttribLocation(shaders["unit_program"], "bone_weight" );
@@ -123,5 +125,6 @@ void Graphics::initShaders()
 	std::cerr << "bones location: " << bones_location << std::endl;
 	std::cerr << "bone_index location: " << bone_index_location << std::endl;
 	std::cerr << "bone_weight location: " << bone_weight_location << std::endl;
+	std::cerr << "active location: " << active_location << std::endl;
 }
 

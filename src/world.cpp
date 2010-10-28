@@ -641,15 +641,18 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].birthTime = currentWorldFrame;
 
 	static SkeletalModel prototype;
+//	static ApoModel prototype;
 	static bool loaded = false;
 	if(!loaded)
 	{
 		loaded = true;
 		prototype.load("models/model.skeleton");
+//		prototype.load("models/model.bones");
 		prototype.texture_name = "marine";
 	}
 	
 	models[id] = new SkeletalModel(prototype);
+//	models[id] = new ApoModel(prototype);
 	
 	if(!playerCharacter)
 	{

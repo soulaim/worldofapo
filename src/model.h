@@ -28,7 +28,6 @@ struct Model
 	virtual bool save(const std::string& filename) const = 0;
 	virtual void draw() = 0;
 	virtual void rotate_y(float angle) = 0;
-	virtual float height() const = 0;
 };
 
 #endif
