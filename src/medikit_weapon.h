@@ -2,6 +2,7 @@
 #define H_MEDIWEAPON
 
 #include "weapon.h"
+#include "fixed_point.h"
 
 class World;
 class Unit;
@@ -13,12 +14,14 @@ public:
 		w(_w),
 		u(_u),
 		cooldown_left(0),
-		cooldown(2)
+		cooldown(25)
 	{
 	}
 
 	World& w;
 	Unit& u;
+
+	FixedPoint getFriction();
 
 	int cooldown_left;
 	int cooldown;

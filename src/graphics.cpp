@@ -546,6 +546,8 @@ void Graphics::drawParticles()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	glDepthMask(GL_FALSE); // dont write to depth buffer.
+	
 	glPushMatrix();
 	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -557,7 +559,7 @@ void Graphics::drawParticles()
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 		
 		float x_angle = camera.getXrot();
-		float y_angle = camera.getYrot() + 90.0f;
+		float y_angle = -camera.getYrot() - 90.f;
 		
 		glTranslatef(px, py, pz);
 		
@@ -582,6 +584,7 @@ void Graphics::drawParticles()
 	
 	glPopMatrix();
 	
+	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -657,6 +660,7 @@ void Graphics::draw(
 	drawModels(models);
 	drawParticles();
 	drawOctree(o);
+	
 	if(hud)
 	{
 		hud->setMinimap(-camera.getXrot(), camera.getUnitLocation());
@@ -824,5 +828,4 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	}
 	glEnd();
 }
-
 

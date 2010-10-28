@@ -141,7 +141,6 @@ void Unit::init(World& w)
 void Unit::switchWeapon(unsigned x) {
 	if (x > weapons.size())
 		return;
-	std::cerr << "switched weapon to " << x << std::endl;
 	weapon = weapons[x-1];
 }
 

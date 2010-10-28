@@ -19,8 +19,8 @@ long long time_now()
 
 DedicatedServer::DedicatedServer(): fps_world(0)
 {
-	client_state = PAUSED;
-	state_descriptor = PAUSED;
+	client_state = GO;
+	state_descriptor = GO;
 	serverAllow = 0;
 	init();
 }
@@ -144,7 +144,7 @@ void DedicatedServer::host_tick()
 	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
 		minAllowed = simulRules.currentFrame;
 	
-	if( (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
+	if( client_state == GO && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
 	{
 		stringstream allowSimulation_msg;
 		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
@@ -166,7 +166,7 @@ void DedicatedServer::host_tick()
 	
 	if(state_descriptor == PAUSED)
 	{
-		if(simulRules.numPlayers > 0)
+		if(simulRules.numPlayers > 0 && client_state != PAUSED)
 		{
 			// send the beginning commands to all players currently connected.
 			cerr << " I HAVE : " << simulRules.numPlayers << " PLAYERS " << endl;
@@ -218,6 +218,10 @@ void DedicatedServer::simulateWorldFrame()
 	fps_world.insert();
 	
 	
+	static unsigned long checksums[10] = { 0 };
+	int current = simulRules.currentFrame % 10;
+	checksums[current] = world.checksum();
+
 	while(!UnitInput.empty() && UnitInput.back().frameID == simulRules.currentFrame)
 	{
 		Order tmp = UnitInput.back();
@@ -227,6 +231,23 @@ void DedicatedServer::simulateWorldFrame()
 		{
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
+		}
+
+		if (simulRules.currentFrame > 10 && tmp.checksum != checksums[(tmp.frameID + 10 - 5) % 10])
+		{
+			std::cerr << "OOS, client: " << tmp.frameID << ", server: " << simulRules.currentFrame << std::endl;
+			std::cerr << tmp.checksum << std::endl;
+			std::cerr << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
+
+			cerr << "server side:" << std::endl;
+			for (auto it = world.units.begin(); it != world.units.end(); ++it)
+			{
+				int id = it->first;
+				Location pos = it->second.position;
+				cerr << id << ": " << pos << std::endl;
+			}
+			state_descriptor = PAUSED;
+			client_state = PAUSED;
 		}
 		
 		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
@@ -433,7 +454,8 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> tmp_order.keyState;
 		ss >> tmp_order.mousex >> tmp_order.mousey;
 		ss >> tmp_order.mouseButtons;
-		
+		ss >> tmp_order.checksum;
+
 		UnitInput.push_back(tmp_order);
 	}
 	else if(order_type == 2) // playerInfo message

@@ -9,9 +9,9 @@
 class FixedPoint
 {
 	long long number;
+	
+	public:
 	enum { FIXED_POINT_ONE = 1024, FP_BITS_DESIMALS = 9 };
-
-public:
 	static const FixedPoint ZERO;
 
 

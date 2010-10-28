@@ -26,6 +26,7 @@ void ApoMath::init(int size)
 		return;
 	}
 
+	cerr << "Creating a NEW APOMATH :DD" << endl;
 	DEGREES_90 = size / 4;
 	DEGREES_180 = size / 2;
 	DEGREES_360 = size;
