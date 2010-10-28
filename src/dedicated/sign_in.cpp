@@ -134,7 +134,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	
 	// go!
 	std::stringstream clientState_msg;
-	clientState_msg << "-2 CLIENT_STATE " << client_state << "#";
+	clientState_msg << "-2 CLIENT_STATE " << 1 << "#";
 	sockets.write(playerID_val, clientState_msg.str());
 }
 

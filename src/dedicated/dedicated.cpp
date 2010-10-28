@@ -19,8 +19,7 @@ long long time_now()
 
 DedicatedServer::DedicatedServer(): fps_world(0)
 {
-	client_state = GO;
-	state_descriptor = GO;
+	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
 	init();
 }
@@ -144,7 +143,7 @@ void DedicatedServer::host_tick()
 	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
 		minAllowed = simulRules.currentFrame;
 	
-	if( client_state == GO && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
+	if( pause_state == RUNNING && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
 	{
 		stringstream allowSimulation_msg;
 		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
@@ -164,14 +163,14 @@ void DedicatedServer::host_tick()
 	serverMsgs.clear();
 	
 	
-	if(state_descriptor == PAUSED)
+	if(pause_state != RUNNING)
 	{
-		if(simulRules.numPlayers > 0 && client_state != PAUSED)
+		if(simulRules.numPlayers > 0 && pause_state == WAITING_PLAYERS)
 		{
 			// send the beginning commands to all players currently connected.
 			cerr << " I HAVE : " << simulRules.numPlayers << " PLAYERS " << endl;
 			
-			state_descriptor = GO;
+			pause_state = RUNNING;
 			serverMsgs.push_back("-2 GO#");
 		}
 		else
@@ -193,7 +192,7 @@ void DedicatedServer::host_tick()
 		fps_world.reset(milliseconds);
 		
 		cerr << "World shutting down." << endl;
-		state_descriptor = PAUSED;
+		pause_state = WAITING_PLAYERS;
 		return;
 	}
 	
@@ -233,7 +232,8 @@ void DedicatedServer::simulateWorldFrame()
 			break;
 		}
 
-		if (simulRules.currentFrame > 10 && tmp.checksum != checksums[(tmp.frameID + 10 - 5) % 10])
+		unsigned long cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
+		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
 		{
 			std::cerr << "OOS, client: " << tmp.frameID << ", server: " << simulRules.currentFrame << std::endl;
 			std::cerr << tmp.checksum << std::endl;
@@ -246,8 +246,7 @@ void DedicatedServer::simulateWorldFrame()
 				Location pos = it->second.position;
 				cerr << id << ": " << pos << std::endl;
 			}
-			state_descriptor = PAUSED;
-			client_state = PAUSED;
+			pause_state = PAUSED;
 		}
 		
 		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
@@ -369,7 +368,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
 	{
-		client_state = PAUSED;
+		pause_state = PAUSED;
 		cerr << "SERVER: Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
 	
@@ -402,6 +401,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		{
 			Order dummy_order;
 			dummy_order.plr_id = server_msg.keyState;
+			dummy_order.checksum = 0;
 			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
 			
 			dummy_order.frameID = frame + simulRules.currentFrame;
@@ -502,8 +502,8 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> cmd;
 		if(cmd == "GO")
 		{
-			cerr << "Setting client state to GO" << endl;
-			client_state = GO;
+			cerr << "Setting pause state to RUNNING" << endl;
+			pause_state = RUNNING;
 			
 			long long milliseconds = time_now();
 			fps_world.reset(milliseconds);
@@ -550,7 +550,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		{
 			int nopause = 0;
 			ss >> nopause;
-			client_state = (nopause ? GO : PAUSED);
+			pause_state = (nopause ? RUNNING : PAUSED);
 			
 			long long milliseconds = time_now();
 			fps_world.reset(milliseconds);

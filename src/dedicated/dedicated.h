@@ -65,13 +65,13 @@ class DedicatedServer
 	std::map<std::string, PlayerInfo> dormantPlayers;
 	std::map<int        , PlayerInfo> Players;
 	
-	enum PausedState
+	enum PauseState
 	{
-		PAUSED = 0,
-		GO
+		WAITING_PLAYERS,
+		PAUSED,
+		RUNNING
 	};
-	PausedState state_descriptor;
-	PausedState client_state; // Could these separate pause states be merged?
+	PauseState pause_state;
 	
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
