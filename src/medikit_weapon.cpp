@@ -10,13 +10,6 @@ void MedikitWeapon::fire() {
 		return;
 	}
 
-	u.soundInfo = "shoot";
-
-	Location pos;
-	pos.x = 30;
-	pos.z = 0;
-	pos.y = 0;
-
 	int angle   = u.angle;
 	int upangle = u.upangle;
 
@@ -26,9 +19,9 @@ void MedikitWeapon::fire() {
 	FixedPoint upsin = w.apomath.getSin(upangle);
 	
 	Location relative_pos;
-	FixedPoint x = pos.x;
-	FixedPoint y = pos.y;
-	FixedPoint z = pos.z;
+	FixedPoint x = 30;
+	FixedPoint y = 0;
+	FixedPoint z = 0;
 	
 	relative_pos.x = cos * upcos * x - sin * z + cos * upsin * y;
 	relative_pos.z = sin * upcos * x + cos * z + sin * upsin * y;
@@ -46,8 +39,8 @@ void MedikitWeapon::fire() {
 	Medikit& kit = w.medikits[id];
 	
 	kit_direction.normalize();
-	kit.position += kit_direction * FixedPoint(2);
-	kit.velocity = kit_direction * FixedPoint(1) + u.velocity;
+	kit.position += kit_direction * FixedPoint(3);
+	kit.velocity = kit_direction * FixedPoint(1,4) + u.velocity;
 	
 	cooldown_left = cooldown;
 }
@@ -55,5 +48,9 @@ void MedikitWeapon::fire() {
 void MedikitWeapon::tick() {
 	if (cooldown_left > 0)
 		cooldown_left -= 1;
+}
+
+FixedPoint MedikitWeapon::getFriction() {
+	return FixedPoint(1);
 }
 

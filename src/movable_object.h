@@ -19,8 +19,9 @@ public:
 	};
 	
 	MovableObject();
+	virtual FixedPoint getGravity();
+	virtual FixedPoint getFriction();
 	void movableEnable(int);
-	void applyGravity();
 	void tick(FixedPoint height);
 	
 	int flags;
@@ -31,5 +32,4 @@ public:
 };
 
 #endif
-
 

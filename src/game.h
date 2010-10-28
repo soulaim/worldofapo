@@ -49,7 +49,7 @@ class Game
 	World* world;
 
 	SocketHandler clientSocket;
-	enum { SERVER_ID = -1 };
+	enum { NO_ID = -2, SERVER_ID = -1 };
 
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host

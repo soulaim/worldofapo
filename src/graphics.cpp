@@ -829,4 +829,3 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	glEnd();
 }
 
-

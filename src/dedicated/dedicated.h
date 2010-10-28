@@ -50,6 +50,8 @@ struct StateInfo
 
 class DedicatedServer
 {
+	enum { SERVER_ID = -1 };
+
 	FPS_Manager fps_world;
 	World world;
 	
@@ -63,13 +65,13 @@ class DedicatedServer
 	std::map<std::string, PlayerInfo> dormantPlayers;
 	std::map<int        , PlayerInfo> Players;
 	
-	enum PausedState
+	enum PauseState
 	{
-		PAUSED = 0,
-		GO
+		WAITING_PLAYERS,
+		PAUSED,
+		RUNNING
 	};
-	PausedState state_descriptor;
-	PausedState client_state; // Could these separate pause states be merged?
+	PauseState pause_state;
 	
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
@@ -93,8 +95,10 @@ class DedicatedServer
 	void simulateWorldFrame();
 
 	void ServerHandleServerMessage(const Order&);
+	void check_messages_from_clients();
 	void processClientMsgs();
 	void processClientMsg(const std::string& msg);
+	void processServerMsgs();
 	
 	void send_to_all(const std::string& msg);
 	void acceptConnections();

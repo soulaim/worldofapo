@@ -19,8 +19,7 @@ long long time_now()
 
 DedicatedServer::DedicatedServer(): fps_world(0)
 {
-	client_state = PAUSED;
-	state_descriptor = PAUSED;
+	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
 	init();
 }
@@ -63,13 +62,8 @@ void DedicatedServer::disconnect(int leaver)
 	sockets.close(leaver);
 }
 
-void DedicatedServer::host_tick()
+void DedicatedServer::check_messages_from_clients()
 {
-	// Read and write network data.
-	sockets.tick();
-
-	acceptConnections();
-	
 	// if there are leavers, send a kill order against one of them
 	int leaver = -1;
 	
@@ -108,6 +102,30 @@ void DedicatedServer::host_tick()
 	{
 		disconnect(leaver);
 	}
+}
+
+void DedicatedServer::processServerMsgs()
+{
+	// this is acceptable because the size is guaranteed to be insignificantly small
+	sort(UnitInput.begin(), UnitInput.end());
+	
+	// handle any server commands intended for this frame
+	while(!UnitInput.empty() && (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
+	{
+		Order server_command = UnitInput.back();
+		UnitInput.pop_back();
+		ServerHandleServerMessage(server_command);
+	}
+}
+
+void DedicatedServer::host_tick()
+{
+	// Read and write network data.
+	sockets.tick();
+
+	acceptConnections();
+
+	check_messages_from_clients();
 	
 	unsigned minAllowed = UINT_MAX;
 	for(auto it = Players.begin(); it != Players.end(); ++it)
@@ -125,7 +143,7 @@ void DedicatedServer::host_tick()
 	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
 		minAllowed = simulRules.currentFrame;
 	
-	if( (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
+	if( pause_state == RUNNING && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
 	{
 		stringstream allowSimulation_msg;
 		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
@@ -145,14 +163,14 @@ void DedicatedServer::host_tick()
 	serverMsgs.clear();
 	
 	
-	if(state_descriptor == PAUSED)
+	if(pause_state != RUNNING)
 	{
-		if(simulRules.numPlayers > 0)
+		if(simulRules.numPlayers > 0 && pause_state == WAITING_PLAYERS)
 		{
 			// send the beginning commands to all players currently connected.
 			cerr << " I HAVE : " << simulRules.numPlayers << " PLAYERS " << endl;
 			
-			state_descriptor = GO;
+			pause_state = RUNNING;
 			serverMsgs.push_back("-2 GO#");
 		}
 		else
@@ -164,10 +182,6 @@ void DedicatedServer::host_tick()
 	// prepare to update game world.
 	processClientMsgs();
 	
-	// this is acceptable because the size is guaranteed to be insignificantly small
-	sort(UnitInput.begin(), UnitInput.end());
-	
-	
 	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
@@ -178,42 +192,61 @@ void DedicatedServer::host_tick()
 		fps_world.reset(milliseconds);
 		
 		cerr << "World shutting down." << endl;
-		state_descriptor = PAUSED;
+		pause_state = WAITING_PLAYERS;
 		return;
 	}
 	
-	// handle any server commands intended for this frame
-	while(!UnitInput.empty() && (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID == simulRules.currentFrame))
-	{
-		Order server_command = UnitInput.back();
-		UnitInput.pop_back();
-		ServerHandleServerMessage(server_command);
-	}
+	processServerMsgs();
 	
 	long long milliseconds = time_now();
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
 		simulateWorldFrame();
 	}
+	else
+	{
+//		cerr << "No need to simulate yet!\n";
+	}
 }
 
 void DedicatedServer::simulateWorldFrame()
 {
-	if( (UnitInput.back().plr_id == -1) && (UnitInput.back().frameID != simulRules.currentFrame) )
+	if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
 		cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 	
 	fps_world.insert();
 	
 	
+	static unsigned long checksums[10] = { 0 };
+	int current = simulRules.currentFrame % 10;
+	checksums[current] = world.checksum();
+
 	while(!UnitInput.empty() && UnitInput.back().frameID == simulRules.currentFrame)
 	{
 		Order tmp = UnitInput.back();
 		UnitInput.pop_back();
 		
-		if(tmp.plr_id == -1)
+		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
+		}
+
+		unsigned long cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
+		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
+		{
+			std::cerr << "OOS, client: " << tmp.frameID << ", server: " << simulRules.currentFrame << std::endl;
+			std::cerr << tmp.checksum << std::endl;
+			std::cerr << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
+
+			cerr << "server side:" << std::endl;
+			for (auto it = world.units.begin(); it != world.units.end(); ++it)
+			{
+				int id = it->first;
+				Location pos = it->second.position;
+				cerr << id << ": " << pos << std::endl;
+			}
+			pause_state = PAUSED;
 		}
 		
 		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
@@ -308,6 +341,10 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
 	}
+	else
+	{
+		cerr << "BAD CLIENTMESSAGE: '" << msg << "'\n";
+	}
 	
 	// commands passed down to local message handling before sending to others.
 	clientOrders.insert(new_message);
@@ -331,7 +368,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 {
 	if(server_msg.serverCommand == 3) // pause!
 	{
-		client_state = PAUSED;
+		pause_state = PAUSED;
 		cerr << "SERVER: Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
 	
@@ -364,6 +401,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		{
 			Order dummy_order;
 			dummy_order.plr_id = server_msg.keyState;
+			dummy_order.checksum = 0;
 			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
 			
 			dummy_order.frameID = frame + simulRules.currentFrame;
@@ -416,7 +454,8 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> tmp_order.keyState;
 		ss >> tmp_order.mousex >> tmp_order.mousey;
 		ss >> tmp_order.mouseButtons;
-		
+		ss >> tmp_order.checksum;
+
 		UnitInput.push_back(tmp_order);
 	}
 	else if(order_type == 2) // playerInfo message
@@ -463,8 +502,8 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> cmd;
 		if(cmd == "GO")
 		{
-			cerr << "Setting client state to GO" << endl;
-			client_state = GO;
+			cerr << "Setting pause state to RUNNING" << endl;
+			pause_state = RUNNING;
 			
 			long long milliseconds = time_now();
 			fps_world.reset(milliseconds);
@@ -511,7 +550,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		{
 			int nopause = 0;
 			ss >> nopause;
-			client_state = (nopause ? GO : PAUSED);
+			pause_state = (nopause ? RUNNING : PAUSED);
 			
 			long long milliseconds = time_now();
 			fps_world.reset(milliseconds);
@@ -522,7 +561,6 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		
 	}
-	
 	else if(order_type == -4) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message??" << endl;
