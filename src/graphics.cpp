@@ -21,11 +21,6 @@ int QUADS_DRAWN_THIS_FRAME = 0;
 
 std::map<std::string, ObjectPart> Graphics::objects;
 
-float Graphics::modelGround(const Model& model)
-{
-	return model.height();
-}
-
 void Graphics::depthSortParticles(Vec3& d)
 {
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -532,9 +527,9 @@ void Graphics::drawModels(map<int, Model*>& models)
 		
 		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
-			glTranslatef(model.currentModelPos.x, model.currentModelPos.y - modelGround(model), model.currentModelPos.z);
+			glTranslatef(model.currentModelPos.x, model.currentModelPos.y, model.currentModelPos.z);
 			model.draw();
-			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y + modelGround(model), -model.currentModelPos.z);
+			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y, -model.currentModelPos.z);
 		}
 	}
 	glUseProgram(0);
@@ -550,6 +545,8 @@ void Graphics::drawParticles()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glDepthMask(GL_FALSE); // dont write to depth buffer.
 	
 	glPushMatrix();
 	
@@ -587,6 +584,7 @@ void Graphics::drawParticles()
 	
 	glPopMatrix();
 	
+	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -628,9 +626,15 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
-void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<int,Unit>& units,
-	const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
-	const std::map<int, Medikit>& medikits)
+void Graphics::draw(
+	map<int, Model*>& models,
+	const Level& lvl,
+	const std::map<int,Unit>& units,
+	const std::map<int, LightObject>& lights,
+	const std::shared_ptr<Octree> o, Hud* hud,
+	const std::map<int, Medikit>& medikits,
+	const std::map<int, Projectile>& projectiles
+	)
 {
 	updateCamera(lvl);
 
@@ -639,6 +643,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 	if(drawDebuglines)
 	{
 		drawDebugLevelNormals(lvl);
+		drawDebugProjectiles(projectiles);
 	}
 
 	if(drawDebugWireframe)
@@ -655,6 +660,7 @@ void Graphics::draw(map<int, Model*>& models, const Level& lvl, const std::map<i
 	drawModels(models);
 	drawParticles();
 	drawOctree(o);
+	
 	if(hud)
 	{
 		hud->setMinimap(-camera.getXrot(), camera.getUnitLocation());
@@ -809,4 +815,18 @@ void Graphics::drawBoundingBoxes(const std::map<int,Unit>& units)
 		drawBox(iter->second.bb_top(), iter->second.bb_bot());
 	}
 }
+
+void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles)
+{
+	glColor3f(0.3, 0.7, 0.5);
+	glPointSize(4.0f);
+	glBegin(GL_POINTS);
+	for(auto it = projectiles.begin(); it != projectiles.end(); ++it)
+	{
+		const Projectile& proj = it->second;
+		glVertex3f(proj.curr_position.x.getFloat(), proj.curr_position.y.getFloat(), proj.curr_position.z.getFloat());
+	}
+	glEnd();
+}
+
 

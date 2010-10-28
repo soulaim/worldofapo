@@ -47,6 +47,7 @@ Location& Location::operator+=(const Location& a)
 	z += a.z;
 	return *this;
 }
+
 Location& Location::operator-=(const Location& a)
 {
 	x -= a.x;

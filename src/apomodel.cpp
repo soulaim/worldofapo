@@ -95,11 +95,6 @@ bool ApoModel::save(const string& filename) const
 	return bool(out);
 }
 
-float ApoModel::height() const
-{
-	return -2.f;
-}
-
 void ApoModel::drawPartsRecursive(int current_node)
 {
 	if(current_node < 0 || size_t(current_node) >= parts.size())
@@ -170,6 +165,7 @@ void ApoModel::draw()
 		cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 		return;
 	}
+	glUniform1i(active_location, false);
 	drawPartsRecursive(root);
 }
 
