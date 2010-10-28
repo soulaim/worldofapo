@@ -41,7 +41,11 @@ int main()
 		else
 		{
 			string choice = menu.menu_tick();
-			if(choice != "" && master.joinInternetGame(choice))
+			if(choice == "exit")
+			{
+				break;
+			}
+			else if(!choice.empty() && master.joinInternetGame(choice))
 			{
 				in_menu = false;
 				cerr << "Menu ended, game starting" << endl;
@@ -51,7 +55,7 @@ int main()
 		master.draw(); // draws if possible
 	}
 	
-	cerr << "apparently exiting now" << endl;
+	cerr << "Exiting client now." << endl;
 	return 0;
 }
 

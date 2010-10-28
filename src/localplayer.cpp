@@ -73,7 +73,7 @@ bool Localplayer::client_tick()
 	bool stop = game.check_messages_from_server();
 	game.processClientMsgs();
 
-	handleClientLocalInput();
+	stop = stop || !handleClientLocalInput();
 
 	if(!stop && !game.paused())
 	{
@@ -170,14 +170,14 @@ void Localplayer::process_sent_game_input()
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
 
-void Localplayer::handleClientLocalInput()
+bool Localplayer::handleClientLocalInput()
 {
 	camera_handling();
 	
 	std::string key = userio->getSingleKey();
 	
 	if(key.size() == 0)
-		return;
+		return true;
 	
 	if(key == "return")
 		client_input_state ^= 2;
@@ -236,8 +236,7 @@ void Localplayer::handleClientLocalInput()
 			
 			// then proceed with local shutdown.
 			std::cerr << "User pressed ESC, shutting down." << std::endl;
-			SDL_Quit();
-			exit(0);
+			return false;
 		}
 		
 		if(key == "g")
@@ -249,6 +248,7 @@ void Localplayer::handleClientLocalInput()
 			client_input_state ^= 4;
 		}
 	}
+	return true;
 }
 
 

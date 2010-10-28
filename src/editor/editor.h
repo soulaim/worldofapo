@@ -21,8 +21,8 @@ class Editor
 	Graphics view;
 	Hud hud;
 
-	void handle_input();
-	void tick();
+	bool handle_input();
+	bool tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
 	void loadSkeletalModel(const std::string& file);
@@ -57,6 +57,8 @@ class Editor
 	void reset();
 	void scale(float scalar);
 	void calculate_nearest_bones();
+	void swarm(int X, int Y);
+	void release_swarm();
 
 	Unit dummy;
 
@@ -74,6 +76,7 @@ class Editor
 
 	bool skele;
 	SkeletalModel skeletal_model;
+	std::map<int, Model*> models;
 
 	float speed;
 	float rotate_speed;
@@ -91,7 +94,8 @@ class Editor
 	bool drawing_skeleton;
 public:
 	Editor();
-	void start();
+	~Editor();
+	bool start();
 };
 
 

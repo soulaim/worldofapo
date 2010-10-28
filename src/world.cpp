@@ -122,8 +122,6 @@ void World::doDeathFor(Unit& unit)
 
 void World::generateInput_RabidAlien(Unit& unit)
 {
-		unit.updateInput(0, 0, 0, 0);
-		return;
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
 	
@@ -609,6 +607,7 @@ void World::worldTick(int tickCount)
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
+/*
 		// TODO: remove this check maybe.
 		for(size_t j = 0; j < i; ++j)
 		{
@@ -618,6 +617,7 @@ void World::worldTick(int tickCount)
 			}
 		}
 		removeUnit(deadUnits[i]);
+*/
 	}
 	deadUnits.clear();
 	

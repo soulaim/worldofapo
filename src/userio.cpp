@@ -188,14 +188,6 @@ int UserIO::checkEvents()
 	{
 		if(event.type == SDL_KEYDOWN)
 		{
-			/*
-			if(event.key.keysym.sym == SDLK_ESCAPE)
-			{
-				cerr << "User pressed ESC, shutting down." << endl;
-				SDL_Quit();
-				exit(0);
-			}
-			*/
 			keyStates[event.key.keysym.sym] = 1;
 		}
 		
