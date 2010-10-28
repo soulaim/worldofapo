@@ -559,7 +559,7 @@ void Graphics::drawParticles()
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 		
 		float x_angle = camera.getXrot();
-		float y_angle = camera.getYrot() + 90.0f;
+		float y_angle = -camera.getYrot() - 90.f;
 		
 		glTranslatef(px, py, pz);
 		
