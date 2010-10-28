@@ -165,17 +165,18 @@ bool Editor::start()
 			{
 //				skeletal_model.draw(false, selected_part);
 				models[0] = &skeletal_model;
-				view.drawModels(models);
 			}
 		}
 		else
 		{
 			if(drawing_model)
 			{
-				edited_model.draw();
-//				models[0] = &edited_model;
+//				edited_model.draw();
+				models[0] = &edited_model;
 			}
 		}
+		view.drawModels(models);
+
 		view.drawDebugLines();
 		hud.drawFPS();
 		hud.drawMessages();
@@ -1296,24 +1297,22 @@ void Editor::calculate_nearest_bones()
 void Editor::swarm(int X, int Y)
 {
 	release_swarm();
-	if(skele)
+	float x_scalar = 5;
+	float y_scalar = 6;
+	for(int i = 0; i < X; ++i)
 	{
-		int x_scalar = 3;
-		int y_scalar = 4;
-		for(int i = 0; i < X; ++i)
+		for(int j = 0; j < Y; ++j)
 		{
-			for(int j = 0; j < Y; ++j)
-			{
-				SkeletalModel* model = new SkeletalModel(skeletal_model);
-				model->realUnitPos.x = x_scalar * (i - X/2);
-				model->currentModelPos.x = x_scalar * (i - X/2);
-				model->realUnitPos.y = y_scalar * (j - Y/2);
-				model->currentModelPos.y = y_scalar * (j - Y/2);
-				model->texture_name = "marine";
-				models[i*Y + j + 1] = model;
-			}
+			Model* model = (skele ? (Model*)new SkeletalModel(skeletal_model) : (Model*)new ApoModel(edited_model));
+			model->realUnitPos.x = x_scalar * (i - X/2);
+			model->currentModelPos.x = x_scalar * (i - X/2);
+			model->realUnitPos.y = y_scalar * (j - Y/2);
+			model->currentModelPos.y = y_scalar * (j - Y/2);
+			model->texture_name = "marine";
+			models[i*Y + j + 1] = model;
 		}
 	}
+
 	stringstream ss;
 	ss << X*Y;
 	hud.pushMessage(red("SWARM! " + ss.str()));

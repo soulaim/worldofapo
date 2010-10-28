@@ -229,8 +229,6 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 			}
 			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
 			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
-//			Vec3 line_start = rotations[i] * Vec3(0,0,0);
-//			Vec3 line_end = rotations[i] * (end - start);
 			Vec3 line_start = rotations[i] * start;
 			Vec3 line_end = rotations[i] * end;
 			
@@ -238,7 +236,6 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 			glVertex3f(line_start.x, line_start.y, line_start.z);
 			glVertex3f(line_end.x, line_end.y, line_end.z);
 			glEnd();
-//			cerr << i << " has start at " << line_start << "\n";
 		}
 		return;
 	}
