@@ -7,12 +7,23 @@
 
 class Particle
 {
-	public:
+public:
 	
+	// could be used for game state
 	int max_life;
 	int cur_life;
-	Location pos;
+	
+	// could be used for game state
+	Location pos, prev_pos;
 	Location vel;
+	
+	// graphics only
+	float depthVal;
+	float scale;
+	float r;
+	float g;
+	float b;
+	float a;
 	
 	void tick()
 	{
@@ -44,13 +55,19 @@ class Particle
 	{
 		return depthVal > a.depthVal;
 	}
+};
+
+
+// describes 
+class ParticleSystem
+{
+	std::string texture_name;
+	std::vector<Particle> particles;
 	
-	float depthVal;
-	float scale;
-	float r;
-	float g;
-	float b;
-	float a;
+	float startColor[4];
+	float endColor[4];
+	
+	int lifeTime;
 };
 
 #endif

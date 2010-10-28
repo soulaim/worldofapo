@@ -574,6 +574,7 @@ void World::worldTick(int tickCount)
 			o->insertObject(&kit);
 	}
 
+	
 	o->doCollisions();
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
