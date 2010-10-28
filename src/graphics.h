@@ -28,6 +28,7 @@
 
 #include "medikit.h"
 #include "light_object.h"
+#include "projectile.h"
 
 struct Level;
 struct MenuButton;
@@ -39,7 +40,6 @@ class Graphics
 	void initLight();
 	
 	void createWindow();
-	float modelGround(const Model& model);
 	
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
@@ -54,6 +54,7 @@ class Graphics
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
 	void drawDebugLevelNormals(const Level& lvl);
+	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
 
 	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 
@@ -89,7 +90,8 @@ public:
 	
 	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
 		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
-		const std::map<int, Medikit>& medikits);
+		const std::map<int, Medikit>& medikits,
+		const std::map<int, Projectile>& projectiles);
 	void drawMenu(const std::vector<MenuButton>&) const;
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);

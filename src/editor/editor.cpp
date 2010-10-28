@@ -144,17 +144,17 @@ void Editor::start()
 			{
 //				skeletal_model.draw(false, selected_part);
 				models[0] = &skeletal_model;
+				view.drawModels(models);
 			}
 		}
 		else
 		{
 			if(drawing_model)
 			{
-//				edited_model.draw();
-				models[0] = &edited_model;
+				edited_model.draw();
+//				models[0] = &edited_model;
 			}
 		}
-		view.drawModels(models);
 		view.drawDebugLines();
 		hud.drawMessages();
 		hud.drawString(message, -0.9, 0.9, 1.5, true);
@@ -585,8 +585,8 @@ void Editor::type_helper(const std::string& type)
 	stored_model = edited_model;
 	ApoModel dummy;
 	dummy.root = 0;
-	dummy.currentModelPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
-	dummy.realUnitPos = Vec3(0.0f, view.modelGround(dummy), 0.0f);
+	dummy.currentModelPos = Vec3(0.0f, 0.0f, 0.0f);
+	dummy.realUnitPos = Vec3(0.0f, 0.0f, 0.0f);
 	dummy.animation_time = 0;
 	ModelNode node;
 	node.name = "dummy";
