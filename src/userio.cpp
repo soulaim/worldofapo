@@ -7,6 +7,10 @@ UserIO::UserIO()
 {
 	mouseButtons = 0;
 	mouse = Coord(-1, -1);
+	wheel_has_been_scrolled_up = false;
+	wheel_has_been_scrolled_down = false;
+	keystate = 0;
+	numKeys = 0;
 }
 
 // this must not be called before SDL has initialized
