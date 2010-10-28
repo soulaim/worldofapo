@@ -84,7 +84,7 @@ Location Level::getRandomLocation(int seed)
 	Location result;
 	result.x = ((173  * seed) % LEVEL_LVLSIZE) * 8;
 	result.z = ((833 * seed) % LEVEL_LVLSIZE) * 8;
-	result.y = FixedPoint(100);
+	result.y = FixedPoint(15);
 	return result;
 }
 
@@ -429,6 +429,10 @@ void Level::generate(int seed)
 			y_p += (rand() % 3) - 1;
 		}
 	}
+	
+	// create a suicide hill.
+	updateHeight(50, 50, FixedPoint(60));
+	
 	
 	// after level has been fully defined, build the corresponding variance tree.
 	buildVarianceTree();

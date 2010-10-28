@@ -245,9 +245,12 @@ void World::tickUnit(Unit& unit, Model* model)
 			unit.soundInfo = "jump_land";
 		if(unit.velocity.y < FixedPoint(-12, 10))
 		{
+			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
+			int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
+			
 			unit.velocity.x *= FixedPoint(10, 100);
 			unit.velocity.z *= FixedPoint(10, 100);
-			unit.hitpoints -= 50;
+			unit.hitpoints -= damage_int * damage_int / 500;
 			
 			unit.last_damage_dealt_by = unit.id;
 		}
