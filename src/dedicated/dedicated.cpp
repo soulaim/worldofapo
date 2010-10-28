@@ -205,6 +205,10 @@ void DedicatedServer::simulateWorldFrame()
 	fps_world.insert();
 	
 	
+	static unsigned long megahack[10] = { 0 };
+	int current = simulRules.currentFrame % 10;
+	megahack[current] = world.checksum();
+
 	while(!UnitInput.empty() && UnitInput.back().frameID == simulRules.currentFrame)
 	{
 		Order tmp = UnitInput.back();
@@ -214,6 +218,23 @@ void DedicatedServer::simulateWorldFrame()
 		{
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
+		}
+
+		if (tmp.checksum != megahack[(tmp.frameID + 5) % 10])
+		{
+			std::cerr << "OOS, client: " << tmp.frameID << ", server: " << simulRules.currentFrame << std::endl;
+			std::cerr << tmp.checksum << std::endl;
+			std::cerr << megahack[(tmp.frameID + 5) % 10] << std::endl;
+
+			cerr << "server side:" << std::endl;
+			for (auto it = world.units.begin(); it != world.units.end(); ++it)
+			{
+				int id = it->first;
+				Location pos = it->second.position;
+
+				cerr << id << ": " << pos << std::endl;
+			}
+			state_descriptor = PAUSED;
 		}
 		
 		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
@@ -416,7 +437,8 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> tmp_order.keyState;
 		ss >> tmp_order.mousex >> tmp_order.mousey;
 		ss >> tmp_order.mouseButtons;
-		
+		ss >> tmp_order.checksum;
+
 		UnitInput.push_back(tmp_order);
 	}
 	else if(order_type == 2) // playerInfo message

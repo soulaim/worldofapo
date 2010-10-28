@@ -16,6 +16,21 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
+unsigned long World::checksum() {
+	unsigned long hash = 5381;
+
+	for (auto it = units.begin(); it != units.end(); ++it) {
+		int id = it->first;
+		Location pos = it->second.position;
+		hash = ((hash << 5) + hash) + id;
+		hash = ((hash << 5) + hash) + pos.x.getInteger();
+		hash = ((hash << 5) + hash) + pos.y.getInteger();
+		hash = ((hash << 5) + hash) + pos.z.getInteger();
+	}
+
+	return hash;
+}
+
 void World::doDeathFor(Unit& unit)
 {
 	stringstream msg;

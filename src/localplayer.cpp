@@ -59,6 +59,7 @@ void Localplayer::init()
 	Animation::load("models/skeleani.animation");
 	
 	hud.setPlayerInfo(&game.Players);
+	hud.setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
@@ -263,12 +264,12 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID != -1)
 	{
+		hud.setLocalPlayerID(game.myID);
 		hud.setLocalPlayerName(game.Players[game.myID].name);
 		hud.setLocalPlayerHP(world.units[game.myID].hitpoints);
 	}
 
 	hud.setZombiesLeft(world.getZombies());
-	hud.setMinimapHumanPositions(world.humanPositions());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < world.worldMessages.size(); ++i)
@@ -345,5 +346,4 @@ void Localplayer::handleWorldEvents()
 	hud.setLocalPlayerKills(game.Players[game.myID].kills);
 	hud.setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
-
 

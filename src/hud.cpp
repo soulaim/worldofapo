@@ -119,14 +119,19 @@ void Hud::setCurrentClientCommand(const string& cmd)
 	currentClientCommand = cmd;
 }
 
-void Hud::setMinimapHumanPositions(const std::vector<Location>& positions)
-{
-	humanPositions = positions;
-}
-
 void Hud::world_tick()
 {
 	++world_ticks;
+}
+
+void Hud::setUnitsMap(std::map<int, Unit>* _units)
+{
+	units = _units;
+}
+
+void Hud::setLocalPlayerID(int _myID)
+{
+	myID = _myID;
 }
 
 void Hud::setPlayerInfo(map<int,PlayerInfo> *pInfo)
@@ -144,7 +149,6 @@ void Hud::setMinimap(float angle, const Location& unit)
 	minimap_angle = angle;
 	unit_location = unit;
 }
-
 
 void Hud::drawStatusBar() const
 {
@@ -430,11 +434,14 @@ void Hud::drawMinimap() const
 	glPointSize(4.0f);
 
 	glBegin(GL_POINTS);
-	for(std::vector<Location>::const_iterator iter = humanPositions.begin(); iter != humanPositions.end(); ++iter)
+
+	for(auto it = units->begin(); it != units->end(); ++it)
 	{
-		const Location& loc = *iter;
-		const Location& unitPos = unit_location;
-		if(loc == unitPos)
+		const int id = it->first;
+		const Unit& u = it->second;
+		const Location& loc = u.position;
+
+		if(id == myID)
 		{
 			glColor3f(1.0f, 0.0f, 0.0f);
 		}
@@ -444,6 +451,7 @@ void Hud::drawMinimap() const
 		}
 		glVertex3f(0.96f - (0.37*loc.x.getFloat())/level_max_x, -0.96f + (0.37*loc.z.getFloat())/level_max_z, 0.f);
 	}
+
 	glEnd();
 	
 	glPopMatrix();

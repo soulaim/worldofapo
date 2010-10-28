@@ -170,7 +170,7 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 	{
 		stringstream inputMsg;
 		string msg;
-		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
+		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << " " << world->checksum() << "#";
 		msg = inputMsg.str();
 		clientSocket.write(SERVER_ID, msg);
 
