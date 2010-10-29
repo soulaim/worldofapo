@@ -176,8 +176,8 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 		msg = inputMsg.str();
 		clientSocket.write(SERVER_ID, msg);
 
-//		Logger log;
-//		log.print("Sent message: +++" + msg + "+++\n");
+		//Logger log;
+		//log.print("Sent message: +++" + msg + "+++\n");
 	}
 }
 
@@ -364,6 +364,7 @@ void Game::processClientMsgs()
 			ss >> tmp_order.keyState;
 			ss >> tmp_order.mousex >> tmp_order.mousey;
 			ss >> tmp_order.mouseButtons;
+			ss >> tmp_order.checksum;
 			
 			UnitInput.push_back(tmp_order);
 		}

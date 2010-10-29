@@ -1,11 +1,13 @@
 #include "hud.h"
 #include "graphics.h"
 #include "texturehandler.h"
+#include "apomath.h"
 
 #include <string>
 #include <sstream>
 #include <map>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -13,6 +15,7 @@ extern int TRIANGLES_DRAWN_THIS_FRAME;
 extern int QUADS_DRAWN_THIS_FRAME;
 
 Hud::Hud():
+	showStats(false),
 	zombieCount(0),
 	currentTime(0),
 	world_ticks(0)
@@ -242,9 +245,15 @@ void Hud::draw(bool firstPerson)
 	drawFPS();
 }
 
+void Hud::setShowStats(bool _showStats) {
+	showStats = _showStats;
+}
 
 void Hud::drawStats() const
 {
+	if (!showStats)
+		return;
+
 	int i = 0;
 	for(map<int, PlayerInfo>::iterator iter = Players->begin(); iter != Players->end(); iter++)
 	{
@@ -404,6 +413,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 
 void Hud::drawMinimap() const
 {
+	static ApoMath apomath = ApoMath();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	
@@ -416,9 +426,9 @@ void Hud::drawMinimap() const
 	
 	glTranslatef(0.0f, 0.0f, -1.0f);
 
-	glTranslatef(0.78f, -0.78f, 0.0f);
-	glRotatef(minimap_angle, 0.0f, 0.0f, 1.0f);
-	glTranslatef(-0.78f, 0.78f, 0.0f);
+	//glTranslatef(0.78f, -0.78f, 0.0f);
+	//glRotatef(minimap_angle, 0.0f, 0.0f, 1.0f);
+	//glTranslatef(-0.78f, 0.78f, 0.0f);
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -430,10 +440,28 @@ void Hud::drawMinimap() const
 	glVertex3f(0.96f, -0.96f, 0.f);
 	glVertex3f(0.60f, -0.96f, 0.f);
 	glEnd();
-	
-	glPointSize(4.0f);
 
-	glBegin(GL_POINTS);
+	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+
+	for(auto it = units->begin(); it != units->end(); ++it)
+	{
+		//const int id = it->first;
+		const Unit& u = it->second;
+		const Location& loc = u.position;
+
+		float base_x = (loc.x.getFloat() / level_max_x)/2;
+		float base_z = (loc.z.getFloat() / level_max_z)/2;
+
+		int angle = u.angle;
+		float rad = apomath.getDegrees(angle)*(M_PI/180);
+		
+		glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(base_x+(sin(rad - M_PI/2)*0.1), base_z+(cos(rad - M_PI/2)), 0.0f);
+		glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(base_x+(sin(rad)*0.1), base_z+(cos(rad)*0.1), 0.0f);
+		glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(base_x+(sin(rad + M_PI/2)*0.1), base_z+(cos(rad + M_PI/2)), 0.0f);
+		glEnd();
+
+	}
 
 	for(auto it = units->begin(); it != units->end(); ++it)
 	{
@@ -449,10 +477,26 @@ void Hud::drawMinimap() const
 		{
 			glColor3f(0.0f, 0.0f, 1.0f);
 		}
+
+
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
 		glVertex3f(0.96f - (0.37*loc.x.getFloat())/level_max_x, -0.96f + (0.37*loc.z.getFloat())/level_max_z, 0.f);
+		glEnd();
+
+		glPointSize(2.0f);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		int angle = u.angle;
+		FixedPoint sin = apomath.getSin(angle);
+		FixedPoint cos = apomath.getCos(angle);
+		FixedPoint front_x = loc.x * sin;
+		FixedPoint front_z = loc.z * cos;
+
+		glBegin(GL_POINTS);
+		glVertex3f(0.96f - (0.37*(sin*5+loc.x).getFloat())/level_max_x, -0.96f + (0.37*(cos*5+loc.z).getFloat())/level_max_z, 0.f);
+		glEnd();
 	}
 
-	glEnd();
 	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

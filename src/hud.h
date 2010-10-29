@@ -29,6 +29,7 @@ public:
 	void setLevelSize(int x, int z);
 	void setUnitsMap(std::map<int, Unit>* units);
 	void setLocalPlayerID(int _myID);
+	void setShowStats(bool);
 
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false) const;
 	void drawMessages();
@@ -56,6 +57,7 @@ private:
 	std::string deaths;
 	std::string health;
 	std::string plr_name;
+	bool showStats;
 	int zombieCount;
 	Location unit_location;
 	unsigned currentTime;
