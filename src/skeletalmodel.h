@@ -44,8 +44,8 @@ struct Bone
 
 struct WeightedVertex
 {
-	size_t bone1;
-	size_t bone2;
+	unsigned bone1;
+	unsigned bone2;
 	float weight1;
 	float weight2;
 
@@ -66,7 +66,7 @@ struct TextureCoordinate
 
 struct Triangle
 {
-	size_t vertices[3];
+	unsigned vertices[3];
 };
 
 struct SkeletalModel: public Model
