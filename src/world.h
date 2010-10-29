@@ -30,7 +30,7 @@ struct WorldEvent
 class World
 {
 	void tickUnit(Unit&, Model*);       // world frame update
-	void tickProjectile(Projectile&, Model*, int id); // world frame update
+	void tickProjectile(Projectile&, Model*); // world frame update
 	void updateModel(Model*, Unit&); // view frame update
 	
 	int currentWorldFrame;

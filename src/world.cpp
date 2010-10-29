@@ -429,7 +429,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 }
 
-void World::tickProjectile(Projectile& projectile, Model* model, int id)
+void World::tickProjectile(Projectile& projectile, Model* model)
 {
 	// model.parts[model.root].rotation_y = projectile.getAngle(apomath);
 	model->updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
@@ -438,17 +438,22 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 	if(projectile.lifetime > 0)
 	{
 		projectile.tick();
+		
 		if(projectile.collidesTerrain(lvl))
 		{
-			deadUnits.push_back(id);
-			return;
+			// if collides with terrain, projectile will die at the end of this turn.
+			// But should still check whether we hit something on the way to the point of collision!
+			projectile.destroyAfterFrame = true;
+			
+			// intentional continue of execution
 		}
+		
 		auto potColl = o->nearObjects(projectile.curr_position);
 		for(auto it = potColl.begin(); it != potColl.end(); ++it)
 		{
 			if ((*it)->type != OctreeObject::UNIT)
 				continue;
-
+			
 			Unit* u = (Unit*) *it;
 			if(projectile.collides(*u))
 			{
@@ -459,7 +464,7 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
 				if(!u->human() && shooterIsMonster)
 				{
-					deadUnits.push_back(projectile.id);
+					projectile.destroyAfterFrame = true;
 					continue;
 				}
 				
@@ -476,14 +481,14 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 				u->velocity += projectile.velocity * FixedPoint(1, 100);
 				u->last_damage_dealt_by = projectile.owner;
 				
-				deadUnits.push_back(projectile.id);
-				break;
+				projectile.destroyAfterFrame = true;
+				continue;
 			}
 		}
 	}
 	else
 	{
-		deadUnits.push_back(id);
+		projectile.destroyAfterFrame = true;
 	}
 }
 
@@ -576,7 +581,7 @@ void World::worldTick(int tickCount)
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		tickProjectile(iter->second, models[iter->first], iter->first);
+		tickProjectile(iter->second, models[iter->first]);
 	}
 	
 
@@ -590,6 +595,7 @@ void World::worldTick(int tickCount)
 			o->insertObject(&kit);
 	}
 
+	
 	o->doCollisions();
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -605,6 +611,14 @@ void World::worldTick(int tickCount)
 		}
 	}
 	
+	for(auto iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		if(iter->second.destroyAfterFrame)
+			deadUnits.push_back(iter->first);
+	}
+	
+	
+	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
 /*
@@ -616,7 +630,6 @@ void World::worldTick(int tickCount)
 				cerr << "ERROR? " << deadUnits[i] << " removed twice!\n";
 			}
 		}
-
 */
 		removeUnit(deadUnits[i]);
 	}
