@@ -58,7 +58,22 @@ Editor::Editor()
 	view.megaFuck();
 }
 
-void Editor::start()
+void Editor::release_swarm()
+{
+	for(auto it = models.begin(); it != models.end(); ++it)
+	{
+		delete it->second;
+	}
+	models.clear();
+}
+
+Editor::~Editor()
+{
+	cout << "~Editor()\n";
+	release_swarm();
+}
+
+bool Editor::start()
 {
 	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
 	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
@@ -75,11 +90,18 @@ void Editor::start()
 		++world_ticks;
 		last_tick = ticks;
 
-		tick();
+		if(!tick())
+		{
+			return false;
+		}
 		hud.setTime( ticks );
 		view.tick();
 		edited_model.tick(world_ticks);
 		skeletal_model.tick(world_ticks);
+		for(auto it = models.begin(); it != models.end(); ++it)
+		{
+			it->second->tick(world_ticks);
+		}
 
 		string message;
 
@@ -133,7 +155,6 @@ void Editor::start()
 		}
 
 		view.startDrawing();
-		map<int, Model*> models;
 		if(skele)
 		{
 			if(drawing_skeleton)
@@ -144,33 +165,37 @@ void Editor::start()
 			{
 //				skeletal_model.draw(false, selected_part);
 				models[0] = &skeletal_model;
-				view.drawModels(models);
 			}
 		}
 		else
 		{
 			if(drawing_model)
 			{
-				edited_model.draw();
-//				models[0] = &edited_model;
+//				edited_model.draw();
+				models[0] = &edited_model;
 			}
 		}
+		view.drawModels(models);
+
 		view.drawDebugLines();
+		hud.drawFPS();
 		hud.drawMessages();
 		hud.drawString(message, -0.9, 0.9, 1.5, true);
 		view.finishDrawing();
+
+		models.erase(0);
 	}
 	else
 	{
 		SDL_Delay(time_between_ticks - time_since_last);
 	}
+	
+	return true;
 }
 
-void Editor::tick()
+bool Editor::tick()
 {
-	handle_input();
-
-//	cerr << view.camera.getPosition() << "\n";
+	return handle_input();
 }
 
 bool Editor::type_exists(const std::string& type)
@@ -266,6 +291,8 @@ void Editor::loadModel(const string& file)
 	bool ok = model.load(pathed_file);
 	if(ok)
 	{
+		release_swarm();
+
 		selected_part = 0;
 		editing_single_part = false;
 		edited_model = model;
@@ -288,6 +315,8 @@ void Editor::loadSkeletalModel(const string& file)
 	bool ok = model.load(pathed_file);
 	if(ok)
 	{
+		release_swarm();
+
 		selected_part = 0;
 		editing_single_part = false;
 		skeletal_model = model;
@@ -712,6 +741,10 @@ void Editor::play_animation(const string& animation)
 	{
 		edited_model.setAction(animation);
 	}
+	for(auto it = models.begin(); it != models.end(); ++it)
+	{
+		it->second->setAction(animation);
+	}
 	hud.pushMessage(green("Playing " + animation));
 }
 
@@ -955,6 +988,15 @@ void Editor::handle_command(const string& command)
 	{
 		calculate_nearest_bones();
 	}
+	else if(word1 == "swarm")
+	{
+		int X = 1;
+		int Y = 1;
+		stringstream ss1(command);
+		ss1 >> word1;
+		ss1 >> X >> Y;
+		swarm(X, Y);
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -983,7 +1025,7 @@ void Editor::reset()
 	}
 }
 
-void Editor::handle_input()
+bool Editor::handle_input()
 {
 	string key = userio.getSingleKey();
 //	cerr << key << "\n";
@@ -1173,8 +1215,7 @@ void Editor::handle_input()
 			else if(key == "escape")
 			{
 				cerr << "User pressed ESC, shutting down." << endl;
-				SDL_Quit();
-				exit(0);
+				return false;
 			}
 		}
 	}
@@ -1193,6 +1234,7 @@ void Editor::handle_input()
 	}
 	view.updateInput(keystate);
 	dummy.updateInput(0, x, y, 0);
+	return true;
 }
 
 struct BoneDistance
@@ -1250,5 +1292,29 @@ void Editor::calculate_nearest_bones()
 			<< ", second: " << skeletal_model.bones[index2].name << " " << weight2 << endl;
 	}
 	hud.pushMessage(green("Calculated nearest bones"));
+}
+
+void Editor::swarm(int X, int Y)
+{
+	release_swarm();
+	float x_scalar = 5;
+	float y_scalar = 6;
+	for(int i = 0; i < X; ++i)
+	{
+		for(int j = 0; j < Y; ++j)
+		{
+			Model* model = (skele ? (Model*)new SkeletalModel(skeletal_model) : (Model*)new ApoModel(edited_model));
+			model->realUnitPos.x = x_scalar * (i - X/2);
+			model->currentModelPos.x = x_scalar * (i - X/2);
+			model->realUnitPos.y = y_scalar * (j - Y/2);
+			model->currentModelPos.y = y_scalar * (j - Y/2);
+			model->texture_name = "marine";
+			models[i*Y + j + 1] = model;
+		}
+	}
+
+	stringstream ss;
+	ss << X*Y;
+	hud.pushMessage(red("SWARM! " + ss.str()));
 }
 

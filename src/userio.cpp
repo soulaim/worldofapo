@@ -7,6 +7,10 @@ UserIO::UserIO()
 {
 	mouseButtons = 0;
 	mouse = Coord(-1, -1);
+	wheel_has_been_scrolled_up = false;
+	wheel_has_been_scrolled_down = false;
+	keystate = 0;
+	numKeys = 0;
 }
 
 // this must not be called before SDL has initialized
@@ -184,14 +188,6 @@ int UserIO::checkEvents()
 	{
 		if(event.type == SDL_KEYDOWN)
 		{
-			/*
-			if(event.key.keysym.sym == SDLK_ESCAPE)
-			{
-				cerr << "User pressed ESC, shutting down." << endl;
-				SDL_Quit();
-				exit(0);
-			}
-			*/
 			keyStates[event.key.keysym.sym] = 1;
 		}
 		

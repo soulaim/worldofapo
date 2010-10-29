@@ -40,6 +40,7 @@ class Graphics
 	void initLight();
 	
 	void createWindow();
+	void destroyWindow();
 	
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
@@ -112,6 +113,7 @@ public:
 	void depthSortParticles(Vec3&);
 
 	Graphics();
+	~Graphics();
 	FrustumR frustum;
 };
 

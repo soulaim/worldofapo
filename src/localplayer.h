@@ -39,7 +39,7 @@ private:
 	void handleWorldEvents();
 	void camera_handling();
 
-	void handleClientLocalInput();
+	bool handleClientLocalInput();
 	void process_sent_game_input();
 	
 	// fully 3D single channel sounds! :DD

@@ -235,11 +235,11 @@ void DedicatedServer::simulateWorldFrame()
 		unsigned long cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
 		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
 		{
-			std::cerr << "OOS, client: " << tmp.frameID << ", server: " << simulRules.currentFrame << std::endl;
-			std::cerr << tmp.checksum << std::endl;
-			std::cerr << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
+			std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
+			std::cerr << "client checksum: " << tmp.checksum << std::endl;
+			std::cerr << "server checksum: " << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
 
-			cerr << "server side:" << std::endl;
+			cerr << "server unit locations:" << std::endl;
 			for (auto it = world.units.begin(); it != world.units.end(); ++it)
 			{
 				int id = it->first;

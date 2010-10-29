@@ -172,6 +172,11 @@ Graphics::Graphics()
 	init();
 }
 
+Graphics::~Graphics()
+{
+	destroyWindow();
+}
+
 void Graphics::init()
 {
 	createWindow(); // let SDL handle this part..
@@ -220,7 +225,11 @@ void Graphics::init()
 
 void Graphics::createWindow()
 {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
+	{
+		cerr << "ERROR: SDL init failed." << endl;
+		throw std::string("Unable to init SDL");
+	}
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	
@@ -233,12 +242,18 @@ void Graphics::createWindow()
 	if(drawContext == 0)
 	{
 		cerr << "ERROR: drawContext = " << drawContext << endl;
-		exit(0);
+		throw std::string("Unable to set SDL video mode");
 	}
 	else
 	{
 		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
+}
+
+void Graphics::destroyWindow()
+{
+//	SDL_VideoQuit();
+	SDL_Quit();
 }
 
 void Graphics::setCamera(const Camera& cam)

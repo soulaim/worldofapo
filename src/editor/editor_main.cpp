@@ -8,12 +8,11 @@ int main()
 {
 	Editor master;
 	
-	while(true)
+	while(master.start())
 	{
-		master.start();
 	}
 	
-	cerr << "lolwut?" << endl;
+	cerr << "Editor stopping." << endl;
 	
 	return 0;
 }

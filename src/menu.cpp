@@ -87,8 +87,7 @@ std::string Menu::menu_tick()
 			}
 			else if(buttons[selected].name == "exit")
 			{
-				SDL_Quit();
-				exit(0);
+				return "exit";
 			}
 			else if(buttons[selected].name == "host" && serverpid == 0)
 			{
@@ -97,7 +96,7 @@ std::string Menu::menu_tick()
 				{
 					execl("./server", "./server", 0);
 					perror("Error, starting server failed");
-					exit(0);
+					return "exit";
 				}
 				serverpid = pid;
 				atexit(server_killer);
@@ -113,8 +112,7 @@ std::string Menu::menu_tick()
 		}
 		else if(key == "escape")
 		{
-			SDL_Quit();
-			exit(0);
+			return "exit";
 		}
 	}
 	

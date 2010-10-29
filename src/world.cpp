@@ -441,6 +441,7 @@ void World::tickProjectile(Projectile& projectile, Model* model, int id)
 		if(projectile.collidesTerrain(lvl))
 		{
 			deadUnits.push_back(id);
+			return;
 		}
 		auto potColl = o->nearObjects(projectile.curr_position);
 		for(auto it = potColl.begin(); it != potColl.end(); ++it)
@@ -607,7 +608,17 @@ void World::worldTick(int tickCount)
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
+/*
+		// TODO: remove this check maybe.
+		for(size_t j = 0; j < i; ++j)
+		{
+			if(deadUnits[i] == deadUnits[j])
+			{
+				cerr << "ERROR? " << deadUnits[i] << " removed twice!\n";
+			}
+		}
 		removeUnit(deadUnits[i]);
+*/
 	}
 	deadUnits.clear();
 	
@@ -726,11 +737,18 @@ int World::nextUnitID()
 
 void World::removeUnit(int id)
 {
+	// Note that same id might be removed twice on the same frame!
+
 	units.erase(id);
 	projectiles.erase(id);
 	medikits.erase(id);
-	delete models[id];
-	models.erase(id);
+
+	auto it = models.find(id);
+	if(it != models.end())
+	{
+		delete it->second;
+		models.erase(it);
+	}
 }
 
 int World::getZombies()
