@@ -616,8 +616,9 @@ void World::worldTick(int tickCount)
 				cerr << "ERROR? " << deadUnits[i] << " removed twice!\n";
 			}
 		}
-		removeUnit(deadUnits[i]);
+
 */
+		removeUnit(deadUnits[i]);
 	}
 	deadUnits.clear();
 	
