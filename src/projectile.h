@@ -16,7 +16,7 @@ class Projectile
 {
 	public:
 		Projectile():
-			lifetime(0)
+			destroyAfterFrame(false), lifetime(0)
 		{
 		}
 
@@ -24,9 +24,12 @@ class Projectile
 		Location curr_position;
 		Location prev_position;
 		
+		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
+		
 		int id;
 		int owner;
 		int lifetime;
+		
 		void tick();
 		
 		bool collides(const Unit&);
