@@ -563,8 +563,6 @@ void Graphics::drawParticles()
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 	
-	glPushMatrix();
-	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		float px = viewParticles[i].pos.x.getFloat();
@@ -576,8 +574,9 @@ void Graphics::drawParticles()
 		float x_angle = camera.getXrot();
 		float y_angle = -camera.getYrot() - 90.f;
 		
-		glTranslatef(px, py, pz);
+		glPushMatrix();
 		
+		glTranslatef(px, py, pz);
 		glRotatef(x_angle, 0.0, 1.0, 0.0);
 		glRotatef(y_angle, 1.0, 0.0, 0.0);
 		
@@ -591,13 +590,8 @@ void Graphics::drawParticles()
 		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		
-		glRotatef(-y_angle, 1.0, 0.0, 0.0);
-		glRotatef(-x_angle, 0.0, 1.0, 0.0);
-		
-		glTranslatef(-px, -py, -pz);
+		glPopMatrix();
 	}
-	
-	glPopMatrix();
 	
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
@@ -711,15 +705,13 @@ void Graphics::updateParticles()
 {
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		viewParticles[i].decrementLife();
+		viewParticles[i].tick();
 		if(!viewParticles[i].alive())
 		{
 			viewParticles[i] = viewParticles.back();
 			viewParticles.pop_back();
-			i--;
-			continue;
+			--i;
 		}
-		viewParticles[i].tick();
 	}
 }
 

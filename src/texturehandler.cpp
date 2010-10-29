@@ -27,6 +27,11 @@ TextureHandler& TextureHandler::getSingleton()
 	return s_TexHandler;
 }
 
+const string& TextureHandler::getCurrentTexture()
+{
+	return current_texture;
+}
+
 unsigned TextureHandler::createTexture(const string& name, const string& fileName)
 {
 	Image img;
@@ -95,6 +100,7 @@ int TextureHandler::bindTexture(const string& name)
 	if(textureExists(name))
 	{
 		glBindTexture(GL_TEXTURE_2D, textures[name]);
+		current_texture = name;
 		return 1;
 	}
 	else
