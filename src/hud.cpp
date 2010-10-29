@@ -187,9 +187,14 @@ void Hud::drawMessages()
 			continue;
 		}
 		
+		int reverse_index = viewMessages.size() - (i+1);
 		float pos_x = -0.9;
-		float pos_y = -0.82 + 0.08 * ( viewMessages.size() - (i+1) );
-		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight);
+		float pos_y = -0.82 + 0.05 * reverse_index;
+		
+		float alpha = 1.0f - reverse_index * 0.07;
+		if(alpha < 0.f)
+			alpha = 0.f;
+		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight, alpha);
 	}
 	
 	if(currentClientCommand.size() > 0)
@@ -301,7 +306,7 @@ void Hud::drawCrossHair() const
 //		glEnable(GL_LIGHTING);
 }
 
-void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background) const
+void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background, float alpha) const
 {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -354,7 +359,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	float lastWidth    = 0.f;
 	
 	// reset default colour to white.
-	glColor4f(1.0f, 1.0f, 1.0f, 1.f);
+	glColor4f(1.0f, 1.0f, 1.0f, alpha);
 	
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
@@ -363,25 +368,25 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		{
 			++i;
 			if(msg[i] == 'g')
-				glColor4f(0.1f, 0.6f, 0.1f, 1.0f);
+				glColor4f(0.1f, 0.6f, 0.1f, alpha);
 			else if(msg[i] == 'G')
-				glColor4f(0.1f, 1.0f, 0.1f, 1.0f);
+				glColor4f(0.1f, 1.0f, 0.1f, alpha);
 			else if(msg[i] == 'r')
-				glColor4f(0.6f, 0.1f, 0.1f, 1.0f);
+				glColor4f(0.6f, 0.1f, 0.1f, alpha);
 			else if(msg[i] == 'R')
-				glColor4f(1.0f, 0.1f, 0.1f, 1.0f);
+				glColor4f(1.0f, 0.1f, 0.1f, alpha);
 			else if(msg[i] == 'b')
-				glColor4f(0.1f, 0.1f, 0.6f, 1.0f);
+				glColor4f(0.1f, 0.1f, 0.6f, alpha);
 			else if(msg[i] == 'B')
-				glColor4f(0.1f, 0.1f, 1.0f, 1.0f);
+				glColor4f(0.1f, 0.1f, 1.0f, alpha);
 			else if(msg[i] == 'y')
-				glColor4f(0.7f, 0.7f, 0.0f, 1.0f);
+				glColor4f(0.7f, 0.7f, 0.0f, alpha);
 			else if(msg[i] == 'Y')
-				glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+				glColor4f(1.0f, 1.0f, 0.0f, alpha);
 			else if(msg[i] == 'W')
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+				glColor4f(1.0f, 1.0f, 1.0f, alpha);
 			else if(msg[i] == 'w')
-				glColor4f(0.6f, 0.6f, 0.6f, 1.0f);
+				glColor4f(0.6f, 0.6f, 0.6f, alpha);
 			
 			continue;
 		}

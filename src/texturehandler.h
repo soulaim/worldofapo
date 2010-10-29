@@ -9,6 +9,7 @@
 class TextureHandler
 {
 	std::map<std::string, unsigned> textures;
+	std::string current_texture;
 	
 	public:
 		TextureHandler();
@@ -17,7 +18,7 @@ class TextureHandler
 		
 		static TextureHandler& getSingleton();
 		
-		
+		const std::string& getCurrentTexture();
 		unsigned createTexture(const std::string&, const std::string&);
 		unsigned createTexture(const std::string&, Image& img);
 		int bindTexture(const std::string&);

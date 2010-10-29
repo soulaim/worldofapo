@@ -64,6 +64,7 @@ class Graphics
 	void initShaders();
 
 
+	//ParticleSystemManager particleManager;
 	std::vector<Particle> viewParticles;
 	std::map<std::string, GLuint> shaders;
 	

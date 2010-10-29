@@ -31,7 +31,7 @@ public:
 	void setLocalPlayerID(int _myID);
 	void setShowStats(bool);
 
-	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false) const;
+	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
 	void drawMessages();
 	void drawCrossHair() const;
 	void drawStatusBar() const;
