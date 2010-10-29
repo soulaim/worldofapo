@@ -208,6 +208,8 @@ void SkeletalModel::draw()
 
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 {
+	assert(weighted_vertices.size() == vertices.size());
+
 	glUniform1i(active_location, true);
 
 	vector<Matrix4> rotations;
@@ -240,19 +242,17 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 		return;
 	}
 
-	glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture(texture_name);
-
 
 	assert(rotations.size() <= 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
-
+/*
 	glBegin(GL_TRIANGLES);
 	for(size_t i = 0; i < triangles.size(); ++i)
 	{
 		++TRIANGLES_DRAWN_THIS_FRAME;
 
-		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 1.0);
+//		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 1.0);
 
 		for(int j = 0; j < 3; ++j)
 		{
@@ -290,7 +290,41 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 		}
 	}
 	glEnd();
-	glDisable(GL_TEXTURE_2D);
+*/
+	const int BUFFERS = 4;
+	static GLuint locations[BUFFERS];
+	static bool model_buffers_loaded = false;
+	if(!model_buffers_loaded) // TODO: Move initialization somewhere else and support multiple different models!
+	{
+		model_buffers_loaded = true;
+		glGenBuffers(BUFFERS, locations);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[2]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * 3 * sizeof(unsigned), &triangles[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[3]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(WeightedVertex) * weighted_vertices.size(), &weighted_vertices[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(bone_index_location,  2, GL_UNSIGNED_INT, GL_FALSE, sizeof(WeightedVertex), 0);
+		glVertexAttribPointer(bone_weight_location, 2, GL_FLOAT,        GL_FALSE, sizeof(WeightedVertex), (char*)(0) + 2*sizeof(unsigned));
+	}
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableVertexAttribArray(bone_weight_location);
+	glEnableVertexAttribArray(bone_index_location);
+	glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, 0);
+	glDisableVertexAttribArray(bone_index_location);
+	glDisableVertexAttribArray(bone_weight_location);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 
