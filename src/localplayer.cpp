@@ -83,10 +83,10 @@ bool Localplayer::client_tick()
 			game.process_received_game_input();
 			
 			game.TICK();
-
-			hud.world_tick();
-			view->world_tick(world.lvl);
 			handleWorldEvents();
+			
+			hud.world_tick();
+			view->world_tick(world.lvl, world.lights);
 		}
 	}
 	return stop;

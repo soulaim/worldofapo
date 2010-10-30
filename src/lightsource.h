@@ -6,6 +6,7 @@
 
 #include "fixed_point.h"
 #include "location.h"
+#include "frustum/Vec3.h"
 
 class LightSource
 {
@@ -15,7 +16,10 @@ public:
 	enum
 	{
 		RISE_AND_DIE = 0,
-		ONLY_DIE = 1
+		ONLY_DIE = 1,
+		
+		IMMORTAL = 1,
+		MORTAL   = 0
 	};
 	
 	virtual const Location& getPosition() const = 0;
@@ -35,11 +39,18 @@ public:
 	
 	bool tickLight();
 	
+	int unitBind;
+	int lifeType;
+	int behaviour;
+	
+	Vec3 drawPos;
+	
 	// TODO: Copy message for light source information. Structure must retain information about where the light source is tied to.
 	
 private:
-	std::vector<float> colourValues_diffuse;
-	std::vector<float> colourValues_specular;
+	float c_diffuse_start[4];
+	float c_diffuse_end[4];
+	float c_specular[4];
 	
 	float linear_attenuation;
 	float quadratic_attenuation;
@@ -48,9 +59,8 @@ private:
 	int life_maximum;
 	int life_current;
 	
-	int behaviour;
-	
 	int power_maximum;
+	
 	FixedPoint intensity; // member just so we can return references instead of copies.
 	// TODO: Add support for spot lights. (might need reworking on shaders also)
 	

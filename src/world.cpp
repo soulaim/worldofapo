@@ -526,35 +526,6 @@ void World::worldTick(int tickCount)
 	
 	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
 	
-	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
-	 *    \  Handling of light objects \
-	 *    \_/""""""""""""""""""""""""""""/
-	 */
-	
-	vector<int> deadLights;
-	for(auto iter = lights.begin(); iter != lights.end(); iter++)
-	{
-		LightObject& light = iter->second;
-		
-		// TODO should have a world.tickMovableObject(&light); call here
-		
-		// update light qualities
-		if(!light.tickLight())
-		{
-			// if light has died out, should maybe like prepare to erase it or something.
-			light.deactivateLight();
-			deadLights.push_back(iter->first);
-			
-			// cerr << "DEAD LIGHT! ERASING" << endl;
-		}
-	}
-	
-	for(size_t i=0; i<deadLights.size(); i++)
-	{
-		lights.erase(deadLights[i]);
-	}
-	deadLights.clear();
-	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Unit ticks + reconstruct octree \
@@ -598,6 +569,55 @@ void World::worldTick(int tickCount)
 	
 	o->doCollisions();
 	
+	
+	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*    \  Handling of light objects \
+	*    \_/""""""""""""""""""""""""""""/
+	*/
+	
+	vector<int> deadLights;
+	for(auto iter = lights.begin(); iter != lights.end(); iter++)
+	{
+		LightObject& light = iter->second;
+		
+		// TODO should have a world.tickMovableObject(&light); call here
+		
+		// update light qualities
+		if(!light.tickLight())
+		{
+			// if light has died out, should maybe like prepare to erase it or something.
+			light.deactivateLight();
+			deadLights.push_back(iter->first);
+			
+			// cerr << "DEAD LIGHT! ERASING" << endl;
+		}
+		
+		if(light.unitBind != -1)
+		{
+			if(units.find(light.unitBind) == units.end())
+			{
+				// master of the light is dead. must kill the light.
+				light.deactivateLight();
+				deadLights.push_back(iter->first);
+			}
+			else
+			{
+				// light.drawPos  = models.find(light.unitBind)->second.currentModelPos;
+				light.position = units.find(light.unitBind)->second.getPosition();
+				light.position.y += FixedPoint(7, 2);
+			}
+		}
+	}
+	
+	for(size_t i=0; i<deadLights.size(); i++)
+	{
+		lights.erase(deadLights[i]);
+	}
+	deadLights.clear();
+	
+	
+	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \
 	*     \_/""""""""""""""""""""""""""""""""""/
@@ -617,23 +637,23 @@ void World::worldTick(int tickCount)
 			deadUnits.push_back(iter->first);
 	}
 	
-	
-	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
-/*
+		/*
 		// TODO: remove this check maybe.
 		for(size_t j = 0; j < i; ++j)
 		{
 			if(deadUnits[i] == deadUnits[j])
 			{
 				cerr << "ERROR? " << deadUnits[i] << " removed twice!\n";
-			}
-		}
-*/
+	}
+	}
+	*/
 		removeUnit(deadUnits[i]);
 	}
 	deadUnits.clear();
+	
+	
 	
 	
 	
@@ -683,6 +703,17 @@ void World::addUnit(int id, bool playerCharacter)
 	
 	units[id].birthTime = currentWorldFrame;
 
+	LightObject tmp_light;
+	tmp_light.unitBind = id;
+	tmp_light.lifeType = LightSource::IMMORTAL;
+	tmp_light.behaviour = LightSource::RISE_AND_DIE;
+	tmp_light.setDiffuse(0.1, 0.1, 0.1);
+	tmp_light.setLife(12);
+	tmp_light.activateLight();
+	
+	lights[nextUnitID()] = tmp_light;
+	
+	
 	static SkeletalModel prototype;
 //	static ApoModel prototype;
 	static bool loaded = false;

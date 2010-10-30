@@ -57,6 +57,7 @@ class Graphics
 	void drawDebugLevelNormals(const Level& lvl);
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
 
+	void updateLights(const std::map<int, LightObject>&); // once per world frame
 	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
@@ -67,12 +68,14 @@ class Graphics
 	//ParticleSystemManager particleManager;
 	std::vector<Particle> viewParticles;
 	std::map<std::string, GLuint> shaders;
+	std::map<std::string, GLint> uniform_locations;
 	
 	std::vector<BTT_Triangle> level_triangles;
 	
 	SDL_Surface* drawContext;
 	Camera camera;
 	
+	GLint MAX_NUM_LIGHTS;
 	bool lightsActive;
 	bool drawDebuglines;
 	bool drawDebugWireframe;
@@ -108,7 +111,7 @@ public:
 	void mouseUp();
 	void mouseDown();
 	void tick();
-	void world_tick(Level& lvl);
+	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	
 	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
 	void depthSortParticles(Vec3&);

@@ -210,6 +210,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 {
 	assert(weighted_vertices.size() == vertices.size());
 
+	// does this need to be set each time before rendering a model?
 	glUniform1i(active_location, true);
 
 	vector<Matrix4> rotations;
@@ -241,9 +242,10 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 		}
 		return;
 	}
-
-	TextureHandler::getSingleton().bindTexture(texture_name);
-
+	
+	if(TextureHandler::getSingleton().getCurrentTexture() != texture_name)
+		TextureHandler::getSingleton().bindTexture(texture_name);
+	
 	assert(rotations.size() <= 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 /*

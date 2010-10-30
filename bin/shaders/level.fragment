@@ -1,32 +1,30 @@
-varying vec4 diffuse[3],ambientGlobal;
-varying vec3 normal,lightDir[3],halfVector[3];
-varying float dist[3];
-varying vec2 varTexCoord;
 
+varying vec4 diffuse[2], ambientGlobal;
+varying vec3 normal, lightDir[2]; //, halfVector[2];
+varying float dist[2];
+varying vec2 varTexCoord;
 
 uniform sampler2D baseMap;
 
 void main()
 {
-	vec3 n,halfV,viewV,ldir;
-	float NdotL,NdotHV;
+	//vec3 halfV;
+	vec3 n;
+	float NdotL; // lambert term, i think
 	vec4 color = ambientGlobal;
 	float att;
 	
 	n = normalize(normal);
 	
-	for(int i=0; i<3; i++)
+	for(int i=0; i<2; i++)
 	{
-		NdotL = max(dot(n,normalize(lightDir[i])), 0.0);
-		
-		att = 1.0 / (0.0001 + gl_LightSource[i].constantAttenuation + gl_LightSource[i].linearAttenuation * dist[i] +
-		gl_LightSource[i].quadraticAttenuation * dist[i] * dist[i]);
-		
+		NdotL = max(dot(n, normalize(lightDir[i])), 0.0);
+		att = 1.0 / (0.0001 + 0.0006 * dist[i] * dist[i]);
 		color += att * (diffuse[i] * NdotL);
 		
-		halfV = normalize(halfVector[i]);
-		NdotHV = max(dot(n,halfV),0.0);
-		color += att * gl_FrontMaterial.specular * gl_LightSource[i].specular * NdotHV;
+		//halfV = normalize(halfVector[i]);
+		//float shininess = pow(max(dot(n, halfV), 0.0), 10);
+		//color += vec4(1, 1, 1, 1) * shininess;
 	}
 	
 	gl_FragColor = color * texture2D(baseMap, varTexCoord);

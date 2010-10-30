@@ -17,7 +17,7 @@ void main()
 		newVertex = (bones[index] * gl_Vertex) * bone_weight.x;
 
 		index = int(bone_index.y);
-		newVertex = (bones[index] * gl_Vertex) * bone_weight.y + newVertex;
+		newVertex += (bones[index] * gl_Vertex) * bone_weight.y;
 
 		// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
 		gl_Position = gl_ModelViewProjectionMatrix * vec4(newVertex.xyz, 1.0);
