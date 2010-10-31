@@ -133,8 +133,9 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init(World& w)
 {
-	weapons.push_back(new MachineGun(w, *this));
-	weapons.push_back(new MedikitWeapon(w, *this));
+	weapons.push_back(new Weapon(w, *this, "data/items/weapon_mgun.dat"));
+	weapons.push_back(new Weapon(w, *this, "data/items/weapon_shotgun.dat"));
+	weapons.push_back(new Weapon(w, *this, "data/items/weapon_railgun.dat"));
 	weapon = weapons[0];
 }
 

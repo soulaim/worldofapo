@@ -8,8 +8,6 @@
 
 #include "world.h"
 #include "weapon.h"
-#include "medikit_weapon.h"
-#include "machinegun.h"
 #include "location.h"
 #include "apomath.h"
 #include "lightsource.h"
@@ -30,6 +28,7 @@ class Unit : LightSource, public OctreeObject
 			LEAP_RIGHT   = 64,
 			WEAPON1      = 1<<20,
 			WEAPON2      = 1<<21,
+			WEAPON3      = 1<<22,
 			ATTACK_BASIC = 1,
 			
 			HUMAN_INPUT = 0,
@@ -46,6 +45,7 @@ class Unit : LightSource, public OctreeObject
 
 		std::string soundInfo;
 
+		// TODO: Should have a proper inventory system perhaps.
 		Weapon* weapon;
 		std::vector<Weapon*> weapons;
 

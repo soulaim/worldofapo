@@ -298,6 +298,12 @@ void World::tickUnit(Unit& unit, Model* model)
 		unit.switchWeapon(2);
 	}
 	
+	if(unit.getKeyAction(Unit::WEAPON3))
+	{
+		unit.switchWeapon(3);
+	}
+	
+	
 	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
 	{
 		FixedPoint scale = FixedPoint(10, 100);
@@ -365,15 +371,12 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
+	unit.weapon->tick();
 	if (unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
 		unit.weapon->fire();
 	}
-	else
-	{
-		unit.weapon->tick();
-	}
-
+	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;
 	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
@@ -431,64 +434,68 @@ void World::tickUnit(Unit& unit, Model* model)
 
 void World::tickProjectile(Projectile& projectile, Model* model)
 {
-	// model.parts[model.root].rotation_y = projectile.getAngle(apomath);
-	model->updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
-
-	// cerr << "Proj lifetime: " << projectile.lifetime << ", " << projectile.position << ", vel: " << projectile.velocity << "\n";
-	if(projectile.lifetime > 0)
+	int ticks = projectile["TPF"];
+	if(ticks < 1)
+		ticks = 1;
+	for(int i=0; i<ticks; i++)
 	{
-		projectile.tick();
+		model->updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
 		
-		if(projectile.collidesTerrain(lvl))
+		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
 		{
-			// if collides with terrain, projectile will die at the end of this turn.
-			// But should still check whether we hit something on the way to the point of collision!
-			projectile.destroyAfterFrame = true;
+			projectile.tick();
 			
-			// intentional continue of execution
-		}
-		
-		auto potColl = o->nearObjects(projectile.curr_position);
-		for(auto it = potColl.begin(); it != potColl.end(); ++it)
-		{
-			if ((*it)->type != OctreeObject::UNIT)
-				continue;
-			
-			Unit* u = (Unit*) *it;
-			if(projectile.collides(*u))
+			if(projectile.collidesTerrain(lvl))
 			{
-				bool shooterIsMonster = false;
-				if(units.find(projectile.owner) != units.end())
-					shooterIsMonster = !units[projectile.owner].human();
+				// if collides with terrain, projectile will die at the end of this turn.
+				// But should still check whether we hit something on the way to the point of collision!
+				projectile.destroyAfterFrame = true;
 				
-				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-				if(!u->human() && shooterIsMonster)
+				// intentional continue of execution
+			}
+			
+			auto potColl = o->nearObjects(projectile.curr_position);
+			for(auto it = potColl.begin(); it != potColl.end(); ++it)
+			{
+				if ((*it)->type != OctreeObject::UNIT)
+					continue;
+				
+				Unit* u = (Unit*) *it;
+				if(projectile.collides(*u))
 				{
+					bool shooterIsMonster = false;
+					if(units.find(projectile["OWNER"]) != units.end())
+						shooterIsMonster = !units[projectile["OWNER"]].human();
+					
+					// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+					if(!u->human() && shooterIsMonster)
+					{
+						projectile.destroyAfterFrame = true;
+						continue;
+					}
+					
+					// save this information for later use.
+					WorldEvent event;
+					event.type = DAMAGE_BULLET;
+					event.position = u->position;
+					event.position.y += FixedPoint(2);
+					event.velocity.y = FixedPoint(200,1000);
+					events.push_back(event);
+					
+					
+					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+					u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
+					u->last_damage_dealt_by = projectile["OWNER"];
+					
 					projectile.destroyAfterFrame = true;
 					continue;
 				}
-				
-				// save this information for later use.
-				WorldEvent event;
-				event.type = DAMAGE_BULLET;
-				event.position = u->position;
-				event.position.y += FixedPoint(2);
-				event.velocity.y = FixedPoint(200,1000);
-				events.push_back(event);
-				
-				
-				u->hitpoints -= 170; // bullet does SEVENTEEN HUNDRED DAMAGE (we need some kind of weapon definitions)
-				u->velocity += projectile.velocity * FixedPoint(1, 100);
-				u->last_damage_dealt_by = projectile.owner;
-				
-				projectile.destroyAfterFrame = true;
-				continue;
 			}
 		}
-	}
-	else
-	{
-		projectile.destroyAfterFrame = true;
+		else
+		{
+			projectile.destroyAfterFrame = true;
+		}
 	}
 }
 
@@ -639,16 +646,6 @@ void World::worldTick(int tickCount)
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
-		/*
-		// TODO: remove this check maybe.
-		for(size_t j = 0; j < i; ++j)
-		{
-			if(deadUnits[i] == deadUnits[j])
-			{
-				cerr << "ERROR? " << deadUnits[i] << " removed twice!\n";
-	}
-	}
-	*/
 		removeUnit(deadUnits[i]);
 	}
 	deadUnits.clear();
@@ -760,9 +757,6 @@ void World::addProjectile(Location& location, int id)
 	models[id]->currentModelPos = position;
 	
 	projectiles[id].curr_position = location;
-	projectiles[id].owner = id;
-	
-//	cerr << "New projectile with id " << id << "\n";
 }
 
 int World::nextPlayerID()
