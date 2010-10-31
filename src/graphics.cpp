@@ -33,10 +33,6 @@ void Graphics::depthSortParticles(Vec3& d)
 
 void Graphics::initLight()
 {
-	lightsActive = false;
-	GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-	
 	GLfloat light0ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
 	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
@@ -343,6 +339,32 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 
 
 
+void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
+{
+	int i=0;
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	{
+		float rgb[4]; rgb[3] = 1.0f;
+		
+		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, rgb);
+		
+		const Location& pos = iter->second.getPosition();
+		rgb[0] = pos.x.getFloat();
+		rgb[1] = pos.y.getFloat();
+		rgb[2] = pos.z.getFloat();
+		
+		glLightfv(GL_LIGHT0 + i, GL_POSITION, rgb);
+		
+		++i;
+		if(i >= MAX_NUM_LIGHTS)
+		{
+			// if there are too many lights, just ignore the rest of them
+			break;
+		}
+	}
+}
+
 
 
 void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
@@ -351,8 +373,9 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 	vector<FixedPoint> distances;
 	
 	distances.resize(2, FixedPoint(40000));
-	indexes.resize(2, -1);
+	indexes.resize(2, 0);
 	
+	int i=0;
 	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
 	{
 		const LightObject& light = iter->second;
@@ -364,39 +387,28 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 			indexes[1]   = indexes[0];
 			
 			distances[0] = lightDistance;
-			indexes[0]  = iter->first;
+			indexes[0]   = i;
 		}
 		else if(lightDistance < distances[1])
 		{
 			distances[1] = lightDistance;
-			indexes[1]  = iter->first;
+			indexes[1]   = i;
 		}
+		
+		// must ignore lights if there are too many.
+		++i;
+		if(i >= MAX_NUM_LIGHTS)
+			break;
 	}
 	
-	for(size_t light_i = 0; light_i < indexes.size(); light_i++)
-	{
-		if(indexes[light_i] >= 0)
-		{
-			float rgb[4]; rgb[3] = 1.0f;
-			int light_key = indexes[light_i];
-			lightsContainer.find(light_key)->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-			
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-			
-			Location pos = lightsContainer.find(light_key)->second.getPosition();
-			
-			rgb[0] = pos.x.getFloat();
-			rgb[1] = pos.y.getFloat();
-			rgb[2] = pos.z.getFloat();
-			
-			glLightfv(GL_LIGHT1+light_i, GL_POSITION, rgb);
-		}
-		else
-		{
-			float rgb[4] = { };
-			glLightfv(GL_LIGHT1+light_i, GL_DIFFUSE, rgb);
-		}
-	}
+	int val1 = 0, val2 = 0;
+	if(indexes[0] > 0)
+		val1 = indexes[0];
+	
+	if(indexes[1] > 0)
+		val2 = indexes[1];
+	
+	glVertexAttrib2f(uniform_locations["lvl_activeLights"], val1, val2);
 }
 
 
@@ -437,17 +449,12 @@ void Graphics::drawDebugLevelNormals(const Level& lvl)
 
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
-	if(lightsActive)
-	{
-		glEnable(GL_LIGHTING);
-	}
-	else
-	{
-		glDisable(GL_LIGHTING);
-	}
+	
 	glUseProgram(shaders["level_program"]);
-	//glEnable(GL_TEXTURE_2D);
 	TextureHandler::getSingleton().bindTexture("grass");
+	
+	// set ambient light
+	glUniform4f(uniform_locations["lvl_ambientLight"], 0.04f, 0.04f, 0.04f, 1.0f);
 	
 	int multiplier = 8;
 	
@@ -493,8 +500,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		glEnd();
 		
 	}
-
-//	glDisable(GL_TEXTURE_2D);
 	
 	glUseProgram(0);
 }
@@ -715,7 +720,7 @@ void Graphics::updateParticles()
 	}
 }
 
-void Graphics::world_tick(Level& lvl)
+void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)
 {
 	// Don't draw anything here!
 	updateParticles();
@@ -728,26 +733,13 @@ void Graphics::world_tick(Level& lvl)
 	level_triangles.clear();
 	lvl.btt.getTriangles(level_triangles);
 	// cerr << "total triangles: " << level_triangles.size() << endl;
+	
+	updateLights(lights);
 }
 
 void Graphics::tick()
 {
 	camera.tick();
-
-	GLfloat lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	Vec3 camPos = camera.getPosition();
-
-	lightPos[0] = camPos.x; //modelLocation.x.getFloat();
-	lightPos[1] = camPos.y + 4; //modelLocation.y.getFloat();
-	lightPos[2] = camPos.z; //modelLocation.z.getFloat();
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-	
-	Location position(FixedPoint(0),FixedPoint(5),FixedPoint(0));
-	
-	Location velocity;
-	velocity.x = FixedPoint(100,1000);
-	velocity.y = FixedPoint(900,1000);
-	velocity.z = FixedPoint(0);
 }
 
 void Graphics::toggleFullscreen()

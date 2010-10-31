@@ -110,6 +110,10 @@ void Graphics::initShaders()
 	glLinkProgram(shaders["unit_program"]);
 	printLog(shaders["unit_program"]);
 
+	glUseProgram(shaders["level_program"]);
+	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
+	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
+	
 	glUseProgram(shaders["unit_program"]);
 	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
 	bones_location = glGetUniformLocation(shaders["unit_program"], "bones" );
@@ -120,11 +124,19 @@ void Graphics::initShaders()
 	bone_index_location = glGetAttribLocation(shaders["unit_program"], "bone_index" );
 	glUseProgram(0);
 
-	std::cerr << "unit_color location: " << unit_color_location << std::endl;
-	std::cerr << "color_index location: " << color_index_location << std::endl;
-	std::cerr << "bones location: " << bones_location << std::endl;
-	std::cerr << "bone_index location: " << bone_index_location << std::endl;
-	std::cerr << "bone_weight location: " << bone_weight_location << std::endl;
-	std::cerr << "active location: " << active_location << std::endl;
+	glGetIntegerv(GL_MAX_LIGHTS, &MAX_NUM_LIGHTS);
+	std::cerr << "OpenGL MAX_LIGHTS: " << MAX_NUM_LIGHTS << std::endl;
+	std::cerr << std::endl;
+	std::cerr << "Level: ambientLight: " << uniform_locations["lvl_ambientLight"] << std::endl;
+	std::cerr << "Level: activeLights: " << uniform_locations["lvl_activeLights"] << std::endl;
+	
+	std::cerr << std::endl;
+	std::cerr << "Unit: unit_color location: " << unit_color_location << std::endl;
+	std::cerr << "Unit: color_index location: " << color_index_location << std::endl;
+	std::cerr << "Unit: bones location: " << bones_location << std::endl;
+	std::cerr << "Unit: bone_index location: " << bone_index_location << std::endl;
+	std::cerr << "Unit: bone_weight location: " << bone_weight_location << std::endl;
+	std::cerr << "Unit: active location: " << active_location << std::endl;
+	std::cerr << std::endl;
 }
 

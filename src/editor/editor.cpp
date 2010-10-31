@@ -100,7 +100,7 @@ bool Editor::start()
 		skeletal_model.tick(world_ticks);
 		for(auto it = models.begin(); it != models.end(); ++it)
 		{
-			it->second->tick(world_ticks);
+			it->second->tick(it->second->animation_time + 1);
 		}
 
 		string message;
@@ -735,15 +735,15 @@ void Editor::play_animation(const string& animation)
 {
 	if(skele)
 	{
-		skeletal_model.setAction(animation);
+		skeletal_model.animation_name = animation;
 	}
 	else
 	{
-		edited_model.setAction(animation);
+		edited_model.animation_name = animation;
 	}
 	for(auto it = models.begin(); it != models.end(); ++it)
 	{
-		it->second->setAction(animation);
+		it->second->animation_name = animation;
 	}
 	hud.pushMessage(green("Playing " + animation));
 }
@@ -1309,6 +1309,7 @@ void Editor::swarm(int X, int Y)
 			model->realUnitPos.y = y_scalar * (j - Y/2);
 			model->currentModelPos.y = y_scalar * (j - Y/2);
 			model->texture_name = "marine";
+			model->animation_time = i*j;
 			models[i*Y + j + 1] = model;
 		}
 	}
