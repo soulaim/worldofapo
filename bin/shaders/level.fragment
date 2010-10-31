@@ -1,7 +1,12 @@
+const int MAX_ACTIVE_LIGHTS = 4;
 
-varying vec4 diffuse[2], ambientGlobal;
-varying vec3 normal, lightDir[2]; //, halfVector[2];
-varying float dist[2];
+varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
+varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
+//varying vec3 halfVector[MAX_ACTIVE_LIGHTS];
+varying float dist[MAX_ACTIVE_LIGHTS];
+varying vec4 ambientGlobal;
+varying vec3 normal;
+
 varying vec2 varTexCoord;
 
 uniform sampler2D baseMap;
@@ -16,7 +21,7 @@ void main()
 	
 	n = normalize(normal);
 	
-	for(int i=0; i<2; i++)
+	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
 		NdotL = max(dot(n, normalize(lightDir[i])), 0.0);
 		att = 1.0 / (0.0001 + 0.0006 * dist[i] * dist[i]);
@@ -29,3 +34,4 @@ void main()
 	
 	gl_FragColor = color * texture2D(baseMap, varTexCoord);
 }
+

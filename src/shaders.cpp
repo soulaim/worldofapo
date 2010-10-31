@@ -119,8 +119,9 @@ void Graphics::initShaders()
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
 	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
-//	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
-	for(int i = 0; i < 71*2; ++i)
+	MAX_NUM_LIGHTS = 71;
+	MAX_NUM_ACTIVE_LIGHTS = 4;
+	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		std::stringstream ss;
 		ss << i;
@@ -138,7 +139,10 @@ void Graphics::initShaders()
 	glUseProgram(0);
 	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)
 	{
-		std::cerr << it->first << ": "  << it->second << std::endl;
+		if(it->first.substr(0, 7) != "lights[")
+		{
+			std::cerr << it->first << ": "  << it->second << std::endl;
+		}
 	}
 	
 	std::cerr << std::endl;

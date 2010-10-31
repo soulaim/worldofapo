@@ -317,9 +317,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			return;
 		}
 		
-		if(cmd == "SWARM#")
+		if(cmd == "SWARM")
 		{
-			serverSendMonsterSpawn(70);
+			int n = 70;
+			ss >> n;
+			n = min(100, n);
+			serverSendMonsterSpawn(n);
 			
 			stringstream chatmsg;
 			chatmsg << "3 -1 ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
@@ -331,7 +334,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	else if(orderWord == "-1")
 	{
 		// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
-		cerr << "SOME IS IMPERSONATING GOD!! :" << msg << endl;
+		cerr << "SOMEONE IS IMPERSONATING GOD!! :" << msg << endl;
 		new_message = "";
 		
 		// disconnect the fucker

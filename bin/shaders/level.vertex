@@ -1,20 +1,28 @@
+const int MAX_LIGHTS = 71;
+const int MAX_ACTIVE_LIGHTS = 4;
 
-varying vec4 diffuse[2], ambientGlobal;
-varying vec3 normal, lightDir[2]; //, halfVector[2];
-varying float dist[2];
-
+varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
+varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
+//varying vec3 halfVector[MAX_ACTIVE_LIGHTS];
+varying float dist[MAX_ACTIVE_LIGHTS];
+varying vec4 ambientGlobal;
+varying vec3 normal;
 varying vec2 varTexCoord;
 
-attribute vec2 activeLights;
+attribute vec4 activeLights;
 uniform vec4 ambientLight;
 
-//uniform vec4 lights[gl_MaxLights * 2];
-uniform vec4 lights[71* 2];
+uniform vec4 lights[MAX_LIGHTS * 2];
+const int POSITION = 0;
+const int DIFFUSE = 1;
 
 void main()
 {
-	int POSITION = 0;
-	int DIFFUSE = 1;
+	int activeLight[MAX_ACTIVE_LIGHTS];
+	activeLight[0] = int(activeLights.x);
+	activeLight[1] = int(activeLights.y);
+	activeLight[2] = int(activeLights.z);
+	activeLight[3] = int(activeLights.w);
 
 	vec4 ecPos;
 	vec3 aux;
@@ -22,28 +30,19 @@ void main()
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 	ecPos = gl_ModelViewMatrix * gl_Vertex;
 	
-	// FIRST LIGHT
-	int lightIndex = int(activeLights.x);
-//	aux = vec3(gl_LightSource[lightIndex].position - ecPos);
-	aux = vec3(gl_ModelViewMatrix * lights[lightIndex*2 + POSITION] - ecPos);
-	lightDir[0] = normalize(aux);
-	dist[0] = length(aux);
+	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
+	{
+		int lightIndex = activeLight[i];
+//		aux = vec3(gl_LightSource[lightIndex].position - ecPos);
+		aux = vec3(gl_ModelViewMatrix * lights[lightIndex*2 + POSITION] - ecPos);
+		lightDir[i] = normalize(aux);
+		dist[i] = length(aux);
 	
-	//halfVector[0] = normalize(gl_LightSource[lightIndex].halfVector.xyz);
-//	diffuse[0] = gl_FrontMaterial.diffuse * gl_LightSource[lightIndex].diffuse;
-	diffuse[0] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
+		//halfVector[i] = normalize(gl_LightSource[lightIndex].halfVector.xyz);
+//		diffuse[i] = gl_FrontMaterial.diffuse * gl_LightSource[lightIndex].diffuse;
+		diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
+	}
 
-	// SECOND LIGHT
-	lightIndex = int(activeLights.y);
-//	aux = vec3(gl_LightSource[lightIndex].position - ecPos);
-	aux = vec3(gl_ModelViewMatrix * lights[lightIndex*2 + POSITION] - ecPos);
-	lightDir[1] = normalize(aux);
-	dist[1] = length(aux);
-	
-	//halfVector[1] = normalize(gl_LightSource[lightIndex].halfVector.xyz);
-//	diffuse[1] = gl_FrontMaterial.diffuse * gl_LightSource[lightIndex].diffuse;
-	diffuse[1] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
-	
 	ambientGlobal = ambientLight * gl_FrontMaterial.ambient;
 	varTexCoord   = vec2(gl_MultiTexCoord0);
 	gl_Position   = ftransform();

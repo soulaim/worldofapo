@@ -390,59 +390,42 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 //		cerr << "POSITION  is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 		
 		++i;
-//		if(i >= MAX_NUM_LIGHTS)
+		if(i >= MAX_NUM_LIGHTS)
 		{
 			// if there are too many lights, just ignore the rest of them
-//			break;
+			break;
 		}
 	}
 	glUseProgram(0);
 }
 
+struct LightDistance
+{
+	int index;
+	FixedPoint squaredDistance;
 
+	bool operator<(const LightDistance& rhs) const
+	{
+		return squaredDistance < rhs.squaredDistance;
+	}
+};
 
 void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
 {
-	vector<int> indexes;
-	vector<FixedPoint> distances;
-	
-	distances.resize(2, FixedPoint(40000));
-	indexes.resize(2, 0);
-	
-	int i=0;
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	static vector<LightDistance> distances;
+	distances.resize( max(lightsContainer.size(), distances.size()) );
+	int i = 0;
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
 	{
-		const LightObject& light = iter->second;
-		FixedPoint lightDistance = (light.position - pos).lengthSquared();
-		
-		if(lightDistance < distances[0])
-		{
-			distances[1] = distances[0];
-			indexes[1]   = indexes[0];
-			
-			distances[0] = lightDistance;
-			indexes[0]   = i;
-		}
-		else if(lightDistance < distances[1])
-		{
-			distances[1] = lightDistance;
-			indexes[1]   = i;
-		}
-		
-		// must ignore lights if there are too many.
-		++i;
-//		if(i >= MAX_NUM_LIGHTS)
-//			break;
+		FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
+		distances[i].index = i;
+		distances[i].squaredDistance = lightDistance;
 	}
-	
-	int val1 = 0, val2 = 0;
-	if(indexes[0] > 0)
-		val1 = indexes[0];
-	
-	if(indexes[1] > 0)
-		val2 = indexes[1];
-	
-	glVertexAttrib2f(uniform_locations["lvl_activeLights"], val1, val2);
+//	sort(distances.begin(), distances.end());
+	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
+	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
+	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
+	glVertexAttrib4f(uniform_locations["lvl_activeLights"], distances[0].index, distances[1].index, distances[2].index, distances[3].index);
 }
 
 

@@ -74,6 +74,7 @@ class Graphics
 	Camera camera;
 	
 	GLint MAX_NUM_LIGHTS;
+	GLint MAX_NUM_ACTIVE_LIGHTS;
 	bool lightsActive;
 	bool drawDebuglines;
 	bool drawDebugWireframe;
