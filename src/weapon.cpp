@@ -66,6 +66,7 @@ void Weapon::fire()
 			projectile.velocity.z += rnd_z * max_var - half_var;
 		}
 		
+		projectile["MASS"] = intVals["CHILD_MASS"];
 		projectile["TPF"]    = intVals["CHILD_TPF"];
 		projectile["DAMAGE"] = intVals["CHILD_DAMAGE"];
 		projectile["ID"]     = id;
