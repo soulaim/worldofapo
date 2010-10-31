@@ -238,7 +238,6 @@ void DedicatedServer::simulateWorldFrame()
 			std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
 			std::cerr << "client checksum: " << tmp.checksum << std::endl;
 			std::cerr << "server checksum: " << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
-
 			cerr << "server unit locations:" << std::endl;
 			for (auto it = world.units.begin(); it != world.units.end(); ++it)
 			{

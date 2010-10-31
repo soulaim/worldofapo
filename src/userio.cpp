@@ -96,6 +96,9 @@ int UserIO::getGameInput()
 		keyBoard |= 1<<24;
 */
 
+	if(keystate[SDLK_TAB])
+		keyBoard |= 1<<31;
+
 	return keyBoard;
 }
 
