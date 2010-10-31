@@ -62,8 +62,6 @@ class Graphics
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
-	void initShaders();
-
 
 	//ParticleSystemManager particleManager;
 	std::vector<Particle> viewParticles;
@@ -81,6 +79,9 @@ class Graphics
 	bool drawDebugWireframe;
 	
 public:
+	void initShaders(); // Public for debugging.
+	void releaseShaders();
+
 	static std::map<std::string, ObjectPart> objects; // TODO: Maybe move this somewhere?
 	friend class Editor;
 

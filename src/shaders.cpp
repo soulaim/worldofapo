@@ -2,6 +2,8 @@
 #include "graphics.h"
 
 #include <iostream>
+#include <sstream>
+#include <string>
 
 GLint unit_color_location = -1;
 GLint color_index_location = -1;
@@ -92,6 +94,10 @@ void Graphics::initShaders()
 	else
 		std::cerr << "GLEW VITYYY DD:" << std::endl;
 	
+	glGetIntegerv(GL_MAX_LIGHTS, &MAX_NUM_LIGHTS);
+	std::cerr << "OpenGL MAX_LIGHTS: " << MAX_NUM_LIGHTS << std::endl;
+	std::cerr << std::endl;
+
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
 	
@@ -113,6 +119,13 @@ void Graphics::initShaders()
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
 	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
+//	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
+	for(int i = 0; i < 71*2; ++i)
+	{
+		std::stringstream ss;
+		ss << i;
+		uniform_locations["lvl_lights[" + ss.str() + "]"] = glGetUniformLocation(shaders["level_program"], ("lights[" + ss.str() + "]").c_str());
+	}
 	
 	glUseProgram(shaders["unit_program"]);
 	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
@@ -123,12 +136,10 @@ void Graphics::initShaders()
 	bone_weight_location = glGetAttribLocation(shaders["unit_program"], "bone_weight" );
 	bone_index_location = glGetAttribLocation(shaders["unit_program"], "bone_index" );
 	glUseProgram(0);
-
-	glGetIntegerv(GL_MAX_LIGHTS, &MAX_NUM_LIGHTS);
-	std::cerr << "OpenGL MAX_LIGHTS: " << MAX_NUM_LIGHTS << std::endl;
-	std::cerr << std::endl;
-	std::cerr << "Level: ambientLight: " << uniform_locations["lvl_ambientLight"] << std::endl;
-	std::cerr << "Level: activeLights: " << uniform_locations["lvl_activeLights"] << std::endl;
+	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)
+	{
+		std::cerr << it->first << ": "  << it->second << std::endl;
+	}
 	
 	std::cerr << std::endl;
 	std::cerr << "Unit: unit_color location: " << unit_color_location << std::endl;
@@ -138,5 +149,22 @@ void Graphics::initShaders()
 	std::cerr << "Unit: bone_weight location: " << bone_weight_location << std::endl;
 	std::cerr << "Unit: active location: " << active_location << std::endl;
 	std::cerr << std::endl;
+}
+
+void Graphics::releaseShaders()
+{
+	glUseProgram(0);
+	glDetachShader(shaders["unit_program"], shaders["unit_frag"]);
+	glDetachShader(shaders["unit_program"], shaders["unit_frag"]);
+	glDetachShader(shaders["level_program"], shaders["level_vert"]);
+	glDetachShader(shaders["level_program"], shaders["level_frag"]);
+
+	glDeleteProgram(shaders["unit_program"]);
+	glDeleteProgram(shaders["level_program"]);
+
+	glDeleteShader(shaders["unit_frag"]);
+	glDeleteShader(shaders["unit_vert"]);
+	glDeleteShader(shaders["level_frag"]);
+	glDeleteShader(shaders["level_vert"]);
 }
 

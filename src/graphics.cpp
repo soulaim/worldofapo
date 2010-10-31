@@ -47,6 +47,12 @@ void Graphics::initLight()
 		glLightfv(GL_LIGHT0+i, GL_AMBIENT, light0ambient);
 		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, light0diffuse);
 		glLightfv(GL_LIGHT0+i, GL_SPECULAR, light0specular);
+
+//		int POSITION = 0;
+		int DIFFUSE = 1;
+		stringstream ss;
+		ss << "lvl_lights[" << i*2 + DIFFUSE << "]";
+		glUniform4f(uniform_locations[ss.str()], light0diffuse[0], light0diffuse[1], light0diffuse[2], light0diffuse[3]);
 	}
 }
 
@@ -170,6 +176,7 @@ Graphics::Graphics()
 
 Graphics::~Graphics()
 {
+	releaseShaders();
 	destroyWindow();
 }
 
@@ -341,28 +348,55 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 
 void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
+	while(glGetError() != GL_NO_ERROR); // Clear error flags.
+
+	glUseProgram(shaders["level_program"]);
 	int i=0;
 	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
 	{
+		int POSITION = 0;
+		int DIFFUSE = 1;
+
 		float rgb[4]; rgb[3] = 1.0f;
 		
 		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, rgb);
-		
+//		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, rgb);
+		stringstream ss1;
+		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
+		glUniform4f(uniform_locations[ss1.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		GLenum error;
+		if((error = glGetError()) != GL_NO_ERROR)
+		{
+			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
+		}
+//		cerr << uniform_locations[ss1.str()] << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+//		cerr << "DIFFUSE is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+
 		const Location& pos = iter->second.getPosition();
 		rgb[0] = pos.x.getFloat();
 		rgb[1] = pos.y.getFloat();
 		rgb[2] = pos.z.getFloat();
 		
-		glLightfv(GL_LIGHT0 + i, GL_POSITION, rgb);
+//		glLightfv(GL_LIGHT0 + i, GL_POSITION, rgb);
+
+		stringstream ss2;
+		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
+		glUniform4f(uniform_locations[ss2.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		if((error = glGetError()) != GL_NO_ERROR)
+		{
+			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
+		}
+//		cerr << uniform_locations[ss2.str()]  << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+//		cerr << "POSITION  is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 		
 		++i;
-		if(i >= MAX_NUM_LIGHTS)
+//		if(i >= MAX_NUM_LIGHTS)
 		{
 			// if there are too many lights, just ignore the rest of them
-			break;
+//			break;
 		}
 	}
+	glUseProgram(0);
 }
 
 
@@ -397,8 +431,8 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 		
 		// must ignore lights if there are too many.
 		++i;
-		if(i >= MAX_NUM_LIGHTS)
-			break;
+//		if(i >= MAX_NUM_LIGHTS)
+//			break;
 	}
 	
 	int val1 = 0, val2 = 0;
