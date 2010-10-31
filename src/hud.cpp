@@ -219,15 +219,15 @@ void Hud::drawFPS()
 
 	stringstream ss1;
 	ss1 << "FPS: " << fixed << setprecision(2) << fps;
+	drawString(ss1.str(), 0.6, 0.9, 1.5, true);
 	stringstream ss2;
 	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
+	drawString(ss2.str(), 0.6, 0.8, 1.5, true);
 	stringstream ss3;
 	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
+	drawString(ss3.str(), 0.6, 0.7, 1.5, true);
 	stringstream ss4;
 	ss4 << "QUADS: " << fixed << setprecision(2) << QUADS_DRAWN_THIS_FRAME;
-	drawString(ss1.str(), 0.6, 0.9, 1.5, true);
-	drawString(ss2.str(), 0.6, 0.8, 1.5, true);
-	drawString(ss3.str(), 0.6, 0.7, 1.5, true);
 	drawString(ss4.str(), 0.6, 0.6, 1.5, true);
 }
 
@@ -284,6 +284,7 @@ void Hud::drawCrossHair() const
 	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.08f, -1);
 	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, +0.02f, -1);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, +0.02f, -1);
+	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
 	
 	glDisable(GL_BLEND);
@@ -333,18 +334,19 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	float edge_size = 1./16.;
 	
 	// draw a darker background box for the text if that was requested
+	glDisable(GL_TEXTURE_2D);
+	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+	glBegin(GL_QUADS);
 	if(background)
 	{
-		glDisable(GL_TEXTURE_2D);
-		glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
-		glBegin(GL_QUADS);
 		glVertex3f(pos_x - 0.01 * scale , y_bot, -1);
 		glVertex3f(pos_x + totalWidth    , y_bot, -1);
 		glVertex3f(pos_x + totalWidth    , y_top, -1);
 		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
+		++QUADS_DRAWN_THIS_FRAME;
 	}
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
 	
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
@@ -396,6 +398,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
 		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
 		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
+		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
 	glDisable(GL_BLEND);
@@ -434,6 +437,7 @@ void Hud::drawMinimap() const
 	glVertex3f(0.96f, -0.60f, 0.f);
 	glVertex3f(0.96f, -0.96f, 0.f);
 	glVertex3f(0.60f, -0.96f, 0.f);
+	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
 	
 	glPointSize(4.0f);
