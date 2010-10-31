@@ -58,12 +58,6 @@ struct WeightedVertex
 	}
 };
 
-struct TextureCoordinate
-{
-	float x;
-	float y;
-};
-
 struct Triangle
 {
 	unsigned vertices[3];

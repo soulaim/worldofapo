@@ -139,7 +139,7 @@ void Graphics::initShaders()
 	glUseProgram(0);
 	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)
 	{
-		if(it->first.substr(0, 7) != "lights[")
+		if(it->first.size() < 11 || it->first.substr(0, 11) != "lvl_lights[")
 		{
 			std::cerr << it->first << ": "  << it->second << std::endl;
 		}
