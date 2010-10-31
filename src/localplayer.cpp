@@ -166,6 +166,7 @@ void Localplayer::process_sent_game_input()
 	int mousepress = userio->getMousePress();
 
 	view->updateInput(keyState); // Make only "small" local changes like change camera angle.
+	hud.setShowStats(keyState & (1 << 31));
 
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }

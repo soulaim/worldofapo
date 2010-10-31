@@ -1,11 +1,13 @@
 #include "hud.h"
 #include "graphics.h"
 #include "texturehandler.h"
+#include "apomath.h"
 
 #include <string>
 #include <sstream>
 #include <map>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -13,6 +15,7 @@ extern int TRIANGLES_DRAWN_THIS_FRAME;
 extern int QUADS_DRAWN_THIS_FRAME;
 
 Hud::Hud():
+	showStats(false),
 	zombieCount(0),
 	currentTime(0),
 	world_ticks(0)
@@ -247,9 +250,15 @@ void Hud::draw(bool firstPerson)
 	drawFPS();
 }
 
+void Hud::setShowStats(bool _showStats) {
+	showStats = _showStats;
+}
 
 void Hud::drawStats() const
 {
+	if (!showStats)
+		return;
+
 	int i = 0;
 	for(map<int, PlayerInfo>::iterator iter = Players->begin(); iter != Players->end(); iter++)
 	{
@@ -412,6 +421,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 
 void Hud::drawMinimap() const
 {
+	static ApoMath apomath = ApoMath();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	
@@ -424,45 +434,62 @@ void Hud::drawMinimap() const
 	
 	glTranslatef(0.0f, 0.0f, -1.0f);
 
-	glTranslatef(0.78f, -0.78f, 0.0f);
-	glRotatef(minimap_angle, 0.0f, 0.0f, 1.0f);
-	glTranslatef(-0.78f, 0.78f, 0.0f);
-	
+	float map_top_x = 0.60f;
+	float map_top_y = -0.60f;
+	float map_bot_x = 0.96f;
+	float map_bot_y = -0.96f;
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
+
 	glBegin(GL_QUADS);
-	glVertex3f(0.60f, -0.60f, 0.f);
-	glVertex3f(0.96f, -0.60f, 0.f);
-	glVertex3f(0.96f, -0.96f, 0.f);
-	glVertex3f(0.60f, -0.96f, 0.f);
+	glVertex3f(map_top_x, map_top_y, 0.f);
+	glVertex3f(map_bot_x, map_top_y, 0.f);
+	glVertex3f(map_bot_x, map_bot_y, 0.f);
+	glVertex3f(map_top_x, map_bot_y, 0.f);
 	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
-	
-	glPointSize(4.0f);
-
-	glBegin(GL_POINTS);
 
 	for(auto it = units->begin(); it != units->end(); ++it)
 	{
 		const int id = it->first;
+
+		float r = 1.0f;
+		float g = 0.0f;
+		float b = 0.0f;
+
+		if (myID == id)
+		{
+			r = 0.0f;
+			g = 0.0f;
+			b = 1.0f;
+		}
+
 		const Unit& u = it->second;
 		const Location& loc = u.position;
 
-		if(id == myID)
-		{
-			glColor3f(1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			glColor3f(0.0f, 0.0f, 1.0f);
-		}
-		glVertex3f(0.96f - (0.37*loc.x.getFloat())/level_max_x, -0.96f + (0.37*loc.z.getFloat())/level_max_z, 0.f);
+		float x = map_bot_x + (loc.x.getFloat() / level_max_x) * (map_top_x - map_bot_x);
+		float z = map_bot_y + (loc.z.getFloat() / level_max_z) * (map_top_y - map_bot_y);
+
+		int angle = u.angle;
+		float degrees = -apomath.getDegrees(angle);
+
+		glPushMatrix();
+
+		glTranslatef(x, z, 0.0f);
+		glRotatef(degrees, 0.0f, 0.0f, -1.0f);
+
+		glBegin(GL_TRIANGLES);
+		glColor3f(r, g, b);          glVertex3f(-0.01f, -.01f, 0.0f);
+		glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(+0.00f, +.01f, 0.0f);
+		glColor3f(r, g, b);          glVertex3f(+0.01f, -.01f, 0.0f);
+		glEnd();
+
+		glPopMatrix();
 	}
 
-	glEnd();
-	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();

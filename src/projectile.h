@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <map>
 
 #include "collision.h"
 #include "location.h"
@@ -16,19 +17,23 @@ class Projectile
 {
 	public:
 		Projectile():
-			destroyAfterFrame(false), lifetime(0)
+			destroyAfterFrame(false)
 		{
+			intVals["LIFETIME"] = 0;
 		}
-
+		
+		int& operator [] (const std::string& a)
+		{
+			return intVals[a];
+		}
+		
 		Location velocity;
 		Location curr_position;
 		Location prev_position;
 		
 		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
 		
-		int id;
-		int owner;
-		int lifetime;
+		std::map<std::string, int> intVals;
 		
 		void tick();
 		

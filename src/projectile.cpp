@@ -19,18 +19,26 @@ void Projectile::tick()
 {
 	prev_position = curr_position;
 	curr_position += velocity;
-	--lifetime;
+	--intVals["LIFETIME"];
 }
 
 void Projectile::handleCopyOrder(stringstream& ss)
 {
-	ss >> curr_position.x >> curr_position.z >> curr_position.y >> velocity.x >> velocity.z >> velocity.y >> lifetime;
+	ss >> curr_position.x >> curr_position.z >> curr_position.y >> velocity.x >> velocity.z >> velocity.y;
+	
+	string key;
+	while(ss >> key)
+		ss >> intVals[key];
 }
 
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x << " " << curr_position.z << " " << curr_position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y << " " << lifetime << "#";
+	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x << " " << curr_position.z << " " << curr_position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y;
+	
+	for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
+		projectile_msg << " " << iter->first << " " << iter->second;
+	projectile_msg << "#";
 	
 	return projectile_msg.str();
 }
