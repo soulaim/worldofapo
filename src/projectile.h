@@ -27,13 +27,20 @@ class Projectile
 			return intVals[a];
 		}
 		
+		std::string& operator() (const std::string& a)
+		{
+			return strVals[a];
+		}
+		
 		Location velocity;
 		Location curr_position;
 		Location prev_position;
 		
 		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
 		
+		// handy for transmitting stuff :D
 		std::map<std::string, int> intVals;
+		std::map<std::string, std::string> strVals;
 		
 		void tick();
 		
