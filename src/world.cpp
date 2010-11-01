@@ -223,6 +223,18 @@ void World::init()
 
 	lvl.generate(50);
 	
+	// find the highest point in lvl and add a strong light there.
+	
+	LightObject tmp_light;
+	tmp_light.unitBind = -1;
+	tmp_light.lifeType = LightSource::IMMORTAL;
+	tmp_light.behaviour = LightSource::RISE_AND_DIE;
+	tmp_light.setDiffuse(8.0, 2.0, 2.0);
+	tmp_light.setLife(150);
+	tmp_light.activateLight();
+	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+	lights[nextUnitID()] = tmp_light;
+	
 	show_errors = 0;
 }
 
@@ -374,7 +386,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.weapon->tick();
 	if (unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		unit.weapon->fire();
+		unit.weapon->onUse();
 	}
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
@@ -481,7 +493,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					event.position.y += FixedPoint(2);
 					event.velocity.y = FixedPoint(200,1000);
 					events.push_back(event);
-					
 					
 					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
 					u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
@@ -640,8 +651,17 @@ void World::worldTick(int tickCount)
 	
 	for(auto iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		if(iter->second.destroyAfterFrame)
+		Projectile& projectile = iter->second;
+		if(projectile.destroyAfterFrame)
+		{
+			if(projectile("AT_DEATH") == "EXPLODE")
+			{
+				// :DD OH YEAH! BRING IT ON :DD
+				cerr << "BOOM!" << endl;
+			}
+			
 			deadUnits.push_back(iter->first);
+		}
 	}
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
@@ -699,31 +719,17 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
-
-	LightObject tmp_light;
-	tmp_light.unitBind = id;
-	tmp_light.lifeType = LightSource::IMMORTAL;
-	tmp_light.behaviour = LightSource::RISE_AND_DIE;
-	tmp_light.setDiffuse(0.1, 0.1, 0.1);
-	tmp_light.setLife(12);
-	tmp_light.activateLight();
-	
-	lights[nextUnitID()] = tmp_light;
-	
 	
 	static SkeletalModel prototype;
-//	static ApoModel prototype;
 	static bool loaded = false;
 	if(!loaded)
 	{
 		loaded = true;
 		prototype.load("models/model.skeleton");
-//		prototype.load("models/model.bones");
 		prototype.texture_name = "marine";
 	}
 	
 	models[id] = new SkeletalModel(prototype);
-//	models[id] = new ApoModel(prototype);
 	
 	if(!playerCharacter)
 	{
