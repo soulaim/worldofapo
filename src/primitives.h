@@ -32,5 +32,11 @@ struct ObjectPart
 	}
 };
 
+struct TextureCoordinate
+{
+	float x;
+	float y;
+};
+
 #endif
 
