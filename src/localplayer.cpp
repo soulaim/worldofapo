@@ -63,6 +63,10 @@ void Localplayer::init()
 
 	// TODO: Should not be done here? FIX
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+//	TextureHandler::getSingleton().createTexture("grass512", "data/grass512.png");
+//	TextureHandler::getSingleton().createTexture("grass1024", "data/grass1024.png");
+	TextureHandler::getSingleton().createTexture("grass2048", "data/grass2048.png");
+//	TextureHandler::getSingleton().createTexture("grass4096", "data/grass4096.png");
 	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
 	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
 	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");

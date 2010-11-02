@@ -138,7 +138,7 @@ void Graphics::initShaders()
 	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
 	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
 	MAX_NUM_LIGHTS = 71;
-	MAX_NUM_ACTIVE_LIGHTS = 4;
+	MAX_NUM_ACTIVE_LIGHTS = 4; // Make sure this is the same number as in the shaders.
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		std::stringstream ss;
