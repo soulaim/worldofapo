@@ -79,6 +79,7 @@ public:
 	
 	void addUnit(int id, bool player = true);
 	void addProjectile(Location& location, int);
+	void addLight(Location& location);
 	
 	void removeUnit(int id);
 	

@@ -85,15 +85,7 @@ void World::doDeathFor(Unit& unit)
 	event.position.y += FixedPoint(2);
 	event.velocity.y = FixedPoint(200,1000);
 	
-	// TODO ALERT code for creating lights should have it's own function.
-	LightObject& light = lights[nextUnitID()];
-	light.setDiffuse(8.f, 8.f, 8.f);
-	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(50); // Some frames of LIGHT!
-	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
-	light.activateLight(); // ACTIVATE :D
-	light.position = event.position;
-	light.position.y += FixedPoint(3, 2);
+	addLight(event.position);
 	
 	if(unit.human())
 	{
@@ -709,6 +701,18 @@ void World::viewTick()
 	}
 }
 
+void World::addLight(Location& location)
+{
+	// TODO ALERT code for creating lights should have it's own function.
+	LightObject& light = lights[nextUnitID()];
+	light.setDiffuse(8.f, 8.f, 8.f);
+	light.setSpecular(0.f, 0.f, 0.f);
+	light.setLife(200); // Some frames of LIGHT!
+	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
+	light.activateLight(); // ACTIVATE :D
+	light.position = location;
+	light.position.y += FixedPoint(3, 2);
+}
 
 // TODO: FIX THIS trololol..
 void World::addUnit(int id, bool playerCharacter)
