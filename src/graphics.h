@@ -62,6 +62,7 @@ class Graphics
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
+	void loadGeometryShader(const std::string& name, const std::string& filename);
 
 	//ParticleSystemManager particleManager;
 	std::vector<Particle> viewParticles;

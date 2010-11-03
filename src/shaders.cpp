@@ -73,6 +73,19 @@ void Graphics::loadFragmentShader(const std::string& name, const std::string& fi
 	releaseFile(data);
 }
 
+void Graphics::loadGeometryShader(const std::string& name, const std::string& filename)
+{
+	char* data = readFile(filename.c_str());
+
+	const char* code = data;
+	shaders[name] = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(shaders[name], 1, &code, NULL);
+	glCompileShader(shaders[name]);
+	printLog(shaders[name]);
+
+	releaseFile(data);
+}
+
 void printLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -100,6 +113,7 @@ void Graphics::initShaders()
 
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
+//	loadGeometryShader("level_geom", "shaders/level.geometry");
 	
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
 	loadVertexShader("unit_vert", "shaders/unit.vertex");
@@ -107,6 +121,10 @@ void Graphics::initShaders()
 	shaders["level_program"] = glCreateProgram();
 	glAttachShader(shaders["level_program"], shaders["level_frag"]);
 	glAttachShader(shaders["level_program"], shaders["level_vert"]);
+//	glAttachShader(shaders["level_program"], shaders["level_geom"]);
+//	glProgramParameteriEXT(shaders["level_program"], GL_GEOMETRY_INPUT_TYPE_EXT, GL_TRIANGLES);
+//	glProgramParameteriEXT(shaders["level_program"], GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
+//	glProgramParameteriEXT(shaders["level_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 3);
 	glLinkProgram(shaders["level_program"]);
 	printLog(shaders["level_program"]);
 	
@@ -120,7 +138,7 @@ void Graphics::initShaders()
 	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
 	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
 	MAX_NUM_LIGHTS = 71;
-	MAX_NUM_ACTIVE_LIGHTS = 4;
+	MAX_NUM_ACTIVE_LIGHTS = 4; // Make sure this is the same number as in the shaders.
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		std::stringstream ss;
@@ -162,6 +180,7 @@ void Graphics::releaseShaders()
 	glDetachShader(shaders["unit_program"], shaders["unit_frag"]);
 	glDetachShader(shaders["level_program"], shaders["level_vert"]);
 	glDetachShader(shaders["level_program"], shaders["level_frag"]);
+//	glDetachShader(shaders["level_program"], shaders["level_geom"]);
 
 	glDeleteProgram(shaders["unit_program"]);
 	glDeleteProgram(shaders["level_program"]);
@@ -170,5 +189,6 @@ void Graphics::releaseShaders()
 	glDeleteShader(shaders["unit_vert"]);
 	glDeleteShader(shaders["level_frag"]);
 	glDeleteShader(shaders["level_vert"]);
+//	glDeleteShader(shaders["level_geom"]);
 }
 

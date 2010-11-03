@@ -399,37 +399,6 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 	glUseProgram(0);
 }
 
-struct LightDistance
-{
-	int index;
-	FixedPoint squaredDistance;
-
-	bool operator<(const LightDistance& rhs) const
-	{
-		return squaredDistance < rhs.squaredDistance;
-	}
-};
-
-void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
-{
-	static vector<LightDistance> distances;
-	distances.resize( max(lightsContainer.size(), distances.size()) );
-	int i = 0;
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
-	{
-		FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
-		distances[i].index = i;
-		distances[i].squaredDistance = lightDistance;
-	}
-//	sort(distances.begin(), distances.end());
-	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
-	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
-	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
-	glVertexAttrib4f(uniform_locations["lvl_activeLights"], distances[0].index, distances[1].index, distances[2].index, distances[3].index);
-}
-
-
-
 void Graphics::drawDebugLevelNormals(const Level& lvl)
 {
 	int multiplier = 8;
@@ -464,60 +433,211 @@ void Graphics::drawDebugLevelNormals(const Level& lvl)
 	glEnd();
 }
 
+struct LightDistance
+{
+	int index;
+	FixedPoint squaredDistance;
+
+	bool operator<(const LightDistance& rhs) const
+	{
+		return squaredDistance < rhs.squaredDistance;
+	}
+};
+
+void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
+{
+	static vector<LightDistance> distances;
+	distances.resize( max(lightsContainer.size(), distances.size()) );
+	int i = 0;
+	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
+	{
+		FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
+		distances[i].index = i;
+		distances[i].squaredDistance = lightDistance;
+	}
+//	sort(distances.begin(), distances.end());
+	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
+	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
+	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
+	glVertexAttrib4f(uniform_locations["lvl_activeLights"], distances[0].index, distances[1].index, distances[2].index, distances[3].index);
+}
+
+struct ActiveLights
+{
+	float active_light0;
+	float active_light1;
+	float active_light2;
+	float active_light3;
+};
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
-	
 	glUseProgram(shaders["level_program"]);
-	TextureHandler::getSingleton().bindTexture("grass");
+	TextureHandler::getSingleton().bindTexture("grass2048");
+	//TextureHandler::getSingleton().bindTexture("chessboard");
 	
 	// set ambient light
-	glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
+	if(drawDebuglines)
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
+	else
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
 	
-	int multiplier = 8;
-	
-	Vec3 semiAverage;
-	Vec3 points[3];
+	const int multiplier = 8;
 
-	glColor3f(1.0,1.0,1.0);
+	static vector<Vec3> vertices;
+	static vector<Vec3> normals;
+	static vector<TextureCoordinate> texture_coordinates;
+	static vector<ActiveLights> active_lights;
+
+	size_t height = lvl.pointheight_info.size();
+	size_t width = lvl.pointheight_info[0].size();
+	const int BUFFERS = 5;
+	static GLuint locations[BUFFERS];
+	static bool level_buffers_loaded = false;
+
+	// Load static buffers.
+	if(!level_buffers_loaded) // TODO: Move initialization somewhere else?
+	{
+		level_buffers_loaded = true;
+		assert(height*width > 0);
+
+		vertices.reserve(height * width);
+		normals.reserve(height * width);
+		for(size_t x = 0; x < height; ++x)
+		{
+			for(size_t z = 0; z < width; ++z)
+			{
+				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
+				vertices.push_back(point);
+
+				Location normal = lvl.getNormal(x, z);
+				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+
+				 // TODO: These coordinates are like :G
+				const int divisions = 10;
+				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
+				texture_coordinates.push_back(tc1);
+
+				ActiveLights ac = { 0, 0, 0, 0};
+				active_lights.push_back(ac);
+			}
+		}
+
+		glGenBuffers(BUFFERS, locations);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[2]);
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+	}
+
+	// Load dynamic indices.
+	vector<unsigned> indices;
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
+		Vec3 points[3];
 		BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
 			points[i].x = tri.points[i].x * multiplier;
 			points[i].z = tri.points[i].z * multiplier;
 			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+
+			indices.push_back( tri.points[i].x * width + tri.points[i].z  );
 		}
 		
-		semiAverage = (points[0] + points[1] + points[2]) / 3;
+		Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
 		
-		Location n;
-		
-		// set active lights
-		Location pos;
-		pos.x = int(semiAverage.x);
-		pos.y = int(semiAverage.y);
-		pos.z = int(semiAverage.z);
-		
-		setActiveLights(lightsContainer, pos);
-		
-		
-		glBegin(GL_TRIANGLES);
+		// Set active lights
+		Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
+
+		static vector<LightDistance> distances;
+		distances.resize( max(lightsContainer.size(), distances.size()) );
+		int i = 0;
+		for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
+		{
+			FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
+			distances[i].index = i;
+			distances[i].squaredDistance = lightDistance;
+		}
+
+		assert(MAX_NUM_ACTIVE_LIGHTS <= 4);
+	//	sort(distances.begin(), distances.end());
+		size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
+		nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
+		ActiveLights ac = { float(distances[0].index), float(distances[1].index), float(distances[2].index), float(distances[3].index) };
+
+		for(size_t i = 0; i < 3; ++i)
+		{
+			size_t index = tri.points[i].x * width + tri.points[i].z;
+			active_lights[index] = ac; // TODO: now every vertex gets active lights only from a single face.
+		}
+	}
+
+
+	assert(active_lights.size() == vertices.size());
+	assert(texture_coordinates.size() == vertices.size());
+	assert(normals.size() == vertices.size());
+/*
+	// Draw data.
+	glBegin(GL_TRIANGLES);
+	for(size_t k = 0; k < indices.size(); k += 3)
+	{
+		Vec3 points[3];
+		points[0] = vertices[indices[k+0]];
+		points[1] = vertices[indices[k+1]];
+		points[2] = vertices[indices[k+2]];
+
+		ActiveLights& lol = active_lights[indices[k+0]];
+		glVertexAttrib4f(uniform_locations["lvl_activeLights"], lol.active_light0, lol.active_light1, lol.active_light2, lol.active_light3);
+
 		// TODO: Terrain texture
-		n=lvl.getNormal(tri.points[0].x, tri.points[0].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-		glTexCoord2f(0.f, 0.0f); glVertex3f( points[0].x, points[0].y, points[0].z );
-		
-		n=lvl.getNormal(tri.points[1].x, tri.points[1].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-		glTexCoord2f(1.f, 0.0f); glVertex3f( points[1].x, points[1].y, points[1].z );
-		
-		n=lvl.getNormal(tri.points[2].x, tri.points[2].z); glNormal3f(n.x.getFloat(), n.y.getFloat(), n.z.getFloat());
-		glTexCoord2f(1.f, 1.0f); glVertex3f( points[2].x, points[2].y, points[2].z );
+		for(size_t i = 0; i < 3; ++i)
+		{
+			Vec3 n = normals[indices[k+i]];
+			glNormal3f(n.x, n.y, n.z);
+			glTexCoord2f(texture_coordinates[indices[k+i]].x, texture_coordinates[indices[k+i]].y);
+			glVertex3f( points[i].x, points[i].y, points[i].z );
+		}
 		
 		++TRIANGLES_DRAWN_THIS_FRAME;
-		glEnd();
-		
 	}
-	
+	glEnd();
+*/
+
+	// Bind static data and send dynamic data to graphics card.
+	glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[2]);
+	glNormalPointer(GL_FLOAT, 0, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[3]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[4]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
+	glVertexAttribPointer(uniform_locations["lvl_activeLights"], 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
+
+	// Draw sent data.
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDisableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
+
 	glUseProgram(0);
 }
 
