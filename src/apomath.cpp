@@ -47,6 +47,14 @@ void ApoMath::init(int size)
 	cerr << "ApoMath initialized with size " << size << "\n";
 }
 
+void ApoMath::clamp(int& angle) const
+{
+	while(angle < 0)
+		angle += sin_vals.size();
+	while(unsigned(angle) >= sin_vals.size())
+		angle -= sin_vals.size();
+}
+
 bool ApoMath::ready() const
 {
 	return !sin_vals.empty();
@@ -54,28 +62,19 @@ bool ApoMath::ready() const
 
 FixedPoint& ApoMath::getCos(int& angle) const
 {
-	while(angle < 0)
-		angle += sin_vals.size();
-	while(unsigned(angle) >= sin_vals.size())
-		angle -= sin_vals.size();
+	clamp(angle);
 	return sin_vals[angle];
 }
 
 FixedPoint& ApoMath::getSin(int& angle) const
 {
-	while(angle < 0)
-		angle += sin_vals.size();
-	while(unsigned(angle) >= sin_vals.size())
-		angle -= sin_vals.size();
+	clamp(angle);
 	return cos_vals[angle];
 }
 
 float ApoMath::getDegrees(int& angle) const
 {
-	while(angle < 0)
-		angle += sin_vals.size();
-	while(unsigned(angle) >= sin_vals.size())
-		angle -= sin_vals.size();
+	clamp(angle);
 	return degree_vals[angle];
 }
 

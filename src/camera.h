@@ -42,6 +42,9 @@ public:
 	void setAboveGround(float min_cam_y);
 
 private:
+	
+	void getRelativePos(Vec3&);
+	
 	Vec3 position;
 	Vec3 fps_direction;
 
@@ -50,6 +53,11 @@ private:
 	Vec3 currentRelative;
 	Vec3 currentTarget;
 
+	float cur_sin;
+	float cur_cos;
+	float cur_upsin;
+	float cur_upcos;
+	
 	Unit* unit;
 	FollowMode mode;
 

@@ -9,6 +9,10 @@ Camera::Camera():
 	unit(0),
 	mode(RELATIVE)
 {
+	cur_sin = 0.f;
+	cur_cos = 0.f;
+	cur_upsin = 0.f;
+	cur_upcos = 0.f;
 }
 
 Vec3& Camera::getTarget()
@@ -140,18 +144,16 @@ void Camera::fpsTick()
 
 	double upsin = math.getSin(unit->upangle).getFloat();
 	double upcos = math.getCos(unit->upangle).getFloat();
-
-	double x = position.x;
-	double y = position.y;
-	double z = position.z;
-
+	
+	cur_sin += (sin - cur_sin) * 0.2f;
+	cur_cos += (cos - cur_cos) * 0.2f;
+	cur_upsin += (upsin - cur_upsin) * 0.2f;;
+	cur_upcos += (upcos - cur_upcos) * 0.2f;
+	
 	Vec3 relative_position;
-	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
+	getRelativePos(relative_position);
 
 	Vec3 camTarget;
-	
 	const Location& unitPos = unit->getPosition();
 	camTarget.x = unitPos.x.getFloat();
 	camTarget.y = unitPos.y.getFloat() + head_level;
@@ -176,25 +178,35 @@ void Camera::staticTick()
 	currentTarget = currentPosition + rotation1 * rotation2 * position;
 }
 
+void Camera::getRelativePos(Vec3& result)
+{
+	double x = position.x;
+	double y = position.y;
+	double z = position.z;
+	
+	result.x = cur_cos * cur_upcos * x - cur_sin * z + cur_cos * cur_upsin * y;
+	result.z = cur_sin * cur_upcos * x + cur_cos * z + cur_sin * cur_upsin * y;
+	result.y =          -cur_upsin * x +     0.0 * z +           cur_upcos * y;
+}
+
 void Camera::relativeTick()
 {
 	ApoMath math;
 	
 	double cos = math.getCos(unit->angle).getFloat();
 	double sin = math.getSin(unit->angle).getFloat();
-
+	
 	double upsin = math.getSin(unit->upangle).getFloat();
 	double upcos = math.getCos(unit->upangle).getFloat();
-
-	double x = position.x;
-	double y = position.y;
-	double z = position.z;
+	
+	cur_sin += (sin - cur_sin) * 0.2f;
+	cur_cos += (cos - cur_cos) * 0.2f;
+	cur_upsin += (upsin - cur_upsin) * 0.2f;;
+	cur_upcos += (upcos - cur_upcos) * 0.2f;
 
 	Vec3 relative_position;
-	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
-
+	getRelativePos(relative_position);
+	
 	Vec3 camTarget;
 	const Location& unitPos = unit->getPosition();
 	camTarget.x = unitPos.x.getFloat();

@@ -15,6 +15,7 @@ private:
 	static std::vector<float> degree_vals;
 
 public:
+	void clamp(int& angle) const;
 	FixedPoint& getCos(int& angle) const;
 	FixedPoint& getSin(int& angle) const;
 	float getDegrees(int& angle) const;
