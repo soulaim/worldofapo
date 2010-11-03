@@ -66,12 +66,7 @@ void Weapon::fire()
 			projectile.velocity.z += rnd_z * max_var - half_var;
 		}
 		
-		// the child has a defined explosive routine
-		if(intVals["CHILD_EXPLOSIVE"])
-		{
-			projectile["EXPLODE_POWER"] = intVals["CHILD_EXPLODE_POWER"];
-		}
-		
+		projectile["EXPLODE_POWER"] = intVals["CHILD_EXPLODE_POWER"];
 		projectile("AT_DEATH") = strVals["CHILD_AT_DEATH"];
 		
 		projectile["MASS"] = intVals["CHILD_MASS"];

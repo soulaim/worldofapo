@@ -31,6 +31,47 @@ unsigned long World::checksum() const {
 	return hash;
 }
 
+void World::atDeath(MovableObject& object, HasProperties& properties)
+{
+	// TODO: This function is a stub.
+	object.getGravity();
+	
+	// this way can only store one event to be executed at death :( should maybe reconcider that.
+	if(properties("AT_DEATH") == "EXPLODE")
+	{
+		FixedPoint explode_power(properties["EXPLODE_POWER"]);
+		
+		const Location& pos = object.position;
+		cerr << "POS1: " << pos << endl;
+		
+		for(auto iter = units.begin(); iter != units.end(); iter++)
+		{
+			const Location& pos2 = iter->second.position;
+			cerr << "POS2: " << pos2 << endl;
+			
+			Location velocity_vector = (pos2 - pos);
+			cerr << velocity_vector << endl;
+			
+			FixedPoint distance = velocity_vector.length();
+			cerr << distance << endl;
+			velocity_vector.normalize();
+			
+			if(distance == FixedPoint(0))
+				distance = FixedPoint(1, 10);
+			
+			cerr << velocity_vector << endl;
+			velocity_vector *= explode_power;
+			cerr << velocity_vector << endl;
+			velocity_vector /= distance * distance;
+			cerr << velocity_vector << endl;
+			
+			iter->second.velocity +=  velocity_vector;
+		}
+		
+		cerr << "BOOM!" << endl;
+	}
+}
+
 void World::doDeathFor(Unit& unit)
 {
 	stringstream msg;
@@ -451,7 +492,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		ticks = 1;
 	for(int i=0; i<ticks; i++)
 	{
-		model->updatePosition(projectile.curr_position.x.getFloat(), projectile.curr_position.y.getFloat(), projectile.curr_position.z.getFloat());
+		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 		
 		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
 		{
@@ -466,13 +507,18 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				// intentional continue of execution
 			}
 			
-			auto potColl = o->nearObjects(projectile.curr_position);
+			auto potColl = o->nearObjects(projectile.position);
 			for(auto it = potColl.begin(); it != potColl.end(); ++it)
 			{
 				if ((*it)->type != OctreeObject::UNIT)
 					continue;
 				
 				Unit* u = (Unit*) *it;
+				
+				// if the target unit is already dead, just continue. ALERT: This might cause desync, if potColl is unordered
+				if(u->hitpoints <= 0)
+					continue;
+				
 				if(projectile.collides(*u))
 				{
 					bool shooterIsMonster = false;
@@ -654,12 +700,7 @@ void World::worldTick(int tickCount)
 		Projectile& projectile = iter->second;
 		if(projectile.destroyAfterFrame)
 		{
-			if(projectile("AT_DEATH") == "EXPLODE")
-			{
-				// :DD OH YEAH! BRING IT ON :DD
-				cerr << "BOOM!" << endl;
-			}
-			
+			atDeath(projectile, projectile); // NICE!! :D
 			deadUnits.push_back(iter->first);
 		}
 	}
@@ -762,7 +803,7 @@ void World::addProjectile(Location& location, int id)
 	models[id]->realUnitPos = position;
 	models[id]->currentModelPos = position;
 	
-	projectiles[id].curr_position = location;
+	projectiles[id].position = location;
 }
 
 int World::nextPlayerID()

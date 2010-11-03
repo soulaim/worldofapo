@@ -7,24 +7,24 @@ using namespace std;
 
 bool Projectile::collides(const Unit& unit)
 {
-	return Collision::lineBox(unit.bb_bot(), unit.bb_top(), curr_position, prev_position);
+	return Collision::lineBox(unit.bb_bot(), unit.bb_top(), position, prev_position);
 }
 
 bool Projectile::collidesTerrain(Level& lvl) const
 {
-	return curr_position.y <= lvl.getHeight(curr_position.x, curr_position.z);
+	return position.y <= lvl.getHeight(position.x, position.z);
 }
 
 void Projectile::tick()
 {
-	prev_position = curr_position;
-	curr_position += velocity;
+	prev_position = position;
+	position += velocity;
 	--intVals["LIFETIME"];
 }
 
 void Projectile::handleCopyOrder(stringstream& ss)
 {
-	ss >> curr_position.x >> curr_position.z >> curr_position.y >> velocity.x >> velocity.z >> velocity.y;
+	ss >> position.x >> position.z >> position.y >> velocity.x >> velocity.z >> velocity.y;
 	
 	string key;
 	while(ss >> key)
@@ -44,7 +44,7 @@ void Projectile::handleCopyOrder(stringstream& ss)
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << curr_position.x << " " << curr_position.z << " " << curr_position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y;
+	projectile_msg << "-2 PROJECTILE " << ID << " " << position.x << " " << position.z << " " << position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y;
 	
 	for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
 		projectile_msg << " " << iter->first << " " << iter->second;

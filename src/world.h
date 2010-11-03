@@ -13,6 +13,7 @@
 #include "apomath.h"
 #include "octree.h"
 #include "medikit.h"
+#include "movable_object.h"
 
 #include "light_object.h"
 
@@ -73,6 +74,8 @@ public:
 	std::vector<WorldEvent> events;
 
 	std::vector<Location> humanPositions();
+	
+	void atDeath(MovableObject&, HasProperties&);
 	
 	void worldTick(int tickCount);
 	void viewTick();

@@ -10,37 +10,31 @@
 #include "location.h"
 #include "level.h"
 #include "apomath.h"
+#include "movable_object.h"
+#include "item.h"
 
 class Unit;
 
-class Projectile
+class Projectile : MovableObject, HasProperties
 {
+	friend class Weapon;
+	friend class World;
+	
+	friend class Graphics; // only because of draw debug projectiles
+	
 	public:
 		Projectile():
 			destroyAfterFrame(false)
 		{
-			intVals["LIFETIME"] = 0;
 		}
-		
-		int& operator [] (const std::string& a)
-		{
-			return intVals[a];
-		}
-		
-		std::string& operator() (const std::string& a)
-		{
-			return strVals[a];
-		}
-		
-		Location velocity;
-		Location curr_position;
-		Location prev_position;
 		
 		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
+
 		
-		// handy for transmitting stuff :D
-		std::map<std::string, int> intVals;
-		std::map<std::string, std::string> strVals;
+		const Location& getPosition()
+		{
+			return position;
+		}
 		
 		void tick();
 		

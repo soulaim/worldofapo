@@ -471,7 +471,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	TextureHandler::getSingleton().bindTexture("grass");
 	
 	// set ambient light
-	glUniform4f(uniform_locations["lvl_ambientLight"], 0.04f, 0.04f, 0.04f, 1.0f);
+	glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
 	
 	int multiplier = 8;
 	
@@ -839,8 +839,8 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	glBegin(GL_POINTS);
 	for(auto it = projectiles.begin(); it != projectiles.end(); ++it)
 	{
-		const Projectile& proj = it->second;
-		glVertex3f(proj.curr_position.x.getFloat(), proj.curr_position.y.getFloat(), proj.curr_position.z.getFloat());
+		const MovableObject& proj = it->second;
+		glVertex3f(proj.position.x.getFloat(), proj.position.y.getFloat(), proj.position.z.getFloat());
 	}
 	glEnd();
 }

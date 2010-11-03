@@ -6,6 +6,7 @@
 #include <map>
 #include <fstream>
 
+#include "item.h"
 #include "fixed_point.h"
 #include "location.h"
 #include "projectile.h"
@@ -13,38 +14,7 @@
 class World;
 class Unit;
 
-class Item
-{
-public:
-	virtual void onUse() = 0;
-	
-	void load(std::string file)
-	{
-		std::ifstream itemFile(file.c_str());
-		std::string word1, word2, word3;
-		int val;
-		
-		while(itemFile >> word1)
-		{
-			if(word1 == "INT")
-			{
-				itemFile >> word2 >> val;
-				intVals[word2] = val;
-			}
-			else if(word1 == "STRING")
-			{
-				itemFile >> word2 >> word3;
-				strVals[word2] = word3;
-			}
-		}
-	}
-	
-	std::map<std::string, int> intVals;
-	std::map<std::string, std::string> strVals;
-};
-
-
-class Weapon : public Item
+class Weapon : public Item, public HasProperties
 {
 	World& w;
 	Unit& u;
