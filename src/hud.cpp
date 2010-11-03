@@ -468,7 +468,7 @@ void Hud::drawMinimap() const
 		}
 
 		const Unit& u = it->second;
-		const Location& loc = u.position;
+		const Location& loc = u.getPosition();
 
 		float x = map_bot_x + (loc.x.getFloat() / level_max_x) * (map_top_x - map_bot_x);
 		float z = map_bot_y + (loc.z.getFloat() / level_max_z) * (map_top_y - map_bot_y);

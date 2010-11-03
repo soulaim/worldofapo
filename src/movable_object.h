@@ -25,6 +25,11 @@ public:
 	void movableEnable(int);
 	void tick(const FixedPoint& height);
 	
+	const Location& getPosition()
+	{
+		return position;
+	}
+	
 	int flags;
 	int dead;
 	

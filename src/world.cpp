@@ -21,7 +21,7 @@ unsigned long World::checksum() const {
 
 	for (auto it = units.begin(); it != units.end(); ++it) {
 		int id = it->first;
-		Location pos = it->second.position;
+		Location pos = it->second.getPosition();
 		hash = ((hash << 5) + hash) + id;
 		hash = ((hash << 5) + hash) + pos.x.getInteger();
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
@@ -46,7 +46,7 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 		
 		for(auto iter = units.begin(); iter != units.end(); iter++)
 		{
-			const Location& pos2 = iter->second.position;
+			const Location& pos2 = iter->second.getPosition();
 			cerr << "POS2: " << pos2 << endl;
 			
 			Location velocity_vector = (pos2 - pos);
@@ -122,7 +122,7 @@ void World::doDeathFor(Unit& unit)
 		worldMessages.push_back(msg.str());
 	}
 	
-	event.position = unit.position;
+	event.position = unit.getPosition();
 	event.position.y += FixedPoint(2);
 	event.velocity.y = FixedPoint(200,1000);
 	
@@ -136,12 +136,10 @@ void World::doDeathFor(Unit& unit)
 		unit.hitpoints = 1000;
 		
 		// respawn player to random location
-		unit.position = lvl.getRandomLocation(currentWorldFrame);
+		unit.setPosition(lvl.getRandomLocation(currentWorldFrame));
 		
 		// stop any movement, let the player drop down to the field of battle.
-		unit.velocity.x = 0;
-		unit.velocity.z = 0;
-		unit.velocity.y = 0;
+		unit.zeroMovement();
 	}
 	else
 	{

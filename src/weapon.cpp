@@ -31,9 +31,9 @@ void Weapon::fire()
 	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
 	relative_position.y =      -upsin * x           +       upcos * y;
 	
-	Location weapon_position = u.position;
+	Location weapon_position = u.getPosition();
 	Location projectile_direction = relative_position;
-	
+
 	weapon_position.y += 4;
 	projectile_direction.y += 4;
 	
@@ -48,7 +48,7 @@ void Weapon::fire()
 		projectile.velocity = projectile_direction * FixedPoint(7, 2);
 		projectile.tick();
 		
-		projectile.velocity = projectile_direction * FixedPoint(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]) + u.velocity;
+		projectile.velocity = projectile_direction * FixedPoint(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]) + u.getVelocity();
 		
 		// variance term for velocity
 		if(intVals["HAS_VARIANCE"])

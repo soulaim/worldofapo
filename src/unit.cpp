@@ -21,11 +21,27 @@ Unit::Unit():
 }
 
 
+void Unit::zeroMovement()
+{
+	velocity.x = 0;
+	velocity.y = 0;
+	velocity.z = 0;
+}
+
+void Unit::setPosition(const Location& a)
+{
+	position = a;
+}
+
 const Location& Unit::getPosition() const
 {
 	return position;
 }
 
+const Location& Unit::getVelocity() const
+{
+	return velocity;
+}
 
 void Unit::setName(const std::string& newName)
 {

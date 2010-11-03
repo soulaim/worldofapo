@@ -4,7 +4,7 @@
 #include "location.h"
 #include "movable_object.h"
 
-class OctreeObject: public MovableObject
+class OctreeObject
 {
 	public:
 		enum {

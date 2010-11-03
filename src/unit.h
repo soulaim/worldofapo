@@ -12,9 +12,13 @@
 #include "apomath.h"
 #include "lightsource.h"
 #include "octree_object.h"
+#include "movable_object.h"
+#include "item.h"
 
-class Unit : LightSource, public OctreeObject
+class Unit : MovableObject, HasProperties, public OctreeObject
 {
+	friend class World;
+	
 	public:
 		
 		enum
@@ -38,21 +42,18 @@ class Unit : LightSource, public OctreeObject
 		
 		Unit();
 		
-		const Location& getPosition() const; // definition demanded by LightSource
+		void zeroMovement();
+		void setPosition(const Location&);
+		const Location& getPosition() const;
+		const Location& getVelocity() const;
 		
-		Location velocity;
-		Location position;
-
+		// const Location& getPosition() const; // definition demanded by LightSource
+		
 		std::string soundInfo;
-
+		
 		// TODO: Should have a proper inventory system perhaps.
 		Weapon* weapon;
 		std::vector<Weapon*> weapons;
-
-		
-		// This should really be done soon.
-//		map<std::string, Location> vectors;
-//		map<std::string, int> ints;
 		
 		int controllerTypeID;
 		int hitpoints;

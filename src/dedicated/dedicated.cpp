@@ -242,7 +242,7 @@ void DedicatedServer::simulateWorldFrame()
 			for (auto it = world.units.begin(); it != world.units.end(); ++it)
 			{
 				int id = it->first;
-				Location pos = it->second.position;
+				const Location& pos = it->second.getPosition();
 				cerr << id << ": " << pos << std::endl;
 			}
 			pause_state = PAUSED;

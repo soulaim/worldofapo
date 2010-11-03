@@ -6,8 +6,9 @@
 #include "movable_object.h"
 #include "location.h"
 
-class Medikit: public OctreeObject
+class Medikit: public OctreeObject, MovableObject
 {
+	friend class World; // hohhoijaa
 public:
 	Medikit();
 	Location bb_top() const;

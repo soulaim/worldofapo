@@ -108,12 +108,12 @@ void Localplayer::draw()
 	}
 }
 
-void Localplayer::playSound(const std::string& name, Location& position)
+void Localplayer::playSound(const std::string& name, const Location& position)
 {
 	// play sounds!
 	if(game.myID >= 0)
 	{
-		Location reference_point = world.units[game.myID].position;
+		const Location& reference_point = world.units[game.myID].getPosition();
 		
 		FixedPoint distance = (reference_point - position).length();
 		
@@ -364,7 +364,7 @@ void Localplayer::handleWorldEvents()
 
 	for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
-		playSound(iter->second.soundInfo, iter->second.position);
+		playSound(iter->second.soundInfo, iter->second.getPosition());
 	}
 }
 

@@ -30,13 +30,15 @@ void Camera::setAboveGround(float min_cam_y)
 	}
 }
 
-Location Camera::getUnitLocation() const
+const Location& Camera::getUnitLocation() const
 {
 	if(unit)
 	{
-		return unit->position;
+		return unit->getPosition();
 	}
-	return Location();
+	
+	static Location zero;
+	return zero;
 }
 
 Vec3 Camera::getPosition() const
@@ -149,9 +151,11 @@ void Camera::fpsTick()
 	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
 
 	Vec3 camTarget;
-	camTarget.x = unit->position.x.getFloat();
-	camTarget.y = unit->position.y.getFloat() + head_level;
-	camTarget.z = unit->position.z.getFloat();
+	
+	const Location& unitPos = unit->getPosition();
+	camTarget.x = unitPos.x.getFloat();
+	camTarget.y = unitPos.y.getFloat() + head_level;
+	camTarget.z = unitPos.z.getFloat();
 	
 	currentPosition += (camTarget - currentPosition) * 0.2;
 	
@@ -192,9 +196,10 @@ void Camera::relativeTick()
 	relative_position.y =      -upsin * x + 0.0 * z +       upcos * y;
 
 	Vec3 camTarget;
-	camTarget.x = unit->position.x.getFloat();
-	camTarget.y = unit->position.y.getFloat() + head_level;
-	camTarget.z = unit->position.z.getFloat();
+	const Location& unitPos = unit->getPosition();
+	camTarget.x = unitPos.x.getFloat();
+	camTarget.y = unitPos.y.getFloat() + head_level;
+	camTarget.z = unitPos.z.getFloat();
 	
 	float multiplier = 0.04;
 	
