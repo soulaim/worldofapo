@@ -443,11 +443,13 @@ struct LightDistance
 		return squaredDistance < rhs.squaredDistance;
 	}
 };
-
+/*
 void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
 {
 	static vector<LightDistance> distances;
 	distances.resize( max(lightsContainer.size(), distances.size()) );
+	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
+
 	int i = 0;
 	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
 	{
@@ -461,6 +463,7 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
 	glVertexAttrib4f(uniform_locations["lvl_activeLights"], distances[0].index, distances[1].index, distances[2].index, distances[3].index);
 }
+*/
 
 struct ActiveLights
 {
@@ -473,8 +476,9 @@ struct ActiveLights
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
-	TextureHandler::getSingleton().bindTexture("grass2048");
-	//TextureHandler::getSingleton().bindTexture("chessboard");
+	TextureHandler::getSingleton().bindTexture(0, "grass2048");
+	TextureHandler::getSingleton().bindTexture(1, "hill2048");
+	TextureHandler::getSingleton().bindTexture(2, "highground2048");
 	
 	// set ambient light
 	if(drawDebuglines)
@@ -486,13 +490,16 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 	static vector<Vec3> vertices;
 	static vector<Vec3> normals;
-	static vector<TextureCoordinate> texture_coordinates;
+	static vector<TextureCoordinate> texture_coordinates1;
+	static vector<TextureCoordinate> texture_coordinates2;
+//	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
 	static vector<ActiveLights> active_lights;
 
 	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
-	const int BUFFERS = 5;
+	const int BUFFERS = 6;
 	static GLuint locations[BUFFERS];
+	int buffer = 0;
 	static bool level_buffers_loaded = false;
 
 	// Load static buffers.
@@ -516,7 +523,8 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				 // TODO: These coordinates are like :G
 				const int divisions = 10;
 				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
-				texture_coordinates.push_back(tc1);
+				texture_coordinates1.push_back(tc1);
+				texture_coordinates2.push_back(tc1);
 
 				ActiveLights ac = { 0, 0, 0, 0};
 				active_lights.push_back(ac);
@@ -525,14 +533,19 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 		glGenBuffers(BUFFERS, locations);
 
-		glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
-		glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, locations[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+
+		assert(buffer <= BUFFERS);
 	}
 
 	// Load dynamic indices.
@@ -555,6 +568,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		// Set active lights
 		Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
 
+		assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
 		static vector<LightDistance> distances;
 		distances.resize( max(lightsContainer.size(), distances.size()) );
 		int i = 0;
@@ -580,7 +594,8 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 
 	assert(active_lights.size() == vertices.size());
-	assert(texture_coordinates.size() == vertices.size());
+	assert(texture_coordinates1.size() == vertices.size());
+	assert(texture_coordinates2.size() == vertices.size());
 	assert(normals.size() == vertices.size());
 /*
 	// Draw data.
@@ -608,28 +623,36 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	}
 	glEnd();
 */
-
+	buffer = 0;
 	// Bind static data and send dynamic data to graphics card.
-	glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_VERTEX_ARRAY);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+	glClientActiveTexture(GL_TEXTURE1);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[2]);
+	glClientActiveTexture(GL_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glNormalPointer(GL_FLOAT, 0, 0);
+	glEnableClientState(GL_NORMAL_ARRAY);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[3]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, locations[4]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
 	glVertexAttribPointer(uniform_locations["lvl_activeLights"], 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
+
+	assert(buffer == BUFFERS);
+
 	// Draw sent data.
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableVertexAttribArray(uniform_locations["lvl_activeLights"]);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glDisableVertexAttribArray(uniform_locations["lvl_activeLights"]);
@@ -697,7 +720,7 @@ void Graphics::drawParticles()
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector);
 	
-	TextureHandler::getSingleton().bindTexture("particle");
+	TextureHandler::getSingleton().bindTexture(0, "particle");
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);

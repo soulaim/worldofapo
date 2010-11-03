@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
@@ -13,7 +14,10 @@ std::map<std::string, unsigned> textures;
 
 TextureHandler::TextureHandler()
 {
-	
+	int max_texture_units = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &max_texture_units);
+	cerr << "Max texture units: " << max_texture_units << endl;
+	current_textures.resize(max_texture_units);
 }
 
 TextureHandler::~TextureHandler()
@@ -27,9 +31,10 @@ TextureHandler& TextureHandler::getSingleton()
 	return s_TexHandler;
 }
 
-const string& TextureHandler::getCurrentTexture()
+const string& TextureHandler::getCurrentTexture(size_t texture_unit)
 {
-	return current_texture;
+	assert(texture_unit < current_textures.size());
+	return current_textures[texture_unit];
 }
 
 unsigned TextureHandler::createTexture(const string& name, const string& fileName)
@@ -95,12 +100,14 @@ void TextureHandler::deleteTexture(const string& name)
 
 
 
-int TextureHandler::bindTexture(const string& name)
+int TextureHandler::bindTexture(size_t texture_unit, const string& name)
 {
+	assert(texture_unit < current_textures.size());
 	if(textureExists(name))
 	{
+		glActiveTexture(GL_TEXTURE0 + texture_unit);
 		glBindTexture(GL_TEXTURE_2D, textures[name]);
-		current_texture = name;
+		current_textures[texture_unit] = name;
 		return 1;
 	}
 	else

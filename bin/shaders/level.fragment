@@ -6,10 +6,12 @@ varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
 varying float dist[MAX_ACTIVE_LIGHTS];
 varying vec4 ambientGlobal;
 varying vec3 normal;
+varying float height;
 
-varying vec2 varTexCoord;
-
-uniform sampler2D baseMap;
+uniform sampler2D baseMap0;
+uniform sampler2D baseMap1;
+uniform sampler2D baseMap2;
+uniform sampler2D baseMap3;
 
 void main()
 {
@@ -31,7 +33,18 @@ void main()
 		//float shininess = pow(max(dot(n, halfV), 0.0), 10);
 		//color += vec4(1, 1, 1, 1) * shininess;
 	}
-	
-	gl_FragColor = color * texture2D(baseMap, varTexCoord);
+
+	float weigth0 = 3.0 + 1.0 * abs(sin(height));
+	float weigth1 = max(min(height,2.0), 0.0) + 1.0 * abs(sin(height+1.0));
+	float weigth2 = max(height/2.0, 0.0);
+	float weigth3 = 0.0;
+
+	gl_FragColor = vec4(0,0,0,0);
+	gl_FragColor += weigth0 * texture2D(baseMap0, gl_TexCoord[0].st);
+	gl_FragColor += weigth1 * texture2D(baseMap1, gl_TexCoord[1].st);
+	gl_FragColor += weigth2 * texture2D(baseMap2, gl_TexCoord[2].st);
+	gl_FragColor += weigth3 * texture2D(baseMap3, gl_TexCoord[3].st);
+	gl_FragColor /= (weigth0 + weigth1 + weigth2 + weigth3);
+	gl_FragColor *= color;
 }
 

@@ -7,7 +7,8 @@ varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
 varying float dist[MAX_ACTIVE_LIGHTS];
 varying vec4 ambientGlobal;
 varying vec3 normal;
-varying vec2 varTexCoord;
+
+varying float height;
 
 attribute vec4 activeLights;
 uniform vec4 ambientLight;
@@ -43,8 +44,13 @@ void main()
 		diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
 	}
 
+	height = gl_Vertex.y;
+
 	ambientGlobal = ambientLight * gl_FrontMaterial.ambient;
-	varTexCoord   = vec2(gl_MultiTexCoord0);
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_TexCoord[1] = gl_MultiTexCoord1;
+	gl_TexCoord[2] = gl_MultiTexCoord1;
+	gl_TexCoord[3] = gl_MultiTexCoord1;
 	gl_Position   = ftransform();
 }
 

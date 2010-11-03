@@ -58,7 +58,7 @@ class Graphics
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
 
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
-	void setActiveLights(const std::map<int, LightObject>&, const Location&);
+//	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);

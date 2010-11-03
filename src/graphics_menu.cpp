@@ -30,7 +30,7 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		float minus = 2.f * (i+0.f) / buttons.size() - 1.f;
 		float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
 		
-		TextureHandler::getSingleton().bindTexture(buttons[i].name);
+		TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
 		
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
