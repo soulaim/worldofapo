@@ -62,15 +62,15 @@ void Localplayer::init()
 	hud.setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
-	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
-//	TextureHandler::getSingleton().createTexture("grass512", "data/grass512.png");
-//	TextureHandler::getSingleton().createTexture("grass1024", "data/grass1024.png");
-	TextureHandler::getSingleton().createTexture("grass2048", "data/grass2048.png");
+//	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
+//	TextureHandler::getSingleton().createTexture("grass", "data/grass512.png");
+	TextureHandler::getSingleton().createTexture("grass", "data/grass1024.png");
+//	TextureHandler::getSingleton().createTexture("grass", "data/grass2048.png");
 //	TextureHandler::getSingleton().createTexture("grass4096", "data/grass4096.png");
 	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
-	TextureHandler::getSingleton().createTexture("highground2048", "data/highground.png");
+//	TextureHandler::getSingleton().createTexture("highground2048", "data/highground.png");
 	TextureHandler::getSingleton().createTexture("hill", "data/hill.png");
-	TextureHandler::getSingleton().createTexture("hill2048", "data/hill2048.png");
+//	TextureHandler::getSingleton().createTexture("hill2048", "data/hill2048.png");
 	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
 	TextureHandler::getSingleton().createTexture("chessboard", "data/chessboard.png");
 }
