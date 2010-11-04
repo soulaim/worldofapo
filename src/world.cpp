@@ -249,7 +249,6 @@ void World::init()
 	lvl.generate(50);
 	
 	// find the highest point in lvl and add a strong light there.
-	
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
 	tmp_light.lifeType = LightSource::IMMORTAL;
@@ -258,6 +257,14 @@ void World::init()
 	tmp_light.setLife(150);
 	tmp_light.activateLight();
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+	lights[nextUnitID()] = tmp_light;
+
+	// Make sure there is atleast MAX_NUM_ACTIVE_LIGHTS.
+	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(500));
+	lights[nextUnitID()] = tmp_light;
+	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(100));
+	lights[nextUnitID()] = tmp_light;
+	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
 	lights[nextUnitID()] = tmp_light;
 	
 	show_errors = 0;
@@ -746,7 +753,7 @@ void World::viewTick()
 
 void World::addLight(Location& location)
 {
-	// TODO ALERT code for creating lights should have it's own function.
+//	cerr << "Adding light at " << location << endl;
 	LightObject& light = lights[nextUnitID()];
 	light.setDiffuse(8.f, 8.f, 8.f);
 	light.setSpecular(0.f, 0.f, 0.f);

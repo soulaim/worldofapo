@@ -135,7 +135,14 @@ void Graphics::initShaders()
 	printLog(shaders["unit_program"]);
 
 	glUseProgram(shaders["level_program"]);
-	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
+	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");
+	uniform_locations["lvl_baseMap1"] = glGetUniformLocation(shaders["level_program"], "baseMap1");
+	uniform_locations["lvl_baseMap2"] = glGetUniformLocation(shaders["level_program"], "baseMap2");
+	uniform_locations["lvl_baseMap3"] = glGetUniformLocation(shaders["level_program"], "baseMap3");
+	glUniform1i(uniform_locations["lvl_baseMap0"], 0);
+	glUniform1i(uniform_locations["lvl_baseMap1"], 1);
+	glUniform1i(uniform_locations["lvl_baseMap2"], 2);
+	glUniform1i(uniform_locations["lvl_baseMap3"], 3);
 	uniform_locations["lvl_activeLights"] = glGetAttribLocation(shaders["level_program"], "activeLights");
 	MAX_NUM_LIGHTS = 71;
 	MAX_NUM_ACTIVE_LIGHTS = 4; // Make sure this is the same number as in the shaders.

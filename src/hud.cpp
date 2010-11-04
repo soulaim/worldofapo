@@ -283,7 +283,7 @@ void Hud::drawCrossHair() const
 	glPushMatrix();
 	glLoadIdentity();
 	
-	TextureHandler::getSingleton().bindTexture("crosshair");
+	TextureHandler::getSingleton().bindTexture(0, "crosshair");
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -319,7 +319,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glPushMatrix();
 	glLoadIdentity();
 	
-	TextureHandler::getSingleton().bindTexture("font");
+	TextureHandler::getSingleton().bindTexture(0, "font");
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

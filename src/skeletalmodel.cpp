@@ -243,8 +243,10 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 		return;
 	}
 	
-	if(TextureHandler::getSingleton().getCurrentTexture() != texture_name)
-		TextureHandler::getSingleton().bindTexture(texture_name);
+	if(TextureHandler::getSingleton().getCurrentTexture(0) != texture_name)
+	{
+		TextureHandler::getSingleton().bindTexture(0, texture_name);
+	}
 	
 	assert(rotations.size() <= 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
