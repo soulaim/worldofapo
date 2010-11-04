@@ -115,23 +115,24 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 //	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-	
+
+	log << "Loading texture '" << name << "' ";
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
 	if(img.hasAlpha)
 	{
-		cerr << "Loading texture " << name << " with alpha channel." << endl;
+		log << "with alpha channel...";
 //		glTexImage2D(GL_TEXTURE_2D, 0, 4, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
 		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img.sizeX, img.sizeY, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
 	}
 	else
 	{
-		cerr << "Loading texture " << name << " without alpha channel." << endl;
+		log << "without alpha channel...";
 //		glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
 //		buildDebugMipmaps(img.sizeX, img.sizeY);
 		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.sizeX, img.sizeY, GL_RGB, GL_UNSIGNED_BYTE, img.data);
 	}
-	cerr << "Texture loaded." << endl;
+	log << " OK, texture loaded.\n";
 	
 	img.unload();
 	
