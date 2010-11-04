@@ -476,9 +476,18 @@ struct ActiveLights
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
-	TextureHandler::getSingleton().bindTexture(0, "grass2048");
-	TextureHandler::getSingleton().bindTexture(1, "hill2048");
-	TextureHandler::getSingleton().bindTexture(2, "highground2048");
+	if(drawDebuglines)
+	{
+		TextureHandler::getSingleton().bindTexture(0, "chessboard");
+		TextureHandler::getSingleton().bindTexture(1, "chessboard");
+		TextureHandler::getSingleton().bindTexture(2, "chessboard");
+	}
+	else
+	{
+		TextureHandler::getSingleton().bindTexture(0, "grass");
+		TextureHandler::getSingleton().bindTexture(1, "hill");
+		TextureHandler::getSingleton().bindTexture(2, "highground");
+	}
 	
 	// set ambient light
 	if(drawDebuglines)
@@ -521,8 +530,9 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
 
 				 // TODO: These coordinates are like :G
-				const int divisions = 10;
-				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
+				const int divisions = 25;
+//				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
+				TextureCoordinate tc1 = { float(x) / (height/divisions), float(z) / (width/divisions) };
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
 

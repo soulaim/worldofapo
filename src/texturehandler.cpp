@@ -1,9 +1,12 @@
-
 #include "texturehandler.h"
+
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 #include <iostream>
 #include <cassert>
+
+#include "logger.h"
 
 using namespace std;
 
@@ -53,6 +56,40 @@ unsigned TextureHandler::getTextureID(const std::string& name)
 	return textures[name];
 }
 
+namespace
+{
+	struct Color
+	{
+		unsigned char r;
+		unsigned char g;
+		unsigned char b;
+		unsigned char a;
+	};
+}
+
+void buildDebugMipmaps(size_t x, size_t y)
+{
+	int lod = 0;
+	do
+	{
+		size_t bit = 1;
+		while(bit < x)
+			bit <<= 1;
+
+		unsigned char r = 255 - bit * 255 / 8;
+		unsigned char g = bit * 255 / 8;
+		unsigned char b = 0;
+		Color color = { r, g, b, 255 };
+
+		vector<Color> data(x*y, color);
+		glTexImage2D(GL_TEXTURE_2D, lod++, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+
+		x /= 2;
+		y /= 2;
+	}
+	while(x != 0 && y != 0);
+}
+
 unsigned TextureHandler::createTexture(const string& name, Image& img)
 {
 	if(img.data == 0)
@@ -67,18 +104,35 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 		return textures[name];
 	}
 	
+	Logger log;
+
 	glGenTextures(1, &(textures[name]));
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
-	
+//	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+	log << "Loading texture '" << name << "' ";
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
 	if(img.hasAlpha)
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+	{
+		log << "with alpha channel...";
+//		glTexImage2D(GL_TEXTURE_2D, 0, 4, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img.sizeX, img.sizeY, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+	}
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
+	{
+		log << "without alpha channel...";
+//		glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
+//		buildDebugMipmaps(img.sizeX, img.sizeY);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.sizeX, img.sizeY, GL_RGB, GL_UNSIGNED_BYTE, img.data);
+	}
+	log << " OK, texture loaded.\n";
 	
 	img.unload();
 	
