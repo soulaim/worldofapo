@@ -31,6 +31,26 @@ unsigned long World::checksum() const {
 	return hash;
 }
 
+void World::instantForceOutwards(const FixedPoint& power, const Location& pos)
+{
+	for(auto iter = units.begin(); iter != units.end(); iter++)
+	{
+		const Location& pos2 = iter->second.getPosition();
+		Location velocity_vector = (pos2 - pos);
+		
+		FixedPoint distance = velocity_vector.length();
+		velocity_vector.normalize();
+		
+		if(distance == FixedPoint(0))
+			distance = FixedPoint(1, 10);
+		
+		velocity_vector *= power;
+		velocity_vector /= distance * distance;
+		
+		iter->second.velocity += velocity_vector;
+	}
+}
+
 void World::atDeath(MovableObject& object, HasProperties& properties)
 {
 	// TODO: This function is a stub.
@@ -40,35 +60,9 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 	if(properties("AT_DEATH") == "EXPLODE")
 	{
 		FixedPoint explode_power(properties["EXPLODE_POWER"]);
-		
 		const Location& pos = object.position;
-		cerr << "POS1: " << pos << endl;
 		
-		for(auto iter = units.begin(); iter != units.end(); iter++)
-		{
-			const Location& pos2 = iter->second.getPosition();
-			cerr << "POS2: " << pos2 << endl;
-			
-			Location velocity_vector = (pos2 - pos);
-			cerr << velocity_vector << endl;
-			
-			FixedPoint distance = velocity_vector.length();
-			cerr << distance << endl;
-			velocity_vector.normalize();
-			
-			if(distance == FixedPoint(0))
-				distance = FixedPoint(1, 10);
-			
-			cerr << velocity_vector << endl;
-			velocity_vector *= explode_power;
-			cerr << velocity_vector << endl;
-			velocity_vector /= distance * distance;
-			cerr << velocity_vector << endl;
-			
-			iter->second.velocity +=  velocity_vector;
-		}
-		
-		cerr << "BOOM!" << endl;
+		instantForceOutwards(explode_power, pos);
 	}
 }
 
@@ -294,6 +288,8 @@ void World::tickUnit(Unit& unit, Model* model)
 	model->rotate_y(unit.getAngle(apomath));
 	model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	
+	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
+	
 	// some physics & game world information
 	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
@@ -303,14 +299,22 @@ void World::tickUnit(Unit& unit, Model* model)
 			unit.soundInfo = "jump_land";
 		if(unit.velocity.y < FixedPoint(-12, 10))
 		{
+			unit.last_damage_dealt_by = unit.id;
+			
 			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
 			int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
 			
-			unit.velocity.x *= FixedPoint(10, 100);
-			unit.velocity.z *= FixedPoint(10, 100);
-			unit.hitpoints -= damage_int * damage_int / 500;
-			
-			unit.last_damage_dealt_by = unit.id;
+			if(damage_int < -500)
+			{
+				// is hitting the ground REALLY HARD. Nothing could possibly survive. Just insta-kill.
+				unit.hitpoints = -1;
+			}
+			else
+			{
+				unit.velocity.x *= FixedPoint(10, 100);
+				unit.velocity.z *= FixedPoint(10, 100);
+				unit.hitpoints -= damage_int * damage_int / 500;
+			}
 		}
 		
 		FixedPoint friction = FixedPoint(88, 100);
