@@ -75,6 +75,7 @@ public:
 
 	std::vector<Location> humanPositions();
 	
+	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit
 	void atDeath(MovableObject&, HasProperties&);
 	
 	void worldTick(int tickCount);
