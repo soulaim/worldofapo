@@ -31,6 +31,7 @@ unsigned long World::checksum() const {
 	return hash;
 }
 
+// TODO: Force expansion should not be instant.
 void World::instantForceOutwards(const FixedPoint& power, const Location& pos)
 {
 	for(auto iter = units.begin(); iter != units.end(); iter++)
