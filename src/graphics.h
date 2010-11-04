@@ -45,6 +45,7 @@ class Graphics
 	void startDrawing();
 	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
+	void drawSkybox();
 	
 	void drawModels(std::map<int, Model*>& models);
 	void drawParticles();

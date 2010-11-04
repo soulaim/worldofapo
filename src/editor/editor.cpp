@@ -42,10 +42,12 @@ Editor::Editor()
 	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
 	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
 	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
+	TextureHandler::getSingleton().createTexture("chessboard", "data/chessboard.png");
+	TextureHandler::getSingleton().createTexture("grimmnight", "data/grimmnight.png");
 	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
 
 	view.bindCamera(&dummy);
-	view.toggleLightingStatus();
+//	view.toggleLightingStatus();
 
 	handle_command("load objects model.parts");
 //	handle_command("load model model.bones");
@@ -155,6 +157,7 @@ bool Editor::start()
 		}
 
 		view.startDrawing();
+		view.drawSkybox();
 		if(skele)
 		{
 			if(drawing_skeleton)

@@ -698,6 +698,105 @@ void Graphics::drawDebugLines()
 	glEnd();
 }
 
+void Graphics::drawSkybox()
+{
+	if(drawDebuglines)
+	{
+		TextureHandler::getSingleton().bindTexture(0, "chessboard");
+	}
+	else
+	{
+		TextureHandler::getSingleton().bindTexture(0, "grimmnight");
+	}
+
+	glPushMatrix();
+	glLoadIdentity();
+
+	Vec3 ans = camera.getTarget() - camera.getPosition();
+	gluLookAt(
+			0,0,0,
+			ans.x, ans.y, ans.z,
+			0,1,0);
+	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_TEXTURE_2D);
+	glDepthMask(GL_FALSE);
+	glDisable(GL_BLEND);
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	double minus = -20.0;
+	double plus  =  20.0;
+	double epsilon = 0.001;
+//	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_QUADS); // Front
+	glTexCoord2f(2.0/4-epsilon, 2.0/3-epsilon);
+	glVertex3f(minus,  plus, plus-epsilon);
+	glTexCoord2f(2.0/4-epsilon, 1.0/3+epsilon);
+	glVertex3f(minus, minus, plus-epsilon);
+	glTexCoord2f(1.0/4+epsilon, 1.0/3+epsilon);
+	glVertex3f( plus, minus, plus-epsilon);
+	glTexCoord2f(1.0/4+epsilon, 2.0/3-epsilon);
+	glVertex3f( plus,  plus, plus-epsilon);
+	glEnd();
+//	glColor3f(0.0f, 1.0f, 0.0f);
+	glBegin(GL_QUADS); // Right
+	glTexCoord2f(3.0/4-epsilon, 2.0/3-epsilon);
+	glVertex3f(minus+epsilon,  plus, minus);
+	glTexCoord2f(3.0/4-epsilon, 1.0/3+epsilon);
+	glVertex3f(minus+epsilon, minus, minus);
+	glTexCoord2f(2.0/4+epsilon, 1.0/3+epsilon);
+	glVertex3f(minus+epsilon, minus, plus);
+	glTexCoord2f(2.0/4+epsilon, 2.0/3-epsilon);
+	glVertex3f(minus+epsilon,  plus, plus);
+	glEnd();
+//	glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_QUADS); // Left
+	glTexCoord2f(1.0/4-epsilon, 2.0/3-epsilon);
+	glVertex3f(plus-epsilon,  plus, plus);
+	glTexCoord2f(1.0/4-epsilon, 1.0/3+epsilon);
+	glVertex3f(plus-epsilon, minus, plus);
+	glTexCoord2f(0.0/4+epsilon, 1.0/3+epsilon);
+	glVertex3f(plus-epsilon, minus, minus);
+	glTexCoord2f(0.0/4+epsilon, 2.0/3-epsilon);
+	glVertex3f(plus-epsilon,  plus, minus);
+	glEnd();
+//	glColor3f(1.0f, 0.0f, 1.0f);
+	glBegin(GL_QUADS); // Top
+	glTexCoord2f(1.0/4+epsilon, 3.0/3-epsilon);
+	glVertex3f( plus, plus-epsilon, minus);
+	glTexCoord2f(2.0/4-epsilon, 3.0/3-epsilon);
+	glVertex3f(minus, plus-epsilon, minus);
+	glTexCoord2f(2.0/4-epsilon, 2.0/3+epsilon);
+	glVertex3f(minus, plus-epsilon, plus);
+	glTexCoord2f(1.0/4+epsilon, 2.0/3+epsilon);
+	glVertex3f( plus, plus-epsilon, plus);
+	glEnd();
+//	glColor3f(0.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS); // Bottom
+	glTexCoord2f(2.0/4-epsilon, 1.0/3-epsilon);
+	glVertex3f(minus, minus+epsilon,  plus);
+	glTexCoord2f(2.0/4-epsilon, 0.0/3+epsilon);
+	glVertex3f(minus, minus+epsilon, minus);
+	glTexCoord2f(1.0/4+epsilon, 0.0/3+epsilon);
+	glVertex3f( plus, minus+epsilon, minus);
+	glTexCoord2f(1.0/4+epsilon, 1.0/3-epsilon);
+	glVertex3f( plus, minus+epsilon,  plus);
+	glEnd();
+//	glColor3f(1.0f, 1.0f, 0.0f);
+	glBegin(GL_QUADS); // Back
+	glTexCoord2f(4.0/4-epsilon, 2.0/3-epsilon);
+	glVertex3f( plus,  plus, minus+epsilon);
+	glTexCoord2f(4.0/4-epsilon, 1.0/3+epsilon);
+	glVertex3f( plus, minus, minus+epsilon);
+	glTexCoord2f(3.0/4+epsilon, 1.0/3+epsilon);
+	glVertex3f(minus, minus, minus+epsilon);
+	glTexCoord2f(3.0/4+epsilon, 2.0/3-epsilon);
+	glVertex3f(minus,  plus, minus+epsilon);
+	glEnd();
+
+	glPopAttrib();
+	glPopMatrix();
+}
+
 void Graphics::drawModels(map<int, Model*>& models)
 {
 	if(lightsActive)
@@ -823,6 +922,7 @@ void Graphics::draw(
 	updateCamera(lvl);
 
 	startDrawing();
+	drawSkybox();
 
 	if(drawDebuglines)
 	{

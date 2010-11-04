@@ -69,6 +69,8 @@ namespace
 
 void buildDebugMipmaps(size_t x, size_t y)
 {
+	assert(x == y && "debug mipmaps don't work with non-square textures");
+
 	int lod = 0;
 	do
 	{

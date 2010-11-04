@@ -73,6 +73,7 @@ void Localplayer::init()
 //	TextureHandler::getSingleton().createTexture("hill2048", "data/hill2048.png");
 	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
 	TextureHandler::getSingleton().createTexture("chessboard", "data/chessboard.png");
+	TextureHandler::getSingleton().createTexture("grimmnight", "data/grimmnight.png");
 }
 
 bool Localplayer::client_tick()
