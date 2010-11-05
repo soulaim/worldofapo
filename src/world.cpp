@@ -556,6 +556,11 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			projectile.destroyAfterFrame = true;
 		}
 	}
+	
+	// as a post frame update, update values of the projectile
+	if(projectile["AIR_RESISTANCE"])
+		projectile.velocity *= FixedPoint(projectile["AIR_RESISTANCE"], 1000);
+	projectile.velocity.y += FixedPoint(projectile["GRAVITY"], 1000);
 }
 
 void World::updateModel(Model* model, Unit& unit)

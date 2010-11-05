@@ -53,6 +53,8 @@ void Weapon::fire()
 		projectile["ID"]     = id;
 		projectile["OWNER"]  = u.id;
 		projectile["LIFETIME"] = intVals["CHILD_LIFETIME"];
+		projectile["AIR_RESISTANCE"] = intVals["CHILD_AIR_RESISTANCE"];
+		projectile["GRAVITY"] = intVals["CHILD_GRAVITY"];
 		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();
