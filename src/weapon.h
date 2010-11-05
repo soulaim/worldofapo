@@ -33,6 +33,9 @@ public:
 	u(_u)
 	{
 		load(fileName);
+		
+		if(intVals["CHILD_TPF"] == 0)
+			intVals["CHILD_TPF"] = 1;
 	}
 	
 	void fire();

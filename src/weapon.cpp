@@ -43,12 +43,24 @@ void Weapon::fire()
 		w.addProjectile(weapon_position, id);
 		Projectile& projectile = w.projectiles[id];
 		
+		// set some properties first
+		projectile["EXPLODE_POWER"] = intVals["CHILD_EXPLODE_POWER"];
+		projectile("AT_DEATH") = strVals["CHILD_AT_DEATH"];
+		
+		projectile["MASS"] = intVals["CHILD_MASS"];
+		projectile["TPF"]    = intVals["CHILD_TPF"];
+		projectile["DAMAGE"] = intVals["CHILD_DAMAGE"];
+		projectile["ID"]     = id;
+		projectile["OWNER"]  = u.id;
+		projectile["LIFETIME"] = intVals["CHILD_LIFETIME"];
+		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();
 		projectile.velocity = projectile_direction * FixedPoint(7, 2);
 		projectile.tick();
 		
-		projectile.velocity = projectile_direction * FixedPoint(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]) + u.getVelocity();
+		FixedPoint speedPerTick(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]);
+		projectile.velocity = projectile_direction * speedPerTick + u.getVelocity() / projectile["TPF"];
 		
 		// variance term for velocity
 		if(intVals["HAS_VARIANCE"])
@@ -65,16 +77,6 @@ void Weapon::fire()
 			projectile.velocity.y += rnd_y * max_var - half_var;
 			projectile.velocity.z += rnd_z * max_var - half_var;
 		}
-		
-		projectile["EXPLODE_POWER"] = intVals["CHILD_EXPLODE_POWER"];
-		projectile("AT_DEATH") = strVals["CHILD_AT_DEATH"];
-		
-		projectile["MASS"] = intVals["CHILD_MASS"];
-		projectile["TPF"]    = intVals["CHILD_TPF"];
-		projectile["DAMAGE"] = intVals["CHILD_DAMAGE"];
-		projectile["ID"]     = id;
-		projectile["OWNER"]  = u.id;
-		projectile["LIFETIME"] = intVals["CHILD_LIFETIME"];
 	}
 	
 	intVals["CD_LEFT"] = intVals["COOLDOWN"];
