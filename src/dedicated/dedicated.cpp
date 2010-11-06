@@ -1,5 +1,5 @@
-
 #include "dedicated.h"
+#include "../modelfactory.h"
 
 #include <iostream>
 #include <sstream>
@@ -30,6 +30,10 @@ void DedicatedServer::init()
 	fps_world.reset(milliseconds);
 	
 	srand(time(0));
+
+	// This should definetly not be necessary to do in the server :D
+	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
+	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/model.skeleton");
 }
 
 void DedicatedServer::send_to_all(const std::string& msg)

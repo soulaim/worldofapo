@@ -53,7 +53,7 @@ bool ModelFactory::load(size_t prototype, const std::string& filename)
 
 Model* ModelFactory::create(size_t prototype)
 {
-	if(prototypes.size() < prototype || !prototypes[prototype])
+	if(prototypes.size() <= prototype || !prototypes[prototype])
 	{
 		cerr << "ERROR: model with prototype " << prototype << " not loaded!\n";
 		throw std::string("Error creating model");

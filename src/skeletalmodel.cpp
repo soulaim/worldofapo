@@ -93,7 +93,7 @@ bool SkeletalModel::load(const string& filename)
 			return false;
 		}
 	}
-	cerr << "Loaded model " << filename << " with " << vertices.size() << " vertices, " << weighted_vertices.size()
+	cerr << "Loaded model '" << filename << "' with " << vertices.size() << " vertices, " << weighted_vertices.size()
 		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
 		<< " triangles, and " << bones.size() << " bones." << endl;
 

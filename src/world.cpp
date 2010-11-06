@@ -5,8 +5,6 @@
 
 using namespace std;
 
-enum { PLAYER_MODEL, BULLET_MODEL };
-
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 {
 	// no restrictions for moving downhill
@@ -270,9 +268,6 @@ void World::init()
 	lights[nextUnitID()] = tmp_light;
 	
 	show_errors = 0;
-
-	ModelFactory::load(PLAYER_MODEL, "models/model.skeleton");
-	ModelFactory::load(BULLET_MODEL, "models/bullet.bones");
 }
 
 void World::terminate()
@@ -804,7 +799,7 @@ void World::addUnit(int id, bool playerCharacter)
 	
 	units[id].birthTime = currentWorldFrame;
 	
-	models[id] = ModelFactory::create(PLAYER_MODEL);
+	models[id] = ModelFactory::create(ModelFactory::PLAYER_MODEL);
 	models[id]->texture_name = "marine";
 	
 	if(!playerCharacter)
@@ -829,7 +824,7 @@ void World::addProjectile(Location& location, int id)
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id] = ModelFactory::create(BULLET_MODEL);
+	models[id] = ModelFactory::create(ModelFactory::BULLET_MODEL);
 	models[id]->realUnitPos = position;
 	models[id]->currentModelPos = position;
 	
