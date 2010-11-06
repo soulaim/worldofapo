@@ -1,18 +1,11 @@
-#include "apomodel.h"
-#include "primitives.h"
-#include "graphics.h"
-
-#include <GL/gl.h>
+#include "model.h"
 
 #include <fstream>
 #include <queue>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
-
-// ALERT: Why are these here..?
-extern GLint unit_color_location;
-extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 Model::Model():
 	animation_time(0)
