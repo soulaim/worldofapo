@@ -632,9 +632,26 @@ void World::updateModel(Model* model, Unit& unit)
 		return;
 	}
 	
-	if(unit.getKeyAction(Unit::MOVE_FRONT | Unit::MOVE_BACK | Unit::MOVE_LEFT | Unit::MOVE_RIGHT))
+	if(unit.getKeyAction(Unit::MOVE_FRONT))
 	{
-		model->setAction("walk");
+		if(unit.getKeyAction(Unit::MOVE_LEFT))
+			model->setAction("run_forwardleft");
+		else if(unit.getKeyAction(Unit::MOVE_RIGHT))
+			model->setAction("run_forwardright");
+		else
+			model->setAction("run_forward");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_BACK))
+	{
+		model->setAction("run_backward");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_LEFT))
+	{
+		model->setAction("run_left");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_RIGHT))
+	{
+		model->setAction("run_right");
 	}
 	else
 	{
