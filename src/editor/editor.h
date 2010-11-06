@@ -22,7 +22,6 @@ class Editor
 	Hud hud;
 
 	bool handle_input();
-	bool tick();
 	void loadObjects(const std::string& file);
 	void loadModel(const std::string& file);
 	void loadSkeletalModel(const std::string& file);
@@ -95,7 +94,7 @@ class Editor
 public:
 	Editor();
 	~Editor();
-	bool start();
+	bool tick();
 };
 
 

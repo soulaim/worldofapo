@@ -58,6 +58,11 @@ Editor::Editor()
 //	handle_command("edit type HEAD");
 
 	view.megaFuck();
+
+	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
+	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
+	LINES.push_back(make_pair(Vec3(0,0,100),Vec3(0,0,-100)));
+
 }
 
 void Editor::release_swarm()
@@ -75,12 +80,8 @@ Editor::~Editor()
 	release_swarm();
 }
 
-bool Editor::start()
+bool Editor::tick()
 {
-	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
-	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
-	LINES.push_back(make_pair(Vec3(0,0,100),Vec3(0,0,-100)));
-
 	int ticks = SDL_GetTicks();
 	static int last_tick = -999999;
 	static int world_ticks = 0;
@@ -92,7 +93,7 @@ bool Editor::start()
 		++world_ticks;
 		last_tick = ticks;
 
-		if(!tick())
+		if(!handle_input())
 		{
 			return false;
 		}
@@ -194,11 +195,6 @@ bool Editor::start()
 	}
 	
 	return true;
-}
-
-bool Editor::tick()
-{
-	return handle_input();
 }
 
 bool Editor::type_exists(const std::string& type)

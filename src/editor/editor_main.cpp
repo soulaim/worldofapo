@@ -13,7 +13,7 @@ int main()
 
 	Editor master;
 	
-	while(master.start())
+	while(master.tick())
 	{
 	}
 	
