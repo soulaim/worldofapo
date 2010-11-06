@@ -1,10 +1,11 @@
 #include "world.h"
-#include "apomodel.h"
-#include "skeletalmodel.h"
+#include "modelfactory.h"
 
 #include <iostream>
 
 using namespace std;
+
+enum { PLAYER_MODEL, BULLET_MODEL };
 
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 {
@@ -269,6 +270,9 @@ void World::init()
 	lights[nextUnitID()] = tmp_light;
 	
 	show_errors = 0;
+
+	ModelFactory::load(PLAYER_MODEL, "models/model.skeleton");
+	ModelFactory::load(BULLET_MODEL, "models/bullet.bones");
 }
 
 void World::terminate()
@@ -278,6 +282,10 @@ void World::terminate()
 	
 	medikits.clear();
 	units.clear();
+	for(auto it = models.begin(); it != models.end(); ++it)
+	{
+		ModelFactory::destroy(it->second);
+	}
 	models.clear();
 	projectiles.clear();
 }
@@ -770,7 +778,6 @@ void World::addLight(Location& location)
 	light.position.y += FixedPoint(3, 2);
 }
 
-// TODO: FIX THIS trololol..
 void World::addUnit(int id, bool playerCharacter)
 {
 	units[id] = Unit();
@@ -780,16 +787,8 @@ void World::addUnit(int id, bool playerCharacter)
 	
 	units[id].birthTime = currentWorldFrame;
 	
-	static SkeletalModel prototype;
-	static bool loaded = false;
-	if(!loaded)
-	{
-		loaded = true;
-		prototype.load("models/model.skeleton");
-		prototype.texture_name = "marine";
-	}
-	
-	models[id] = new SkeletalModel(prototype);
+	models[id] = ModelFactory::create(PLAYER_MODEL);
+	models[id]->texture_name = "marine";
 	
 	if(!playerCharacter)
 	{
@@ -808,17 +807,12 @@ void World::addUnit(int id, bool playerCharacter)
 
 void World::addProjectile(Location& location, int id)
 {
-	static ApoModel prototype;
-	if(prototype.root == -1)
-	{
-		prototype.load("models/bullet.bones");
-	}
 	Vec3 position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id] = new ApoModel(prototype); // TODO: still copies some extra constants.
+	models[id] = ModelFactory::create(BULLET_MODEL);
 	models[id]->realUnitPos = position;
 	models[id]->currentModelPos = position;
 	
@@ -850,7 +844,7 @@ void World::removeUnit(int id)
 	auto it = models.find(id);
 	if(it != models.end())
 	{
-		delete it->second;
+		ModelFactory::destroy(it->second);
 		models.erase(it);
 	}
 }
