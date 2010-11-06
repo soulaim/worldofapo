@@ -57,7 +57,7 @@ Editor::Editor()
 	handle_command("load objects bullet.parts");
 //	handle_command("edit type HEAD");
 
-	view.megaFuck();
+//	view.megaFuck();
 
 	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
 	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
