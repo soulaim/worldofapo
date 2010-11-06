@@ -23,6 +23,7 @@ std::map<std::string, ObjectPart> Graphics::objects;
 
 void Graphics::depthSortParticles(Vec3& d)
 {
+	return;
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		viewParticles[i].updateDepthVal(d);
@@ -79,30 +80,10 @@ void Graphics::toggleLightingStatus()
 	lightsActive = !lightsActive;
 }
 
-void Graphics::genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b)
+// AHAHAHAHAHAHHAA :DDD
+vector<Particle>& Graphics::getParticles()
 {
-	for(int i=0; i<num; i++)
-	{
-		Particle p;
-		p.pos = position;
-		p.vel = velocity;
-		
-		p.vel.x += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		p.vel.y += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		p.vel.z += FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		
-		p.max_life = 40 + (rand() % 30);
-		p.cur_life = p.max_life;
-		
-		p.r = r * ((rand() % 40) + 80) / 100;
-		p.g = g * ((rand() % 40) + 80) / 100;
-		p.b = b * ((rand() % 40) + 80) / 100;
-		
-		p.scale = scale;
-		
-		viewParticles.push_back(p);
-	}
-	
+	return viewParticles;
 }
 
 void Graphics::megaFuck()

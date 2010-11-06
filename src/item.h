@@ -10,6 +10,12 @@ class HasProperties
 {
 public:
 	
+	HasProperties()
+	{
+		empty = "";
+		zero = 0;
+	}
+	
 	void load(std::string file)
 	{
 		std::ifstream itemFile(file.c_str());
@@ -41,6 +47,24 @@ public:
 		return strVals[a];
 	}
 	
+	const int& operator [] (const std::string& a) const
+	{
+		auto bla = intVals.find(a);
+		if(bla != intVals.end())
+			return bla->second;
+		return zero;
+	}
+	
+	const std::string& operator() (const std::string& a) const
+	{
+		auto bla = strVals.find(a);
+		if(bla != strVals.end())
+			return bla->second;
+		return empty;
+	}
+	
+	int zero;
+	std::string empty;
 	std::map<std::string, int> intVals;
 	std::map<std::string, std::string> strVals;
 };
