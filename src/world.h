@@ -16,13 +16,17 @@
 #include "movable_object.h"
 
 #include "light_object.h"
+#include "particle_source.h"
 
 struct WorldEvent
 {
 	int type;
 	
-	Location position;
-	Location velocity;
+	Location t_position;
+	Location t_velocity;
+	
+	Location a_position;
+	Location a_velocity;
 	
 	int actor_id;
 	int target_id;
@@ -72,11 +76,13 @@ public:
 	std::vector<std::string> worldMessages;
 	std::vector<int> deadUnits;
 	std::vector<WorldEvent> events;
+	std::vector<ParticleSource> psources;
 
 	std::vector<Location> humanPositions();
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit
 	void atDeath(MovableObject&, HasProperties&);
+	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b);
 	
 	void worldTick(int tickCount);
 	void viewTick();

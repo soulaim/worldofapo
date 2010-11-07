@@ -30,6 +30,38 @@ unsigned long World::checksum() const {
 	return hash;
 }
 
+
+void World::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b)
+{
+	ParticleSource pe;
+	pe.getIntProperty("PPF") = 5;
+	pe.getIntProperty("CUR_LIFE") = life;
+	pe.getIntProperty("MAX_LIFE") = life;
+	pe.getIntProperty("PLIFE")    = 50;
+	
+	pe.getIntProperty("SRED")     = r;
+	pe.getIntProperty("ERED")     = r / 2;
+	
+	pe.getIntProperty("SGREEN")   = g;
+	pe.getIntProperty("EGREEN")   = g / 2;
+	
+	pe.getIntProperty("SBLUE")    = b;
+	pe.getIntProperty("EBLUE")    = b / 2;
+	
+	pe.getIntProperty("MAX_RAND") = max_rand;
+	pe.getIntProperty("SCALE") = scale;
+	
+	pe.getIntProperty("VEL_X_BOT") = 1;
+	pe.getIntProperty("VEL_Y_BOT") = 1;
+	pe.getIntProperty("VEL_Z_BOT") = 1;
+	
+	pe.position = pos;
+	pe.velocity = vel;
+	
+	psources.push_back(pe);
+}
+
+
 // TODO: Force expansion should not be instant.
 void World::instantForceOutwards(const FixedPoint& power, const Location& pos)
 {
@@ -100,6 +132,19 @@ void World::doDeathFor(Unit& unit)
 	
 	WorldEvent event;
 	event.target_id = target_id;
+	event.t_position = unit.getPosition();
+	event.t_position.y += FixedPoint(2);
+	
+	event.t_velocity = unit.velocity;
+	event.t_velocity.y += FixedPoint(200,1000);
+	
+	if(actor_id != -1)
+	{
+		event.a_position = units[actor_id].position;
+		event.a_position.y += FixedPoint(2);
+		event.a_velocity = units[actor_id].velocity;
+	}
+	
 	if(actor_id != target_id)
 	{
 		event.actor_id  = actor_id;
@@ -116,11 +161,7 @@ void World::doDeathFor(Unit& unit)
 		worldMessages.push_back(msg.str());
 	}
 	
-	event.position = unit.getPosition();
-	event.position.y += FixedPoint(2);
-	event.velocity.y = FixedPoint(200,1000);
-	
-	addLight(event.position);
+	addLight(event.t_position);
 	
 	if(unit.human())
 	{
@@ -182,9 +223,9 @@ void World::generateInput_RabidAlien(Unit& unit)
 		// save this information for later use.
 		WorldEvent event;
 		event.type = DAMAGE_DEVOUR;
-		event.position = units[unitID].position;
-		event.position.y += FixedPoint(2);
-		event.velocity.y = FixedPoint(900,1000);
+		event.t_position = units[unitID].position;
+		event.t_position.y += FixedPoint(2);
+		event.t_velocity.y = FixedPoint(900,1000);
 		events.push_back(event);
 	}
 	
@@ -540,9 +581,13 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					// save this information for later use.
 					WorldEvent event;
 					event.type = DAMAGE_BULLET;
-					event.position = u->position;
-					event.position.y += FixedPoint(2);
-					event.velocity.y = FixedPoint(200,1000);
+					event.t_position = u->position;
+					event.t_position.y += FixedPoint(2);
+					event.t_velocity = u->velocity;
+					
+					event.a_position = event.t_position;
+					event.a_velocity = projectile.velocity * projectile["TPF"];
+					
 					events.push_back(event);
 					
 					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)

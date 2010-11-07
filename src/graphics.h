@@ -117,7 +117,7 @@ public:
 	void tick();
 	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	
-	void genParticles(const Location& position, const Location& velocity, int num, float max_rand, float scale, float r, float g, float b);
+	std::vector<Particle>& getParticles();
 	void depthSortParticles(Vec3&);
 
 	Graphics();

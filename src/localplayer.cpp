@@ -98,6 +98,18 @@ bool Localplayer::client_tick()
 			
 			hud.world_tick();
 			view->world_tick(world.lvl, world.lights);
+			
+			// ALERT: new, untested and unreviewed particle handling code.
+			for(size_t i=0; i<world.psources.size(); i++)
+			{
+				world.psources[i].tick(view->getParticles());
+				if(!world.psources[i].alive())
+				{
+					world.psources[i] = world.psources.back();
+					world.psources.pop_back();
+					--i;
+				}
+			}
 		}
 	}
 	return stop;
@@ -311,21 +323,21 @@ void Localplayer::handleWorldEvents()
 				std::stringstream ss;
 				int x = (rand() % 4);
 				ss << "hit" << x;
-				playSound(ss.str(), event.position);
+				playSound(ss.str(), event.t_position);
 				
-				view->genParticles(event.position, event.velocity, 60, 0.7, 0.4f, 0.6f, 0.2f, 0.2f);
+				world.genParticleEmitter(event.t_position, event.a_velocity, 5, 20, 20, 160, 50, 50);
 				break;
 			}
 			case World::DAMAGE_DEVOUR:
 			{
-				playSound("hit0", event.position);
-				view->genParticles(event.position, event.velocity, 60, 1.5, 0.4f, 0.9f, 0.2f, 0.2f);
+				playSound("hit0", event.t_position);
+				world.genParticleEmitter(event.t_position, event.t_velocity, 5, 20, 20, 160, 50, 50);
 				break;
 			}
 			case World::DEATH_ENEMY:
 			{
-				playSound("alien_death", event.position);
-				view->genParticles(event.position, event.velocity, 300, 2.0, 1.0f, 0.9f, 0.4f, 0.2f);
+				playSound("alien_death", event.t_position);
+				world.genParticleEmitter(event.t_position, event.t_velocity, 25, 20, 20, 160, 50, 50);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -335,8 +347,8 @@ void Localplayer::handleWorldEvents()
 			}
 			case World::DEATH_PLAYER:
 			{
-				playSound("player_death", event.position);
-				view->genParticles(event.position, event.velocity, 300, 2.0, 1.0f, 1.0f, 0.2f, 0.2f);
+				playSound("player_death", event.t_position);
+				world.genParticleEmitter(event.t_position, event.t_velocity, 25, 20, 20, 160, 50, 50);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
