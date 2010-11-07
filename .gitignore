@@ -3,6 +3,12 @@ bin/client
 bin/server
 bin/editor
 bin/loader_3ds
+bin/debug-client
+bin/debug-server
+bin/debug-editor
+bin/profile-client
+bin/profile-server
+bin/profile-editor
 
 # Compiled files:
 *.d
@@ -17,6 +23,7 @@ bin/loader_3ds
 
 # Misc files:
 gmon.out
+.sconsign.dblite
 
 # World of Apo's character codes for accessing profiles on the server
 myKeys

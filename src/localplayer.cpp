@@ -11,6 +11,7 @@
 #include "gamesound.h"
 #include "texturehandler.h"
 #include "animation.h"
+#include "modelfactory.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -53,15 +54,17 @@ void Localplayer::init()
 	game.init();
 	userio->init();
 
-	view->loadObjects("models/model.parts");
-	view->loadObjects("models/bullet.parts");
-	Animation::load("models/model.animation");
-	Animation::load("models/skeleani.animation");
-	
 	hud.setPlayerInfo(&game.Players);
 	hud.setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
+	view->loadObjects("models/model.parts");
+	view->loadObjects("models/bullet.parts");
+	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
+	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/model.skeleton");
+	Animation::load("models/model.animation");
+	Animation::load("models/skeleani.animation");
+
 //	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
 //	TextureHandler::getSingleton().createTexture("grass", "data/grass512.png");
 	TextureHandler::getSingleton().createTexture("grass", "data/grass1024.png");

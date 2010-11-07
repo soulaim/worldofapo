@@ -63,6 +63,14 @@ bool ApoModel::load(const string& filename)
 			parts.push_back(node);
 		}
 	}
+
+	size_t sum = 0;
+	for(size_t i = 0; i < parts.size(); ++i)
+	{
+		sum += Graphics::objects[parts[i].wireframe].triangles.size();
+	}
+	cerr << "Loaded model '" << filename << "' with " << parts.size() << " parts and " << sum << " triangles" << endl;
+
 	return true;
 }
 
