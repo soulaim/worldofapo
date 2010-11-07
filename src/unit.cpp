@@ -149,9 +149,9 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init(World& w)
 {
+	weapons.push_back(new Weapon(w, *this, "data/items/weapon_flame.dat"));
 	weapons.push_back(new Weapon(w, *this, "data/items/weapon_mgun.dat"));
 	weapons.push_back(new Weapon(w, *this, "data/items/weapon_shotgun.dat"));
-	weapons.push_back(new Weapon(w, *this, "data/items/weapon_flame.dat"));
 	weapons.push_back(new Weapon(w, *this, "data/items/weapon_railgun.dat"));
 	
 	// TODO ALERT: Should keep track of the INDEX of the current weapon. Not the pointer. More difficult to transmit in world-copy otherwise (which is not done at all currently).

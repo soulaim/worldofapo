@@ -19,7 +19,7 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 
 unsigned long World::checksum() const {
 	unsigned long hash = 5381;
-
+	
 	for (auto it = units.begin(); it != units.end(); ++it) {
 		int id = it->first;
 		Location pos = it->second.getPosition();
@@ -28,7 +28,7 @@ unsigned long World::checksum() const {
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
-
+	
 	return hash;
 }
 
