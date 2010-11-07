@@ -6,8 +6,6 @@
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(1000),
-	angle(0),
-	upangle(0),
 	keyState(0),
 	mouseButtons(0),
 	weapon_cooldown(0),

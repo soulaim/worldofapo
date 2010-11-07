@@ -19,6 +19,8 @@ public:
 	
 	void tick(std::vector<Particle>&); // generate particles for current frame
 	bool alive() const;
+	
+	Location particleDirection;
 };
 
 #endif

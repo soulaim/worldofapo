@@ -7,6 +7,7 @@
 
 class MovableObject
 {
+	Location lookDirection;
 public:
 	
 	enum
@@ -25,13 +26,14 @@ public:
 	void movableEnable(int);
 	void tick(const FixedPoint& height);
 	
-	const Location& getPosition()
-	{
-		return position;
-	}
+	const Location& getLookDirection();
+	const Location& getPosition();
 	
 	int flags;
 	int dead;
+	
+	int angle;
+	int upangle;
 	
 	Location position;
 	Location prev_position;

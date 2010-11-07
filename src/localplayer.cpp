@@ -325,7 +325,10 @@ void Localplayer::handleWorldEvents()
 				ss << "hit" << x;
 				playSound(ss.str(), event.t_position);
 				
-				world.genParticleEmitter(event.t_position, event.a_velocity, 5, 20, 20, 160, 50, 50);
+				Location bulletDirection = event.a_velocity;
+				bulletDirection.normalize();
+				
+				world.genParticleEmitter(event.a_position, bulletDirection, 5, 20, 20, 160, 50, 50);
 				break;
 			}
 			case World::DAMAGE_DEVOUR:
@@ -337,7 +340,7 @@ void Localplayer::handleWorldEvents()
 			case World::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.t_position);
-				world.genParticleEmitter(event.t_position, event.t_velocity, 25, 20, 20, 160, 50, 50);
+				world.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -348,7 +351,7 @@ void Localplayer::handleWorldEvents()
 			case World::DEATH_PLAYER:
 			{
 				playSound("player_death", event.t_position);
-				world.genParticleEmitter(event.t_position, event.t_velocity, 25, 20, 20, 160, 50, 50);
+				world.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{

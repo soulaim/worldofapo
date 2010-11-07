@@ -11,6 +11,7 @@
 
 #include <iostream>
 
+// NOTE: This could be just implemented as a movable object. Would be a bit more simple.
 class Camera
 {
 public:

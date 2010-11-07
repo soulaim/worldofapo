@@ -23,10 +23,10 @@ const int& ParticleSource::getIntProperty(const string& a) const
 	return (*this)[a];
 }
 
-
-
 void ParticleSource::tick(std::vector<Particle>& particles)
 {
+	static unsigned semiUniqueNumber = 1;
+	
 	float relativeLife = float(getIntProperty("CUR_LIFE")) / getIntProperty("MAX_LIFE");
 	
 	float start_red   = getIntProperty("SRED") / 256.f;
@@ -48,21 +48,30 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 		p.r = now_r;
 		p.g = now_g;
 		p.b = now_b;
-		p.a = relativeLife;
+		p.a = 1.0f;
 		
-		p.scale = 0.5 * relativeLife;
+		p.scale = 0.5;
 		p.max_life = getIntProperty("PLIFE");
 		p.cur_life = p.max_life;
 		
 		p.pos = position;
 		p.vel = velocity;
 		
-		float max_rand = 0.02f * getIntProperty("MAX_RAND");
-		p.vel.x += FixedPoint(getIntProperty("VEL_X_TOP"), getIntProperty("VEL_X_BOT")) * FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		p.vel.y += FixedPoint(getIntProperty("VEL_Y_TOP"), getIntProperty("VEL_Y_BOT")) * FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
-		p.vel.z += FixedPoint(getIntProperty("VEL_Z_TOP"), getIntProperty("VEL_Z_BOT")) * FixedPoint(((rand() % 1000) - 500) * max_rand, 1000);
+		FixedPoint max_var(intVals["PSP_1000"], 1000);
+		max_var *= FixedPoint(getIntProperty("CUR_LIFE"), getIntProperty("MAX_LIFE"));
+		FixedPoint half_var = max_var / FixedPoint(2);
+		
+		FixedPoint rnd_x = FixedPoint( (semiUniqueNumber * (1 | 16 | 64)) & 127, 127);
+		FixedPoint rnd_y = FixedPoint( (semiUniqueNumber * (2 | 8 | 16)) & 127, 127);
+		FixedPoint rnd_z = FixedPoint( (semiUniqueNumber * (1 | 4 | 32)) & 127, 127);
+		
+		// add variance term
+		p.vel.x += rnd_x * max_var - half_var;
+		p.vel.y += rnd_y * max_var - half_var;
+		p.vel.z += rnd_z * max_var - half_var;
 		
 		particles.push_back(p);
+		++semiUniqueNumber;
 	}
 	
 	--getIntProperty("CUR_LIFE");

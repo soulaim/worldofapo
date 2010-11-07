@@ -19,7 +19,6 @@ class Projectile : MovableObject, HasProperties
 {
 	friend class Weapon;
 	friend class World;
-	
 	friend class Graphics; // only because of draw debug projectiles
 	
 	public:

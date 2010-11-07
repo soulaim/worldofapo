@@ -31,13 +31,13 @@ unsigned long World::checksum() const {
 }
 
 
-void World::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b)
+void World::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
 {
 	ParticleSource pe;
-	pe.getIntProperty("PPF") = 5;
+	pe.getIntProperty("PPF") = particlesPerFrame;
 	pe.getIntProperty("CUR_LIFE") = life;
 	pe.getIntProperty("MAX_LIFE") = life;
-	pe.getIntProperty("PLIFE")    = 50;
+	pe.getIntProperty("PLIFE")    = particleLife;
 	
 	pe.getIntProperty("SRED")     = r;
 	pe.getIntProperty("ERED")     = r / 2;
@@ -51,9 +51,12 @@ void World::genParticleEmitter(const Location& pos, const Location& vel, int lif
 	pe.getIntProperty("MAX_RAND") = max_rand;
 	pe.getIntProperty("SCALE") = scale;
 	
-	pe.getIntProperty("VEL_X_BOT") = 1;
-	pe.getIntProperty("VEL_Y_BOT") = 1;
-	pe.getIntProperty("VEL_Z_BOT") = 1;
+	pe.getIntProperty("PSP_1000") = scatteringCone;
+	
+	/*
+	pe.getIntProperty("RAND_X_1000") = 500;
+	pe.getIntProperty("RAND_Y_1000") = 0;
+	*/
 	
 	pe.position = pos;
 	pe.velocity = vel;
@@ -585,7 +588,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					event.t_position.y += FixedPoint(2);
 					event.t_velocity = u->velocity;
 					
-					event.a_position = event.t_position;
+					event.a_position = projectile.position;
 					event.a_velocity = projectile.velocity * projectile["TPF"];
 					
 					events.push_back(event);
@@ -826,7 +829,7 @@ void World::addLight(Location& location)
 {
 //	cerr << "Adding light at " << location << endl;
 	LightObject& light = lights[nextUnitID()];
-	light.setDiffuse(8.f, 8.f, 8.f);
+	light.setDiffuse(1.f, 1.f, 1.f);
 	light.setSpecular(0.f, 0.f, 0.f);
 	light.setLife(200); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.

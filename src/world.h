@@ -82,7 +82,7 @@ public:
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit
 	void atDeath(MovableObject&, HasProperties&);
-	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b);
+	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
 	void worldTick(int tickCount);
 	void viewTick();

@@ -14,26 +14,9 @@ void Weapon::fire()
 	u.soundInfo = "shoot";
 	
 	
-	int angle   = u.angle;
-	int upangle = u.upangle;
-	
-	FixedPoint cos = w.apomath.getCos(angle);
-	FixedPoint sin = w.apomath.getSin(angle);
-	FixedPoint upcos = w.apomath.getCos(upangle);
-	FixedPoint upsin = w.apomath.getSin(upangle);
-	
-	Location relative_position;
-	FixedPoint x = 30;
-	FixedPoint y = 0;
-	FixedPoint z = 0;
-	
-	relative_position.x = cos * upcos * x - sin * z + cos * upsin * y;
-	relative_position.z = sin * upcos * x + cos * z + sin * upsin * y;
-	relative_position.y =      -upsin * x           +       upcos * y;
-	
 	Location weapon_position = u.getPosition();
-	Location projectile_direction = relative_position;
-
+	Location projectile_direction = u.getLookDirection();
+	
 	weapon_position.y += 4;
 	projectile_direction.y += 4;
 	

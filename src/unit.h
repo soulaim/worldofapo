@@ -15,7 +15,7 @@
 #include "movable_object.h"
 #include "item.h"
 
-class Unit : MovableObject, HasProperties, public OctreeObject
+class Unit : public MovableObject, HasProperties, public OctreeObject
 {
 	friend class World;
 	
@@ -58,8 +58,6 @@ class Unit : MovableObject, HasProperties, public OctreeObject
 		int controllerTypeID;
 		int hitpoints;
 		
-		int angle; // integer representation of the angle variable.
-		int upangle; // integer representation of how high the unit is looking.
 		int keyState; // what is the unit doing right now, represented as player keyboard input
 		int mouseButtons;
 
