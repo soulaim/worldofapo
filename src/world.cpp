@@ -30,6 +30,39 @@ unsigned long World::checksum() const {
 	return hash;
 }
 
+// TODO: this should be a bit smarter maybe? oh well.
+void getColor(const string& a, int& r, int& g, int& b)
+{
+	if(a == "WHITE")
+	{
+		r = 255;
+		g = 255;
+		b = 255;
+		return;
+	}
+	else if(a == "ORANGE")
+	{
+		r = 255;
+		g = 165;
+		b = 0;
+		return;
+	}
+	else if(a == "DARK_RED")
+	{
+		r = 100;
+		g = 0;
+		b = 0;
+		return;
+	}
+	else
+	{
+		r = 0;
+		g = 255;
+		b = 255;
+		return;
+	}
+}
+
 
 void World::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
 {
@@ -561,15 +594,21 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
 				ps.position = projectile.position;
 				
-				//float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
+				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
 				
-				ps.getIntProperty("SRED") = 255;
-				ps.getIntProperty("SGREEN") = 0;
-				ps.getIntProperty("SBLUE") = 0;
+				int ssred, ssgreen, ssblue; getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
+				int sered, segreen, seblue; getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
 				
-				ps.getIntProperty("ERED") = 255;
-				ps.getIntProperty("EGREEN") = 0;
-				ps.getIntProperty("EBLUE") = 0;
+				int esred, esgreen, esblue; getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
+				int eered, eegreen, eeblue; getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
+				
+				ps.getIntProperty("SRED")   = esred   + (ssred - esred) * percentage_life;
+				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
+				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue) * percentage_life;
+				
+				ps.getIntProperty("ERED")   = eered   + (sered - eered) * percentage_life;
+				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
+				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue) * percentage_life;
 				
 				ps.tick(particles);
 				
