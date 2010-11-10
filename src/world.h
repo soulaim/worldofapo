@@ -76,8 +76,10 @@ public:
 	std::vector<std::string> worldMessages;
 	std::vector<int> deadUnits;
 	std::vector<WorldEvent> events;
+	
 	std::vector<ParticleSource> psources;
-
+	std::vector<Particle> particles;
+	
 	std::vector<Location> humanPositions();
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit

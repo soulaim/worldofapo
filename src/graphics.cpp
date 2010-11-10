@@ -21,7 +21,7 @@ int QUADS_DRAWN_THIS_FRAME = 0;
 
 std::map<std::string, ObjectPart> Graphics::objects;
 
-void Graphics::depthSortParticles(Vec3& d)
+void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 {
 	return;
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -79,76 +79,6 @@ void Graphics::toggleLightingStatus()
 
 	lightsActive = !lightsActive;
 }
-
-// AHAHAHAHAHAHHAA :DDD
-vector<Particle>& Graphics::getParticles()
-{
-	return viewParticles;
-}
-
-void Graphics::megaFuck()
-{
-	int num_frames = 3;
-	int anim_time = 2;
-	// walking, step #1
-	for(int i=0; i<num_frames; i++)
-	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, -30.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, -30.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	}
-	
-	// walking, step #2
-	for(int i=0; i< 2 * num_frames; i++)
-	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, -30.f + 30.f * i / (2*num_frames), 0.f, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f * i / (2*num_frames), 0.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, -30.f + 30.f * i / (2*num_frames), 0.f, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f * i / (2*num_frames), 0.f, 0.f);
-	}
-	
-	// walking, step #3
-	for(int i=0; i<num_frames; i++)
-	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, +40.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, +40.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f, 0.f, 0.f);
-	}
-	
-	// walking, step #4
-	for(int i=0; i<num_frames; i++)
-	{
-		Animation::getAnimation("LEFT_LEG", "walk").insertAnimationState(anim_time, +40.f - 40.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("LEFT_FOOT", "walk").insertAnimationState(anim_time, +30.f - 30.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_LEG", "walk").insertAnimationState(anim_time, +40.f - 40.f * i / num_frames, 0.f, 0.f);
-		Animation::getAnimation("RIGHT_FOOT", "walk").insertAnimationState(anim_time, +30.f - 30.f * i / num_frames, 0.f, 0.f);
-	}
-	Animation::getAnimation("LEFT_ARM", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	Animation::getAnimation("RIGHT_ARM", "walk").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	
-	// there you go! now you know how to walk :D
-	
-	Animation::getAnimation("LEFT_LEG", "idle").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	Animation::getAnimation("LEFT_FOOT", "idle").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	Animation::getAnimation("RIGHT_LEG", "idle").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	Animation::getAnimation("RIGHT_FOOT", "idle").insertAnimationState(anim_time, 0.f, 0.f, 0.f);
-	
-	// when idle, SWING YOUR ARMS AROUND WILDLY :DD
-	for(int i=0; i<4*num_frames; i++)
-	{
-		Animation::getAnimation("LEFT_ARM", "idle").insertAnimationState(4*anim_time, 360.f * i / (4 * num_frames), 0.f, 0.f);
-		Animation::getAnimation("RIGHT_ARM", "idle").insertAnimationState(4*anim_time, 360.f * i / (4 * num_frames), 0.f, 0.f);
-	}
-	
-	for(int i=0; i<4 * num_frames; i++)
-	{
-		Animation::getAnimation("HIP", "jump").insertAnimationState(4*anim_time, 0.f, 360.f * i / (4 * num_frames), 0.f);
-	}
-
-}
-
 
 Graphics::Graphics()
 {
@@ -805,10 +735,10 @@ void Graphics::drawModels(map<int, Model*>& models)
 	glUseProgram(0);
 }
 
-void Graphics::drawParticles()
+void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
-	depthSortParticles(direction_vector);
+	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	glDisable(GL_LIGHTING);
@@ -820,6 +750,8 @@ void Graphics::drawParticles()
 	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
+		viewParticles[i].viewTick();
+		
 		float px = viewParticles[i].pos.x.getFloat();
 		float py = viewParticles[i].pos.y.getFloat();
 		float pz = viewParticles[i].pos.z.getFloat();
@@ -835,13 +767,13 @@ void Graphics::drawParticles()
 		glRotatef(x_angle, 0.0, 1.0, 0.0);
 		glRotatef(y_angle, 1.0, 0.0, 0.0);
 		
-		float s = viewParticles[i].scale;
+		float s = viewParticles[i].scale * 1.5f;
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.5f * s, +1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.5f * s, +1.5f * s, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.5f * s, -1.5f * s, 0.0f);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.5f * s, -1.5f * s, 0.0f);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-s, +s, 0.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+s, +s, 0.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+s, -s, 0.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-s, -s, 0.0f);
 		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		
@@ -897,7 +829,8 @@ void Graphics::draw(
 	const std::map<int, LightObject>& lights,
 	const std::shared_ptr<Octree> o, Hud* hud,
 	const std::map<int, Medikit>& medikits,
-	const std::map<int, Projectile>& projectiles
+	const std::map<int, Projectile>& projectiles,
+	std::vector<Particle>& particles
 	)
 {
 	updateCamera(lvl);
@@ -923,7 +856,7 @@ void Graphics::draw(
 	drawMedikits(medikits);
 	drawBoundingBoxes(units);
 	drawModels(models);
-	drawParticles();
+	drawParticles(particles);
 	drawOctree(o);
 	
 	if(hud)
@@ -957,25 +890,8 @@ void Graphics::bindCamera(Unit* unit)
 	camera.bind(unit, Camera::RELATIVE);
 }
 
-void Graphics::updateParticles()
-{
-	for(size_t i = 0; i < viewParticles.size(); ++i)
-	{
-		viewParticles[i].tick();
-		if(!viewParticles[i].alive())
-		{
-			viewParticles[i] = viewParticles.back();
-			viewParticles.pop_back();
-			--i;
-		}
-	}
-}
-
 void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)
 {
-	// Don't draw anything here!
-	updateParticles();
-	
 	Location pos;
 	
 	// position and frustum

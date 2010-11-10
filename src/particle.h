@@ -14,7 +14,7 @@ public:
 	int cur_life;
 	
 	// could be used for game state
-	Location pos, prev_pos;
+	Location pos, target_pos;
 	Location vel;
 	
 	// graphics only
@@ -25,10 +25,14 @@ public:
 	float b;
 	float a;
 	
+	void viewTick()
+	{
+		pos += (target_pos - pos) * FixedPoint(1, 5);
+	}
+	
 	void tick()
 	{
-		prev_pos = pos;
-		pos += vel;
+		target_pos += vel;
 		vel.y -= FixedPoint(20, 1000);
 		--cur_life;
 	}

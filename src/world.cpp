@@ -539,12 +539,77 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	int ticks = projectile["TPF"];
 	if(ticks < 1)
 		ticks = 1;
+	
 	for(int i=0; i<ticks; i++)
 	{
 		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 		
 		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
 		{
+			int num_particles = projectile["PARTICLES_PER_FRAME"];
+			if(num_particles > 0)
+			{
+				// create a temporary particle source and tick it once. then let it go.
+				
+				ParticleSource ps;
+				ps.getIntProperty("MAX_LIFE") = 10;
+				ps.getIntProperty("CUR_LIFE") = 10;
+				ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
+				ps.getIntProperty("PPF") = num_particles;
+				ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+				
+				ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
+				ps.position = projectile.position;
+				
+				//float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
+				
+				ps.getIntProperty("SRED") = 255;
+				ps.getIntProperty("SGREEN") = 0;
+				ps.getIntProperty("SBLUE") = 0;
+				
+				ps.getIntProperty("ERED") = 255;
+				ps.getIntProperty("EGREEN") = 0;
+				ps.getIntProperty("EBLUE") = 0;
+				
+				ps.tick(particles);
+				
+				/*
+				// define particle colors
+				projectile("START_COLOR_START") = strVals["START_COLOR_START"];
+				projectile("END_COLOR_START") = strVals["END_COLOR_START"];
+				projectile("START_COLOR_END") = strVals["START_COLOR_END"];
+				projectile("END_COLOR_END") = strVals["END_COLOR_END"];
+				*/
+				
+				
+				/*
+				
+				pe.getIntProperty("PPF") = particlesPerFrame;
+				pe.getIntProperty("CUR_LIFE") = life;
+				pe.getIntProperty("MAX_LIFE") = life;
+				pe.getIntProperty("PLIFE")    = particleLife;
+				
+				pe.getIntProperty("SRED")     = r;
+				pe.getIntProperty("ERED")     = r / 2;
+				
+				pe.getIntProperty("SGREEN")   = g;
+				pe.getIntProperty("EGREEN")   = g / 2;
+				
+				pe.getIntProperty("SBLUE")    = b;
+				pe.getIntProperty("EBLUE")    = b / 2;
+				
+				pe.getIntProperty("MAX_RAND") = max_rand;
+				pe.getIntProperty("SCALE") = scale;
+				
+				pe.getIntProperty("PSP_1000") = scatteringCone;
+				
+				*/
+				
+				
+				
+				
+			}
+			
 			projectile.tick();
 			
 			if(projectile.collidesTerrain(lvl))
@@ -605,6 +670,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		else
 		{
 			projectile.destroyAfterFrame = true;
+			break;
 		}
 	}
 	
@@ -663,6 +729,36 @@ void World::updateModel(Model* model, Unit& unit)
 void World::worldTick(int tickCount)
 {
 	
+	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
+	*     \  Particle handling               \
+	*     \_/""""""""""""""""""""""""""""""""""/
+	*/
+	
+	for(size_t i=0; i<psources.size(); ++i)
+	{
+		psources[i].tick(particles);
+		if(!psources[i].alive())
+		{
+			psources[i] = psources.back();
+			psources.pop_back();
+			--i;
+		}
+	}
+	
+	for(size_t i=0; i<particles.size(); ++i)
+	{
+		if(!particles[i].alive())
+		{
+			particles[i] = particles.back();
+			particles.pop_back();
+			--i;
+		}
+		else
+			particles[i].tick();
+	}
+	
+	
+	
 	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
 	
 	
@@ -670,7 +766,6 @@ void World::worldTick(int tickCount)
 	*     \  Unit ticks + reconstruct octree \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
-	
 	
 	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
 	currentWorldFrame = tickCount;
@@ -812,6 +907,11 @@ void World::worldTick(int tickCount)
 
 void World::viewTick()
 {
+	for(size_t i=0; i<particles.size(); ++i)
+	{
+		particles[i].viewTick();
+	}
+	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		updateModel(models[iter->first], iter->second);

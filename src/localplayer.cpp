@@ -98,18 +98,6 @@ bool Localplayer::client_tick()
 			
 			hud.world_tick();
 			view->world_tick(world.lvl, world.lights);
-			
-			// ALERT: new, untested and unreviewed particle handling code.
-			for(size_t i=0; i<world.psources.size(); i++)
-			{
-				world.psources[i].tick(view->getParticles());
-				if(!world.psources[i].alive())
-				{
-					world.psources[i] = world.psources.back();
-					world.psources.pop_back();
-					--i;
-				}
-			}
 		}
 	}
 	return stop;
@@ -122,7 +110,7 @@ void Localplayer::draw()
 	{
 		world.viewTick();
 		view->tick();
-		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.medikits, world.projectiles);
+		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.medikits, world.projectiles, world.particles);
 	}
 }
 

@@ -55,6 +55,7 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 		p.cur_life = p.max_life;
 		
 		p.pos = position;
+		p.target_pos = position;
 		p.vel = velocity;
 		
 		FixedPoint max_var(intVals["PSP_1000"], 1000);
@@ -62,8 +63,8 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 		FixedPoint half_var = max_var / FixedPoint(2);
 		
 		FixedPoint rnd_x = FixedPoint( (semiUniqueNumber * (1 | 16 | 64)) & 127, 127);
-		FixedPoint rnd_y = FixedPoint( (semiUniqueNumber * (2 | 8 | 16)) & 127, 127);
-		FixedPoint rnd_z = FixedPoint( (semiUniqueNumber * (1 | 4 | 32)) & 127, 127);
+		FixedPoint rnd_y = FixedPoint( (semiUniqueNumber * (2 | 8 | 16))  & 127, 127);
+		FixedPoint rnd_z = FixedPoint( (semiUniqueNumber * (1 | 4 | 32))  & 127, 127);
 		
 		// add variance term
 		p.vel.x += rnd_x * max_var - half_var;

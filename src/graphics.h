@@ -48,9 +48,8 @@ class Graphics
 	void drawSkybox();
 	
 	void drawModels(std::map<int, Model*>& models);
-	void drawParticles();
+	void drawParticles(std::vector<Particle>&);
 	void updateCamera(const Level&);
-	void updateParticles();
 	void finishDrawing();
 
 	void drawDebugHeightDots(const Level& lvl);
@@ -64,9 +63,7 @@ class Graphics
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
 	void loadGeometryShader(const std::string& name, const std::string& filename);
-
-	//ParticleSystemManager particleManager;
-	std::vector<Particle> viewParticles;
+	
 	std::map<std::string, GLuint> shaders;
 	std::map<std::string, GLint> uniform_locations;
 	
@@ -91,8 +88,6 @@ public:
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate);
 	
-	void megaFuck(); // this function creates a test animation called "walk" for the test model
-	
 	void setCamera(const Camera& camera);
 	bool loadObjects(const std::string&);
 	bool saveObjects(const std::string&);
@@ -100,7 +95,8 @@ public:
 	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
 		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
 		const std::map<int, Medikit>& medikits,
-		const std::map<int, Projectile>& projectiles);
+		const std::map<int, Projectile>& projectiles,
+		std::vector<Particle>& particles);
 	void drawMenu(const std::vector<MenuButton>&) const;
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
@@ -117,8 +113,7 @@ public:
 	void tick();
 	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	
-	std::vector<Particle>& getParticles();
-	void depthSortParticles(Vec3&);
+	void depthSortParticles(Vec3&, std::vector<Particle>&);
 
 	Graphics();
 	~Graphics();
