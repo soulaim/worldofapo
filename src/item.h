@@ -4,7 +4,7 @@
 
 #include <string>
 #include <fstream>
-#include <map>
+#include <unordered_map>
 
 class HasProperties
 {
@@ -65,8 +65,8 @@ public:
 	
 	int zero;
 	std::string empty;
-	std::map<std::string, int> intVals;
-	std::map<std::string, std::string> strVals;
+	std::unordered_map<std::string, int> intVals;
+	std::unordered_map<std::string, std::string> strVals;
 };
 
 class Item

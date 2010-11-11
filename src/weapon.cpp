@@ -26,6 +26,11 @@ void Weapon::fire()
 		w.addProjectile(weapon_position, id);
 		Projectile& projectile = w.projectiles[id];
 		
+		projectile["ID"]     = id;
+		projectile["OWNER"]  = u.id;
+		
+		
+		
 		// set some properties first
 		
 		for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
@@ -36,8 +41,6 @@ void Weapon::fire()
 			if(iter->first.substr(0, 5) == "CHILD")
 				projectile(iter->first.substr(6)) = iter->second;
 		
-		projectile["ID"]     = id;
-		projectile["OWNER"]  = u.id;
 		projectile["MAX_LIFETIME"] = projectile["LIFETIME"];
 		projectile("NAME") = strVals["NAME"];
 		

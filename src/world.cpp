@@ -572,8 +572,37 @@ void World::tickUnit(Unit& unit, Model* model)
 void World::tickProjectile(Projectile& projectile, Model* model)
 {
 	int ticks = projectile["TPF"];
-	if(ticks < 1)
-		ticks = 1;
+	
+	assert(ticks > 0);
+	
+	int num_particles = projectile["PARTICLES_PER_FRAME"];
+	
+	static ParticleSource ps;
+	// static int sered, segreen, seblue;
+	// static int eered, eegreen, eeblue;
+	static int esred, esgreen, esblue;
+	static int ssred, ssgreen, ssblue;
+	
+	if(num_particles > 0)
+	{
+		ps.getIntProperty("MAX_LIFE") = 10;
+		ps.getIntProperty("CUR_LIFE") = 10;
+		ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
+		ps.getIntProperty("PPF") = num_particles;
+		ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+		
+		// this should be in making a new ParticleSource
+		getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
+		// getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
+		
+		getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
+		// getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
+		
+	}
+	
+	
+	
+	
 	
 	for(int i=0; i<ticks; i++)
 	{
@@ -581,76 +610,26 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		
 		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
 		{
-			int num_particles = projectile["PARTICLES_PER_FRAME"];
 			if(num_particles > 0)
 			{
-				// create a temporary particle source and tick it once. then let it go.
+				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
 				
-				ParticleSource ps;
-				ps.getIntProperty("MAX_LIFE") = 10;
-				ps.getIntProperty("CUR_LIFE") = 10;
-				ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
-				ps.getIntProperty("PPF") = num_particles;
-				ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+				// this should usually be in ParticleSource.tick() probably
+				ps.getIntProperty("SRED")   = esred   + (ssred - esred)     * percentage_life;
+				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
+				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue)   * percentage_life;
+				
+				// these values are never used
+				/*
+				ps.getIntProperty("ERED")   = eered   + (sered - eered)     * percentage_life;
+				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
+				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue)   * percentage_life;
+				*/
 				
 				ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
 				ps.position = projectile.position;
 				
-				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
-				
-				// this should be in making a new ParticleSource
-				int ssred, ssgreen, ssblue; getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
-				int sered, segreen, seblue; getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
-				
-				int esred, esgreen, esblue; getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
-				int eered, eegreen, eeblue; getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
-				
-				// this should usually be in ParticleSource.tick()
-				ps.getIntProperty("SRED")   = esred   + (ssred - esred) * percentage_life;
-				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
-				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue) * percentage_life;
-				
-				ps.getIntProperty("ERED")   = eered   + (sered - eered) * percentage_life;
-				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
-				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue) * percentage_life;
-				
 				ps.tick(particles);
-				
-				/*
-				// define particle colors
-				projectile("START_COLOR_START") = strVals["START_COLOR_START"];
-				projectile("END_COLOR_START") = strVals["END_COLOR_START"];
-				projectile("START_COLOR_END") = strVals["START_COLOR_END"];
-				projectile("END_COLOR_END") = strVals["END_COLOR_END"];
-				*/
-				
-				
-				/*
-				
-				pe.getIntProperty("PPF") = particlesPerFrame;
-				pe.getIntProperty("CUR_LIFE") = life;
-				pe.getIntProperty("MAX_LIFE") = life;
-				pe.getIntProperty("PLIFE")    = particleLife;
-				
-				pe.getIntProperty("SRED")     = r;
-				pe.getIntProperty("ERED")     = r / 2;
-				
-				pe.getIntProperty("SGREEN")   = g;
-				pe.getIntProperty("EGREEN")   = g / 2;
-				
-				pe.getIntProperty("SBLUE")    = b;
-				pe.getIntProperty("EBLUE")    = b / 2;
-				
-				pe.getIntProperty("MAX_RAND") = max_rand;
-				pe.getIntProperty("SCALE") = scale;
-				
-				pe.getIntProperty("PSP_1000") = scatteringCone;
-				
-				*/
-				
-				
-				
-				
 			}
 			
 			projectile.tick();

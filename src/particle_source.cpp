@@ -42,26 +42,28 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 	float now_b = end_blue  + relativeLife * (start_blue  - end_blue);
 	
 	int particlesPerFrame = getIntProperty("PPF");
+	
+	Particle p;
+	p.r = now_r;
+	p.g = now_g;
+	p.b = now_b;
+	p.a = 1.0f;
+	
+	p.scale = 0.5;
+	p.max_life = getIntProperty("PLIFE");
+	p.cur_life = p.max_life;
+	
+	p.pos = position;
+	p.target_pos = position;
+	
+	FixedPoint max_var(intVals["PSP_1000"], 1000);
+	max_var *= FixedPoint(getIntProperty("CUR_LIFE"), getIntProperty("MAX_LIFE"));
+	FixedPoint half_var = max_var / FixedPoint(2);
+	
+	
 	for(int i=0; i<particlesPerFrame; ++i)
 	{
-		Particle p;
-		p.r = now_r;
-		p.g = now_g;
-		p.b = now_b;
-		p.a = 1.0f;
-		
-		p.scale = 0.5;
-		p.max_life = getIntProperty("PLIFE");
-		p.cur_life = p.max_life;
-		
-		p.pos = position;
-		p.target_pos = position;
 		p.vel = velocity;
-		
-		FixedPoint max_var(intVals["PSP_1000"], 1000);
-		max_var *= FixedPoint(getIntProperty("CUR_LIFE"), getIntProperty("MAX_LIFE"));
-		FixedPoint half_var = max_var / FixedPoint(2);
-		
 		FixedPoint rnd_x = FixedPoint( (semiUniqueNumber * (1 | 16 | 64)) & 127, 127);
 		FixedPoint rnd_y = FixedPoint( (semiUniqueNumber * (2 | 8 | 16))  & 127, 127);
 		FixedPoint rnd_z = FixedPoint( (semiUniqueNumber * (1 | 4 | 32))  & 127, 127);
