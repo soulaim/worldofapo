@@ -186,14 +186,14 @@ void World::doDeathFor(Unit& unit)
 		event.actor_id  = actor_id;
 		
 		int i = currentWorldFrame % killWords.size();
-		msg << killer << killWords[i] << unit.name << afterWords[i];
+		msg << killer << killWords[i] << unit.name << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
 		worldMessages.push_back(msg.str());
 	}
 	else
 	{
 		event.actor_id  = -1; // For a suicide, no points are to be awarded.
 		
-		msg << killer << " has committed suicide!" << endl;
+		msg << killer << " has committed suicide by ^g" << unit("DAMAGED_BY");
 		worldMessages.push_back(msg.str());
 	}
 	
@@ -255,6 +255,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
 		units[unitID].last_damage_dealt_by = unit.id;
+		units[unitID]("DAMAGED_BY") = "devour";
 		
 		// save this information for later use.
 		WorldEvent event;
@@ -388,6 +389,7 @@ void World::tickUnit(Unit& unit, Model* model)
 		if(unit.velocity.y < FixedPoint(-12, 10))
 		{
 			unit.last_damage_dealt_by = unit.id;
+			unit("DAMAGED_BY") = "falling";
 			
 			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
 			int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
@@ -596,12 +598,14 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				
 				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
 				
+				// this should be in making a new ParticleSource
 				int ssred, ssgreen, ssblue; getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
 				int sered, segreen, seblue; getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
 				
 				int esred, esgreen, esblue; getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
 				int eered, eegreen, eeblue; getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
 				
+				// this should usually be in ParticleSource.tick()
 				ps.getIntProperty("SRED")   = esred   + (ssred - esred) * percentage_life;
 				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
 				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue) * percentage_life;
@@ -660,6 +664,10 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				// intentional continue of execution
 			}
 			
+			bool shooterIsMonster = false;
+			if(units.find(projectile["OWNER"]) != units.end())
+				shooterIsMonster = !units[projectile["OWNER"]].human();
+			
 			auto potColl = o->nearObjects(projectile.position);
 			for(auto it = potColl.begin(); it != potColl.end(); ++it)
 			{
@@ -672,37 +680,51 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				if(u->hitpoints <= 0)
 					continue;
 				
-				if(projectile.collides(*u))
+				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+				if(!u->human() && shooterIsMonster)
 				{
-					bool shooterIsMonster = false;
-					if(units.find(projectile["OWNER"]) != units.end())
-						shooterIsMonster = !units[projectile["OWNER"]].human();
-					
-					// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-					if(!u->human() && shooterIsMonster)
+					projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+					continue;
+				}
+				
+				if(projectile["DISTANCE_TEST"])
+				{
+					// distance test
+					Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
+					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
 					{
-						projectile.destroyAfterFrame = true;
+						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
+						u->last_damage_dealt_by = projectile["OWNER"];
+						(*u)("DAMAGED_BY") = projectile("NAME");
+					}
+				}
+				
+				
+				if(projectile["COLLISION_TEST"])
+				{
+					// boolean test, hits or doesnt hit
+					if(projectile.collides(*u))
+					{
+						// save this information for later use.
+						WorldEvent event;
+						event.type = DAMAGE_BULLET;
+						event.t_position = u->position;
+						event.t_position.y += FixedPoint(2);
+						event.t_velocity = u->velocity;
+						
+						event.a_position = projectile.position;
+						event.a_velocity = projectile.velocity * projectile["TPF"];
+						
+						events.push_back(event);
+						
+						u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+						u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
+						u->last_damage_dealt_by = projectile["OWNER"];
+						(*u)("DAMAGED_BY") = projectile("NAME");
+						
+						projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
 						continue;
 					}
-					
-					// save this information for later use.
-					WorldEvent event;
-					event.type = DAMAGE_BULLET;
-					event.t_position = u->position;
-					event.t_position.y += FixedPoint(2);
-					event.t_velocity = u->velocity;
-					
-					event.a_position = projectile.position;
-					event.a_velocity = projectile.velocity * projectile["TPF"];
-					
-					events.push_back(event);
-					
-					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
-					u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
-					u->last_damage_dealt_by = projectile["OWNER"];
-					
-					projectile.destroyAfterFrame = true;
-					continue;
 				}
 			}
 		}

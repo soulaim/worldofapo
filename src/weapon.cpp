@@ -10,7 +10,7 @@ void Weapon::fire()
 		return;
 	}
 	
-	// TODO: this isn't actually a property for the unit :(
+	// TODO: Should be defined in the weapon definition, not constant
 	u.soundInfo = "shoot";
 	
 	
@@ -27,35 +27,26 @@ void Weapon::fire()
 		Projectile& projectile = w.projectiles[id];
 		
 		// set some properties first
-		projectile["EXPLODE_POWER"] = intVals["CHILD_EXPLODE_POWER"];
-		projectile("AT_DEATH") = strVals["CHILD_AT_DEATH"];
 		
-		projectile["MASS"] = intVals["CHILD_MASS"];
-		projectile["TPF"]    = intVals["CHILD_TPF"];
-		projectile["DAMAGE"] = intVals["CHILD_DAMAGE"];
+		for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
+			if(iter->first.substr(0, 5) == "CHILD")
+				projectile[iter->first.substr(6)] = iter->second;
+		
+		for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
+			if(iter->first.substr(0, 5) == "CHILD")
+				projectile(iter->first.substr(6)) = iter->second;
+		
 		projectile["ID"]     = id;
 		projectile["OWNER"]  = u.id;
-		projectile["LIFETIME"] = intVals["CHILD_LIFETIME"];
-		projectile["MAX_LIFETIME"] = intVals["CHILD_LIFETIME"];
-		
-		projectile["AIR_RESISTANCE"] = intVals["CHILD_AIR_RESISTANCE"];
-		projectile["GRAVITY"] = intVals["CHILD_GRAVITY"];
-		
-		projectile["PARTICLES_PER_FRAME"] = intVals["PARTICLES_PER_FRAME"];
-		projectile["PARTICLE_VELOCITY"] = intVals["PARTICLE_VELOCITY"]; // multiple of the projectiles velocity per 1000
-		projectile["PARTICLE_RAND_1000"] = intVals["PARTICLE_RAND_1000"]; // randomness per 1000
-		projectile["PARTICLE_LIFE"] = intVals["PARTICLE_LIFE"];
-		
-		// define particle colors
-		projectile("START_COLOR_START") = strVals["START_COLOR_START"];
-		projectile("END_COLOR_START") = strVals["END_COLOR_START"];
-		projectile("START_COLOR_END") = strVals["START_COLOR_END"];
-		projectile("END_COLOR_END") = strVals["END_COLOR_END"];
+		projectile["MAX_LIFETIME"] = projectile["LIFETIME"];
+		projectile("NAME") = strVals["NAME"];
 		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();
 		projectile.velocity = projectile_direction * FixedPoint(9, 2); // this might also mean that it's impossible to hit a target that is very close, since the bullet spawns on the other side.
 		projectile.tick();
+		
+		assert((projectile["TPF"] != 0) && strVals["NAME"].c_str());
 		
 		FixedPoint speedPerTick(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]);
 		projectile.velocity = projectile_direction * speedPerTick + u.getVelocity() / projectile["TPF"];
