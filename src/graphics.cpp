@@ -131,7 +131,7 @@ void Graphics::init()
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
+	glFrontFace(GL_CCW);
 
 	drawDebuglines = false;
 	drawDebugWireframe = false;
@@ -477,11 +477,11 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
-			points[i].x = tri.points[i].x * multiplier;
-			points[i].z = tri.points[i].z * multiplier;
-			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+			points[2-i].x = tri.points[i].x * multiplier;
+			points[2-i].z = tri.points[i].z * multiplier;
+			points[2-i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 
-			indices.push_back( tri.points[i].x * width + tri.points[i].z  );
+			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
 		}
 		
 		Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
@@ -639,69 +639,45 @@ void Graphics::drawSkybox()
 	double epsilon = 0.001;
 //	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_QUADS); // Front
-	glTexCoord2f(2.0/4-epsilon, 2.0/3-epsilon);
-	glVertex3f(minus,  plus, plus-epsilon);
-	glTexCoord2f(2.0/4-epsilon, 1.0/3+epsilon);
-	glVertex3f(minus, minus, plus-epsilon);
-	glTexCoord2f(1.0/4+epsilon, 1.0/3+epsilon);
-	glVertex3f( plus, minus, plus-epsilon);
-	glTexCoord2f(1.0/4+epsilon, 2.0/3-epsilon);
-	glVertex3f( plus,  plus, plus-epsilon);
+	glTexCoord2f(1.0/4+epsilon, 2.0/3-epsilon); glVertex3f( plus,  plus, plus-epsilon);
+	glTexCoord2f(1.0/4+epsilon, 1.0/3+epsilon); glVertex3f( plus, minus, plus-epsilon);
+	glTexCoord2f(2.0/4-epsilon, 1.0/3+epsilon); glVertex3f(minus, minus, plus-epsilon);
+	glTexCoord2f(2.0/4-epsilon, 2.0/3-epsilon); glVertex3f(minus,  plus, plus-epsilon);
 	glEnd();
 //	glColor3f(0.0f, 1.0f, 0.0f);
 	glBegin(GL_QUADS); // Right
-	glTexCoord2f(3.0/4-epsilon, 2.0/3-epsilon);
-	glVertex3f(minus+epsilon,  plus, minus);
-	glTexCoord2f(3.0/4-epsilon, 1.0/3+epsilon);
-	glVertex3f(minus+epsilon, minus, minus);
-	glTexCoord2f(2.0/4+epsilon, 1.0/3+epsilon);
-	glVertex3f(minus+epsilon, minus, plus);
-	glTexCoord2f(2.0/4+epsilon, 2.0/3-epsilon);
-	glVertex3f(minus+epsilon,  plus, plus);
+	glTexCoord2f(2.0/4+epsilon, 2.0/3-epsilon); glVertex3f(minus+epsilon,  plus, plus);
+	glTexCoord2f(2.0/4+epsilon, 1.0/3+epsilon); glVertex3f(minus+epsilon, minus, plus);
+	glTexCoord2f(3.0/4-epsilon, 1.0/3+epsilon); glVertex3f(minus+epsilon, minus, minus);
+	glTexCoord2f(3.0/4-epsilon, 2.0/3-epsilon); glVertex3f(minus+epsilon,  plus, minus);
 	glEnd();
 //	glColor3f(0.0f, 0.0f, 1.0f);
 	glBegin(GL_QUADS); // Left
-	glTexCoord2f(1.0/4-epsilon, 2.0/3-epsilon);
-	glVertex3f(plus-epsilon,  plus, plus);
-	glTexCoord2f(1.0/4-epsilon, 1.0/3+epsilon);
-	glVertex3f(plus-epsilon, minus, plus);
-	glTexCoord2f(0.0/4+epsilon, 1.0/3+epsilon);
-	glVertex3f(plus-epsilon, minus, minus);
-	glTexCoord2f(0.0/4+epsilon, 2.0/3-epsilon);
-	glVertex3f(plus-epsilon,  plus, minus);
+	glTexCoord2f(0.0/4+epsilon, 2.0/3-epsilon); glVertex3f(plus-epsilon,  plus, minus);
+	glTexCoord2f(0.0/4+epsilon, 1.0/3+epsilon); glVertex3f(plus-epsilon, minus, minus);
+	glTexCoord2f(1.0/4-epsilon, 1.0/3+epsilon); glVertex3f(plus-epsilon, minus, plus);
+	glTexCoord2f(1.0/4-epsilon, 2.0/3-epsilon); glVertex3f(plus-epsilon,  plus, plus);
 	glEnd();
 //	glColor3f(1.0f, 0.0f, 1.0f);
 	glBegin(GL_QUADS); // Top
-	glTexCoord2f(1.0/4+epsilon, 3.0/3-epsilon);
-	glVertex3f( plus, plus-epsilon, minus);
-	glTexCoord2f(2.0/4-epsilon, 3.0/3-epsilon);
-	glVertex3f(minus, plus-epsilon, minus);
-	glTexCoord2f(2.0/4-epsilon, 2.0/3+epsilon);
-	glVertex3f(minus, plus-epsilon, plus);
-	glTexCoord2f(1.0/4+epsilon, 2.0/3+epsilon);
-	glVertex3f( plus, plus-epsilon, plus);
+	glTexCoord2f(1.0/4+epsilon, 2.0/3+epsilon); glVertex3f( plus, plus-epsilon, plus);
+	glTexCoord2f(2.0/4-epsilon, 2.0/3+epsilon); glVertex3f(minus, plus-epsilon, plus);
+	glTexCoord2f(2.0/4-epsilon, 3.0/3-epsilon); glVertex3f(minus, plus-epsilon, minus);
+	glTexCoord2f(1.0/4+epsilon, 3.0/3-epsilon); glVertex3f( plus, plus-epsilon, minus);
 	glEnd();
 //	glColor3f(0.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS); // Bottom
-	glTexCoord2f(2.0/4-epsilon, 1.0/3-epsilon);
-	glVertex3f(minus, minus+epsilon,  plus);
-	glTexCoord2f(2.0/4-epsilon, 0.0/3+epsilon);
-	glVertex3f(minus, minus+epsilon, minus);
-	glTexCoord2f(1.0/4+epsilon, 0.0/3+epsilon);
-	glVertex3f( plus, minus+epsilon, minus);
-	glTexCoord2f(1.0/4+epsilon, 1.0/3-epsilon);
-	glVertex3f( plus, minus+epsilon,  plus);
+	glTexCoord2f(1.0/4+epsilon, 1.0/3-epsilon); glVertex3f( plus, minus+epsilon,  plus);
+	glTexCoord2f(1.0/4+epsilon, 0.0/3+epsilon); glVertex3f( plus, minus+epsilon, minus);
+	glTexCoord2f(2.0/4-epsilon, 0.0/3+epsilon); glVertex3f(minus, minus+epsilon, minus);
+	glTexCoord2f(2.0/4-epsilon, 1.0/3-epsilon); glVertex3f(minus, minus+epsilon,  plus);
 	glEnd();
 //	glColor3f(1.0f, 1.0f, 0.0f);
 	glBegin(GL_QUADS); // Back
-	glTexCoord2f(4.0/4-epsilon, 2.0/3-epsilon);
-	glVertex3f( plus,  plus, minus+epsilon);
-	glTexCoord2f(4.0/4-epsilon, 1.0/3+epsilon);
-	glVertex3f( plus, minus, minus+epsilon);
-	glTexCoord2f(3.0/4+epsilon, 1.0/3+epsilon);
-	glVertex3f(minus, minus, minus+epsilon);
-	glTexCoord2f(3.0/4+epsilon, 2.0/3-epsilon);
-	glVertex3f(minus,  plus, minus+epsilon);
+	glTexCoord2f(3.0/4+epsilon, 2.0/3-epsilon); glVertex3f(minus,  plus, minus+epsilon);
+	glTexCoord2f(3.0/4+epsilon, 1.0/3+epsilon); glVertex3f(minus, minus, minus+epsilon);
+	glTexCoord2f(4.0/4-epsilon, 1.0/3+epsilon); glVertex3f( plus, minus, minus+epsilon);
+	glTexCoord2f(4.0/4-epsilon, 2.0/3-epsilon); glVertex3f( plus,  plus, minus+epsilon);
 	glEnd();
 
 	glPopAttrib();
@@ -770,10 +746,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 		float s = viewParticles[i].scale * 1.5f;
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-s, +s, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+s, +s, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+s, -s, 0.0f);
 		glTexCoord2f(0.f, 0.f); glVertex3f(-s, -s, 0.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+s, -s, 0.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+s, +s, 0.0f);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-s, +s, 0.0f);
 		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
 		

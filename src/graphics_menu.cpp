@@ -33,10 +33,10 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
-		glTexCoord2f(1.f, 1.0f); glVertex3f(1, plus, -1);
-		glTexCoord2f(1.f, 0.0f); glVertex3f(1, minus, -1);
 		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus, -1);
+		glTexCoord2f(1.f, 0.0f); glVertex3f(1, minus, -1);
+		glTexCoord2f(1.f, 1.0f); glVertex3f(1, plus, -1);
+		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
 		glEnd();
 	}
 	
