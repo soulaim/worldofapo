@@ -6,7 +6,7 @@
 
 #include "fixed_point.h"
 #include "location.h"
-#include "frustum/Vec3.h"
+#include "frustum/vec3.h"
 
 class LightSource
 {

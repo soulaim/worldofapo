@@ -6,7 +6,7 @@
 #include <map>
 
 #include "animation.h"
-#include "frustum/Vec3.h"
+#include "frustum/vec3.h"
 #include "model.h"
 
 struct ModelNode

@@ -1,5 +1,6 @@
-#include "Plane.h"
-#include <stdio.h>
+#include "plane.h"
+
+#include <cstdio>
 
 
 Plane::Plane(const Vec3& v1, const Vec3& v2, const Vec3& v3)

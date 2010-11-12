@@ -3,7 +3,7 @@
 
 #include <ostream>
 
-#include "Vec3.h"
+#include "vec3.h"
 
 class Matrix4
 {

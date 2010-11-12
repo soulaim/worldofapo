@@ -1,7 +1,7 @@
 #include "btt.h"
 #include "fixed_point.h"
 #include "location.h"
-#include "frustum/FrustumR.h"
+#include "frustum/frustumr.h"
 
 #include <iostream>
 #include <vector>

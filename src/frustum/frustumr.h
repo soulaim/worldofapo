@@ -1,15 +1,12 @@
-// FrustumG.h: Geometric version of Frustum Culling 
-//
-//////////////////////////////////////////////////////////////////////
+#ifndef FRUSTUMR_H
+#define FRUSTUMR_H
 
+#include "vec3.h"
+#include "plane.h"
 
-#ifndef _FRUSTUMR_
-#define _FRUSTUMR_
+// Geometric version of Frustum Culling
 
-#include "Vec3.h"
-#include "Plane.h"
-
-class FrustumR 
+class FrustumR
 {
 private:
 

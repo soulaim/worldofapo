@@ -3,7 +3,7 @@
 #define _H_PARTICLE_STUFF
 
 #include "location.h"
-#include "frustum/Vec3.h"
+#include "frustum/vec3.h"
 
 class Particle
 {

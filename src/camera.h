@@ -5,7 +5,7 @@
 #include "fixed_point.h"
 #include "apomath.h"
 #include "location.h"
-#include "frustum/Vec3.h"
+#include "frustum/vec3.h"
 #include "level.h"
 #include "unit.h"
 

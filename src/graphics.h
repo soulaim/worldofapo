@@ -15,7 +15,7 @@
 #include "btt.h"
 #include "model.h"
 #include "animation.h"
-#include "frustum/FrustumR.h"
+#include "frustum/frustumr.h"
 #include "camera.h"
 #include "playerinfo.h"
 
