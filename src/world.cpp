@@ -15,10 +15,12 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff) const
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
-unsigned long World::checksum() const {
+unsigned long World::checksum() const
+{
 	unsigned long hash = 5381;
 	
-	for (auto it = units.begin(); it != units.end(); ++it) {
+	for (auto it = units.begin(); it != units.end(); ++it)
+	{
 		int id = it->first;
 		Location pos = it->second.getPosition();
 		hash = ((hash << 5) + hash) + id;
@@ -347,9 +349,9 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	int keyState = 0;
 	int mousex = hypo_angle - unit.angle;
- 	int mousey = 0;
+	int mousey = 0;
 	unit.upangle = hypo_upangle;
-//  	int mousey = -hypo_upangle + unit.upangle;
+//	int mousey = -hypo_upangle + unit.upangle;
 	int mousebutton = 0;
 	
 	keyState |= Unit::MOVE_FRONT;
@@ -661,122 +663,119 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	}
 	
 	
-	
-	
+	bool shooterIsMonster = false;
+	auto owner_unit_iter = units.find(projectile["OWNER"]);
+	if(owner_unit_iter != units.end())
+	{
+		shooterIsMonster = !owner_unit_iter->second.human();
+	}
 	
 	for(int i=0; i<ticks; i++)
 	{
 		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
+		int lifetime = projectile["LIFETIME"];
 		
-		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
-		{
-			if(num_particles > 0)
-			{
-				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
-				
-				// this should usually be in ParticleSource.tick() probably
-				ps.getIntProperty("SRED")   = esred   + (ssred - esred)     * percentage_life;
-				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
-				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue)   * percentage_life;
-				
-				// these values are never used
-				/*
-				ps.getIntProperty("ERED")   = eered   + (sered - eered)     * percentage_life;
-				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
-				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue)   * percentage_life;
-				*/
-				
-				ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
-				ps.position = projectile.position;
-				
-				ps.tick(particles);
-			}
-			
-			projectile.tick();
-			
-			if(projectile.collidesTerrain(lvl))
-			{
-				// if collides with terrain, projectile will die at the end of this turn.
-				// But should still check whether we hit something on the way to the point of collision!
-				projectile.destroyAfterFrame = true;
-				
-				// intentional continue of execution
-			}
-			
-			bool shooterIsMonster = false;
-			if(units.find(projectile["OWNER"]) != units.end())
-				shooterIsMonster = !units[projectile["OWNER"]].human();
-			
-			auto potColl = o->nearObjects(projectile.position);
-			for(auto it = potColl.begin(); it != potColl.end(); ++it)
-			{
-				if ((*it)->type != OctreeObject::UNIT)
-					continue;
-				
-				Unit* u = (Unit*) *it;
-				
-				// if the target unit is already dead, just continue. ALERT: This might cause desync, if potColl is unordered
-				if(u->hitpoints <= 0)
-					continue;
-				
-				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-				if(!u->human() && shooterIsMonster)
-				{
-					//projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
-					continue;
-				}
-				
-				if(projectile["DISTANCE_TEST"])
-				{
-					// distance test
-					Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
-					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
-					{
-						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
-						u->last_damage_dealt_by = projectile["OWNER"];
-						(*u)("DAMAGED_BY") = projectile("NAME");
-					}
-				}
-				
-				
-				if(projectile["COLLISION_TEST"])
-				{
-					// boolean test, hits or doesnt hit
-					if(projectile.collides(*u))
-					{
-						// save this information for later use.
-						WorldEvent event;
-						event.type = DAMAGE_BULLET;
-						event.t_position = u->position;
-						event.t_position.y += FixedPoint(2);
-						event.t_velocity = u->velocity;
-						
-						event.a_position = projectile.position;
-						event.a_velocity = projectile.velocity * projectile["TPF"];
-						
-						events.push_back(event);
-						
-						u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
-						u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
-						u->last_damage_dealt_by = projectile["OWNER"];
-						(*u)("DAMAGED_BY") = projectile("NAME");
-						
-						projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
-						continue;
-					}
-				}
-			}
-		}
-		else
+		if(lifetime <= 0 || projectile.destroyAfterFrame)
 		{
 			projectile.destroyAfterFrame = true;
 			break;
+		}
+
+		if(num_particles > 0)
+		{
+			float percentage_life = float(lifetime) / projectile["MAX_LIFETIME"];
+			
+			// this should usually be in ParticleSource.tick() probably
+			ps.getIntProperty("SRED")   = esred   + (ssred - esred)     * percentage_life;
+			ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
+			ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue)   * percentage_life;
+			
+			// these values are never used
+			/*
+			ps.getIntProperty("ERED")   = eered   + (sered - eered)     * percentage_life;
+			ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
+			ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue)   * percentage_life;
+			*/
+			
+			ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
+			ps.position = projectile.position;
+			
+			ps.tick(particles);
+		}
+		
+		projectile.tick();
+		
+		if(projectile.collidesTerrain(lvl))
+		{
+			// if collides with terrain, projectile will die at the end of this turn.
+			// But should still check whether we hit something on the way to the point of collision!
+			projectile.destroyAfterFrame = true;
+			
+			// intentional continue of execution
+		}
+		
+		auto& potColl = o->nearObjects(projectile.position);
+		for(auto it = potColl.begin(); it != potColl.end(); ++it)
+		{
+			if ((*it)->type != OctreeObject::UNIT)
+				continue;
+			
+			Unit* u = static_cast<Unit*>(*it);
+			
+			// if the target unit is already dead, just continue. ALERT: This might cause desync, if potColl is unordered
+			if(u->hitpoints <= 0)
+				continue;
+			
+			// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+			if(!u->human() && shooterIsMonster)
+			{
+				//projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+				continue;
+			}
+			
+			if(projectile["DISTANCE_TEST"])
+			{
+				// distance test
+				Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
+				if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
+				{
+					u->hitpoints -= projectile["DISTANCE_DAMAGE"];
+					u->last_damage_dealt_by = projectile["OWNER"];
+					(*u)("DAMAGED_BY") = projectile("NAME");
+				}
+			}
+			
+			// boolean test, hits or doesnt hit
+			if(projectile["COLLISION_TEST"] && projectile.collides(*u))
+			{
+				// save this information for later use.
+				WorldEvent event;
+				event.type = DAMAGE_BULLET;
+				event.t_position = u->position;
+				event.t_position.y += FixedPoint(2);
+				event.t_velocity = u->velocity;
+				
+				event.a_position = projectile.position;
+				event.a_velocity = projectile.velocity * projectile["TPF"];
+				
+				events.push_back(event);
+				
+				u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
+				u->last_damage_dealt_by = projectile["OWNER"];
+				(*u)("DAMAGED_BY") = projectile("NAME");
+				
+				projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+				continue;
+			}
 		}
 	}
 	
 	// as a post frame update, update values of the projectile
 	if(projectile["AIR_RESISTANCE"])
+	{
 		projectile.velocity *= FixedPoint(projectile["AIR_RESISTANCE"], 1000);
+	}
 	projectile.velocity.y += FixedPoint(projectile["GRAVITY"], 1000);
 }
 

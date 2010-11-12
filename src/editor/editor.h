@@ -91,6 +91,8 @@ class Editor
 
 	bool drawing_model;
 	bool drawing_skeleton;
+
+	bool do_tick();
 public:
 	Editor();
 	~Editor();

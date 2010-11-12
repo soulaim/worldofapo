@@ -217,74 +217,62 @@ int Obj3DS::Load(const char* fName)
 		switch(Info.ID)
 		{
 			case 0x0002: // Version
-				{
-					memcpy(&Value, &data[Offset+6], 4);
-// 					printf("Chunk 0002 (Version) - %d\nOffset %d\n",Value,Info.Size);
-					Offset += Info.Size;
-					break;
-				}
-
+			{
+				memcpy(&Value, &data[Offset+6], 4);
+//					printf("Chunk 0002 (Version) - %d\nOffset %d\n",Value,Info.Size);
+				Offset += Info.Size;
+				break;
+			}
 			case 0x0011: // RGB1
+			{
+//				printf("Chunk 0011 (RGB1) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
+				if(CopyVal)
 				{
-// 					printf("Chunk 0011 (RGB1) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
-
-					if(CopyVal)
-					{
-						Matl[MatDex].Red = data[Offset+6];
-						Matl[MatDex].Green = data[Offset+7];
-						Matl[MatDex].Blue = data[Offset+8];
-						CopyVal = false;
-					}
-
-
-					Offset += Info.Size;
-					break;
+					Matl[MatDex].Red = data[Offset+6];
+					Matl[MatDex].Green = data[Offset+7];
+					Matl[MatDex].Blue = data[Offset+8];
+					CopyVal = false;
 				}
-
+				Offset += Info.Size;
+				break;
+			}
 			case 0x0012: // RGB2
-				{
-// 					printf("Chunk 0012 (RGB2) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
-					Offset += Info.Size;
-					break;
-				}
-
+			{
+//					printf("Chunk 0012 (RGB2) %d %d %d\nOffset %d\n",data[Offset+6],data[Offset+7],data[Offset+8],Info.Size);
+				Offset += Info.Size;
+				break;
+			}
 			case 0x0010:
 				Get3fVector(Offset+6,fVal,fVal2,fVal3);
-// 				printf("Chunk 0010 (RGB) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
+//				printf("Chunk 0010 (RGB) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
 				Offset += Info.Size;
 				break;
-
 			case 0x0013:
 				Get3fVector(Offset+6,fVal,fVal2,fVal3);
-// 				printf("Chunk 0013 (gamma corrected) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
+//				printf("Chunk 0013 (gamma corrected) %f %f %f\nOffset %d\n",fVal,fVal2,fVal3,Info.Size);
 				Offset += Info.Size;
 				break;
-
 			case 0x0030: // Quantity value for parent chunks
-				{
-					memcpy(&Val,&data[Offset+6],2);
-// 					printf("Chunk 0030 (Qty Value) %d\nOffset %d\n",Val,Info.Size);
-					Offset += Info.Size;
-					break;
-				}
-
+			{
+				memcpy(&Val,&data[Offset+6],2);
+//					printf("Chunk 0030 (Qty Value) %d\nOffset %d\n",Val,Info.Size);
+				Offset += Info.Size;
+				break;
+			}
 			case 0x0100: // Config (Ignore)
 				printf("Chunk 0100 (Config) %f\nOffset %d\n",*(double*)&data[Offset+6], Info.Size);
 				Offset += Info.Size;
 				break;
-
 			case 0x1400: //Shadow map bias
 				memcpy(&fVal,&data[Offset+6],4);
 				printf("Chunk 1400 (shadow map bias) %f\nOffset %d\n",fVal,Info.Size);
 				Offset += Info.Size;
 				break;
-
 			case 0x1420:// shadow map size
 				memcpy(&Val,&data[Offset+6],2);
 				printf("Chunk 1420 (shadow map size) %d\nOffset %d\n",Val,Info.Size);
 				Offset += Info.Size;
 				break;
-
 			case 0x1450: //shadow map sample range
 				memcpy(&fVal,&data[Offset+6],4);
 				printf("Chunk 1450 (shadow map sample range) %f\nOffset %d\n",fVal,Info.Size);
@@ -308,12 +296,12 @@ int Obj3DS::Load(const char* fName)
 				break;
 
 			case 0x3D3D: // Start of Obj
-				{
-					printf("Chunk 3D3D (Start of Obj)\nOffset %d\n",Info.Size);
-					SubChunkSize = Info.Size + Offset; // Set end limit for subchunk
-					Offset += 6;
-					break;
-				}
+			{
+				printf("Chunk 3D3D (Start of Obj)\nOffset %d\n",Info.Size);
+				SubChunkSize = Info.Size + Offset; // Set end limit for subchunk
+				Offset += 6;
+				break;
+			}
 
 			case 0x3D3E: // Editor config (Ignore)
 				printf("Chunk 3D3E (Editor Config)\nOffset %d\n",Info.Size);
@@ -337,19 +325,19 @@ int Obj3DS::Load(const char* fName)
 
 			case 0x4110: // Vertex List
 				memcpy(&Val,&data[Offset+6],2);
-// 				printf("Chunk 4110 (Vertex List) %d Vertices\nOffset %d\n",Val,Info.Size);
+//				printf("Chunk 4110 (Vertex List) %d Vertices\nOffset %d\n",Val,Info.Size);
 				Mesh[MeshDex].nVtx = Val;
 				Mesh[MeshDex].vtx = new Vertex[Val+1];
 				for(Loop = 0, LOff = Offset+8; Loop != Val; ++Loop, LOff+=12)
 				{
 					Get3fVector(LOff,Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
-// 					printf("X: %f, Y: %f, Z: %f\n",Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
+//					printf("X: %f, Y: %f, Z: %f\n",Mesh[MeshDex].vtx[Loop].x,Mesh[MeshDex].vtx[Loop].y,Mesh[MeshDex].vtx[Loop].z);
 				}
 				Offset += Info.Size;
 				break;
 
 			case 0x4111: // Vertex Options
-// 				printf("Chunk 4111 (Vertex Options)\nOffset %d\n",Info.Size);
+//				printf("Chunk 4111 (Vertex Options)\nOffset %d\n",Info.Size);
 				Offset += Info.Size;
 				break;
 
@@ -363,12 +351,9 @@ int Obj3DS::Load(const char* fName)
 					Get3Vector(LOff, Mesh[MeshDex].face[Loop].p1, Mesh[MeshDex].face[Loop].p2, Mesh[MeshDex].face[Loop].p3);
 					memcpy(&Val2, &data[LOff+6], 2);
 					printf("X: %d, Y: %d, Z: %d (", Mesh[MeshDex].face[Loop].p1, Mesh[MeshDex].face[Loop].p2, Mesh[MeshDex].face[Loop].p3);
-					if(Val2 & 0x01)
-						printf("AC ");
-					if(Val2 & 0x02)
-						printf("BC ");
-					if(Val2 & 0x04)
-						printf("AB ");
+					if(Val2 & 0x01) printf("AC ");
+					if(Val2 & 0x02) printf("BC ");
+					if(Val2 & 0x04) printf("AB ");
 					printf("visible)\n");
 				}
 				Offset += Info.Size;
@@ -556,10 +541,10 @@ int Obj3DS::CountParts(int DataLen)
 		switch(Info.ID)
 		{
 			case 0x3D3D: // Start of Obj
-				{
-					Offset += 6;
-					break;
-				}
+			{
+				Offset += 6;
+				break;
+			}
 
 			case 0x4000: // Start of Mesh
 				nMesh++;

@@ -45,8 +45,9 @@ void Octree::split() {
 					bot_z = center.z;
 					top_z = top.z;
 				}
-				children[x][y][z].reset(new Octree(Location(bot_x, bot_y, bot_z),
-							Location(top_x, top_y, top_z), depth + 1));
+				Location bot(bot_x, bot_y, bot_z);
+				Location top(top_x, top_y, top_z);
+				children[x][y][z].reset(new Octree(bot, top, depth + 1));
 			}
 		}
 	}

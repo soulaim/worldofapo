@@ -82,6 +82,98 @@ Editor::~Editor()
 	release_swarm();
 }
 
+bool Editor::do_tick()
+{
+	if(!handle_input())
+	{
+		return false;
+	}
+
+	string message;
+
+	if(editing_single_part)
+	{
+		LINES.resize(3);
+		// TODO: print dx,dy,dz
+		stringstream ss;
+		ss << current_dot;
+		message = "Editing '" + edited_type_name + "': " + ss.str();
+
+		for(size_t i = 0; i < new_dots.size(); ++i)
+		{
+			// Line i -> current.
+			LINES.push_back(make_pair(new_dots[i],current_dot));
+			for(size_t j = 0; j < i; ++j)
+			{
+				// Line j -> i.
+				LINES.push_back(make_pair(new_dots[j], new_dots[i]));
+			}
+		}
+
+		DOTS.clear();
+		DOTS.push_back(current_dot);
+	}
+	else
+	{
+		stringstream ss;
+		if(skele)
+		{
+			if(skeletal_model.bones.size() > selected_part)
+			{
+				const Bone& bone = skeletal_model.bones[selected_part];
+				ss << "'" << bone.name << "' at ("
+					<< fixed << setprecision(2) << bone.start_x << ", " << bone.start_y << ", " << bone.start_z << "), ["
+					<< fixed << setprecision(2) << bone.rotation_x << ", " << bone.rotation_y << ", " << bone.rotation_z << "]";
+			}
+		}
+		else
+		{
+			if(edited_model.parts.size() > selected_part)
+			{
+				const ModelNode& node = edited_model.parts[selected_part];
+				ss << "'" << node.name << "' is " << node.wireframe << " at ("
+					<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
+					<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
+			}
+		}
+
+		message = ss.str();
+	}
+
+	view.startDrawing();
+	view.drawSkybox();
+	if(skele)
+	{
+		if(drawing_skeleton)
+		{
+			skeletal_model.draw(true, selected_part);
+		}
+		if(drawing_model)
+		{
+//			skeletal_model.draw(false, selected_part);
+			models[0] = &skeletal_model;
+		}
+	}
+	else
+	{
+		if(drawing_model)
+		{
+//			edited_model.draw();
+			models[0] = &edited_model;
+		}
+	}
+	view.drawModels(models);
+
+	view.drawDebugLines();
+	hud.drawFPS();
+	hud.drawMessages();
+	hud.drawString(message, -0.9, 0.9, 1.5, true);
+	view.finishDrawing();
+
+	models.erase(0);
+	return true;
+}
+
 bool Editor::tick()
 {
 	int ticks = SDL_GetTicks();
@@ -95,10 +187,6 @@ bool Editor::tick()
 		++world_ticks;
 		last_tick = ticks;
 
-		if(!handle_input())
-		{
-			return false;
-		}
 		hud.setTime( ticks );
 		view.tick();
 		edited_model.tick(world_ticks);
@@ -108,95 +196,13 @@ bool Editor::tick()
 			it->second->tick(it->second->animation_time + 1);
 		}
 
-		string message;
-
-		if(editing_single_part)
-		{
-			LINES.resize(3);
-			// TODO: print dx,dy,dz
-			stringstream ss;
-			ss << current_dot;
-			message = "Editing '" + edited_type_name + "': " + ss.str();
-
-			for(size_t i = 0; i < new_dots.size(); ++i)
-			{
-				// Line i -> current.
-				LINES.push_back(make_pair(new_dots[i],current_dot));
-				for(size_t j = 0; j < i; ++j)
-				{
-					// Line j -> i.
-					LINES.push_back(make_pair(new_dots[j], new_dots[i]));
-				}
-			}
-
-			DOTS.clear();
-			DOTS.push_back(current_dot);
-		}
-		else
-		{
-			stringstream ss;
-			if(skele)
-			{
-				if(skeletal_model.bones.size() > selected_part)
-				{
-					const Bone& bone = skeletal_model.bones[selected_part];
-					ss << "'" << bone.name << "' at ("
-						<< fixed << setprecision(2) << bone.start_x << ", " << bone.start_y << ", " << bone.start_z << "), ["
-						<< fixed << setprecision(2) << bone.rotation_x << ", " << bone.rotation_y << ", " << bone.rotation_z << "]";
-				}
-			}
-			else
-			{
-				if(edited_model.parts.size() > selected_part)
-				{
-					const ModelNode& node = edited_model.parts[selected_part];
-					ss << "'" << node.name << "' is " << node.wireframe << " at ("
-						<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
-						<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
-				}
-			}
-
-			message = ss.str();
-		}
-
-		view.startDrawing();
-		view.drawSkybox();
-		if(skele)
-		{
-			if(drawing_skeleton)
-			{
-				skeletal_model.draw(true, selected_part);
-			}
-			if(drawing_model)
-			{
-//				skeletal_model.draw(false, selected_part);
-				models[0] = &skeletal_model;
-			}
-		}
-		else
-		{
-			if(drawing_model)
-			{
-//				edited_model.draw();
-				models[0] = &edited_model;
-			}
-		}
-		view.drawModels(models);
-
-		view.drawDebugLines();
-		hud.drawFPS();
-		hud.drawMessages();
-		hud.drawString(message, -0.9, 0.9, 1.5, true);
-		view.finishDrawing();
-
-		models.erase(0);
+		return do_tick();
 	}
 	else
 	{
 		SDL_Delay(time_between_ticks - time_since_last);
+		return true;
 	}
-	
-	return true;
 }
 
 bool Editor::type_exists(const std::string& type)

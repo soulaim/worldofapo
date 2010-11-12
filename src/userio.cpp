@@ -147,39 +147,33 @@ string UserIO::getSingleKey()
 		{
 			keyStates[i]--;
 			
-			if( ( isPressed(SDLK_LSHIFT) | isPressed(SDLK_RSHIFT) ) && (keyNames[i].size() == 1) )
+			bool shift_pressed = isPressed(SDLK_LSHIFT) || isPressed(SDLK_RSHIFT);
+			bool special_key = keyNames[i].size() != 1;
+			if(!shift_pressed || special_key )
 			{
-				string key = keyNames[i];
-				if(key[0] >= 'a' && key[0] <= 'z')
-				{
-					key[0] -= 32;
-				}
-				
-				if(key[0] == '+')
-					key[0] = '?';
-				if(key[0] == '-')
-					key[0] = '_';
-				if(key[0] == '8')
-					key[0] = '(';
-				if(key[0] == '9')
-					key[0] = ')';
-				if(key[0] == '7')
-					key[0] = '/';
-				if(key[0] == '6')
-					key[0] = '&';
-				if(key[0] == '5')
-					key[0] = '%';
-				if(key[0] == '1')
-					key[0] = '!';
-				if(key[0] == '0')
-					key[0] = '=';
-				if(key[0] == '2')
-					key[0] = '"';
-				
-				return key;
+				return keyNames[i];
+			}
+
+			string key = keyNames[i];
+			if(key[0] >= 'a' && key[0] <= 'z')
+			{
+				key[0] -= 32;
 			}
 			
-			return keyNames[i];
+			if(key[0] == '+') key[0] = '?';
+			if(key[0] == '-') key[0] = '_';
+			if(key[0] == '9') key[0] = ')';
+			if(key[0] == '8') key[0] = '(';
+			if(key[0] == '7') key[0] = '/';
+			if(key[0] == '6') key[0] = '&';
+			if(key[0] == '5') key[0] = '%';
+//			if(key[0] == '4') key[0] = '¤';
+			if(key[0] == '3') key[0] = '#';
+			if(key[0] == '2') key[0] = '"';
+			if(key[0] == '1') key[0] = '!';
+			if(key[0] == '0') key[0] = '=';
+			
+			return key;
 		}
 	}
 	return emptyString;
