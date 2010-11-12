@@ -7,7 +7,14 @@ using namespace std;
 
 bool Projectile::collides(const Unit& unit)
 {
-	return Collision::lineBox(unit.bb_bot(), unit.bb_top(), position, prev_position);
+	if(intVals["COLLISION_DETECTION_RADIUS"] == 0)
+	{
+		return Collision::lineBox(unit.bb_bot(), unit.bb_top(), position, prev_position);
+	}
+	else
+	{
+		return Collision::lineBoxRadius(unit.bb_bot(), unit.bb_top(), position, prev_position, FixedPoint(intVals["COLLISION_DETECTION_RADIUS"], 1000));
+	}
 }
 
 bool Projectile::collidesTerrain(Level& lvl) const

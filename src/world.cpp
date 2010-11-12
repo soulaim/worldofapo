@@ -186,14 +186,14 @@ void World::doDeathFor(Unit& unit)
 		event.actor_id  = actor_id;
 		
 		int i = currentWorldFrame % killWords.size();
-		msg << killer << killWords[i] << unit.name << afterWords[i];
+		msg << killer << killWords[i] << unit.name << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
 		worldMessages.push_back(msg.str());
 	}
 	else
 	{
 		event.actor_id  = -1; // For a suicide, no points are to be awarded.
 		
-		msg << killer << " has committed suicide!" << endl;
+		msg << killer << " has committed suicide by ^g" << unit("DAMAGED_BY");
 		worldMessages.push_back(msg.str());
 	}
 	
@@ -255,6 +255,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 		// DEVOUR!
 		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
 		units[unitID].last_damage_dealt_by = unit.id;
+		units[unitID]("DAMAGED_BY") = "devour";
 		
 		// save this information for later use.
 		WorldEvent event;
@@ -266,7 +267,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = units[unitID].position - unit.position;
+	Location direction = unit.position - units[unitID].position;
 	
 	if(direction.length() == 0)
 	{
@@ -280,30 +281,88 @@ void World::generateInput_RabidAlien(Unit& unit)
 	direction.normalize();
 	
 	Location myDirection;
-	myDirection.z = apomath.getSin(unit.angle);
-	myDirection.x = apomath.getCos(unit.angle);
 	
-	FixedPoint error = (myDirection.x - direction.x) * (myDirection.x - direction.x) + (myDirection.z - direction.z) * (myDirection.z - direction.z);
+	int hypo_angle = unit.angle;
+	int hypo_upangle = unit.upangle;
+	bool improved = true;
+	FixedPoint best_error = FixedPoint(100000);
+	
+	while(improved)
+	{
+		improved = false;
+		hypo_angle += 2;
+		myDirection.z = apomath.getSin(hypo_angle);
+		myDirection.x = apomath.getCos(hypo_angle);
+		
+		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_angle -= 4;
+			myDirection.z = apomath.getSin(hypo_angle);
+			myDirection.x = apomath.getCos(hypo_angle);
+			
+			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_angle += 2;
+		}
+	}
+	
+	best_error = FixedPoint(100000);
+	improved = true;
+	while(improved)
+	{
+		improved = false;
+		hypo_upangle += 2;
+		myDirection.y = apomath.getSin(hypo_upangle);
+		FixedPoint error = (myDirection.y * 100 - direction.y * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_upangle -= 4;
+			myDirection.y = apomath.getSin(hypo_upangle);
+			error = (myDirection.y * 100 - direction.y * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_upangle += 2;
+		}
+	}
 	
 	int keyState = 0;
-	int mousex = 0;
-	int mousey = 0;
+	int mousex = hypo_angle - unit.angle;
+ 	int mousey = 0;
+	unit.upangle = hypo_upangle;
+//  	int mousey = -hypo_upangle + unit.upangle;
 	int mousebutton = 0;
 	
-	error *= FixedPoint(250);
-	mousex = error.getInteger();
 	keyState |= Unit::MOVE_FRONT;
-	
-	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
+// 	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
 	
 	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
 	{
 		keyState |= Unit::JUMP;
 	}
 	
-	if( ((currentWorldFrame + unit.birthTime) % 140) > 100 )
+	if( ((currentWorldFrame + unit.birthTime) % 140) > 50 )
 	{
-		mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
+		// mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
 		mousebutton = 1;
 	}
 	
@@ -319,6 +378,9 @@ World::World()
 void World::init()
 {
 	cerr << "world init" << endl;
+	
+	particles.reserve(40000);
+	
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
@@ -388,6 +450,7 @@ void World::tickUnit(Unit& unit, Model* model)
 		if(unit.velocity.y < FixedPoint(-12, 10))
 		{
 			unit.last_damage_dealt_by = unit.id;
+			unit("DAMAGED_BY") = "falling";
 			
 			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
 			int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
@@ -570,8 +633,36 @@ void World::tickUnit(Unit& unit, Model* model)
 void World::tickProjectile(Projectile& projectile, Model* model)
 {
 	int ticks = projectile["TPF"];
-	if(ticks < 1)
-		ticks = 1;
+	
+	assert(ticks > 0);
+	
+	int num_particles = projectile["PARTICLES_PER_FRAME"];
+	
+	static ParticleSource ps;
+	// static int sered, segreen, seblue;
+	// static int eered, eegreen, eeblue;
+	static int esred, esgreen, esblue;
+	static int ssred, ssgreen, ssblue;
+	
+	if(num_particles > 0)
+	{
+		ps.getIntProperty("MAX_LIFE") = 10;
+		ps.getIntProperty("CUR_LIFE") = 10;
+		ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
+		ps.getIntProperty("PPF") = num_particles;
+		ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+		
+		// this should be in making a new ParticleSource
+		getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
+		// getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
+		
+		getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
+		// getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
+	}
+	
+	
+	
+	
 	
 	for(int i=0; i<ticks; i++)
 	{
@@ -579,74 +670,26 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		
 		if(projectile["LIFETIME"] > 0 && !projectile.destroyAfterFrame)
 		{
-			int num_particles = projectile["PARTICLES_PER_FRAME"];
 			if(num_particles > 0)
 			{
-				// create a temporary particle source and tick it once. then let it go.
+				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
 				
-				ParticleSource ps;
-				ps.getIntProperty("MAX_LIFE") = 10;
-				ps.getIntProperty("CUR_LIFE") = 10;
-				ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
-				ps.getIntProperty("PPF") = num_particles;
-				ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+				// this should usually be in ParticleSource.tick() probably
+				ps.getIntProperty("SRED")   = esred   + (ssred - esred)     * percentage_life;
+				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
+				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue)   * percentage_life;
+				
+				// these values are never used
+				/*
+				ps.getIntProperty("ERED")   = eered   + (sered - eered)     * percentage_life;
+				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
+				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue)   * percentage_life;
+				*/
 				
 				ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
 				ps.position = projectile.position;
 				
-				float percentage_life = float(projectile["LIFETIME"]) / projectile["MAX_LIFETIME"];
-				
-				int ssred, ssgreen, ssblue; getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
-				int sered, segreen, seblue; getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
-				
-				int esred, esgreen, esblue; getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
-				int eered, eegreen, eeblue; getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
-				
-				ps.getIntProperty("SRED")   = esred   + (ssred - esred) * percentage_life;
-				ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
-				ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue) * percentage_life;
-				
-				ps.getIntProperty("ERED")   = eered   + (sered - eered) * percentage_life;
-				ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
-				ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue) * percentage_life;
-				
 				ps.tick(particles);
-				
-				/*
-				// define particle colors
-				projectile("START_COLOR_START") = strVals["START_COLOR_START"];
-				projectile("END_COLOR_START") = strVals["END_COLOR_START"];
-				projectile("START_COLOR_END") = strVals["START_COLOR_END"];
-				projectile("END_COLOR_END") = strVals["END_COLOR_END"];
-				*/
-				
-				
-				/*
-				
-				pe.getIntProperty("PPF") = particlesPerFrame;
-				pe.getIntProperty("CUR_LIFE") = life;
-				pe.getIntProperty("MAX_LIFE") = life;
-				pe.getIntProperty("PLIFE")    = particleLife;
-				
-				pe.getIntProperty("SRED")     = r;
-				pe.getIntProperty("ERED")     = r / 2;
-				
-				pe.getIntProperty("SGREEN")   = g;
-				pe.getIntProperty("EGREEN")   = g / 2;
-				
-				pe.getIntProperty("SBLUE")    = b;
-				pe.getIntProperty("EBLUE")    = b / 2;
-				
-				pe.getIntProperty("MAX_RAND") = max_rand;
-				pe.getIntProperty("SCALE") = scale;
-				
-				pe.getIntProperty("PSP_1000") = scatteringCone;
-				
-				*/
-				
-				
-				
-				
 			}
 			
 			projectile.tick();
@@ -660,6 +703,10 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				// intentional continue of execution
 			}
 			
+			bool shooterIsMonster = false;
+			if(units.find(projectile["OWNER"]) != units.end())
+				shooterIsMonster = !units[projectile["OWNER"]].human();
+			
 			auto potColl = o->nearObjects(projectile.position);
 			for(auto it = potColl.begin(); it != potColl.end(); ++it)
 			{
@@ -672,37 +719,51 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				if(u->hitpoints <= 0)
 					continue;
 				
-				if(projectile.collides(*u))
+				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
+				if(!u->human() && shooterIsMonster)
 				{
-					bool shooterIsMonster = false;
-					if(units.find(projectile["OWNER"]) != units.end())
-						shooterIsMonster = !units[projectile["OWNER"]].human();
-					
-					// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-					if(!u->human() && shooterIsMonster)
+					//projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+					continue;
+				}
+				
+				if(projectile["DISTANCE_TEST"])
+				{
+					// distance test
+					Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
+					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
 					{
-						projectile.destroyAfterFrame = true;
+						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
+						u->last_damage_dealt_by = projectile["OWNER"];
+						(*u)("DAMAGED_BY") = projectile("NAME");
+					}
+				}
+				
+				
+				if(projectile["COLLISION_TEST"])
+				{
+					// boolean test, hits or doesnt hit
+					if(projectile.collides(*u))
+					{
+						// save this information for later use.
+						WorldEvent event;
+						event.type = DAMAGE_BULLET;
+						event.t_position = u->position;
+						event.t_position.y += FixedPoint(2);
+						event.t_velocity = u->velocity;
+						
+						event.a_position = projectile.position;
+						event.a_velocity = projectile.velocity * projectile["TPF"];
+						
+						events.push_back(event);
+						
+						u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+						u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
+						u->last_damage_dealt_by = projectile["OWNER"];
+						(*u)("DAMAGED_BY") = projectile("NAME");
+						
+						projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
 						continue;
 					}
-					
-					// save this information for later use.
-					WorldEvent event;
-					event.type = DAMAGE_BULLET;
-					event.t_position = u->position;
-					event.t_position.y += FixedPoint(2);
-					event.t_velocity = u->velocity;
-					
-					event.a_position = projectile.position;
-					event.a_velocity = projectile.velocity * projectile["TPF"];
-					
-					events.push_back(event);
-					
-					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
-					u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
-					u->last_damage_dealt_by = projectile["OWNER"];
-					
-					projectile.destroyAfterFrame = true;
-					continue;
 				}
 			}
 		}
@@ -729,11 +790,7 @@ void World::updateModel(Model* model, Unit& unit)
 	}
 	else */
 	
-	if(model == 0)
-	{
-		cerr << "Model doesnt exist ffs" << endl;
-		return;
-	}
+	assert(model != 0);
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT))
 	{

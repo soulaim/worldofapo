@@ -134,6 +134,11 @@ class FixedPoint
 		return FixedPoint(*this) /= a;
 	}
 	
+	FixedPoint squared() const
+	{
+		return (*this) * (*this);
+	}
+	
 	FixedPoint squareRoot() const
 	{
 		if(number < 2)

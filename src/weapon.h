@@ -18,6 +18,8 @@ class Weapon : public Item, public HasProperties
 {
 	World& w;
 	Unit& u;
+	
+	Projectile proto_projectile;
 public:
 	
 	// ALERT: THIS IS HERE ONLY TO KEEP MEDIKIT OPERATIONAL..
@@ -36,8 +38,11 @@ public:
 		
 		if(intVals["CHILD_TPF"] == 0)
 			intVals["CHILD_TPF"] = 1;
+		
+		generatePrototypeProjectile();
 	}
 	
+	void generatePrototypeProjectile();
 	void fire();
 	
 	void tick()
