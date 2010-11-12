@@ -20,9 +20,9 @@ class TextureHandler
 		int bindTexture(size_t texture_unit, const std::string&);
 		unsigned getTextureID(const std::string&);
 		
-		void deleteTexture(const std::string&);
+		void deleteTexture(const std::string& name);
 		void deleteAllTextures();
-		bool textureExists(const std::string&);
+		bool textureExists(const std::string& name);
 
 	private:
 		TextureHandler(const TextureHandler&); // Disabled.

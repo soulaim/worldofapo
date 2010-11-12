@@ -142,7 +142,7 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 }
 
 
-void TextureHandler::deleteTexture(const string& name)
+void TextureHandler::deleteTexture(const std::string& name)
 {
 	if(textureExists(name))
 	{
@@ -156,7 +156,7 @@ void TextureHandler::deleteTexture(const string& name)
 
 
 
-int TextureHandler::bindTexture(size_t texture_unit, const string& name)
+int TextureHandler::bindTexture(size_t texture_unit, const std::string& name)
 {
 	assert(texture_unit < current_textures.size());
 	if(textureExists(name))
@@ -179,7 +179,7 @@ void TextureHandler::deleteAllTextures()
 }
 
 
-bool TextureHandler::textureExists(const string& name)
+bool TextureHandler::textureExists(const std::string& name)
 {
 	if(textures.find(name) == textures.end())
 		return false;

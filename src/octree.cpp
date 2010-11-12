@@ -108,7 +108,7 @@ void Octree::potUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*>
 	l.erase(std::unique(l.begin(), l.end()), l.end());
 }
 
-void Octree::getUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*> >& l) const {
+void Octree::getUnitUnitColl(std::vector<std::pair<OctreeObject*, OctreeObject*>>& l) const {
 	for(auto o_it = objects.begin(); o_it != objects.end(); ++o_it)
 	{
 		auto o2_it = o_it;

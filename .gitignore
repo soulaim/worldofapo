@@ -24,6 +24,8 @@ bin/profile-editor
 # Misc files:
 gmon.out
 .sconsign.dblite
+html
 
 # World of Apo's character codes for accessing profiles on the server
 myKeys
+
