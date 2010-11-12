@@ -3,6 +3,25 @@
 #include "world.h"
 #include "weapon.h"
 
+
+void Weapon::generatePrototypeProjectile()
+{
+	// set some properties first
+	for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
+		if(iter->first.substr(0, 5) == "CHILD")
+			proto_projectile[iter->first.substr(6)] = iter->second;
+	
+	for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
+		if(iter->first.substr(0, 5) == "CHILD")
+			proto_projectile(iter->first.substr(6)) = iter->second;
+	
+	proto_projectile["MAX_LIFETIME"] = proto_projectile["LIFETIME"];
+	proto_projectile("NAME") = strVals["NAME"];
+	
+	proto_projectile["ID"] = 0;
+	proto_projectile["OWNER"] = 0;
+}
+
 void Weapon::fire()
 {
 	if(intVals["CD_LEFT"] > 0)
@@ -26,23 +45,11 @@ void Weapon::fire()
 		w.addProjectile(weapon_position, id);
 		Projectile& projectile = w.projectiles[id];
 		
+		projectile.intVals = proto_projectile.intVals;
+		projectile.strVals = proto_projectile.strVals;
+		
 		projectile["ID"]     = id;
 		projectile["OWNER"]  = u.id;
-		
-		
-		
-		// set some properties first
-		
-		for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
-			if(iter->first.substr(0, 5) == "CHILD")
-				projectile[iter->first.substr(6)] = iter->second;
-		
-		for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
-			if(iter->first.substr(0, 5) == "CHILD")
-				projectile(iter->first.substr(6)) = iter->second;
-		
-		projectile["MAX_LIFETIME"] = projectile["LIFETIME"];
-		projectile("NAME") = strVals["NAME"];
 		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();

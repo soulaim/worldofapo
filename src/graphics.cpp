@@ -737,6 +737,9 @@ void Graphics::drawModels(map<int, Model*>& models)
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
+// 	glColor4f(1.0, 1.0, 1.0, 1.0);
+// 	return;
+	
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	

@@ -267,7 +267,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = units[unitID].position - unit.position;
+	Location direction = unit.position - units[unitID].position;
 	
 	if(direction.length() == 0)
 	{
@@ -281,30 +281,88 @@ void World::generateInput_RabidAlien(Unit& unit)
 	direction.normalize();
 	
 	Location myDirection;
-	myDirection.z = apomath.getSin(unit.angle);
-	myDirection.x = apomath.getCos(unit.angle);
 	
-	FixedPoint error = (myDirection.x - direction.x) * (myDirection.x - direction.x) + (myDirection.z - direction.z) * (myDirection.z - direction.z);
+	int hypo_angle = unit.angle;
+	int hypo_upangle = unit.upangle;
+	bool improved = true;
+	FixedPoint best_error = FixedPoint(100000);
+	
+	while(improved)
+	{
+		improved = false;
+		hypo_angle += 2;
+		myDirection.z = apomath.getSin(hypo_angle);
+		myDirection.x = apomath.getCos(hypo_angle);
+		
+		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_angle -= 4;
+			myDirection.z = apomath.getSin(hypo_angle);
+			myDirection.x = apomath.getCos(hypo_angle);
+			
+			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_angle += 2;
+		}
+	}
+	
+	best_error = FixedPoint(100000);
+	improved = true;
+	while(improved)
+	{
+		improved = false;
+		hypo_upangle += 2;
+		myDirection.y = apomath.getSin(hypo_upangle);
+		FixedPoint error = (myDirection.y * 100 - direction.y * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_upangle -= 4;
+			myDirection.y = apomath.getSin(hypo_upangle);
+			error = (myDirection.y * 100 - direction.y * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_upangle += 2;
+		}
+	}
 	
 	int keyState = 0;
-	int mousex = 0;
-	int mousey = 0;
+	int mousex = hypo_angle - unit.angle;
+ 	int mousey = 0;
+	unit.upangle = hypo_upangle;
+//  	int mousey = -hypo_upangle + unit.upangle;
 	int mousebutton = 0;
 	
-	error *= FixedPoint(250);
-	mousex = error.getInteger();
 	keyState |= Unit::MOVE_FRONT;
-	
-	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
+// 	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
 	
 	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
 	{
 		keyState |= Unit::JUMP;
 	}
 	
-	if( ((currentWorldFrame + unit.birthTime) % 140) > 100 )
+	if( ((currentWorldFrame + unit.birthTime) % 140) > 50 )
 	{
-		mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
+		// mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
 		mousebutton = 1;
 	}
 	
@@ -320,6 +378,9 @@ World::World()
 void World::init()
 {
 	cerr << "world init" << endl;
+	
+	particles.reserve(40000);
+	
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
@@ -597,7 +658,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		
 		getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
 		// getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
-		
 	}
 	
 	
@@ -662,7 +722,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
 				if(!u->human() && shooterIsMonster)
 				{
-					projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+					//projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
 					continue;
 				}
 				
@@ -730,11 +790,7 @@ void World::updateModel(Model* model, Unit& unit)
 	}
 	else */
 	
-	if(model == 0)
-	{
-		cerr << "Model doesnt exist ffs" << endl;
-		return;
-	}
+	assert(model != 0);
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT))
 	{
