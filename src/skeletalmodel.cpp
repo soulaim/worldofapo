@@ -16,11 +16,37 @@ extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 SkeletalModel::SkeletalModel():
 	Model(),
-	buffers_loaded(false)
+	buffers_loaded(false),
+	triangles_size(0)
 {
 	for(size_t i = 0; i < BUFFERS; ++i)
 	{
 		locations[i] = -1;
+	}
+}
+
+SkeletalModel::SkeletalModel(const SkeletalModel& model):
+	Model(model)
+{
+	buffers_loaded = model.buffers_loaded;
+	for(size_t i = 0; i < BUFFERS; ++i)
+	{
+		locations[i] = model.locations[i];
+	}
+	triangles_size = model.triangles_size;
+
+	// Always copy bones.
+	bones = model.bones;
+
+	// Copy rest of the things if they are not yet preloaded (which shouldn't happen)
+	if(!buffers_loaded)
+	{
+		cerr << "Warning, copying not preloaded skeletalmodels." << endl;
+		vertices = model.vertices;
+		texture_coordinates = model.texture_coordinates;
+		triangles = model.triangles;
+		
+		weighted_vertices = model.weighted_vertices;
 	}
 }
 
@@ -123,6 +149,8 @@ bool SkeletalModel::load(const string& filename)
 		texture_coordinates.resize(n);
 	}
 
+	triangles_size = triangles.size();
+
 	return true;
 }
 
@@ -181,9 +209,9 @@ bool SkeletalModel::save(const string& filename) const
 	return bool(out);
 }
 
-void calcMatrices(SkeletalModel& model, size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
+void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
 {
-	Bone& bone = model.bones[current_bone];
+	Bone& bone = bones[current_bone];
 
 	Animation& animation = Animation::getAnimation(bone.name, animation_name);
 	// left and right sides of the body are in polarized animation_name states
@@ -207,7 +235,7 @@ void calcMatrices(SkeletalModel& model, size_t current_bone, vector<Matrix4>& ro
 
 	for(size_t i = 0; i < bone.children.size(); ++i)
 	{
-		calcMatrices(model, bone.children[i], rotations, offset, animation_name, animation_state);
+		calcMatrices(bone.children[i], rotations, offset, animation_name, animation_state);
 	}
 }
 
@@ -321,7 +349,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
-	calcMatrices(*this, 0, rotations, Matrix4(), animation_name, animation_time);
+	calcMatrices(0, rotations, Matrix4(), animation_name, animation_time);
 
 	if(draw_only_skeleton)
 	{
@@ -358,11 +386,11 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableVertexAttribArray(bone_weight_location);
 	glEnableVertexAttribArray(bone_index_location);
-	glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, triangles_size * 3, GL_UNSIGNED_INT, 0);
 	glDisableVertexAttribArray(bone_index_location);
 	glDisableVertexAttribArray(bone_weight_location);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
-	TRIANGLES_DRAWN_THIS_FRAME += triangles.size();
+	TRIANGLES_DRAWN_THIS_FRAME += triangles_size;
 }
 

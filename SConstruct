@@ -41,7 +41,7 @@ dbg.Alias('debug', 'bin/debug-client')
 dbg.Alias('debug', 'bin/debug-server')
 dbg.Alias('debug', 'bin/debug-editor')
 
-prof = env.Clone(CCFLAGS = common_flags + ' -pg -O2 -D NDEBUG', LINKFLAGS = '-pg -O2')
+prof = env.Clone(CCFLAGS = common_flags + ' -pg -O3 -D NDEBUG', LINKFLAGS = '-pg -O3')
 profcommon = prof.Object(common_files, OBJPREFIX = 'profile-')
 profileclient = prof.Program('bin/profile-client', profcommon + prof.Object(client_files, OBJPREFIX = 'profile-'))
 profileserver = prof.Program('bin/profile-server', profcommon + prof.Object(server_files, OBJPREFIX = 'profile-'))

@@ -71,16 +71,7 @@ struct Triangle
 struct SkeletalModel: public Model
 {
 	SkeletalModel();
-
-	// These stay constant over different model instances.
-	std::vector<Vec3> vertices;
-	std::vector<TextureCoordinate> texture_coordinates;
-	std::vector<Triangle> triangles;
-	std::vector<WeightedVertex> weighted_vertices;
-
-	// These change with animations.
-	std::vector<Bone> bones;
-
+	SkeletalModel(const SkeletalModel&);
 	float height() const;
 	bool load(const std::string& filename);
 	bool save(const std::string& filename) const;
@@ -92,10 +83,23 @@ struct SkeletalModel: public Model
 private:
 	void old_draw(size_t hilight);
 	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight);
+	void calcMatrices(size_t current_bone, std::vector<Matrix4>& rotations, Matrix4 offset, const std::string& animation_name, int animation_state);
 
 	static const size_t BUFFERS = 4;
 	GLuint locations[BUFFERS];
 	bool buffers_loaded;
+	size_t triangles_size;
+
+	// These stay constant over different model instances.
+	std::vector<Vec3> vertices;
+	std::vector<TextureCoordinate> texture_coordinates;
+	std::vector<Triangle> triangles;
+	std::vector<WeightedVertex> weighted_vertices;
+
+	// These change with animations.
+	std::vector<Bone> bones;
+
+	friend class Editor;
 };
 
 #endif
