@@ -48,7 +48,13 @@ bool ModelFactory::load(size_t prototype, const std::string& filename)
 		return false;
 	}
 
-	return prototypes[prototype]->load(filename);
+	bool ok = prototypes[prototype]->load(filename);
+	if(ok && types[prototype] == SKELETALMODEL)
+	{
+		SkeletalModel* model = static_cast<SkeletalModel*>(prototypes[prototype].get());
+		model->preload();
+	}
+	return ok;
 }
 
 Model* ModelFactory::create(size_t prototype)

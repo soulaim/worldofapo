@@ -5,8 +5,13 @@
 #include <vector>
 #include <map>
 
+#include "glew/glew.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "animation.h"
 #include "frustum/Vec3.h"
+#include "frustum/matrix4.h"
 #include "primitives.h"
 #include "model.h"
 
@@ -65,6 +70,8 @@ struct Triangle
 
 struct SkeletalModel: public Model
 {
+	SkeletalModel();
+
 	// These stay constant over different model instances.
 	std::vector<Vec3> vertices;
 	std::vector<TextureCoordinate> texture_coordinates;
@@ -80,6 +87,15 @@ struct SkeletalModel: public Model
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1);
 	void draw();
 	void rotate_y(float angle);
+
+	void preload();
+private:
+	void old_draw(size_t hilight);
+	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight);
+
+	static const size_t BUFFERS = 4;
+	GLuint locations[BUFFERS];
+	bool buffers_loaded;
 };
 
 #endif

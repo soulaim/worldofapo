@@ -49,13 +49,15 @@ Editor::Editor()
 	view.bindCamera(&dummy);
 //	view.toggleLightingStatus();
 
-	handle_command("load objects model.parts");
+//	handle_command("load objects model.parts");
 //	handle_command("load model model.bones");
-	handle_command("load skele model.skeleton");
-	handle_command("load animations model.animation");
+//	handle_command("load skele model.skeleton");
+//	handle_command("load animations model.animation");
 	handle_command("load animations skeleani.animation");
-	handle_command("load objects bullet.parts");
+//	handle_command("load objects bullet.parts");
 //	handle_command("edit type HEAD");
+	commands.push_back("load skele model.skeleton");
+	current_command = commands.size();
 
 //	view.megaFuck();
 
@@ -316,6 +318,7 @@ void Editor::loadSkeletalModel(const string& file)
 	{
 		release_swarm();
 
+		model.preload();
 		selected_part = 0;
 		editing_single_part = false;
 		skeletal_model = model;
@@ -991,10 +994,11 @@ void Editor::handle_command(const string& command)
 	{
 		int X = 1;
 		int Y = 1;
+		int Z = 1;
 		stringstream ss1(command);
 		ss1 >> word1;
-		ss1 >> X >> Y;
-		swarm(X, Y);
+		ss1 >> X >> Y >> Z;
+		swarm(X, Y, Z);
 	}
 
 	commands.push_back(command);
@@ -1293,28 +1297,34 @@ void Editor::calculate_nearest_bones()
 	hud.pushMessage(green("Calculated nearest bones"));
 }
 
-void Editor::swarm(int X, int Y)
+void Editor::swarm(int X, int Y, int Z)
 {
 	release_swarm();
 	float x_scalar = 5;
 	float y_scalar = 6;
+	float z_scalar = 4;
 	for(int i = 0; i < X; ++i)
 	{
 		for(int j = 0; j < Y; ++j)
 		{
-			Model* model = (skele ? (Model*)new SkeletalModel(skeletal_model) : (Model*)new ApoModel(edited_model));
-			model->realUnitPos.x = x_scalar * (i - X/2);
-			model->currentModelPos.x = x_scalar * (i - X/2);
-			model->realUnitPos.y = y_scalar * (j - Y/2);
-			model->currentModelPos.y = y_scalar * (j - Y/2);
-			model->texture_name = "marine";
-			model->animation_time = i*j;
-			models[i*Y + j + 1] = model;
+			for(int k = 0; k < Z; ++k)
+			{
+				Model* model = (skele ? (Model*)new SkeletalModel(skeletal_model) : (Model*)new ApoModel(edited_model));
+				model->realUnitPos.x = x_scalar * (i - X/2);
+				model->currentModelPos.x = x_scalar * (i - X/2);
+				model->realUnitPos.y = y_scalar * (j - Y/2);
+				model->currentModelPos.y = y_scalar * (j - Y/2);
+				model->realUnitPos.z = z_scalar * (k - Z/2);
+				model->currentModelPos.z = z_scalar * (k - Z/2);
+				model->texture_name = "marine";
+				model->animation_time = (i+1)*(j+1)*(k+1);
+				models[i*Y*Z + j*Z + k + 1] = model;
+			}
 		}
 	}
 
 	stringstream ss;
-	ss << X*Y;
+	ss << X*Y*Z;
 	hud.pushMessage(red("SWARM! " + ss.str()));
 }
 

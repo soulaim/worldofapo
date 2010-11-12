@@ -8,6 +8,8 @@
 
 using namespace std;
 
+int VERTICES_PRINTED = 0;
+
 struct ChunkInfo
 {
 	unsigned short ID;
@@ -57,12 +59,13 @@ struct ObjMesh
 		for(int i = 0; i < nFace; ++i)
 		{
 			cerr << "TRIANGLE ";
-			cerr << face[i].p1 << " " << face[i].p2 << " " << face[i].p3 << endl;
+			cerr << VERTICES_PRINTED + face[i].p1 << " " << VERTICES_PRINTED + face[i].p2 << " " << VERTICES_PRINTED + face[i].p3 << endl;
 /*			cerr << fixed << setprecision(3);
 			cerr << vtx[face[i].p1].x << " " << vtx[face[i].p1].y << " " << vtx[face[i].p1].z << endl;
 			cerr << "         " << vtx[face[i].p2].x << " " << vtx[face[i].p2].y << " " << vtx[face[i].p2].z << endl;
 			cerr << "         " << vtx[face[i].p3].x << " " << vtx[face[i].p3].y << " " << vtx[face[i].p3].z << endl;
 */		}
+		VERTICES_PRINTED += nVtx;
 	}
 };
 
@@ -351,18 +354,21 @@ int Obj3DS::Load(const char* fName)
 				break;
 
 			case 0x4120: // Face List
-				memcpy(&Val,&data[Offset+6],2);
-// 				printf("Chunk 4120 (Face List) %d polys\nOffset %d\n",Val,Info.Size);
-				Mesh[MeshDex].nFace=Val;
+				memcpy(&Val, &data[Offset+6], 2);
+				printf("Chunk 4120 (Face List) %d polys\nOffset %d\n", Val, Info.Size);
+				Mesh[MeshDex].nFace = Val;
 				Mesh[MeshDex].face = new Face[Val+1];
 				for(Loop = 0, LOff = Offset+8; Loop != Val; ++Loop, LOff+=8)
 				{
-					Get3Vector(LOff,Mesh[MeshDex].face[Loop].p1,Mesh[MeshDex].face[Loop].p2,Mesh[MeshDex].face[Loop].p3);
-					memcpy(&Val2,&data[LOff+6],2);
- 					printf("X: %d, Y: %d, Z: %d (",Mesh[MeshDex].face[Loop].p1,Mesh[MeshDex].face[Loop].p2,Mesh[MeshDex].face[Loop].p3);
-					if (Val2&0x01) printf("AC ");
-					if (Val2&0x02) printf("BC ");
-					if (Val2&0x04) printf("AB ");
+					Get3Vector(LOff, Mesh[MeshDex].face[Loop].p1, Mesh[MeshDex].face[Loop].p2, Mesh[MeshDex].face[Loop].p3);
+					memcpy(&Val2, &data[LOff+6], 2);
+					printf("X: %d, Y: %d, Z: %d (", Mesh[MeshDex].face[Loop].p1, Mesh[MeshDex].face[Loop].p2, Mesh[MeshDex].face[Loop].p3);
+					if(Val2 & 0x01)
+						printf("AC ");
+					if(Val2 & 0x02)
+						printf("BC ");
+					if(Val2 & 0x04)
+						printf("AB ");
 					printf("visible)\n");
 				}
 				Offset += Info.Size;
@@ -396,6 +402,7 @@ int Obj3DS::Load(const char* fName)
 				Get3fVector(Offset+42,fVal,fVal2,fVal3);
 				printf("O vector: %f %f %f\n",fVal,fVal2,fVal3);
 				Offset += Info.Size;
+
 				break;
 
 			case 0x4165:

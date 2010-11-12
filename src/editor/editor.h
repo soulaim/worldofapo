@@ -56,7 +56,7 @@ class Editor
 	void reset();
 	void scale(float scalar);
 	void calculate_nearest_bones();
-	void swarm(int X, int Y);
+	void swarm(int X, int Y, int Z);
 	void release_swarm();
 
 	Unit dummy;

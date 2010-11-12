@@ -31,9 +31,9 @@ void DedicatedServer::init()
 	
 	srand(time(0));
 
-	// This should definetly not be necessary to do in the server :D
+	// TODO: This should definetly not be necessary to do in the server :D
 	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
-	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/model.skeleton");
+	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/bullet.bones"); // TODO: (pre)loading any skeletalmodel in server fails because OpenGL is not initialized.
 }
 
 void DedicatedServer::send_to_all(const std::string& msg)

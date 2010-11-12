@@ -1,6 +1,8 @@
 #ifndef PRIMITIVES_H
 #define PRIMITIVES_H
 
+#include <vector>
+
 struct ObjectTri
 {
 	float x[3];
