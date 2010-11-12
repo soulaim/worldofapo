@@ -8,6 +8,8 @@
 #include "../graphics.h"
 #include "../unit.h"
 #include "../hud.h"
+#include "../particle.h"
+#include "../particle_source.h"
 
 #include <string>
 #include <vector>
@@ -58,6 +60,8 @@ class Editor
 	void calculate_nearest_bones();
 	void swarm(int X, int Y, int Z);
 	void release_swarm();
+	void swarm_particles(int X, int Y, int Z);
+	void release_particles();
 
 	Unit dummy;
 
@@ -93,6 +97,10 @@ class Editor
 	bool drawing_skeleton;
 
 	bool do_tick();
+
+	std::vector<ParticleSource> psources;
+	std::vector<Particle> particles;
+	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife);
 public:
 	Editor();
 	~Editor();

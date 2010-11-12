@@ -76,6 +76,12 @@ void Editor::release_swarm()
 	models.clear();
 }
 
+void Editor::release_particles()
+{
+	psources.clear();
+	particles.clear();
+}
+
 Editor::~Editor()
 {
 	cout << "~Editor()\n";
@@ -152,17 +158,19 @@ bool Editor::do_tick()
 		{
 //			skeletal_model.draw(false, selected_part);
 			models[0] = &skeletal_model;
+			view.drawModels(models);
 		}
 	}
 	else
 	{
-		if(drawing_model)
+		if(drawing_model && edited_model.root >= 0)
 		{
 //			edited_model.draw();
 			models[0] = &edited_model;
+			view.drawModels(models);
 		}
 	}
-	view.drawModels(models);
+	view.drawParticles(particles);
 
 	view.drawDebugLines();
 	hud.drawFPS();
@@ -194,6 +202,29 @@ bool Editor::tick()
 		for(auto it = models.begin(); it != models.end(); ++it)
 		{
 			it->second->tick(it->second->animation_time + 1);
+		}
+
+		for(size_t i=0; i<psources.size(); ++i)
+		{
+			psources[i].tick(particles);
+			if(!psources[i].alive())
+			{
+				psources[i] = psources.back();
+				psources.pop_back();
+				--i;
+			}
+		}
+
+		for(size_t i=0; i<particles.size(); ++i)
+		{
+			if(!particles[i].alive())
+			{
+				particles[i] = particles.back();
+				particles.pop_back();
+				--i;
+			}
+			else
+				particles[i].tick();
 		}
 
 		return do_tick();
@@ -1006,6 +1037,16 @@ void Editor::handle_command(const string& command)
 		ss1 >> X >> Y >> Z;
 		swarm(X, Y, Z);
 	}
+	else if(word1 == "particles")
+	{
+		int X = 1;
+		int Y = 1;
+		int Z = 1;
+		stringstream ss1(command);
+		ss1 >> word1;
+		ss1 >> X >> Y >> Z;
+		swarm_particles(X, Y, Z);
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -1332,5 +1373,64 @@ void Editor::swarm(int X, int Y, int Z)
 	stringstream ss;
 	ss << X*Y*Z;
 	hud.pushMessage(red("SWARM! " + ss.str()));
+}
+
+void Editor::swarm_particles(int X, int Y, int Z)
+{
+	release_particles();
+	float x_scalar = 7;
+	float y_scalar = 7;
+	float z_scalar = 10;
+	int lifetime = 50000;
+	for(int i = 0; i < X; ++i)
+	{
+		for(int j = 0; j < Y; ++j)
+		{
+			for(int k = 0; k < Z; ++k)
+			{
+				Location place(x_scalar * (i - X/2), y_scalar * (j - Y/2), z_scalar * (k - Z/2));
+				Location direction(0,0,-1);
+				genParticleEmitter(place, direction, lifetime, 20, 20,  50, 50, 160,    500, 5, 50);
+			}
+		}
+	}
+
+	stringstream ss;
+	ss << X*Y*Z;
+	hud.pushMessage(red("SWARM! " + ss.str()));
+}
+
+// Copy paste from world.
+void Editor::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
+{
+	ParticleSource pe;
+	pe.getIntProperty("PPF") = particlesPerFrame;
+	pe.getIntProperty("CUR_LIFE") = life;
+	pe.getIntProperty("MAX_LIFE") = life;
+	pe.getIntProperty("PLIFE")    = particleLife;
+	
+	pe.getIntProperty("SRED")     = r;
+	pe.getIntProperty("ERED")     = r / 2;
+	
+	pe.getIntProperty("SGREEN")   = g;
+	pe.getIntProperty("EGREEN")   = g / 2;
+	
+	pe.getIntProperty("SBLUE")    = b;
+	pe.getIntProperty("EBLUE")    = b / 2;
+	
+	pe.getIntProperty("MAX_RAND") = max_rand;
+	pe.getIntProperty("SCALE") = scale;
+	
+	pe.getIntProperty("PSP_1000") = scatteringCone;
+	
+	/*
+	pe.getIntProperty("RAND_X_1000") = 500;
+	pe.getIntProperty("RAND_Y_1000") = 0;
+	*/
+	
+	pe.position = pos;
+	pe.velocity = vel;
+	
+	psources.push_back(pe);
 }
 
