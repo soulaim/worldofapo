@@ -1,8 +1,10 @@
+
 #include "texturehandler.h"
 #include "graphics.h"
 #include "level.h"
 #include "shaders.h"
 #include "hud.h"
+#include "frustum/matrix4.h"
 
 #include <iostream>
 #include <iomanip>
@@ -727,6 +729,22 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 	
+	glBegin(GL_QUADS);
+	
+	float x_angle =  camera.getXrot();
+	float y_angle = -camera.getYrot() - 90.f;
+	Matrix4 m(y_angle, x_angle, 0.f, 0.f, 0.f, 0.f);
+	
+	Vec3 s1(-1.0f, -1.0f, 0.0f);
+	Vec3 s2(+1.0f, -1.0f, 0.0f);
+	Vec3 s3(+1.0f, +1.0, 0.0f);
+	Vec3 s4(-1.0f, +1.0f, 0.0f);
+	
+	s1 = m * s1;
+	s2 = m * s2;
+	s3 = m * s3;
+	s4 = m * s4;
+	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		viewParticles[i].viewTick();
@@ -737,27 +755,16 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 		
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 		
-		float x_angle = camera.getXrot();
-		float y_angle = -camera.getYrot() - 90.f;
-		
-		glPushMatrix();
-		
-		glTranslatef(px, py, pz);
-		glRotatef(x_angle, 0.0, 1.0, 0.0);
-		glRotatef(y_angle, 1.0, 0.0, 0.0);
-		
 		float s = viewParticles[i].scale * 1.5f;
+		glTexCoord2f(0.f, 0.f); glVertex3f(px+s1.x*s, py+s1.y*s, pz+s1.z*s);
+		glTexCoord2f(1.f, 0.f); glVertex3f(px+s2.x*s, py+s2.y*s, pz+s2.z*s);
+		glTexCoord2f(1.f, 1.f); glVertex3f(px+s3.x*s, py+s3.y*s, pz+s3.z*s);
+		glTexCoord2f(0.f, 1.f); glVertex3f(px+s4.x*s, py+s4.y*s, pz+s4.z*s);
 		
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-s, -s, 0.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+s, -s, 0.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+s, +s, 0.0f);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-s, +s, 0.0f);
-		glEnd();
 		++QUADS_DRAWN_THIS_FRAME;
-		
-		glPopMatrix();
 	}
+	
+	glEnd();
 	
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);

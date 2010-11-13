@@ -48,6 +48,7 @@ struct ApoModel: public Model
 		root(-1)
 	{
 	}
+	
 	~ApoModel();
 
 	bool load(const std::string& filename);
