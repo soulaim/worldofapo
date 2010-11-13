@@ -80,6 +80,8 @@ void Graphics::toggleLightingStatus()
 	}
 
 	lightsActive = !lightsActive;
+
+	cerr << "Lightsactive: " << lightsActive << endl;
 }
 
 Graphics::Graphics()
@@ -135,6 +137,7 @@ void Graphics::init()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+	lightsActive = false;
 	drawDebuglines = false;
 	drawDebugWireframe = false;
 }
@@ -219,6 +222,7 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 		}
 		
+		// TODO: this could also be done by loading a geometry shader that transforms a polygon into three lines.
 		for(size_t i = 0; i < 3; ++i)
 		{
 			glVertex3f(points[i].x, points[i].y, points[i].z);
@@ -715,9 +719,61 @@ void Graphics::drawModels(map<int, Model*>& models)
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
+	glUseProgram(shaders["particle_program"]);
+	GLint scale_location = uniform_locations["particle_particleScale"];
+
+	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
+	depthSortParticles(direction_vector, viewParticles);
+	
+	TextureHandler::getSingleton().bindTexture(0, "particle");
+
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glDepthMask(GL_FALSE); // dont write to depth buffer.
+
+	// TODO: use VBO
+	glBegin(GL_POINTS);
+	for(size_t i = 0; i < viewParticles.size(); ++i)
+	{
+		viewParticles[i].viewTick();
+		
+		float px = viewParticles[i].pos.x.getFloat();
+		float py = viewParticles[i].pos.y.getFloat();
+		float pz = viewParticles[i].pos.z.getFloat();
+		
+		float color[4];
+		color[0] = viewParticles[i].r;
+		color[1] = viewParticles[i].g;
+		color[2] = viewParticles[i].b;
+		color[3] = viewParticles[i].getAlpha();
+
+
+		float scale = viewParticles[i].scale * 1.5f;
+		glVertexAttrib1f(scale_location, scale);
+		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
+
+		glVertex3f(px, py, pz);
+
+		++QUADS_DRAWN_THIS_FRAME;
+	}
+	glEnd();
+
+	glDepthMask(GL_TRUE); // re-enable depth writing.
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+
+	glUseProgram(0);
+}
+
+void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
+{
 // 	glColor4f(1.0, 1.0, 1.0, 1.0);
 // 	return;
-	
+
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
@@ -728,7 +784,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
-	
+
 	glBegin(GL_QUADS);
 	
 	float x_angle =  camera.getXrot();
@@ -765,7 +821,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	}
 	
 	glEnd();
-	
+
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
@@ -842,7 +898,16 @@ void Graphics::draw(
 	drawMedikits(medikits);
 	drawBoundingBoxes(units);
 	drawModels(models);
-	drawParticles(particles);
+
+	if(lightsActive) // TODO: drawParticles_old can be removed when drawParticles is good enough.
+	{
+		drawParticles_old(particles);
+	}
+	else
+	{
+		drawParticles(particles);
+	}
+
 	drawOctree(o);
 	
 	if(hud)

@@ -114,10 +114,9 @@ void Graphics::initShaders()
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
 //	loadGeometryShader("level_geom", "shaders/level.geometry");
-	
-	loadFragmentShader("unit_frag", "shaders/unit.fragment");
-	loadVertexShader("unit_vert", "shaders/unit.vertex");
-	
+
+
+
 	shaders["level_program"] = glCreateProgram();
 	glAttachShader(shaders["level_program"], shaders["level_frag"]);
 	glAttachShader(shaders["level_program"], shaders["level_vert"]);
@@ -127,12 +126,39 @@ void Graphics::initShaders()
 //	glProgramParameteriEXT(shaders["level_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 3);
 	glLinkProgram(shaders["level_program"]);
 	printLog(shaders["level_program"]);
-	
+
+
+
+	loadFragmentShader("unit_frag", "shaders/unit.fragment");
+	loadVertexShader("unit_vert", "shaders/unit.vertex");
 	shaders["unit_program"] = glCreateProgram();
+
 	glAttachShader(shaders["unit_program"], shaders["unit_frag"]);
 	glAttachShader(shaders["unit_program"], shaders["unit_vert"]);
 	glLinkProgram(shaders["unit_program"]);
 	printLog(shaders["unit_program"]);
+
+
+
+	loadFragmentShader("particle_frag", "shaders/particle.fragment");
+	loadVertexShader("particle_vert", "shaders/particle.vertex");
+	loadGeometryShader("particle_geom", "shaders/particle.geometry");
+//	loadGeometryShader("particle_geom", "shaders/level.geometry");
+	
+	shaders["particle_program"] = glCreateProgram();
+	glAttachShader(shaders["particle_program"], shaders["particle_frag"]);
+	glAttachShader(shaders["particle_program"], shaders["particle_vert"]);
+	glAttachShader(shaders["particle_program"], shaders["particle_geom"]);
+	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
+	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLES);
+	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 2 * 3);
+	glLinkProgram(shaders["particle_program"]);
+	printLog(shaders["particle_program"]);
+
+	glUseProgram(shaders["particle_program"]);
+	uniform_locations["particle_particleTexture"] = glGetUniformLocation(shaders["particle_program"], "particleTexture");
+	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
+	glUniform1i(uniform_locations["particle_particleTexture"], 0);
 
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");

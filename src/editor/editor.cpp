@@ -170,7 +170,15 @@ bool Editor::do_tick()
 			view.drawModels(models);
 		}
 	}
-	view.drawParticles(particles);
+
+	if(view.lightsActive)
+	{
+		view.drawParticles_old(particles);
+	}
+	else
+	{
+		view.drawParticles(particles);
+	}
 
 	view.drawDebugLines();
 	hud.drawFPS();
@@ -1047,6 +1055,10 @@ void Editor::handle_command(const string& command)
 		ss1 >> X >> Y >> Z;
 		swarm_particles(X, Y, Z);
 	}
+	else if(word1 == "p")
+	{
+		swarm_particles(3, 3, 3);
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -1397,7 +1409,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 
 	stringstream ss;
 	ss << X*Y*Z;
-	hud.pushMessage(red("SWARM! " + ss.str()));
+	hud.pushMessage(red("PARTICLES! " + ss.str()));
 }
 
 // Copy paste from world.

@@ -1,0 +1,10 @@
+uniform sampler2D particleTexture;
+
+varying vec2 texcoord;
+
+void main()
+{
+	vec4 color = gl_Color;
+	gl_FragColor = texture2D(particleTexture, texcoord) * color;
+}
+

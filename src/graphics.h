@@ -48,6 +48,7 @@ class Graphics
 	
 	void drawModels(std::map<int, Model*>& models);
 	void drawParticles(std::vector<Particle>&);
+	void drawParticles_old(std::vector<Particle>&);
 	void updateCamera(const Level&);
 	void finishDrawing();
 

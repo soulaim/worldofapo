@@ -1,0 +1,12 @@
+
+attribute float particleScale;
+
+varying float scale_var;
+
+void main()
+{
+	gl_Position = ftransform();
+	gl_FrontColor = gl_Color;
+	scale_var = particleScale;
+}
+
