@@ -13,6 +13,8 @@ using namespace std;
 
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
+std::map<std::string, ObjectPart> ApoModel::objects;
+
 ApoModel::~ApoModel()
 {
 }
@@ -67,7 +69,7 @@ bool ApoModel::load(const string& filename)
 	size_t sum = 0;
 	for(size_t i = 0; i < parts.size(); ++i)
 	{
-		sum += Graphics::objects[parts[i].wireframe].triangles.size();
+		sum += ApoModel::objects[parts[i].wireframe].triangles.size();
 	}
 	cerr << "Loaded model '" << filename << "' with " << parts.size() << " parts and " << sum << " triangles" << endl;
 
@@ -110,7 +112,7 @@ void ApoModel::drawPartsRecursive(int current_node)
 		return;
 	}
 	ModelNode& node = parts[current_node];
-	ObjectPart& obj_part = Graphics::objects[node.wireframe];
+	ObjectPart& obj_part = ApoModel::objects[node.wireframe];
 	
 	Animation& animation = Animation::getAnimation(node.name, animation_name);
 	// left and right sides of the body are in polarized animation_name states

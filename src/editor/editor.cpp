@@ -246,7 +246,7 @@ bool Editor::tick()
 
 bool Editor::type_exists(const std::string& type)
 {
-	return view.objects.count(type) > 0;
+	return ApoModel::objects.count(type) > 0;
 }
 
 void Editor::saveModel(const std::string& file)
@@ -285,7 +285,7 @@ void Editor::saveObjects(const std::string& file)
 {
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Saving objects to '" + pathed_file + "'");
-	if(view.saveObjects(pathed_file))
+	if(ApoModel::saveObjects(pathed_file))
 	{
 		hud.pushMessage(green("Success"));
 		objectsFile = file;
@@ -315,7 +315,7 @@ void Editor::loadObjects(const string& file)
 {
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Loading objects from '" + pathed_file + "'");
-	if(view.loadObjects(pathed_file))
+	if(ApoModel::loadObjects(pathed_file))
 	{
 		hud.pushMessage(green("Success"));
 		objectsFile = file;
@@ -616,7 +616,7 @@ void Editor::print_model()
 
 void Editor::print_types()
 {
-	for(auto it = view.objects.begin(); it != view.objects.end(); ++it)
+	for(auto it = ApoModel::objects.begin(); it != ApoModel::objects.end(); ++it)
 	{
 		const std::string& name = it->first;
 		hud.pushMessage(name);
@@ -651,7 +651,7 @@ void Editor::print_animations()
 
 void Editor::type_helper(const std::string& type)
 {
-	edited_type = &view.objects[type];
+	edited_type = &ApoModel::objects[type];
 	edited_type_name = type;
 
 	edited_type->end_x = 0.0f;

@@ -21,8 +21,6 @@ vector<Vec3> DOTS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
-std::map<std::string, ObjectPart> Graphics::objects;
-
 void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 {
 	return;

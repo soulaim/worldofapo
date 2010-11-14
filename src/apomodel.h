@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "frustum/vec3.h"
 #include "model.h"
+#include "primitives.h"
 
 struct ModelNode
 {
@@ -56,6 +57,10 @@ struct ApoModel: public Model
 	float height() const;
 	void draw();
 	void rotate_y(float angle);
+
+	static std::map<std::string, ObjectPart> objects;
+	static bool loadObjects(const std::string&);
+	static bool saveObjects(const std::string&);
 
 private:
 	void drawPartsRecursive(int current_node);
