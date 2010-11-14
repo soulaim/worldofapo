@@ -149,10 +149,15 @@ void Localplayer::playSound(const std::string& name, const Location& position)
 void Localplayer::camera_handling()
 {
 	int wheel_status = userio->getMouseWheelScrolled();
-	if (wheel_status == 1)
-		view->mouseUp();
-	if (wheel_status == 2)
-		view->mouseDown();
+	if(wheel_status == UserIO::SCROLL_UP)
+	{
+		view->zoom_in();
+	}
+
+	if(wheel_status == UserIO::SCROLL_DOWN)
+	{
+		view->zoom_out();
+	}
 }
 
 void Localplayer::enableGrab()

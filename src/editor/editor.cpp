@@ -1285,14 +1285,14 @@ bool Editor::handle_input()
 	int keystate = userio.getGameInput();
 	int x, y;
 	userio.getMouseChange(x, y);
-	int wheel_status = userio.getMouseWheelScrolled();
-	if(wheel_status == 1)
+	UserIO::MouseScrollStatus wheel_status = userio.getMouseWheelScrolled();
+	if(wheel_status == UserIO::SCROLL_UP)
 	{
-		view.mouseUp();
+		view.zoom_in();
 	}
-	if(wheel_status == 2)
+	if(wheel_status == UserIO::SCROLL_DOWN)
 	{
-		view.mouseDown();
+		view.zoom_out();
 	}
 	view.updateInput(keystate);
 	dummy.updateInput(0, x, y, 0);

@@ -42,7 +42,6 @@ class Graphics
 	void destroyWindow();
 	
 	void startDrawing();
-	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawSkybox();
 	
@@ -105,8 +104,8 @@ public:
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 
-	void mouseUp();
-	void mouseDown();
+	void zoom_in();
+	void zoom_out();
 	void tick();
 	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	

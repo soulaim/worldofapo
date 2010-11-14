@@ -31,6 +31,13 @@ class UserIO
 	std::vector<std::string> keyNames;
 	std::string emptyString;
 public:
+	enum MouseScrollStatus
+	{
+		NO_SCROLL = 0,
+		SCROLL_UP = 1,
+		SCROLL_DOWN = 2
+	};
+
 	void init();
 	
 	int getGameInput();
@@ -38,7 +45,7 @@ public:
 	
 	void getMouseChange(int& x, int& y);
 	int getMousePress();
-	int getMouseWheelScrolled();
+	MouseScrollStatus getMouseWheelScrolled();
 	int ismousepressed();
 	
 	Coord getMousePoint();

@@ -963,12 +963,12 @@ void Graphics::toggleFullscreen()
 	SDL_WM_ToggleFullScreen(drawContext);
 }
 
-void Graphics::mouseUp()
+void Graphics::zoom_in()
 {
 	camera.zoomIn();
 }
 
-void Graphics::mouseDown()
+void Graphics::zoom_out()
 {
 	camera.zoomOut();
 }
