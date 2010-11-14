@@ -1,4 +1,4 @@
-CXXFLAGS = -O0 -g -Wall
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O0 -g
 
 targets= \
 	matrixtest \
@@ -11,13 +11,13 @@ targets= \
 
 all: $(targets)
 
-matrixtest: matrixtest.cpp ../frustum/Vec3.cpp ../frustum/matrix4.cpp test.h
+matrixtest: matrixtest.cpp ../frustum/vec3.cpp ../frustum/matrix4.cpp test.h
 point_in_line: point_in_line.cpp ../fixed_point.cpp ../location.cpp ../algorithms.cpp ../apomath.cpp
 fixedpointtest: fixedpointtest.cpp ../apomath.cpp
 squareroot_and_crossproduct: squareroot_and_crossproduct.cpp ../fixed_point.cpp ../location.cpp
 socket_test: socket_test.cpp ../net/socket.cpp ../net/socket_handler.cpp
 btt_test: btt_test.cpp
-interpolationtest: interpolationtest.cpp ../frustum/Vec3.cpp ../location.cpp ../fixed_point.cpp test.h ../level.cpp
+interpolationtest: interpolationtest.cpp ../frustum/vec3.cpp ../location.cpp ../fixed_point.cpp test.h ../algorithms.cpp
 
 clean:
 	$(RM) $(targets)
