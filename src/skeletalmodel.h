@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cassert>
 
 #include "glew/glew.h"
 #include <GL/gl.h>
@@ -49,13 +50,20 @@ struct Bone
 
 struct WeightedVertex
 {
+	// TODO: make bone datatypes unsigned chars (i.e. fix passing to opengl and the use in shader).
 	unsigned bone1;
 	unsigned bone2;
+
+//	unsigned char padding1;
+//	unsigned char padding2;
+
 	float weight1;
 	float weight2;
 
 	WeightedVertex()
 	{
+		assert(sizeof(WeightedVertex) == sizeof(float)*2 + sizeof(unsigned)*2);
+
 		bone1 = 0;
 		bone2 = 0;
 		weight1 = 1.0f;
@@ -65,7 +73,12 @@ struct WeightedVertex
 
 struct Triangle
 {
-	unsigned vertices[3];
+	unsigned short vertices[3];
+
+	Triangle()
+	{
+		assert(sizeof(Triangle) == sizeof(unsigned short)*3);
+	}
 };
 
 struct SkeletalModel: public Model
