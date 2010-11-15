@@ -912,7 +912,6 @@ void Graphics::draw(
 	
 	if(hud)
 	{
-		hud->setMinimap(-camera.getXrot(), camera.getUnitLocation());
 		hud->draw(camera.isFirstPerson());
 	}
 

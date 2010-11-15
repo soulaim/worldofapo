@@ -25,7 +25,6 @@ public:
 	void setCurrentClientCommand(const std::string&);
 	void setTime(unsigned);
 	void world_tick();
-	void setMinimap(float angle, const Location& unit_location);
 	void setLevelSize(int x, int z);
 	void setUnitsMap(std::map<int, Unit>* units);
 	void setLocalPlayerID(int _myID);
@@ -45,8 +44,6 @@ public:
 private:
 	// Define some character widths in our particular font.
 	std::vector<float> charWidth;
-
-	float minimap_angle;
 
 	int level_max_z;
 	int level_max_x;
