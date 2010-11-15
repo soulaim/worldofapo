@@ -11,7 +11,6 @@ Unit::Unit():
 	weapon_cooldown(0),
 	leap_cooldown(0),
 	last_damage_dealt_by(-1),
-	id(-1),
 	birthTime(0)
 	
 {

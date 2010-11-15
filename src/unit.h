@@ -65,7 +65,6 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		int leap_cooldown;
 		
 		int last_damage_dealt_by;
-		int id;
 		int birthTime;
 		std::string name;
 		

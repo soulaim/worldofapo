@@ -416,7 +416,6 @@ void World::terminate()
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 	
-	medikits.clear();
 	units.clear();
 	for(auto it = models.begin(); it != models.end(); ++it)
 	{
@@ -766,7 +765,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				(*u)("DAMAGED_BY") = projectile("NAME");
 				
 				projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
-				continue;
 			}
 		}
 	}
@@ -884,17 +882,6 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, models[iter->first]);
 	}
 	
-
-	for(auto it = medikits.begin(); it != medikits.end(); ++it)
-	{
-		Medikit& kit = it->second;
-		kit.tick(lvl.getHeight(kit.position.x, kit.position.z));
-		if (kit.dead)
-			deadUnits.push_back(it->first);
-		else
-			o->insertObject(&kit);
-	}
-
 	
 	o->doCollisions();
 	
@@ -1094,7 +1081,6 @@ void World::removeUnit(int id)
 
 	units.erase(id);
 	projectiles.erase(id);
-	medikits.erase(id);
 
 	auto it = models.find(id);
 	if(it != models.end())
