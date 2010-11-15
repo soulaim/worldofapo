@@ -715,6 +715,91 @@ void Graphics::drawModels(map<int, Model*>& models)
 	glUseProgram(0);
 }
 
+void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
+{
+	glUseProgram(shaders["particle_program"]);
+	GLint scale_location = uniform_locations["particle_particleScale"];
+
+	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
+	depthSortParticles(direction_vector, viewParticles);
+	
+	TextureHandler::getSingleton().bindTexture(0, "particle");
+
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glDepthMask(GL_FALSE); // dont write to depth buffer.
+
+
+	static vector<Vec3> particles;
+	static vector<float> colors;
+	static vector<float> scales;
+	static bool buffers_loaded = false;
+	static const int BUFFERS = 3;
+	static GLuint locations[BUFFERS];
+	if(!buffers_loaded)
+	{
+		buffers_loaded = true;
+		glGenBuffers(BUFFERS, locations);
+	}
+
+	size_t n = viewParticles.size();
+	if(particles.size() < n)
+	{
+		particles.resize(n);
+		colors.resize(4*n);
+		scales.resize(n);
+	}
+
+	for(size_t i = 0; i < viewParticles.size(); ++i)
+	{
+		viewParticles[i].viewTick();
+
+		particles[i] = Vec3(viewParticles[i].pos.x.getFloat(), viewParticles[i].pos.y.getFloat(), viewParticles[i].pos.z.getFloat());
+
+		colors[i*4 + 0] = viewParticles[i].r;
+		colors[i*4 + 1] = viewParticles[i].g;
+		colors[i*4 + 2] = viewParticles[i].b;
+		colors[i*4 + 3] = viewParticles[i].getAlpha();
+
+		scales[i] = viewParticles[i].scale * 1.5f;
+
+		++QUADS_DRAWN_THIS_FRAME;
+	}
+
+	int buffer = 0;
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, n * sizeof(Vec3), &particles[0], GL_STREAM_DRAW);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, n * 4 * sizeof(float), &colors[0], GL_STREAM_DRAW);
+	glColorPointer(4, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, n * sizeof(float), &scales[0], GL_STREAM_DRAW);
+	glVertexAttribPointer(scale_location, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+
+	assert(buffer == BUFFERS);
+
+	// Draw sent data.
+	glEnableVertexAttribArray(scale_location);
+	glDrawArrays(GL_POINTS, 0, viewParticles.size());
+	glDisableVertexAttribArray(scale_location);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glDepthMask(GL_TRUE); // re-enable depth writing.
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+
+	glUseProgram(0);
+}
+
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
 	glUseProgram(shaders["particle_program"]);

@@ -33,6 +33,7 @@ Editor::Editor()
 	rotate_speed = 45.0f/2.0f;
 	current_command = 0;
 
+	skybox = false;
 	editing_single_part = false;
 	edited_type = 0;
 	selected_part = 0;
@@ -147,7 +148,11 @@ bool Editor::do_tick()
 	}
 
 	view.startDrawing();
-	view.drawSkybox();
+	if(skybox)
+	{
+		view.drawSkybox();
+	}
+
 	if(skele)
 	{
 		if(drawing_skeleton)
@@ -173,7 +178,8 @@ bool Editor::do_tick()
 
 	if(view.lightsActive)
 	{
-		view.drawParticles_old(particles);
+//		view.drawParticles_old(particles);
+		view.drawParticles_vbo(particles);
 	}
 	else
 	{
@@ -1058,6 +1064,10 @@ void Editor::handle_command(const string& command)
 	else if(word1 == "p")
 	{
 		swarm_particles(3, 3, 3);
+	}
+	else if(word1 == "sky")
+	{
+		skybox = !skybox;
 	}
 
 	commands.push_back(command);

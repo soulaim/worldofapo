@@ -95,6 +95,7 @@ class Editor
 
 	bool drawing_model;
 	bool drawing_skeleton;
+	bool skybox;
 
 	bool do_tick();
 
