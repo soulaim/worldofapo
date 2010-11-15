@@ -12,6 +12,7 @@
 #include "texturehandler.h"
 #include "animation.h"
 #include "modelfactory.h"
+#include "apomodel.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -58,8 +59,8 @@ void Localplayer::init()
 	hud.setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
-	view->loadObjects("models/model.parts");
-	view->loadObjects("models/bullet.parts");
+	ApoModel::loadObjects("models/model.parts"); // TODO: this is ugly, we shouldn't have to know about apomodel here.
+	ApoModel::loadObjects("models/bullet.parts"); // TODO: modelfactory should call these somehow or something.
 	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
 	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/model.skeleton");
 	Animation::load("models/model.animation");
@@ -148,10 +149,15 @@ void Localplayer::playSound(const std::string& name, const Location& position)
 void Localplayer::camera_handling()
 {
 	int wheel_status = userio->getMouseWheelScrolled();
-	if (wheel_status == 1)
-		view->mouseUp();
-	if (wheel_status == 2)
-		view->mouseDown();
+	if(wheel_status == UserIO::SCROLL_UP)
+	{
+		view->zoom_in();
+	}
+
+	if(wheel_status == UserIO::SCROLL_DOWN)
+	{
+		view->zoom_out();
+	}
 }
 
 void Localplayer::enableGrab()

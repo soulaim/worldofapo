@@ -1,8 +1,7 @@
 #include "../fixed_point.h"
 #include "../location.h"
+#include "../algorithms.h"
 #include "test.h"
-
-void interpolate(const Location& A, const Location& B, const Location& C, Location& p);
 
 int main()
 {

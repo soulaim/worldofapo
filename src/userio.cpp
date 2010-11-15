@@ -123,19 +123,19 @@ int UserIO::getMousePress()
 	return mouseButtons;
 }
 
-int UserIO::getMouseWheelScrolled()
+UserIO::MouseScrollStatus UserIO::getMouseWheelScrolled()
 {
 	if(wheel_has_been_scrolled_up)
 	{
 		wheel_has_been_scrolled_up = 0;
-		return 1;
+		return SCROLL_UP;
 	}
-	if(wheel_has_been_scrolled_down)
+	else if(wheel_has_been_scrolled_down)
 	{
 		wheel_has_been_scrolled_down = 0;
-		return 2;
+		return SCROLL_DOWN;
 	}
-	return 0;
+	return NO_SCROLL;
 }
 
 string UserIO::getSingleKey()

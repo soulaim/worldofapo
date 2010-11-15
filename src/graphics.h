@@ -42,7 +42,6 @@ class Graphics
 	void destroyWindow();
 	
 	void startDrawing();
-	void drawPartsRecursive(Model&, int, const std::string&, int);
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawSkybox();
 	
@@ -82,15 +81,12 @@ public:
 	void initShaders(); // Public for debugging.
 	void releaseShaders();
 
-	static std::map<std::string, ObjectPart> objects; // TODO: Maybe move this somewhere?
 	friend class Editor;
 
 	void bindCamera(Unit* unit);
 	void updateInput(int keystate);
 	
 	void setCamera(const Camera& camera);
-	bool loadObjects(const std::string&);
-	bool saveObjects(const std::string&);
 	
 	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
 		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
@@ -108,8 +104,8 @@ public:
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 
-	void mouseUp();
-	void mouseDown();
+	void zoom_in();
+	void zoom_out();
 	void tick();
 	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	

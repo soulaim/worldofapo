@@ -21,8 +21,6 @@ vector<Vec3> DOTS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
-std::map<std::string, ObjectPart> Graphics::objects;
-
 void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 {
 	return;
@@ -964,12 +962,12 @@ void Graphics::toggleFullscreen()
 	SDL_WM_ToggleFullScreen(drawContext);
 }
 
-void Graphics::mouseUp()
+void Graphics::zoom_in()
 {
 	camera.zoomIn();
 }
 
-void Graphics::mouseDown()
+void Graphics::zoom_out()
 {
 	camera.zoomOut();
 }
