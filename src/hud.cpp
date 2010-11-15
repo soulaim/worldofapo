@@ -147,12 +147,6 @@ void Hud::setZombiesLeft(int count)
 	zombieCount = count;
 }
 
-void Hud::setMinimap(float angle, const Location& unit)
-{
-	minimap_angle = angle;
-	unit_location = unit;
-}
-
 void Hud::drawStatusBar() const
 {
 	stringstream ss;
@@ -191,7 +185,10 @@ void Hud::drawMessages()
 		float pos_x = -0.9;
 		float pos_y = -0.82 + 0.05 * reverse_index;
 		
-		float alpha = 1.0f - reverse_index * 0.07;
+		float location_alpha = 1.0f - reverse_index * 0.045f;
+		float age_alpha      = float(viewMessages[i].endTime - currentTime) / ViewMessage::VIEW_MESSAGE_LIFE;
+		float alpha          = age_alpha * location_alpha;
+		
 		if(alpha < 0.f)
 			alpha = 0.f;
 		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight, alpha);
@@ -432,64 +429,62 @@ void Hud::drawMinimap() const
 	glPushMatrix();
 	glLoadIdentity();
 	
-	glTranslatef(0.0f, 0.0f, -1.0f);
-
-	float map_top_x = 0.60f;
-	float map_top_y = -0.60f;
-	float map_bot_x = 0.96f;
-	float map_bot_y = -0.96f;
-
+	Unit& myUnit = (*units)[myID];
+	
+	float map_r = 0.18f;
+	float minimap_angle = apomath.getDegrees( myUnit.angle );
+	
+	float tx = myUnit.position.x.getFloat() / level_max_x;
+	float tz = myUnit.position.z.getFloat() / level_max_z;
+	
+	float unit_x_on_minimap = -2.f * map_r * tx + map_r;
+	float unit_z_on_minimap = +2.f * map_r * tz - map_r;
+	
+	// make minimap rotate along with the user.
+	// glTranslatef(+0.74f - unit_x_on_minimap, -0.74f - unit_z_on_minimap, 0.0f);
+	glTranslatef(+0.74f, -0.74f, 0.0f);
+	glRotatef(-minimap_angle, 0.0f, 0.0f, 1.0f);
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	/*
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
-
 	glBegin(GL_QUADS);
-	glVertex3f(map_top_x, map_bot_y, 0.f);
-	glVertex3f(map_bot_x, map_bot_y, 0.f);
-	glVertex3f(map_bot_x, map_top_y, 0.f);
-	glVertex3f(map_top_x, map_top_y, 0.f);
+	glVertex3f(-map_r, -map_r, 0.f);
+	glVertex3f(+map_r, -map_r, 0.f);
+	glVertex3f(+map_r, +map_r, 0.f);
+	glVertex3f(-map_r, +map_r, 0.f);
 	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
-
+	*/
+	
+	glBegin(GL_POINTS);
 	for(auto it = units->begin(); it != units->end(); ++it)
 	{
 		const int id = it->first;
-
+		
 		float r = 1.0f;
 		float g = 0.0f;
 		float b = 0.0f;
-
-		if (myID == id)
+		
+		if(myID == id)
 		{
 			r = 0.0f;
-			g = 0.0f;
-			b = 1.0f;
+			g = 1.0f;
+			b = 0.0f;
 		}
-
+		
 		const Unit& u = it->second;
 		const Location& loc = u.getPosition();
-
-		float x = map_bot_x + (loc.x.getFloat() / level_max_x) * (map_top_x - map_bot_x);
-		float z = map_bot_y + (loc.z.getFloat() / level_max_z) * (map_top_y - map_bot_y);
-
-		int angle = u.angle;
-		float degrees = -apomath.getDegrees(angle);
-
-		glPushMatrix();
-
-		glTranslatef(x, z, 0.0f);
-		glRotatef(degrees, 0.0f, 0.0f, -1.0f);
-
-		glBegin(GL_TRIANGLES);
-		glColor3f(r, g, b);          glVertex3f(+0.01f, -.01f, 0.0f);
-		glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(+0.00f, +.01f, 0.0f);
-		glColor3f(r, g, b);          glVertex3f(-0.01f, -.01f, 0.0f);
-		glEnd();
-
-		glPopMatrix();
+		
+		float x = -(loc.x.getFloat() / level_max_x) * 2 * map_r + map_r - unit_x_on_minimap;
+		float z = +(loc.z.getFloat() / level_max_z) * 2 * map_r - map_r - unit_z_on_minimap;
+		
+		glColor3f(r, g, b); glVertex3f(x, z, 0.0f);
 	}
-
+	glEnd();
+	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
