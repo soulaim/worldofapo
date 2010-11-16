@@ -1,5 +1,7 @@
 #include "menu.h"
 
+#include "graphics.h"
+#include "userio.h"
 #include "game.h"
 #include "image.h"
 #include "menubutton.h"

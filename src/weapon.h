@@ -16,23 +16,23 @@ class Unit;
 
 class Weapon : public Item, public HasProperties
 {
-	World& w;
-	Unit& u;
+	World& world;
+	Unit& unit;
 	
 	Projectile proto_projectile;
 public:
 	
 	// ALERT: THIS IS HERE ONLY TO KEEP MEDIKIT OPERATIONAL..
-	Weapon(World& _w, Unit& _u):
-	w(_w),
-	u(_u)
+	Weapon(World& w, Unit& u):
+		world(w),
+		unit(u)
 	{
 	}
 	
 	// THIS IS THE TRUE WAY TO GO
-	Weapon(World& _w, Unit& _u, const std::string& fileName):
-	w(_w),
-	u(_u)
+	Weapon(World& w, Unit& u, const std::string& fileName):
+		world(w),
+		unit(u)
 	{
 		load(fileName);
 		
