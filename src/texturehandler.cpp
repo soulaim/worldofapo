@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <fstream>
 
 #include "logger.h"
 
@@ -40,10 +41,24 @@ const string& TextureHandler::getCurrentTexture(size_t texture_unit)
 	return current_textures[texture_unit];
 }
 
-unsigned TextureHandler::createTexture(const string& name, const string& fileName)
+void TextureHandler::createTextures(const std::string& filename)
+{
+	ifstream in(filename.c_str());
+
+	string name;
+	string file;
+	while(in >> name >> file)
+	{
+		createTexture(name, file);
+	}
+}
+
+unsigned TextureHandler::createTexture(const string& name, const string& filename)
 {
 	Image img;
-	img.loadImage(fileName);
+	img.loadImage(filename);
+
+	cerr << "Loading texture '" << name << "' from file '" << filename << "'" << endl;
 	return createTexture(name, img);
 }
 

@@ -724,6 +724,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(0, "particle");
+//	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
@@ -795,7 +796,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
+//	glColor4f(1.0, 1.0, 1.0, 1.0);
 
 	glUseProgram(0);
 }
@@ -813,7 +814,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+//	glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+//	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
