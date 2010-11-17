@@ -282,6 +282,7 @@ void Hud::drawCrossHair() const
 	
 	TextureHandler::getSingleton().bindTexture(0, "crosshair");
 	
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	

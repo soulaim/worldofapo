@@ -14,16 +14,10 @@
 
 #include "btt.h"
 #include "model.h"
-#include "animation.h"
 #include "frustum/frustumr.h"
 #include "camera.h"
-#include "playerinfo.h"
-
-#include "octree.h"
-#include "image.h"
 #include "location.h"
 #include "particle.h"
-#include "primitives.h"
 
 #include "medikit.h"
 #include "light_object.h"
@@ -32,6 +26,7 @@
 struct Level;
 struct MenuButton;
 class Hud;
+class Octree;
 
 class Graphics
 {

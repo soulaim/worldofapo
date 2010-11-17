@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "graphics.h"
-#include "userio.h"
+class Graphics;
+class UserIO;
 
 class Menu
 {
@@ -16,5 +16,6 @@ private:
 	Graphics* view;
 	UserIO* userio;
 };
+
 #endif
 

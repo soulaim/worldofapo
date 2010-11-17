@@ -6,11 +6,9 @@
 #include <sstream>
 #include <memory>
 
-#include "world.h"
 #include "weapon.h"
 #include "location.h"
 #include "apomath.h"
-#include "lightsource.h"
 #include "octree_object.h"
 #include "movable_object.h"
 #include "item.h"

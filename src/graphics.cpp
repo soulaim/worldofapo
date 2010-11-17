@@ -5,6 +5,8 @@
 #include "shaders.h"
 #include "hud.h"
 #include "frustum/matrix4.h"
+#include "octree.h"
+#include "primitives.h"
 
 #include <iostream>
 #include <iomanip>
@@ -715,6 +717,8 @@ void Graphics::drawModels(map<int, Model*>& models)
 	glUseProgram(0);
 }
 
+// TODO: make this function faster than the current implementation by having the data already in the VBO format.
+// TODO: Now it has to do extra copying.
 void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 {
 	glUseProgram(shaders["particle_program"]);
@@ -724,6 +728,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(0, "particle");
+//	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
@@ -731,7 +736,6 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
-
 
 	static vector<Vec3> particles;
 	static vector<float> colors;
@@ -764,7 +768,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 		colors[i*4 + 2] = viewParticles[i].b;
 		colors[i*4 + 3] = viewParticles[i].getAlpha();
 
-		scales[i] = viewParticles[i].scale * 1.5f;
+		scales[i] = viewParticles[i].getScale();
 
 		++QUADS_DRAWN_THIS_FRAME;
 	}
@@ -795,7 +799,6 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
 
 	glUseProgram(0);
 }
@@ -813,11 +816,11 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
-	// TODO: use VBO
+	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
@@ -834,7 +837,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 		color[3] = viewParticles[i].getAlpha();
 
 
-		float scale = viewParticles[i].scale * 1.5f;
+		float scale = viewParticles[i].getScale();
 		glVertexAttrib1f(scale_location, scale);
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 
@@ -847,16 +850,13 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
 
 	glUseProgram(0);
 }
 
+// This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
 void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 {
-// 	glColor4f(1.0, 1.0, 1.0, 1.0);
-// 	return;
-
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
@@ -864,7 +864,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glDisable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
@@ -894,7 +894,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 		
 		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
 		
-		float s = viewParticles[i].scale * 1.5f;
+		float s = viewParticles[i].getScale();
 		glTexCoord2f(0.f, 0.f); glVertex3f(px+s1.x*s, py+s1.y*s, pz+s1.z*s);
 		glTexCoord2f(1.f, 0.f); glVertex3f(px+s2.x*s, py+s2.y*s, pz+s2.z*s);
 		glTexCoord2f(1.f, 1.f); glVertex3f(px+s3.x*s, py+s3.y*s, pz+s3.z*s);
@@ -908,7 +908,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
 }
 
 void Graphics::updateCamera(const Level& lvl)

@@ -14,6 +14,7 @@ class TextureHandler
 		~TextureHandler();
 		static TextureHandler& getSingleton();
 		
+		void createTextures(const std::string& filename);
 		const std::string& getCurrentTexture(size_t texture_unit);
 		unsigned createTexture(const std::string&, const std::string&);
 		unsigned createTexture(const std::string&, Image& img);

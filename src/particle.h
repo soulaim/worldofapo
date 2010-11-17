@@ -36,6 +36,12 @@ public:
 		vel.y -= FixedPoint(20, 1000);
 		--cur_life;
 	}
+
+	float getScale()
+	{
+		// Don't scale too big.
+		return scale * 1.5f;
+	}
 	
 	float getAlpha()
 	{

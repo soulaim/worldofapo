@@ -14,6 +14,10 @@ using namespace std;
 extern vector<pair<Vec3,Vec3> > LINES;
 extern vector<Vec3> DOTS;
 
+int r = 50;
+int g = 50;
+int b = 160;
+
 std::string red(const std::string& s)
 {
 	return "^r" + s;
@@ -40,12 +44,7 @@ Editor::Editor()
 	selected_dot = 0;
 	userio.init();
 
-	TextureHandler::getSingleton().createTexture("grass", "data/grass.png");
-	TextureHandler::getSingleton().createTexture("highground", "data/highground.png");
-	TextureHandler::getSingleton().createTexture("mountain", "data/hill.png");
-	TextureHandler::getSingleton().createTexture("chessboard", "data/chessboard.png");
-	TextureHandler::getSingleton().createTexture("grimmnight", "data/grimmnight.png");
-	TextureHandler::getSingleton().createTexture("marine", "models/texture_marine.png");
+	TextureHandler::getSingleton().createTextures("data/textures.txt");
 
 	view.bindCamera(&dummy);
 //	view.toggleLightingStatus();
@@ -1069,6 +1068,12 @@ void Editor::handle_command(const string& command)
 	{
 		skybox = !skybox;
 	}
+	else if(word1 == "rgb")
+	{
+		stringstream ss1(command);
+		ss1 >> word1;
+		ss1 >> r >> g >> b;
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();
@@ -1108,7 +1113,12 @@ bool Editor::handle_input()
 
 	if(key.size() != 0)
 	{
-		if(key == "f4")
+		if(key == "f3")
+		{
+			view.releaseShaders();
+			view.initShaders();
+		}
+		else if(key == "f4")
 		{
 			loadObjects(objectsFile);
 			if(skele)
@@ -1412,7 +1422,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 			{
 				Location place(x_scalar * (i - X/2), y_scalar * (j - Y/2), z_scalar * (k - Z/2));
 				Location direction(0,0,-1);
-				genParticleEmitter(place, direction, lifetime, 20, 20,  50, 50, 160,    500, 5, 50);
+				genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
 			}
 		}
 	}
