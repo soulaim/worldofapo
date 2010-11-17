@@ -432,6 +432,10 @@ void World::tickUnit(Unit& unit, Model* model)
 	{
 		generateInput_RabidAlien(unit);
 	}
+	else if(unit.controllerTypeID == Unit::INANIMATE_OBJECT)
+	{
+		// hmm?
+	}
 	
 	unit.soundInfo = "";
 	
@@ -500,6 +504,16 @@ void World::tickUnit(Unit& unit, Model* model)
 	if(unit.getKeyAction(Unit::WEAPON3))
 	{
 		unit.switchWeapon(3);
+	}
+	
+	if(unit.getKeyAction(Unit::WEAPON4))
+	{
+		unit.switchWeapon(4);
+	}
+	
+	if(unit.getKeyAction(Unit::WEAPON5))
+	{
+		unit.switchWeapon(5);
 	}
 	
 	
