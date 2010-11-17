@@ -727,7 +727,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			// intentional continue of execution
 		}
 		
-		auto& potColl = o->nearObjects(projectile.position);
+		auto& potColl = octree->nearObjects(projectile.position);
 		for(auto it = potColl.begin(); it != potColl.end(); ++it)
 		{
 			if ((*it)->type != OctreeObject::UNIT)
@@ -874,12 +874,12 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
-	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
+	octree.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
 	currentWorldFrame = tickCount;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		tickUnit(iter->second, models[iter->first]);
-		o->insertObject(&(iter->second));
+		octree->insertObject(&(iter->second));
 	}
 	
 	
@@ -897,7 +897,7 @@ void World::worldTick(int tickCount)
 	}
 	
 	
-	o->doCollisions();
+	octree->doCollisions();
 	
 	
 	

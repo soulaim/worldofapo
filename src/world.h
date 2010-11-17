@@ -57,7 +57,7 @@ public:
 	World();
 	void init();
 
-	std::shared_ptr<Octree> o;
+	std::shared_ptr<Octree> octree;
 	
 	std::map<int, Unit> units;
 	std::map<int, Model*> models;
