@@ -87,6 +87,10 @@ int UserIO::getGameInput()
 		keyBoard |= 1<<21;
 	if(keystate[SDLK_3])
 		keyBoard |= 1<<22;
+	if(keystate[SDLK_4])
+		keyBoard |= 1<<23;
+	if(keystate[SDLK_5])
+		keyBoard |= 1<<24;
 /*
 	if(keystate[SDLK_w])
 		keyBoard |= 1<<22;

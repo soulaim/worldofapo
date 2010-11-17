@@ -31,9 +31,7 @@ void Weapon::fire()
 		return;
 	}
 	
-	// TODO: Should be defined in the weapon definition, not constant
-	unit.soundInfo = "shoot";
-	
+	unit.soundInfo = strVals["FIRE_SOUND"];
 	
 	Location weapon_position = unit.getPosition();
 	Location projectile_direction = unit.getLookDirection();

@@ -22,13 +22,6 @@ class Weapon : public Item, public HasProperties
 	Projectile proto_projectile;
 public:
 	
-	// ALERT: THIS IS HERE ONLY TO KEEP MEDIKIT OPERATIONAL..
-	Weapon(World& w, Unit& u):
-		world(w),
-		unit(u)
-	{
-	}
-	
 	// THIS IS THE TRUE WAY TO GO
 	Weapon(World& w, Unit& u, const std::string& fileName):
 		world(w),

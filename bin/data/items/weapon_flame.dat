@@ -35,3 +35,5 @@ STRING NAME Flamethrower
 
 INT CHILD_MODEL_PROTOTYPE 0
 
+STRING FIRE_SOUND flamethrower
+

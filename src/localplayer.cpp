@@ -101,7 +101,7 @@ void Localplayer::draw()
 	{
 		world.viewTick();
 		view->tick();
-		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.medikits, world.projectiles, world.particles);
+		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.projectiles, world.particles);
 	}
 }
 

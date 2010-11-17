@@ -952,7 +952,6 @@ void Graphics::draw(
 	const std::map<int,Unit>& units,
 	const std::map<int, LightObject>& lights,
 	const std::shared_ptr<Octree> o, Hud* hud,
-	const std::map<int, Medikit>& medikits,
 	const std::map<int, Projectile>& projectiles,
 	std::vector<Particle>& particles
 	)
@@ -977,7 +976,6 @@ void Graphics::draw(
 		drawLevel(lvl, lights);
 	}
 	drawDebugLines();
-	drawMedikits(medikits);
 	drawBoundingBoxes(units);
 	drawModels(models);
 

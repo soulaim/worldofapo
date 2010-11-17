@@ -31,10 +31,13 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 			WEAPON1      = 1<<20,
 			WEAPON2      = 1<<21,
 			WEAPON3      = 1<<22,
+			WEAPON4      = 1<<23,
+			WEAPON5      = 1<<24,
 			ATTACK_BASIC = 1,
 			
 			HUMAN_INPUT = 0,
-			AI_RABID_ALIEN = 1
+			AI_RABID_ALIEN = 1,
+			INANIMATE_OBJECT = 2
 		};
 		
 		
@@ -63,7 +66,6 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		int leap_cooldown;
 		
 		int last_damage_dealt_by;
-		int id;
 		int birthTime;
 		std::string name;
 		
