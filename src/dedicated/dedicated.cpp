@@ -387,8 +387,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
 		cerr << "THIS IS WHAT SERVER SHOULD DO WHEN DISCONNECT HAPPENS" << endl;
-		world.units.erase(server_msg.keyState);
-		world.models.erase(server_msg.keyState);
+		world.removeUnit(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
 	}
@@ -546,7 +545,9 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		else if(cmd == "NEXT_UNIT_ID")
 		{
-			ss >> world._unitID_next_unit;
+			int id = -1;
+			ss >> id;
+			world.setNextUnitID(id);
 		}
 		else if(cmd == "SIMUL")
 		{
@@ -588,11 +589,11 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 void DedicatedServer::handleWorldEvents()
 {
 	// output events to show the server is still in sync.
-	for(size_t i = 0; i < world.events.size(); ++i)
+	for(size_t i = 0; i < world.visualworld.events.size(); ++i)
 	{
-		WorldEvent& event = world.events[i];
+		WorldEvent& event = world.visualworld.events[i];
 		
-		if(event.type == World::DEATH_ENEMY)
+		if(event.type == WorldEvent::DEATH_ENEMY)
 		{
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
@@ -601,7 +602,7 @@ void DedicatedServer::handleWorldEvents()
 			}
 		}
 		
-		if(event.type == World::DEATH_PLAYER)
+		if(event.type == WorldEvent::DEATH_PLAYER)
 		{
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
@@ -617,6 +618,6 @@ void DedicatedServer::handleWorldEvents()
 		}
 	}
 	
-	world.events.clear();
+	world.visualworld.events.clear();
 }
 

@@ -45,7 +45,7 @@ void Unit::setName(const std::string& newName)
 	name = newName;
 }
 
-bool Unit::human()
+bool Unit::human() const
 {
 	if(controllerTypeID == HUMAN_INPUT)
 		return true;
@@ -76,12 +76,12 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons
 }
 
 
-int Unit::getKeyAction(int type)
+int Unit::getKeyAction(int type) const
 {
 	return (keyState & type);
 }
 
-int Unit::getMouseAction(int type)
+int Unit::getMouseAction(int type) const
 {
 	return (mouseButtons & type);
 }

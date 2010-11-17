@@ -88,7 +88,7 @@ bool Localplayer::client_tick()
 			handleWorldEvents();
 			
 			hud.world_tick();
-			view->world_tick(world.lvl, world.lights);
+			view->world_tick(world.lvl, world.visualworld.lights);
 		}
 	}
 	return stop;
@@ -99,9 +99,9 @@ void Localplayer::draw()
 	hud.setTime( SDL_GetTicks() );
 	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
-		world.viewTick();
+		world.visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
-		view->draw(world.models, world.lvl, world.units, world.lights, world.o, &hud, world.projectiles, world.particles);
+		view->draw(world.visualworld.models, world.lvl, world.units, world.visualworld.lights, world.o, &hud, world.projectiles, world.visualworld.particles);
 	}
 }
 
@@ -290,19 +290,19 @@ void Localplayer::handleWorldEvents()
 	hud.setZombiesLeft(world.getZombies());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
-	for(size_t i = 0; i < world.worldMessages.size(); ++i)
+	for(size_t i = 0; i < world.visualworld.worldMessages.size(); ++i)
 	{
-		hud.pushMessage(world.worldMessages[i]);
+		hud.pushMessage(world.visualworld.worldMessages[i]);
 	}
-	world.worldMessages.clear();
+	world.visualworld.worldMessages.clear();
 	
 	// handle any world events <-> graphics structure
-	for(size_t i = 0; i < world.events.size(); ++i)
+	for(size_t i = 0; i < world.visualworld.events.size(); ++i)
 	{
-		WorldEvent& event = world.events[i];
+		WorldEvent& event = world.visualworld.events[i];
 		switch(event.type)
 		{
-			case World::DAMAGE_BULLET:
+			case WorldEvent::DAMAGE_BULLET:
 			{
 				std::stringstream ss;
 				int x = (rand() % 4);
@@ -312,19 +312,19 @@ void Localplayer::handleWorldEvents()
 				Location bulletDirection = event.a_velocity;
 				bulletDirection.normalize();
 				
-				world.genParticleEmitter(event.a_position, bulletDirection, 5, 20, 20, 160, 50, 50);
+				world.visualworld.genParticleEmitter(event.a_position, bulletDirection, 5, 20, 20, 160, 50, 50);
 				break;
 			}
-			case World::DAMAGE_DEVOUR:
+			case WorldEvent::DAMAGE_DEVOUR:
 			{
 				playSound("hit0", event.t_position);
-				world.genParticleEmitter(event.t_position, event.t_velocity, 5, 20, 20, 160, 50, 50);
+				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 5, 20, 20, 160, 50, 50);
 				break;
 			}
-			case World::DEATH_ENEMY:
+			case WorldEvent::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.t_position);
-				world.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
+				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -332,10 +332,10 @@ void Localplayer::handleWorldEvents()
 				}
 				break;
 			}
-			case World::DEATH_PLAYER:
+			case WorldEvent::DEATH_PLAYER:
 			{
 				playSound("player_death", event.t_position);
-				world.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
+				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
@@ -347,7 +347,7 @@ void Localplayer::handleWorldEvents()
 				}
 				break;
 			}
-			case World::CENTER_CAMERA:
+			case WorldEvent::CENTER_CAMERA:
 			{
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
@@ -363,7 +363,7 @@ void Localplayer::handleWorldEvents()
 		}
 	}
 	
-	world.events.clear();
+	world.visualworld.events.clear();
 	hud.setLocalPlayerKills(game.Players[game.myID].kills);
 	hud.setLocalPlayerDeaths(game.Players[game.myID].deaths);
 

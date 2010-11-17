@@ -19,7 +19,17 @@
 
 struct WorldEvent
 {
-	int type;
+	// Identifications for events where we want to do some SFX.
+	enum EventType
+	{
+		DAMAGE_BULLET,
+		DAMAGE_DEVOUR,
+		DEATH_PLAYER,
+		DEATH_ENEMY,
+		CENTER_CAMERA
+	};
+
+	EventType type;
 	
 	Location t_position;
 	Location t_velocity;
@@ -31,34 +41,52 @@ struct WorldEvent
 	int target_id;
 };
 
+class VisualWorld
+{
+	void updateModel(Model*, const Unit&, int currentWorldFrame); // view frame update
+
+public:
+	std::map<int, Model*> models;
+	std::map<int, LightObject> lights;
+	std::vector<std::string> worldMessages;
+	
+	std::vector<ParticleSource> psources;
+	std::vector<Particle> particles;
+
+	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
+	void addLight(int id, Location& location);
+
+	void init();
+	void terminate();
+	void tickParticles();
+	void tickLights(const std::map<int, Unit>& units);
+	void viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame);
+
+	void removeUnit(int id);
+	void add_message(const std::string& message);
+
+	std::vector<WorldEvent> events;
+	void add_event(const WorldEvent& event);
+};
+
 class World
 {
 	void tickUnit(Unit&, Model*);       // world frame update
 	void tickProjectile(Projectile&, Model*); // world frame update
-	void updateModel(Model*, Unit&); // view frame update
 	
-	int currentWorldFrame;
-	FixedPoint heightDifference2Velocity(const FixedPoint& h_diff) const;
+	static FixedPoint heightDifference2Velocity(const FixedPoint& h_diff);
 	void generateInput_RabidAlien(Unit& unit);
 	void doDeathFor(Unit& unit);
 
 public:
+	int currentWorldFrame;
+	VisualWorld visualworld;
+
 	enum ModelType
 	{
 		INVISIBLE_MODEL,
 		PLAYER_MODEL,
 		BULLET_MODEL
-	};
-
-	
-	// identifications for events where we want to do some SFX
-	enum
-	{
-		DAMAGE_BULLET,
-		DAMAGE_DEVOUR,
-		DEATH_PLAYER,
-		DEATH_ENEMY,
-		CENTER_CAMERA
 	};
 	
 	World();
@@ -67,52 +95,44 @@ public:
 	std::shared_ptr<Octree> o;
 	
 	std::map<int, Unit> units;
-	std::map<int, Model*> models;
 	std::map<int, Projectile> projectiles;
 	
-	std::map<int, LightObject> lights;
-	
 	Level lvl;
-	ApoMath apomath;
 	
-	std::vector<std::string> worldMessages;
-	std::vector<int> deadUnits;
-	std::vector<WorldEvent> events;
 	
-	std::vector<ParticleSource> psources;
-	std::vector<Particle> particles;
-	
-	std::vector<Location> humanPositions();
+	int getZombies();
+	std::vector<Location> humanPositions() const;
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit
 	void atDeath(MovableObject&, HasProperties&);
-	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
 	void worldTick(int tickCount);
-	void viewTick();
 	
 	void addUnit(int id, bool player = true);
 	void addProjectile(Location& location, int id, size_t model_prototype);
-	void addLight(Location& location);
-	
 	void removeUnit(int id);
 	
-	int _unitID_next_unit;
-	int _playerID_next_player;
-	
+	void setNextUnitID(int id);
+	int currentUnitID() const;
 	int nextUnitID();
 	int nextPlayerID();
 	
 	int show_errors;
 	
-	int getZombies();
-	
-	void terminate(); // don't call this unless you mean it :D
+	void terminate();
 	
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
 
 	unsigned long checksum() const;
+
+private:
+	std::vector<int> deadUnits;
+	ApoMath apomath;
+
+	int _unitID_next_unit;
+	int _playerID_next_player;
+	
 };
 
 #endif

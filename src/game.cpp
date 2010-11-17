@@ -266,8 +266,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		message.append("] has disconnected!");
 		world->add_message(message);
 		
-		world->units.erase(server_msg.keyState);
-		world->models.erase(server_msg.keyState);
+		world->removeUnit(server_msg.keyState);
 		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
 		// BWAHAHAHA...
@@ -322,7 +321,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		if(world->units.find(myID) != world->units.end())
 		{
 			WorldEvent event;
-			event.type = World::CENTER_CAMERA;
+			event.type = WorldEvent::CENTER_CAMERA;
 			event.actor_id = myID;
 			world->add_event(event);
 			cerr << "Creating event to bind camera to unit " << myID << "\n";
@@ -482,7 +481,9 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "NEXT_UNIT_ID")
 			{
-				ss >> world->_unitID_next_unit;
+				int id = -1;
+				ss >> id;
+				world->setNextUnitID(id);
 			}
 			else if(cmd == "SIMUL")
 			{

@@ -72,9 +72,9 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		void setName(const std::string&);
 		
 		void updateInput(int, int, int, int);
-		int getKeyAction(int type);
-		int getMouseAction(int type);
-		bool human();
+		int getKeyAction(int type) const;
+		int getMouseAction(int type) const;
+		bool human() const;
 		
 		std::string copyOrder(int ID);
 		void handleCopyOrder(std::stringstream& ss);

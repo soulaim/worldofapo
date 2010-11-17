@@ -122,7 +122,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	std::cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << std::endl;
 	
 	std::stringstream nextUnit_msg;
-	nextUnit_msg << "-2 NEXT_UNIT_ID " << world._unitID_next_unit << "#";
+	nextUnit_msg << "-2 NEXT_UNIT_ID " << world.currentUnitID() << "#";
 	sockets.write(playerID_val, nextUnit_msg.str());
 	
 	
