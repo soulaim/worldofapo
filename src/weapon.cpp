@@ -29,7 +29,7 @@ void Weapon::fire()
 		return;
 	}
 	
-	u.soundInfo = strVals["FIRE_SOUND"];
+	unit.soundInfo = strVals["FIRE_SOUND"];
 	
 	Location weapon_position = unit.getPosition();
 	Location projectile_direction = unit.getLookDirection();
