@@ -83,15 +83,14 @@ struct Triangle
 
 struct SkeletalModel: public Model
 {
+	virtual bool load(const std::string& filename);
+	virtual bool save(const std::string& filename) const;
+	virtual void draw();
+	virtual void rotate_y(float angle);
+
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
-	float height() const;
-	bool load(const std::string& filename);
-	bool save(const std::string& filename) const;
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1);
-	void draw();
-	void rotate_y(float angle);
-
 	void preload();
 private:
 	void old_draw(size_t hilight);

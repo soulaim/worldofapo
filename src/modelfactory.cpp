@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "apomodel.h"
 #include "skeletalmodel.h"
+#include "invisiblemodel.h"
 
 #include <iostream>
 #include <memory>
@@ -10,11 +11,11 @@
 using namespace std;
 
 
-enum Modeltype { NO_MODEL, SKELETALMODEL, APOMODEL };
+enum Modeltype { NOMODEL, SKELETALMODEL, APOMODEL, INVISIBLEMODEL };
 std::vector<std::shared_ptr<Model> > prototypes;
 std::vector<Modeltype> types;
 
-bool ModelFactory::load(size_t prototype, const std::string& filename)
+bool ModelFactory::load(size_t prototype, const std::string& filename, const std::string& texture_name)
 {
 	Logger log;
 
@@ -31,8 +32,13 @@ bool ModelFactory::load(size_t prototype, const std::string& filename)
 	log << "Loading model '" << filename << "' with prototype " << prototype << "\n";
 
 	prototypes[prototype].reset();
-	types[prototype] = NO_MODEL;
-	if(filename.find(".skeleton") != string::npos)
+	types[prototype] = NOMODEL;
+	if(filename.empty())
+	{
+		prototypes[prototype].reset(new InvisibleModel);
+		types[prototype] = INVISIBLEMODEL;
+	}
+	else if(filename.find(".skeleton") != string::npos)
 	{
 		prototypes[prototype].reset(new SkeletalModel);
 		types[prototype] = SKELETALMODEL;
@@ -49,6 +55,10 @@ bool ModelFactory::load(size_t prototype, const std::string& filename)
 	}
 
 	bool ok = prototypes[prototype]->load(filename);
+	if(ok)
+	{
+		prototypes[prototype]->texture_name = texture_name;
+	}
 	if(ok && types[prototype] == SKELETALMODEL)
 	{
 		SkeletalModel* model = static_cast<SkeletalModel*>(prototypes[prototype].get());
@@ -72,7 +82,9 @@ Model* ModelFactory::create(size_t prototype)
 			return new ApoModel( *(ApoModel*)model );
 		case SKELETALMODEL:
 			return new SkeletalModel( *(SkeletalModel*)model );
-		case NO_MODEL:
+		case INVISIBLEMODEL:
+			return new InvisibleModel(*(InvisibleModel*)model );
+		case NOMODEL:
 			return 0;
 	}
 	return 0;

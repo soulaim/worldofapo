@@ -20,6 +20,8 @@ void Weapon::generatePrototypeProjectile()
 	
 	proto_projectile["ID"] = 0;
 	proto_projectile["OWNER"] = 0;
+
+	proto_projectile.prototype_model = proto_projectile["MODEL_PROTOTYPE"];
 }
 
 void Weapon::fire()
@@ -38,11 +40,13 @@ void Weapon::fire()
 	
 	weapon_position.y += 4;
 	projectile_direction.y += 4;
+
+	size_t model_prototype = proto_projectile.prototype_model;
 	
 	for(int i=0; i<intVals["PROJECTILES_PER_USE"]; ++i)
 	{
 		int id = world.nextUnitID();
-		world.addProjectile(weapon_position, id);
+		world.addProjectile(weapon_position, id, model_prototype);
 		Projectile& projectile = world.projectiles[id];
 		
 		projectile.intVals = proto_projectile.intVals;

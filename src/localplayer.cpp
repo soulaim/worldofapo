@@ -61,8 +61,9 @@ void Localplayer::init()
 	// TODO: Should not be done here? FIX
 	ApoModel::loadObjects("models/model.parts"); // TODO: this is ugly, we shouldn't have to know about apomodel here.
 	ApoModel::loadObjects("models/bullet.parts"); // TODO: modelfactory should call these somehow or something.
-	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
-	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/model.skeleton");
+	ModelFactory::load(World::BULLET_MODEL, "models/bullet.bones", "");
+	ModelFactory::load(World::PLAYER_MODEL, "models/model.skeleton", "marine");
+	ModelFactory::load(World::INVISIBLE_MODEL, "", "");
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");
 

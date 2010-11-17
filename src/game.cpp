@@ -473,9 +473,11 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "PROJECTILE")
 			{
-				int id; ss >> id;
-				Location paska;
-				world->addProjectile(paska, id);
+				int id;
+				size_t prototype_model;
+				ss >> id >> prototype_model;
+				Location dummy;
+				world->addProjectile(dummy, id, prototype_model);
 				world->projectiles[id].handleCopyOrder(ss);
 			}
 			else if(cmd == "NEXT_UNIT_ID")

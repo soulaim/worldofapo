@@ -32,8 +32,9 @@ void DedicatedServer::init()
 	srand(time(0));
 
 	// TODO: This should definetly not be necessary to do in the server :D
-	ModelFactory::load(ModelFactory::BULLET_MODEL, "models/bullet.bones");
-	ModelFactory::load(ModelFactory::PLAYER_MODEL, "models/bullet.bones"); // TODO: (pre)loading any skeletalmodel in server fails because OpenGL is not initialized.
+	ModelFactory::load(World::BULLET_MODEL, "", "");
+	ModelFactory::load(World::PLAYER_MODEL, "", ""); // TODO: (pre)loading any skeletalmodel in server fails because OpenGL is not initialized.
+	ModelFactory::load(World::INVISIBLE_MODEL, "", "");
 }
 
 void DedicatedServer::send_to_all(const std::string& msg)
@@ -536,9 +537,11 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		else if(cmd == "PROJECTILE")
 		{
-			int id; ss >> id;
-			Location paska;
-			world.addProjectile(paska, id);
+			int id;
+			size_t prototype_model;
+			ss >> id >> prototype_model;
+			Location dummy;
+			world.addProjectile(dummy, id, prototype_model);
 			world.projectiles[id].handleCopyOrder(ss);
 		}
 		else if(cmd == "NEXT_UNIT_ID")

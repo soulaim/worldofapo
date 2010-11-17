@@ -16,7 +16,7 @@ public:
 		zero = 0;
 	}
 	
-	void load(std::string file)
+	void load(const std::string& file)
 	{
 		std::ifstream itemFile(file.c_str());
 		std::string word1, word2, word3;

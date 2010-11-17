@@ -1042,8 +1042,7 @@ void World::addUnit(int id, bool playerCharacter)
 	
 	units[id].birthTime = currentWorldFrame;
 	
-	models[id] = ModelFactory::create(ModelFactory::PLAYER_MODEL);
-	models[id]->texture_name = "marine";
+	models[id] = ModelFactory::create(World::PLAYER_MODEL);
 	
 	if(!playerCharacter)
 	{
@@ -1060,18 +1059,20 @@ void World::addUnit(int id, bool playerCharacter)
 	
 }
 
-void World::addProjectile(Location& location, int id)
+void World::addProjectile(Location& location, int id, size_t model_prototype)
 {
 	Vec3 position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	models[id] = ModelFactory::create(ModelFactory::BULLET_MODEL);
-	models[id]->realUnitPos = position;
-	models[id]->currentModelPos = position;
+	Model* model = ModelFactory::create(model_prototype);
+	auto iter = models.insert(make_pair(id, model)).first;
+	iter->second->realUnitPos = position;
+	iter->second->currentModelPos = position;
 	
 	projectiles[id].position = location;
+	projectiles[id].prototype_model = model_prototype;
 }
 
 int World::nextPlayerID()

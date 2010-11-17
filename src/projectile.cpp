@@ -51,7 +51,7 @@ void Projectile::handleCopyOrder(stringstream& ss)
 string Projectile::copyOrder(int ID)
 {
 	stringstream projectile_msg;
-	projectile_msg << "-2 PROJECTILE " << ID << " " << position.x << " " << position.z << " " << position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y;
+	projectile_msg << "-2 PROJECTILE " << ID << " " << prototype_model << " " << position.x << " " << position.z << " " << position.y << " " << velocity.x << " " << velocity.z << " " << velocity.y;
 	
 	for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
 		projectile_msg << " " << iter->first << " " << iter->second;

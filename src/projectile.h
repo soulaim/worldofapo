@@ -23,11 +23,13 @@ class Projectile : MovableObject, HasProperties
 	
 	public:
 		Projectile():
-			destroyAfterFrame(false)
+			destroyAfterFrame(false),
+			prototype_model(0)
 		{
 		}
 		
 		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
+		size_t prototype_model;
 
 		
 		const Location& getPosition()
@@ -41,6 +43,7 @@ class Projectile : MovableObject, HasProperties
 		bool collidesTerrain(Level& lvl) const;
 		std::string copyOrder(int);
 		void handleCopyOrder(std::stringstream& ss);
+	private:
 };
 
 #endif

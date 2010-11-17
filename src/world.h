@@ -44,6 +44,13 @@ class World
 	void doDeathFor(Unit& unit);
 
 public:
+	enum ModelType
+	{
+		INVISIBLE_MODEL,
+		PLAYER_MODEL,
+		BULLET_MODEL
+	};
+
 	
 	// identifications for events where we want to do some SFX
 	enum
@@ -67,9 +74,6 @@ public:
 	
 	std::map<int, LightObject> lights;
 	
-	// TODO: Have some fun with explosions :D (BERBERI DO NOT TOUCH THIS!!)
-	// std::map<int, Explosion> explosions;
-	
 	Level lvl;
 	ApoMath apomath;
 	
@@ -90,7 +94,7 @@ public:
 	void viewTick();
 	
 	void addUnit(int id, bool player = true);
-	void addProjectile(Location& location, int);
+	void addProjectile(Location& location, int id, size_t model_prototype);
 	void addLight(Location& location);
 	
 	void removeUnit(int id);
