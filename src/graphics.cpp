@@ -1125,3 +1125,46 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	glEnd();
 }
 
+void Graphics::drawGrass(const std::vector<Vec3>& locations)
+{
+	TextureHandler::getSingleton().bindTexture(0, "meadow");
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glAlphaFunc( GL_GREATER, 0.1 ) ;
+	glEnable( GL_ALPHA_TEST ) ;
+
+	glColor3f(1.0, 1.0, 1.0);
+	glBegin(GL_QUADS);
+	for(size_t i = 0; i < locations.size(); ++i)
+	{
+		const Vec3& v = locations[i];
+		float s = 1.0f;
+		glTexCoord2f(0.0, 1.0); glVertex3f(v.x - s, v.y + 2*s, v.z);
+		glTexCoord2f(1.0, 1.0); glVertex3f(v.x + s, v.y + 2*s, v.z);
+		glTexCoord2f(1.0, 0.0); glVertex3f(v.x + s, v.y, v.z);
+		glTexCoord2f(0.0, 0.0); glVertex3f(v.x - s, v.y, v.z);
+
+		float small = 0.886;
+		float big   = 1.0;
+
+		glTexCoord2f(0.0, 1.0); glVertex3f(v.x - s*small, v.y + 2*s, v.z - s*big);
+		glTexCoord2f(1.0, 1.0); glVertex3f(v.x + s*small, v.y + 2*s, v.z + s*big);
+		glTexCoord2f(1.0, 0.0); glVertex3f(v.x + s*small, v.y, v.z + s*big);
+		glTexCoord2f(0.0, 0.0); glVertex3f(v.x - s*small, v.y, v.z - s*big);
+
+		glTexCoord2f(0.0, 1.0); glVertex3f(v.x + s*small, v.y + 2*s, v.z - s*big);
+		glTexCoord2f(1.0, 1.0); glVertex3f(v.x - s*small, v.y + 2*s, v.z + s*big);
+		glTexCoord2f(1.0, 0.0); glVertex3f(v.x - s*small, v.y, v.z + s*big);
+		glTexCoord2f(0.0, 0.0); glVertex3f(v.x + s*small, v.y, v.z - s*big);
+
+		QUADS_DRAWN_THIS_FRAME += 3;
+	}
+	glEnd();
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+}
+
+

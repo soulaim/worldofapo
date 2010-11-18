@@ -13,6 +13,7 @@ using namespace std;
 
 extern vector<pair<Vec3,Vec3> > LINES;
 extern vector<Vec3> DOTS;
+vector<Vec3> meadows;
 
 int r = 50;
 int g = 50;
@@ -186,9 +187,12 @@ bool Editor::do_tick()
 	}
 
 	view.drawDebugLines();
+	view.drawGrass(meadows);
+
 	hud.drawFPS();
 	hud.drawMessages();
 	hud.drawString(message, -0.9, 0.9, 1.5, true);
+
 	view.finishDrawing();
 
 	models.erase(0);
@@ -1060,6 +1064,14 @@ void Editor::handle_command(const string& command)
 		ss1 >> X >> Y >> Z;
 		swarm_particles(X, Y, Z);
 	}
+	else if(word1 == "meadows")
+	{
+		int X = 1;
+		int Z = 1;
+		stringstream ss1(command);
+		ss1 >> word1 >> X >> Z;
+		swarm_meadows(X, Z);
+	}
 	else if(word1 == "p")
 	{
 		swarm_particles(3, 3, 3);
@@ -1464,5 +1476,21 @@ void Editor::genParticleEmitter(const Location& pos, const Location& vel, int li
 	pe.velocity = vel;
 	
 	psources.push_back(pe);
+}
+
+
+void Editor::swarm_meadows(int X, int Z)
+{
+	meadows.clear();
+
+	for(int i = 0; i < X; ++i)
+	{
+		for(int j = 0; j < Z; ++j)
+		{
+			float x = 1*(i-X/2) + 0.7 * rand() / RAND_MAX;
+			float z = 1*(j-Z/2) + 0.7 * rand() / RAND_MAX;
+			meadows.push_back(Vec3(x, 0, z));
+		}
+	}
 }
 

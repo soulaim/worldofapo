@@ -94,6 +94,8 @@ public:
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
 	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
+
+	void drawGrass(const std::vector<Vec3>& locations);
 	
 	void toggleLightingStatus();
 	void toggleWireframeStatus();

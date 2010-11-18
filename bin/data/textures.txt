@@ -6,3 +6,5 @@ grimmnight data/grimmnight.png
 marine models/texture_marine.png
 smoke data/smoke.png
 
+meadow data/images/meadow4.png
+
