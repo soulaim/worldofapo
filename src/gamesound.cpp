@@ -64,7 +64,7 @@ int GameSound::init()
 	{
 		cerr << "Soundsystem initiated succesfully" << endl;
 		soundsystem_ok = true;
-		Mix_AllocateChannels(20);
+		Mix_AllocateChannels(40);
 	}
 	
 	game_sound_music = 0;
@@ -81,6 +81,14 @@ int GameSound::init()
 	sfx["machinegun"] = Mix_LoadWAV("sounds/machinegun_licensed.wav");
 	sfx["shotgun"] = Mix_LoadWAV("sounds/shotgun_licensed.wav");
 	sfx["rifle"] = Mix_LoadWAV("sounds/rifle_shot_licensed.wav");
+	
+	/*
+	sfx["taunt1"] = Mix_LoadWAV("sounds/taunts/balls.wav");
+	sfx["taunt2"] = Mix_LoadWAV("sounds/taunts/smartass.wav");
+	sfx["taunt3"] = Mix_LoadWAV("sounds/taunts/upyours.wav");
+	*/
+	
+	sfx["domination"] = Mix_LoadWAV("sounds/domination.wav");
 	
 	sfx["hit0"] = Mix_LoadWAV("sounds/hit4.wav");
 	sfx["hit1"] = Mix_LoadWAV("sounds/hit3.wav");
@@ -107,6 +115,21 @@ void GameSound::playEffect(const string& requested_sfx, float distance, float ma
 	if(!soundsystem_ok)
 		return;
 	
+	/*
+	if(requested_sfx == "taunt")
+	{
+		string number = "1";
+		number[0] += rand() % 3;
+		requested_sfx.append(number);
+		distance = 1;
+	}
+	*/
+	
+	if(requested_sfx == "domination")
+	{
+		distance = 1;
+	}
+	
 	if(requested_sfx == "")
 		return;
 	
@@ -116,12 +139,11 @@ void GameSound::playEffect(const string& requested_sfx, float distance, float ma
 	if(volume > 128)
 		volume = 128;
 	
-	if(volume < 10)
+	if(volume < 30)
 		return;
-
+	
 	sfx[requested_sfx]->volume = volume;
 	Mix_PlayChannel(-1, sfx[requested_sfx], 0);
-	
 }
 
 

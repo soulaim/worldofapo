@@ -324,6 +324,7 @@ void Localplayer::handleWorldEvents()
 			case WorldEvent::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.t_position);
+
 				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
@@ -336,10 +337,19 @@ void Localplayer::handleWorldEvents()
 			{
 				playSound("player_death", event.t_position);
 				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
-
+				
+				/*
+				if(event.actor_id == game.myID)
+				{
+					playSound("taunt", event.t_position);
+				}
+				*/
+				
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 				{
 					game.Players[event.actor_id].kills++;
+					if(game.Players[event.actor_id].kills > 9) // this way EVERYONE can be dominating :D
+						playSound("domination", event.t_position);
 				}
 				if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
 				{
