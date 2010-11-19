@@ -14,6 +14,8 @@ using namespace std;
 extern vector<pair<Vec3,Vec3> > LINES;
 extern vector<Vec3> DOTS;
 vector<Vec3> meadows;
+Vec3 wind;
+vector<Vec3> winds;
 
 int r = 50;
 int g = 50;
@@ -176,6 +178,24 @@ bool Editor::do_tick()
 		}
 	}
 
+	view.drawDebugLines();
+
+	static int counter = 0;
+	++counter;
+	winds.resize(meadows.size());
+	for(size_t i = 0; i < winds.size(); ++i)
+	{
+		Vec3& w = winds[i];
+		w.x = wind.x * sin((counter + 20 * meadows[i].z) / 100.0);
+		w.y = wind.y * sin((counter + 20 * (meadows[i].x + meadows[i].y)) / 100.0) * 0.2;
+		w.z = wind.z * sin((counter + 20 * meadows[i].x) / 100.0);
+	}
+	view.drawGrass(meadows, winds);
+
+	hud.drawFPS();
+	hud.drawMessages();
+	hud.drawString(message, -0.9, 0.9, 1.5, true);
+
 	if(view.lightsActive)
 	{
 //		view.drawParticles_old(particles);
@@ -185,13 +205,6 @@ bool Editor::do_tick()
 	{
 		view.drawParticles(particles);
 	}
-
-	view.drawDebugLines();
-	view.drawGrass(meadows);
-
-	hud.drawFPS();
-	hud.drawMessages();
-	hud.drawString(message, -0.9, 0.9, 1.5, true);
 
 	view.finishDrawing();
 
@@ -1068,9 +1081,18 @@ void Editor::handle_command(const string& command)
 	{
 		int X = 1;
 		int Z = 1;
+		int y = 0;
 		stringstream ss1(command);
-		ss1 >> word1 >> X >> Z;
-		swarm_meadows(X, Z);
+		ss1 >> word1 >> X >> Z >> y;
+		swarm_meadows(X, Z, y);
+	}
+	else if(word1 == "wind")
+	{
+		stringstream ss1(command);
+		ss1 >> word1 >> wind.x >> wind.y >> wind.z;
+		stringstream ss2;
+		ss2 << wind;
+		hud.pushMessage("Wind speed set to " + ss2.str());
 	}
 	else if(word1 == "p")
 	{
@@ -1479,7 +1501,7 @@ void Editor::genParticleEmitter(const Location& pos, const Location& vel, int li
 }
 
 
-void Editor::swarm_meadows(int X, int Z)
+void Editor::swarm_meadows(int X, int Z, int y)
 {
 	meadows.clear();
 
@@ -1489,7 +1511,7 @@ void Editor::swarm_meadows(int X, int Z)
 		{
 			float x = 1*(i-X/2) + 0.7 * rand() / RAND_MAX;
 			float z = 1*(j-Z/2) + 0.7 * rand() / RAND_MAX;
-			meadows.push_back(Vec3(x, 0, z));
+			meadows.push_back(Vec3(x, y, z));
 		}
 	}
 }

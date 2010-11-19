@@ -1125,8 +1125,11 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	glEnd();
 }
 
-void Graphics::drawGrass(const std::vector<Vec3>& locations)
+void Graphics::drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds)
 {
+	assert(locations.size() == winds.size());
+
+	glUseProgram(shaders["grass_program"]);
 	TextureHandler::getSingleton().bindTexture(0, "meadow1");
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);
@@ -1137,6 +1140,23 @@ void Graphics::drawGrass(const std::vector<Vec3>& locations)
 	glEnable( GL_ALPHA_TEST ) ;
 
 	glColor3f(1.0, 1.0, 1.0);
+	glColor3f(0.3, 0.3, 0.3);
+	glPointSize(5.0f);
+	glBegin(GL_POINTS);
+	for(size_t i = 0; i < locations.size(); ++i)
+	{
+		const Vec3& v = locations[i];
+		const Vec3& wind = winds[i];
+		float scale = 1.0;
+
+		glVertexAttrib1f(uniform_locations["grass_scale"], scale);
+		glVertexAttrib3f(uniform_locations["grass_wind"], wind.x, wind.y, wind.z);
+		glVertex3f(v.x, v.y, v.z);
+
+		QUADS_DRAWN_THIS_FRAME += 3;
+	}
+	glEnd();
+	/*
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < locations.size(); ++i)
 	{
@@ -1163,9 +1183,14 @@ void Graphics::drawGrass(const std::vector<Vec3>& locations)
 		QUADS_DRAWN_THIS_FRAME += 3;
 	}
 	glEnd();
+	*/
 //	glDisable(GL_BLEND);
+
 	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_CULL_FACE);
+
+	glUseProgram(0);
+
 }
 
 

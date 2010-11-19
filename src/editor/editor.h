@@ -62,7 +62,7 @@ class Editor
 	void release_swarm();
 	void swarm_particles(int X, int Y, int Z);
 	void release_particles();
-	void swarm_meadows(int X, int Z);
+	void swarm_meadows(int X, int Z, int y);
 
 	Unit dummy;
 

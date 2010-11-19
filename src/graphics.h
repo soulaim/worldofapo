@@ -95,7 +95,7 @@ public:
 	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 
-	void drawGrass(const std::vector<Vec3>& locations);
+	void drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds);
 	
 	void toggleLightingStatus();
 	void toggleWireframeStatus();

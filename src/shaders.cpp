@@ -114,9 +114,6 @@ void Graphics::initShaders()
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
 //	loadGeometryShader("level_geom", "shaders/level.geometry");
-
-
-
 	shaders["level_program"] = glCreateProgram();
 	glAttachShader(shaders["level_program"], shaders["level_frag"]);
 	glAttachShader(shaders["level_program"], shaders["level_vert"]);
@@ -132,19 +129,30 @@ void Graphics::initShaders()
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
 	loadVertexShader("unit_vert", "shaders/unit.vertex");
 	shaders["unit_program"] = glCreateProgram();
-
 	glAttachShader(shaders["unit_program"], shaders["unit_frag"]);
 	glAttachShader(shaders["unit_program"], shaders["unit_vert"]);
 	glLinkProgram(shaders["unit_program"]);
 	printLog(shaders["unit_program"]);
 
 
+	loadFragmentShader("grass_frag", "shaders/grass.fragment");
+	loadVertexShader("grass_vert", "shaders/grass.vertex");
+	loadGeometryShader("grass_geom", "shaders/grass.geometry");
+	shaders["grass_program"] = glCreateProgram();
+	glAttachShader(shaders["grass_program"], shaders["grass_frag"]);
+	glAttachShader(shaders["grass_program"], shaders["grass_vert"]);
+	glAttachShader(shaders["grass_program"], shaders["grass_geom"]);
+	glProgramParameteriEXT(shaders["grass_program"], GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
+	glProgramParameteriEXT(shaders["grass_program"], GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLES);
+	glProgramParameteriEXT(shaders["grass_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 3 * 2 * 3);
+	glLinkProgram(shaders["grass_program"]);
+	printLog(shaders["grass_program"]);
+
+
 
 	loadFragmentShader("particle_frag", "shaders/particle.fragment");
 	loadVertexShader("particle_vert", "shaders/particle.vertex");
 	loadGeometryShader("particle_geom", "shaders/particle.geometry");
-//	loadGeometryShader("particle_geom", "shaders/level.geometry");
-	
 	shaders["particle_program"] = glCreateProgram();
 	glAttachShader(shaders["particle_program"], shaders["particle_frag"]);
 	glAttachShader(shaders["particle_program"], shaders["particle_vert"]);
@@ -183,11 +191,20 @@ void Graphics::initShaders()
 	unit_color_location = glGetUniformLocation(shaders["unit_program"], "unit_color" );
 	bones_location = glGetUniformLocation(shaders["unit_program"], "bones" );
 	active_location = glGetUniformLocation(shaders["unit_program"], "active" );
-
 	color_index_location = glGetAttribLocation(shaders["unit_program"], "color_index" );
 	bone_weight_location = glGetAttribLocation(shaders["unit_program"], "bone_weight" );
 	bone_index_location = glGetAttribLocation(shaders["unit_program"], "bone_index" );
+
+
+	glUseProgram(shaders["grass_program"]);
+	uniform_locations["grass_texture"] = glGetUniformLocation(shaders["grass_program"], "texture");
+	uniform_locations["grass_wind"] = glGetAttribLocation(shaders["grass_program"], "wind");
+	uniform_locations["grass_scale"] = glGetAttribLocation(shaders["grass_program"], "scale");
+	glUniform1i(uniform_locations["grass_texture"], 0);
+
+
 	glUseProgram(0);
+
 	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)
 	{
 		if(it->first.size() < 11 || it->first.substr(0, 11) != "lvl_lights[")
