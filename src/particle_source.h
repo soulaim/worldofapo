@@ -7,7 +7,7 @@
 
 #include "particle.h"
 
-class ParticleSource: public MovableObject, HasProperties
+class ParticleSource: public MovableObject, public HasProperties
 {
 	friend class World;
 public:

@@ -153,6 +153,9 @@ string UserIO::getSingleKey()
 			
 			bool shift_pressed = isPressed(SDLK_LSHIFT) || isPressed(SDLK_RSHIFT);
 			bool special_key = keyNames[i].size() != 1;
+			
+			if(keyNames[i] == "left ctrl") return "^";
+			
 			if(!shift_pressed || special_key )
 			{
 				return keyNames[i];

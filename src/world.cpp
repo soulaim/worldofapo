@@ -69,19 +69,19 @@ void getColor(const string& a, int& r, int& g, int& b)
 void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
 {
 	ParticleSource pe;
-	pe.getIntProperty("PPF") = particlesPerFrame;
-	pe.getIntProperty("CUR_LIFE") = life;
-	pe.getIntProperty("MAX_LIFE") = life;
-	pe.getIntProperty("PLIFE")    = particleLife;
+	pe.intVals["PPF"] = particlesPerFrame;
+	pe.intVals["CUR_LIFE"] = life;
+	pe.intVals["MAX_LIFE"] = life;
+	pe.intVals["PLIFE"]    = particleLife;
 	
-	pe.getIntProperty("SRED")     = r;
-	pe.getIntProperty("ERED")     = r / 2;
+	pe.intVals["SRED"]     = r;
+	pe.intVals["ERED"]     = r / 2;
 	
-	pe.getIntProperty("SGREEN")   = g;
-	pe.getIntProperty("EGREEN")   = g / 2;
+	pe.intVals["SGREEN"]   = g;
+	pe.intVals["EGREEN"]   = g / 2;
 	
-	pe.getIntProperty("SBLUE")    = b;
-	pe.getIntProperty("EBLUE")    = b / 2;
+	pe.intVals["SBLUE"]    = b;
+	pe.intVals["EBLUE"]    = b / 2;
 	
 	pe.getIntProperty("MAX_RAND") = max_rand;
 	pe.getIntProperty("SCALE") = scale;
