@@ -16,14 +16,13 @@ class Unit;
 
 class Weapon : public Item, public HasProperties
 {
-	World& world;
-	Unit& unit;
+	World* world;
+	Unit* unit;
 	
 	Projectile proto_projectile;
 public:
 	
-	// THIS IS THE TRUE WAY TO GO
-	Weapon(World& w, Unit& u, const std::string& fileName):
+	Weapon(World* w, Unit* u, const std::string& fileName):
 		world(w),
 		unit(u)
 	{

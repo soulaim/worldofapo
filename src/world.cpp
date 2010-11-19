@@ -596,10 +596,10 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
-	unit.weapons[unit.weapon]->tick();
-	if (unit.getMouseAction(Unit::ATTACK_BASIC))
+	unit.weapons[unit.weapon].tick();
+	if(unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		unit.weapons[unit.weapon]->onUse();
+		unit.weapons[unit.weapon].onUse();
 	}
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;

@@ -3,7 +3,10 @@
 #define H_ITEM
 
 #include <string>
+#include <sstream>
 #include <fstream>
+#include <cassert>
+
 #include <unordered_map>
 
 class HasProperties
@@ -61,6 +64,38 @@ public:
 		if(bla != strVals.end())
 			return bla->second;
 		return empty;
+	}
+
+	void handleCopyOrder(std::stringstream& ss)
+	{
+		std::string key;
+		ss >> key;
+		assert(key == "INT_VALS");
+		while(ss >> key && key != "STR_VALS")
+		{
+			ss >> intVals[key];
+		}
+		while(ss >> key && key != "END_VALS")
+		{
+			ss >> strVals[key];
+		}
+	}
+
+	std::string copyOrder() const
+	{
+		std::stringstream msg;
+		msg << " INT_VALS";
+		for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
+		{
+			msg << " " << iter->first << " " << iter->second;
+		}
+		msg << " STR_VALS";
+		for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
+		{
+			msg << " " << iter->first << " " << iter->second;
+		}
+		msg << " END_VALS";
+		return msg.str();
 	}
 	
 	int zero;

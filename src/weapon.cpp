@@ -31,10 +31,10 @@ void Weapon::fire()
 		return;
 	}
 	
-	unit.soundInfo = strVals["FIRE_SOUND"];
+	unit->soundInfo = strVals["FIRE_SOUND"];
 	
-	Location weapon_position = unit.getPosition();
-	Location projectile_direction = unit.getLookDirection();
+	Location weapon_position = unit->getPosition();
+	Location projectile_direction = unit->getLookDirection();
 	
 	weapon_position.y += 4;
 	projectile_direction.y += 4;
@@ -43,15 +43,15 @@ void Weapon::fire()
 	
 	for(int i=0; i<intVals["PROJECTILES_PER_USE"]; ++i)
 	{
-		int id = world.nextUnitID();
-		world.addProjectile(weapon_position, id, model_prototype);
-		Projectile& projectile = world.projectiles[id];
+		int id = world->nextUnitID();
+		world->addProjectile(weapon_position, id, model_prototype);
+		Projectile& projectile = world->projectiles[id];
 		
 		projectile.intVals = proto_projectile.intVals;
 		projectile.strVals = proto_projectile.strVals;
 		
 		projectile["ID"]     = id;
-		projectile["OWNER"]  = unit.id;
+		projectile["OWNER"]  = unit->id;
 		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();
@@ -61,7 +61,7 @@ void Weapon::fire()
 		assert((projectile["TPF"] != 0) && strVals["NAME"].c_str());
 		
 		FixedPoint speedPerTick(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]);
-		projectile.velocity = projectile_direction * speedPerTick + unit.getVelocity() / projectile["TPF"];
+		projectile.velocity = projectile_direction * speedPerTick + unit->getVelocity() / projectile["TPF"];
 		
 		// variance term for velocity
 		if(intVals["HAS_VARIANCE"])

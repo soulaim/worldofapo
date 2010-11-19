@@ -95,11 +95,19 @@ void Unit::handleCopyOrder(std::stringstream& ss)
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
 		id >> weapon;
+
+	HasProperties::handleCopyOrder(ss);
+
+	for(size_t i = 0; i < weapons.size(); ++i)
+	{
+		weapons[i].handleCopyOrder(ss);
+	}
+
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);
 }
 
-std::string Unit::copyOrder(int ID)
+std::string Unit::copyOrder(int ID) const
 {
 	std::stringstream hero_msg;
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
@@ -108,7 +116,14 @@ std::string Unit::copyOrder(int ID)
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
 		<< id << " " << weapon << " ";
-	
+
+	hero_msg << HasProperties::copyOrder();
+
+	for(size_t i = 0; i < weapons.size(); ++i)
+	{
+		hero_msg << weapons[i].copyOrder();
+	}
+
 	// name must be the last element.
 	hero_msg << name << "#";
 	
@@ -149,10 +164,10 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init(World& w)
 {
-	weapons.push_back(new Weapon(w, *this, "data/items/weapon_flame.dat"));
-	weapons.push_back(new Weapon(w, *this, "data/items/weapon_mgun.dat"));
-	weapons.push_back(new Weapon(w, *this, "data/items/weapon_shotgun.dat"));
-	weapons.push_back(new Weapon(w, *this, "data/items/weapon_railgun.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_mgun.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_shotgun.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
 	
 	weapon = 0;
 }

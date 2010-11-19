@@ -13,7 +13,7 @@
 #include "movable_object.h"
 #include "item.h"
 
-class Unit : public MovableObject, HasProperties, public OctreeObject
+class Unit : public MovableObject, public HasProperties, public OctreeObject
 {
 	friend class World;
 	
@@ -54,7 +54,7 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		
 		// TODO: Should have a proper inventory system perhaps.
 		size_t weapon;
-		std::vector<Weapon*> weapons;
+		std::vector<Weapon> weapons;
 		
 		int controllerTypeID;
 		int hitpoints;
@@ -76,7 +76,7 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		int getMouseAction(int type) const;
 		bool human() const;
 		
-		std::string copyOrder(int ID);
+		std::string copyOrder(int ID) const;
 		void handleCopyOrder(std::stringstream& ss);
 		
 		float getAngle(ApoMath&);

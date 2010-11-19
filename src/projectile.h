@@ -41,7 +41,7 @@ class Projectile : MovableObject, HasProperties
 		
 		bool collides(const Unit&);
 		bool collidesTerrain(Level& lvl) const;
-		std::string copyOrder(int);
+		std::string copyOrder(int ID) const;
 		void handleCopyOrder(std::stringstream& ss);
 	private:
 };
