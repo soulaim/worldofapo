@@ -76,18 +76,26 @@ Model* ModelFactory::create(size_t prototype)
 	}
 	assert(types.size() == prototypes.size());
 	Model* model = prototypes[prototype].get();
+	Model* ret = 0;
 	switch(types[prototype])
 	{
 		case APOMODEL:
-			return new ApoModel( *(ApoModel*)model );
+			ret = new ApoModel( *(ApoModel*)model );
+			break;
 		case SKELETALMODEL:
-			return new SkeletalModel( *(SkeletalModel*)model );
+			ret = new SkeletalModel( *(SkeletalModel*)model );
+			break;
 		case INVISIBLEMODEL:
-			return new InvisibleModel(*(InvisibleModel*)model );
+			ret = new InvisibleModel(*(InvisibleModel*)model );
+			break;
 		case NOMODEL:
-			return 0;
+			ret = 0;
 	}
-	return 0;
+	if(!ret)
+	{
+		cerr << "Request to create model from prototype " << prototype << " returned 0." << endl;
+	}
+	return ret;
 }
 
 void ModelFactory::destroy(Model* model)

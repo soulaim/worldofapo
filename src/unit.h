@@ -53,7 +53,7 @@ class Unit : public MovableObject, HasProperties, public OctreeObject
 		std::string soundInfo;
 		
 		// TODO: Should have a proper inventory system perhaps.
-		Weapon* weapon;
+		size_t weapon;
 		std::vector<Weapon*> weapons;
 		
 		int controllerTypeID;

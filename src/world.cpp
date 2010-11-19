@@ -450,13 +450,10 @@ void World::tickUnit(Unit& unit, Model* model)
 	
 	unit.soundInfo = "";
 	
-	// ALERT!! WHY THE FUCK IS MODEL ZERO HERE EVER??
-	// update the information according to which the unit model will be updated from now on
-	if(model != 0)
-	{
-		model->rotate_y(unit.getAngle(apomath));
-		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
-	}
+	assert(model && "this should never happen");
+
+	model->rotate_y(unit.getAngle(apomath));
+	model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	
 	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
 	
@@ -599,10 +596,10 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
-	unit.weapon->tick();
+	unit.weapons[unit.weapon]->tick();
 	if (unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		unit.weapon->onUse();
+		unit.weapons[unit.weapon]->onUse();
 	}
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;

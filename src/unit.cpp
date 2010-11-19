@@ -92,8 +92,9 @@ void Unit::handleCopyOrder(std::stringstream& ss)
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
 		velocity.x >> velocity.z >> velocity.y >>
-		mouseButtons >> weapon_cooldown >> leap_cooldown >> controllerTypeID >> hitpoints >> birthTime >> id;
-	
+		mouseButtons >> weapon_cooldown >> leap_cooldown >>
+		controllerTypeID >> hitpoints >> birthTime >>
+		id >> weapon;
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);
 }
@@ -104,7 +105,9 @@ std::string Unit::copyOrder(int ID)
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
-		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " " << controllerTypeID << " " << hitpoints << " " << birthTime << " " << id << " ";
+		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
+		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
+		<< id << " " << weapon << " ";
 	
 	// name must be the last element.
 	hero_msg << name << "#";
@@ -151,13 +154,13 @@ void Unit::init(World& w)
 	weapons.push_back(new Weapon(w, *this, "data/items/weapon_shotgun.dat"));
 	weapons.push_back(new Weapon(w, *this, "data/items/weapon_railgun.dat"));
 	
-	// TODO ALERT: Should keep track of the INDEX of the current weapon. Not the pointer. More difficult to transmit in world-copy otherwise (which is not done at all currently).
-	weapon = weapons[0];
+	weapon = 0;
 }
 
-void Unit::switchWeapon(unsigned x) {
-	if (x > weapons.size())
+void Unit::switchWeapon(unsigned x)
+{
+	if(x <= 0 || x > weapons.size())
 		return;
-	weapon = weapons[x-1];
+	weapon = x-1;
 }
 
