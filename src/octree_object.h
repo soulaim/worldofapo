@@ -40,7 +40,8 @@ class OctreeObject : public MovableObject
 };
 
 struct OctreeObjectLess {
-	bool operator( )(const OctreeObject* o1, const OctreeObject* o2) {
+	bool operator( )(const OctreeObject* o1, const OctreeObject* o2)
+	{
 		return(o1->id < o2->id);
 	}
 };

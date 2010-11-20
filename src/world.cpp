@@ -176,9 +176,9 @@ void World::doDeathFor(Unit& unit)
 	
 	if(actor_id != -1)
 	{
-		event.a_position = units[actor_id].position;
+		event.a_position = units.find(actor_id)->second.position;
 		event.a_position.y += FixedPoint(2);
-		event.a_velocity = units[actor_id].velocity;
+		event.a_velocity = units.find(actor_id)->second.velocity;
 	}
 	
 	if(actor_id != target_id)
@@ -253,21 +253,21 @@ void World::generateInput_RabidAlien(Unit& unit)
 	if(bestSquaredDistance < FixedPoint(9))
 	{
 		// DEVOUR!
-		units[unitID].hitpoints -= 173; // devouring does LOTS OF DAMAGE!
-		units[unitID].last_damage_dealt_by = unit.id;
-		units[unitID]("DAMAGED_BY") = "devour";
+		units.find(unitID)->second.hitpoints -= 173; // devouring does LOTS OF DAMAGE!
+		units.find(unitID)->second.last_damage_dealt_by = unit.id;
+		units.find(unitID)->second("DAMAGED_BY") = "devour";
 		
 		// save this information for later use.
 		WorldEvent event;
 		event.type = WorldEvent::DAMAGE_DEVOUR;
-		event.t_position = units[unitID].position;
+		event.t_position = units.find(unitID)->second.position;
 		event.t_position.y += FixedPoint(2);
 		event.t_velocity.y = FixedPoint(900,1000);
 		visualworld.add_event(event);
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = unit.position - units[unitID].position;
+	Location direction = unit.position - units.find(unitID)->second.position;
 	
 	if(direction.length() == 0)
 	{
@@ -449,6 +449,12 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	unit.soundInfo = "";
+	
+	if(model == 0)
+	{
+		cerr << "UNIT ID: " << unit.id << endl;
+		cerr << "hp: " << unit.hitpoints << endl;
+	}
 	
 	assert(model && "this should never happen");
 
@@ -739,7 +745,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			// intentional continue of execution
 		}
 		
-		auto& potColl = o->nearObjects(projectile.position);
+		auto& potColl = octree->nearObjects(projectile.position);
 		for(auto it = potColl.begin(); it != potColl.end(); ++it)
 		{
 			if ((*it)->type != OctreeObject::UNIT)
@@ -924,12 +930,18 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
-	o.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
+	octree.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
 	currentWorldFrame = tickCount;
+	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
+		if(iter->first != iter->second.id)
+		{
+			cerr << "ID: " << iter->first << " != " << iter->second.id << endl;
+		}
+		
 		tickUnit(iter->second, visualworld.models[iter->first]);
-		o->insertObject(&(iter->second));
+		octree->insertObject(&(iter->second));
 	}
 	
 	
@@ -945,7 +957,7 @@ void World::worldTick(int tickCount)
 	}
 	
 	
-	o->doCollisions();
+	octree->doCollisions();
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \
@@ -1037,13 +1049,15 @@ void VisualWorld::addLight(int id, Location& location)
 
 void World::addUnit(int id, bool playerCharacter)
 {
+	if(units.find(id) != units.end())
+		cerr << "FUCK FUCK FUCK FUCK FUCK" << endl;
+	
 	units[id] = Unit();
 	units[id].init(*this);
 	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
-	
 	visualworld.models[id] = ModelFactory::create(World::PLAYER_MODEL);
 	
 	if(!playerCharacter)
@@ -1058,7 +1072,6 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
 	}
-	
 }
 
 void World::addProjectile(Location& location, int id, size_t model_prototype)

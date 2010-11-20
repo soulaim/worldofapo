@@ -92,7 +92,7 @@ public:
 	World();
 	void init();
 
-	std::shared_ptr<Octree> o;
+	std::shared_ptr<Octree> octree;
 	
 	std::map<int, Unit> units;
 	std::map<int, Projectile> projectiles;
@@ -123,13 +123,13 @@ public:
 	
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
-
+	
 	unsigned long checksum() const;
-
+	
 private:
 	std::vector<int> deadUnits;
 	ApoMath apomath;
-
+	
 	int _unitID_next_unit;
 	int _playerID_next_player;
 	

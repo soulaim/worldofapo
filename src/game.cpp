@@ -213,7 +213,6 @@ bool Game::client_tick_local()
 	{
 		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
-
 		return true;
 	}
 
@@ -240,7 +239,7 @@ void Game::process_received_game_input()
 			break;
 		}
 		
-		world->units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+		world->units.find(tmp.plr_id)->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 //	log.print("\n");
@@ -278,8 +277,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
 		
 		// just to make sure.
-		world->units[server_msg.keyState].name = Players[server_msg.keyState].name;
-		
+		world->units.find(server_msg.keyState)->second.name = Players[server_msg.keyState].name;
 		world->add_message("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
@@ -296,14 +294,13 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 		sort(UnitInput.begin(), UnitInput.end());
-		
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		world->add_message("^Ggot playerID!");
 		
-		cerr << "Sending my name now: " << localPlayer.name << endl;
+		cerr << "MYID: " << myID << ", sending my name now: " << localPlayer.name << endl;
 		stringstream ss;
 		
 		if(localPlayer.name == "")
@@ -418,7 +415,7 @@ void Game::processClientMsgs()
 				else
 				{
 					cerr << "Assigning player identity (name) to corresponding unit." << endl;
-					world->units[plrID].name = Players[plrID].name;
+					world->units.find(plrID)->second.name = Players[plrID].name;
 				}
 			}
 		}
@@ -464,11 +461,16 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
-				cerr << "Creating a new unit as per instructions" << endl;
 				int unitID;
 				ss >> unitID;
+				
+				Logger log;
+				log << "ORDER: create unit " << unitID << "\n";
+				
 				world->addUnit(unitID);
-				world->units[unitID].handleCopyOrder(ss);
+				world->units.find(unitID)->second.handleCopyOrder(ss);
+				
+				cerr << "COPY OF A UNIT: " << unitID << " / " << world->units.find(unitID)->second.id << endl;
 			}
 			else if(cmd == "PROJECTILE")
 			{
@@ -518,7 +520,6 @@ void Game::processClientMsgs()
 			cerr << "HOLY FUCK! I DONT UNDERSTAND SHIT :G \"" << clientOrders.orders[i] << "\"" << endl;
 		}
 	}
-	
 	clientOrders.orders.clear();
 }
 

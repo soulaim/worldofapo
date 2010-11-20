@@ -420,6 +420,11 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 void Hud::drawMinimap() const
 {
 	static ApoMath apomath = ApoMath();
+	
+	auto iteratorMyUnit = (*units).find(myID);
+	if(iteratorMyUnit == units->end())
+		return;
+	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	
@@ -430,7 +435,7 @@ void Hud::drawMinimap() const
 	glPushMatrix();
 	glLoadIdentity();
 	
-	Unit& myUnit = (*units)[myID];
+	Unit& myUnit = iteratorMyUnit->second;
 	
 	float map_r = 0.18f;
 	float minimap_angle = apomath.getDegrees( myUnit.angle );

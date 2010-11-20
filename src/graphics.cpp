@@ -957,10 +957,10 @@ void Graphics::draw(
 	)
 {
 	updateCamera(lvl);
-
+	
 	startDrawing();
 	drawSkybox();
-
+	
 	if(drawDebuglines)
 	{
 		drawDebugLevelNormals(lvl);
@@ -975,10 +975,11 @@ void Graphics::draw(
 	{
 		drawLevel(lvl, lights);
 	}
+	
 	drawDebugLines();
 	drawBoundingBoxes(units);
 	drawModels(models);
-
+	
 	if(lightsActive) // TODO: drawParticles_old can be removed when drawParticles is good enough.
 	{
 		drawParticles_old(particles);
@@ -987,14 +988,14 @@ void Graphics::draw(
 	{
 		drawParticles(particles);
 	}
-
+	
 	drawOctree(o);
 	
 	if(hud)
 	{
 		hud->draw(camera.isFirstPerson());
 	}
-
+	
 	finishDrawing();
 }
 

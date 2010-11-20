@@ -101,7 +101,7 @@ void Localplayer::draw()
 	{
 		world.visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
-		view->draw(world.visualworld.models, world.lvl, world.units, world.visualworld.lights, world.o, &hud, world.projectiles, world.visualworld.particles);
+		view->draw(world.visualworld.models, world.lvl, world.units, world.visualworld.lights, world.octree, &hud, world.projectiles, world.visualworld.particles);
 	}
 }
 
@@ -110,7 +110,7 @@ void Localplayer::playSound(const std::string& name, const Location& position)
 	// play sounds!
 	if(game.myID >= 0)
 	{
-		const Location& reference_point = world.units[game.myID].getPosition();
+		const Location& reference_point = world.units.find(game.myID)->second.getPosition();
 		
 		FixedPoint distance = (reference_point - position).length();
 		
@@ -284,7 +284,7 @@ void Localplayer::handleWorldEvents()
 	{
 		hud.setLocalPlayerID(game.myID);
 		hud.setLocalPlayerName(game.Players[game.myID].name);
-		hud.setLocalPlayerHP(world.units[game.myID].hitpoints);
+		hud.setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
 	}
 
 	hud.setZombiesLeft(world.getZombies());
@@ -327,7 +327,7 @@ void Localplayer::handleWorldEvents()
 
 				world.visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
 
-				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
 				{
 					game.Players[event.actor_id].kills++;
 				}
@@ -345,14 +345,14 @@ void Localplayer::handleWorldEvents()
 				}
 				*/
 				
-				if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
 				{
 					game.Players[event.actor_id].kills++;
 					if(game.Players[event.actor_id].kills > 9) // this way EVERYONE can be dominating :D
 						playSound("domination", event.t_position);
 				}
 				
-				if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
+				if( (world.units.find(event.target_id) != world.units.end()) && world.units.find(event.target_id)->second.human())
 				{
 					game.Players[event.target_id].deaths++;
 				}
@@ -363,7 +363,7 @@ void Localplayer::handleWorldEvents()
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
 					std::cerr << "Binding camera to unit " << event.actor_id << std::endl;
-					view->bindCamera(&world.units[event.actor_id]);
+					view->bindCamera(&world.units.find(event.actor_id)->second);
 				}
 				break;
 			}

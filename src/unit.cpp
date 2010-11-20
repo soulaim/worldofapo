@@ -5,7 +5,7 @@
 
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
-	hitpoints(1000),
+	hitpoints(1),
 	keyState(0),
 	mouseButtons(0),
 	weapon_cooldown(0),
@@ -181,9 +181,9 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init(World& w)
 {
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_shotgun.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
 	
 	weapon = 0;
