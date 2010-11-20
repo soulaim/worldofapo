@@ -84,7 +84,7 @@ int GameSound::init()
 	
 	/*
 	sfx["taunt1"] = Mix_LoadWAV("sounds/taunts/balls.wav");
-	sfx["taunt2"] = Mix_LoadWAV("sounds/taunts/smartass.wav");
+	sfx["taunt2"] = Mix_LoadWAV("sounds/taunts/powerking.wav");
 	sfx["taunt3"] = Mix_LoadWAV("sounds/taunts/upyours.wav");
 	*/
 	
@@ -110,8 +110,10 @@ void musicDone()
 }
 
 
-void GameSound::playEffect(const string& requested_sfx, float distance, float magnitude)
+void GameSound::playEffect(const string& lol, float distance, float magnitude)
 {
+	string requested_sfx = lol;
+	
 	if(!soundsystem_ok)
 		return;
 	

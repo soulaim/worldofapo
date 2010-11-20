@@ -94,7 +94,7 @@ void Unit::handleCopyOrder(std::stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon;
+		id >> weapon >> collision_rule;
 
 	HasProperties::handleCopyOrder(ss);
 
@@ -115,7 +115,7 @@ std::string Unit::copyOrder(int ID) const
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " ";
+		<< id << " " << weapon << " " << collision_rule << " ";
 
 	hero_msg << HasProperties::copyOrder();
 
@@ -142,23 +142,40 @@ Location Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
-	if (o.type == OctreeObject::UNIT)
+	// if one of the objects doesn't want to collide, then don't react.
+	if(!(collision_rule & o.collision_rule))
+		return;
+	
+	// if my collision rule is STRING_SYSTEM, make changes to myself accordingly.
+	if(collision_rule == CollisionRule::STRING_SYSTEM)
 	{
-		Unit& u = (Unit&) o;
-		Location direction = (position - u.position);
+		Location direction = (position - o.position);
 		if(direction.length() == FixedPoint(0))
 		{
 			// unresolvable collision. leave it be.
 			return;
 		}
+		
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
-		
 		velocity += direction;
 	}
-	else if (o.type == OctreeObject::MEDIKIT)
+	else if(collision_rule == CollisionRule::HARD_OBJECT)
 	{
-		hitpoints += 100;
+		Location direction = (position - o.position);
+		if(direction.length() == FixedPoint(0))
+		{
+			// unresolvable collision. leave it be.
+			return;
+		}
+		
+		direction.normalize();
+		direction *= FixedPoint(1, 10);
+		position += direction;
+		velocity = Location();
+		
+		// TODO: Need to find out more information about the collision. How did they collide? Which is the least offending face?
+		// TODO: should set velocity to zero in the direction of the collision. What about non-axis aligned boxes?
 	}
 }
 

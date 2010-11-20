@@ -6,7 +6,7 @@
 #include "movable_object.h"
 #include "location.h"
 
-class Medikit: public OctreeObject, MovableObject
+class Medikit: public OctreeObject
 {
 	friend class World; // hohhoijaa
 public:

@@ -88,11 +88,6 @@ bool Collision::lineBox(Location b_bot, Location b_top, Location l1, Location l2
 }
 
 bool Collision::boxBox(Location b1_bot, Location b1_top, Location b2_bot, Location b2_top) {
-	if (b1_top.x < b2_bot.x || b2_top.x < b1_bot.x)
-		return false;
-	if (b1_top.y < b2_bot.y || b2_top.y < b1_bot.y)
-		return false;
-	if (b1_top.z < b2_bot.z || b2_top.z < b1_bot.z)
-		return false;
-	return true;
+	return !(b1_top.x < b2_bot.x || b2_top.x < b1_bot.x || b1_top.y < b2_bot.y || b2_top.y < b1_bot.y || b1_top.z < b2_bot.z || b2_top.z < b1_bot.z);
 }
+

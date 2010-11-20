@@ -351,6 +351,7 @@ void Localplayer::handleWorldEvents()
 					if(game.Players[event.actor_id].kills > 9) // this way EVERYONE can be dominating :D
 						playSound("domination", event.t_position);
 				}
+				
 				if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
 				{
 					game.Players[event.target_id].deaths++;

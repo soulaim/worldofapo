@@ -13,7 +13,7 @@
 #include "movable_object.h"
 #include "item.h"
 
-class Unit : public MovableObject, public HasProperties, public OctreeObject
+class Unit : public HasProperties, public OctreeObject
 {
 	friend class World;
 	
