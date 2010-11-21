@@ -5,33 +5,6 @@
 
 using namespace std;
 
-FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
-{
-	// no restrictions for moving downhill
-	if(h_diff < FixedPoint::ZERO)
-		return 1;
-	if(h_diff >= FixedPoint(2))
-		return FixedPoint::ZERO;
-	return (FixedPoint(2) - h_diff)/FixedPoint(2);
-}
-
-unsigned long World::checksum() const
-{
-	unsigned long hash = 5381;
-	
-	for (auto it = units.begin(); it != units.end(); ++it)
-	{
-		int id = it->first;
-		Location pos = it->second.getPosition();
-		hash = ((hash << 5) + hash) + id;
-		hash = ((hash << 5) + hash) + pos.x.getInteger();
-		hash = ((hash << 5) + hash) + pos.y.getInteger();
-		hash = ((hash << 5) + hash) + pos.z.getInteger();
-	}
-	
-	return hash;
-}
-
 // TODO: this should be a bit smarter maybe? oh well.
 void getColor(const string& a, int& r, int& g, int& b)
 {
@@ -65,6 +38,175 @@ void getColor(const string& a, int& r, int& g, int& b)
 	}
 }
 
+void VisualWorld::init()
+{
+	cerr << "VisualWorld init" << endl;
+	
+	particles.reserve(40000);
+}
+
+void VisualWorld::terminate()
+{
+	for(auto it = models.begin(); it != models.end(); ++it)
+	{
+		ModelFactory::destroy(it->second);
+	}
+	models.clear();
+}
+
+
+void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
+{
+	for(size_t i=0; i<particles.size(); ++i)
+	{
+		particles[i].viewTick();
+	}
+	
+	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		updateModel(models[iter->first], iter->second, currentWorldFrame);
+	}
+	
+	for(map<int, Projectile>::const_iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
+	{
+		Model* model = models[iter->first];
+		model->setAction("idle");
+		model->tick(currentWorldFrame);
+	}
+}
+
+
+void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
+{
+	assert(model != 0);
+	
+	if(unit.getKeyAction(Unit::MOVE_FRONT))
+	{
+		if(unit.getKeyAction(Unit::MOVE_LEFT))
+			model->setAction("run_forwardleft");
+		else if(unit.getKeyAction(Unit::MOVE_RIGHT))
+			model->setAction("run_forwardright");
+		else
+			model->setAction("run_forward");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_BACK))
+	{
+		model->setAction("run_backward");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_LEFT))
+	{
+		model->setAction("run_left");
+	}
+	else if(unit.getKeyAction(Unit::MOVE_RIGHT))
+	{
+		model->setAction("run_right");
+	}
+	else
+	{
+		model->setAction("idle2");
+	}
+	
+	// update state of model
+	model->tick(currentWorldFrame);
+}
+
+void VisualWorld::tickParticles()
+{
+	for(size_t i=0; i<psources.size(); ++i)
+	{
+		psources[i].tick(particles);
+		if(!psources[i].alive())
+		{
+			psources[i] = psources.back();
+			psources.pop_back();
+			--i;
+		}
+	}
+	
+	for(size_t i=0; i<particles.size(); ++i)
+	{
+		if(!particles[i].alive())
+		{
+			particles[i] = particles.back();
+			particles.pop_back();
+			--i;
+		}
+		else
+			particles[i].tick();
+	}
+}
+
+void VisualWorld::tickLights(const std::map<int, Unit>& units)
+{
+	vector<int> deadLights;
+	for(auto iter = lights.begin(); iter != lights.end(); iter++)
+	{
+		LightObject& light = iter->second;
+		
+		// TODO should have a world.tickMovableObject(&light); call here
+		
+		// update light qualities
+		if(!light.tickLight())
+		{
+			// if light has died out, should maybe like prepare to erase it or something.
+			light.deactivateLight();
+			deadLights.push_back(iter->first);
+			
+			// cerr << "DEAD LIGHT! ERASING" << endl;
+		}
+		
+		if(light.unitBind != -1)
+		{
+			if(units.find(light.unitBind) == units.end())
+			{
+				// master of the light is dead. must kill the light.
+				light.deactivateLight();
+				deadLights.push_back(iter->first);
+			}
+			else
+			{
+				// light.drawPos  = models.find(light.unitBind)->second.currentModelPos;
+				light.position = units.find(light.unitBind)->second.getPosition();
+				light.position.y += FixedPoint(7, 2);
+			}
+		}
+	}
+	
+	for(size_t i=0; i<deadLights.size(); i++)
+	{
+		lights.erase(deadLights[i]);
+	}
+	deadLights.clear();
+}
+
+
+void VisualWorld::addLight(int id, Location& location)
+{
+	//	cerr << "Adding light at " << location << endl;
+	LightObject& light = lights[id];
+	light.setDiffuse(1.f, 1.f, 1.f);
+	light.setSpecular(0.f, 0.f, 0.f);
+	light.setLife(200); // Some frames of LIGHT!
+	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
+	light.activateLight(); // ACTIVATE :D
+	light.position = location;
+	light.position.y += FixedPoint(3, 2);
+}
+
+void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
+{
+	LightObject& light = lights[id];
+	light.setDiffuse(r / 255.f, g / 255.f, b / 255.f);
+	light.setSpecular(0.f, 0.f, 0.f);
+	light.setLife(life);
+	light.activateLight();
+	light.position = pos;
+	light.position.y += FixedPoint(2);
+	
+	light.behaviour = LightSource::RISE_AND_DIE;
+	// light.behaviour = LightSource::ONLY_DIE;
+
+}
 
 void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
 {
@@ -97,6 +239,57 @@ void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, i
 	pe.velocity = vel;
 	
 	psources.push_back(pe);
+}
+
+
+void VisualWorld::add_message(const std::string& message)
+{
+	worldMessages.push_back(message);
+}
+
+void VisualWorld::removeUnit(int id)
+{
+	auto it = models.find(id);
+	if(it != models.end())
+	{
+		ModelFactory::destroy(it->second);
+		models.erase(it);
+	}
+}
+
+void VisualWorld::add_event(const WorldEvent& event)
+{
+	events.push_back(event);
+}
+
+
+
+
+FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
+{
+	// no restrictions for moving downhill
+	if(h_diff < FixedPoint::ZERO)
+		return 1;
+	if(h_diff >= FixedPoint(2))
+		return FixedPoint::ZERO;
+	return (FixedPoint(2) - h_diff)/FixedPoint(2);
+}
+
+unsigned long World::checksum() const
+{
+	unsigned long hash = 5381;
+	
+	for (auto it = units.begin(); it != units.end(); ++it)
+	{
+		int id = it->first;
+		Location pos = it->second.getPosition();
+		hash = ((hash << 5) + hash) + id;
+		hash = ((hash << 5) + hash) + pos.x.getInteger();
+		hash = ((hash << 5) + hash) + pos.y.getInteger();
+		hash = ((hash << 5) + hash) + pos.z.getInteger();
+	}
+	
+	return hash;
 }
 
 
@@ -375,13 +568,6 @@ World::World()
 	init();
 }
 
-void VisualWorld::init()
-{
-	cerr << "VisualWorld init" << endl;
-	
-	particles.reserve(40000);
-}
-
 void World::init()
 {
 	cerr << "World init" << endl;
@@ -424,15 +610,6 @@ void World::terminate()
 	projectiles.clear();
 
 	visualworld.terminate();
-}
-
-void VisualWorld::terminate()
-{
-	for(auto it = models.begin(); it != models.end(); ++it)
-	{
-		ModelFactory::destroy(it->second);
-	}
-	models.clear();
 }
 
 
@@ -809,116 +986,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	projectile.velocity.y += FixedPoint(projectile["GRAVITY"], 1000);
 }
 
-void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
-{
-	/*
-	// deduce which animation to display
-	if(unit.position.h - FixedPoint(100,1000) > lvl.getHeight(unit.position.x, unit.position.y))
-	{
-		model.setAction("jump");
-	}
-	else */
-	
-	assert(model != 0);
-	
-	if(unit.getKeyAction(Unit::MOVE_FRONT))
-	{
-		if(unit.getKeyAction(Unit::MOVE_LEFT))
-			model->setAction("run_forwardleft");
-		else if(unit.getKeyAction(Unit::MOVE_RIGHT))
-			model->setAction("run_forwardright");
-		else
-			model->setAction("run_forward");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_BACK))
-	{
-		model->setAction("run_backward");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_LEFT))
-	{
-		model->setAction("run_left");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_RIGHT))
-	{
-		model->setAction("run_right");
-	}
-	else
-	{
-		model->setAction("idle2");
-	}
-	
-	// update state of model
-	model->tick(currentWorldFrame);
-}
-
-void VisualWorld::tickParticles()
-{
-	for(size_t i=0; i<psources.size(); ++i)
-	{
-		psources[i].tick(particles);
-		if(!psources[i].alive())
-		{
-			psources[i] = psources.back();
-			psources.pop_back();
-			--i;
-		}
-	}
-	
-	for(size_t i=0; i<particles.size(); ++i)
-	{
-		if(!particles[i].alive())
-		{
-			particles[i] = particles.back();
-			particles.pop_back();
-			--i;
-		}
-		else
-			particles[i].tick();
-	}
-}
-
-void VisualWorld::tickLights(const std::map<int, Unit>& units)
-{
-	vector<int> deadLights;
-	for(auto iter = lights.begin(); iter != lights.end(); iter++)
-	{
-		LightObject& light = iter->second;
-		
-		// TODO should have a world.tickMovableObject(&light); call here
-		
-		// update light qualities
-		if(!light.tickLight())
-		{
-			// if light has died out, should maybe like prepare to erase it or something.
-			light.deactivateLight();
-			deadLights.push_back(iter->first);
-			
-			// cerr << "DEAD LIGHT! ERASING" << endl;
-		}
-		
-		if(light.unitBind != -1)
-		{
-			if(units.find(light.unitBind) == units.end())
-			{
-				// master of the light is dead. must kill the light.
-				light.deactivateLight();
-				deadLights.push_back(iter->first);
-			}
-			else
-			{
-				// light.drawPos  = models.find(light.unitBind)->second.currentModelPos;
-				light.position = units.find(light.unitBind)->second.getPosition();
-				light.position.y += FixedPoint(7, 2);
-			}
-		}
-	}
-	
-	for(size_t i=0; i<deadLights.size(); i++)
-	{
-		lights.erase(deadLights[i]);
-	}
-	deadLights.clear();
-}
 
 void World::worldTick(int tickCount)
 {
@@ -1014,38 +1081,8 @@ void World::worldTick(int tickCount)
 	}
 }
 
-void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
-{
-	for(size_t i=0; i<particles.size(); ++i)
-	{
-		particles[i].viewTick();
-	}
-	
-	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		updateModel(models[iter->first], iter->second, currentWorldFrame);
-	}
-	
-	for(map<int, Projectile>::const_iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
-	{
-		Model* model = models[iter->first];
-		model->setAction("idle");
-		model->tick(currentWorldFrame);
-	}
-}
 
-void VisualWorld::addLight(int id, Location& location)
-{
-//	cerr << "Adding light at " << location << endl;
-	LightObject& light = lights[id];
-	light.setDiffuse(1.f, 1.f, 1.f);
-	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(200); // Some frames of LIGHT!
-	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
-	light.activateLight(); // ACTIVATE :D
-	light.position = location;
-	light.position.y += FixedPoint(3, 2);
-}
+
 
 void World::addUnit(int id, bool playerCharacter)
 {
@@ -1109,16 +1146,6 @@ int World::currentUnitID() const
 	return _unitID_next_unit;
 }
 
-void VisualWorld::removeUnit(int id)
-{
-	auto it = models.find(id);
-	if(it != models.end())
-	{
-		ModelFactory::destroy(it->second);
-		models.erase(it);
-	}
-}
-
 void World::removeUnit(int id)
 {
 	// Note that same id might be removed twice on the same frame!
@@ -1151,19 +1178,9 @@ std::vector<Location> World::humanPositions() const
 	return positions;
 }
 
-void VisualWorld::add_message(const std::string& message)
-{
-	worldMessages.push_back(message);
-}
-
 void World::add_message(const std::string& message)
 {
 	visualworld.add_message(message);
-}
-
-void VisualWorld::add_event(const WorldEvent& event)
-{
-	events.push_back(event);
 }
 
 void World::add_event(const WorldEvent& event)

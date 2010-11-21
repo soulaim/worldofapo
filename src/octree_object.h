@@ -23,8 +23,8 @@ class OctreeObject : public MovableObject
 		OctreeObject():
 			type(UNDEFINED),
 			id(-1),
-			//collision_rule(CollisionRule::STRING_SYSTEM)
-			collision_rule(CollisionRule::HARD_OBJECT)
+			collision_rule(CollisionRule::STRING_SYSTEM)
+			//collision_rule(CollisionRule::HARD_OBJECT)
 			{
 			};
 
