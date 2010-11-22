@@ -37,7 +37,12 @@ class Unit : public HasProperties, public OctreeObject
 			
 			HUMAN_INPUT = 0,
 			AI_RABID_ALIEN = 1,
-			INANIMATE_OBJECT = 2
+			INANIMATE_OBJECT = 2,
+			
+			MOBILITY_CLEAR_VALUE = 0,
+			MOBILITY_STANDING_ON_OBJECT = 1,
+			MOBILITY_SQUASHED = 2,
+			MOBILITY_STANDING_ON_GROUND = 4
 		};
 		
 		
@@ -48,7 +53,7 @@ class Unit : public HasProperties, public OctreeObject
 		const Location& getPosition() const;
 		const Location& getVelocity() const;
 		
-		// const Location& getPosition() const; // definition demanded by LightSource
+		FixedPoint getMobility();
 		
 		std::string soundInfo;
 		
@@ -67,6 +72,9 @@ class Unit : public HasProperties, public OctreeObject
 		
 		int last_damage_dealt_by;
 		int birthTime;
+		
+		int mobility;
+		
 		std::string name;
 		
 		void setName(const std::string&);

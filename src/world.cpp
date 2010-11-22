@@ -626,13 +626,6 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	unit.soundInfo = "";
-	
-	if(model == 0)
-	{
-		cerr << "UNIT ID: " << unit.id << endl;
-		cerr << "hp: " << unit.hitpoints << endl;
-	}
-	
 	assert(model && "this should never happen");
 
 	model->rotate_y(unit.getAngle(apomath));
@@ -641,8 +634,10 @@ void World::tickUnit(Unit& unit, Model* model)
 	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
 	
 	// some physics & game world information
-	bool hitGround = false;
 	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
+		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
+	
+	if( unit.mobility != Unit::MOBILITY_CLEAR_VALUE )
 	{
 		// TODO: Heavy landings should have a gameplay effect!
 		if(unit.velocity.y < FixedPoint(-7, 10))
@@ -670,11 +665,14 @@ void World::tickUnit(Unit& unit, Model* model)
 		
 		FixedPoint friction = FixedPoint(88, 100);
 		
-		unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
-		unit.velocity.y = FixedPoint::ZERO;
+		if(unit.mobility & Unit::MOBILITY_STANDING_ON_GROUND)
+		{
+			unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
+			unit.velocity.y = FixedPoint::ZERO;
+		}
+		
 		unit.velocity.x *= friction;
 		unit.velocity.z *= friction;
-		hitGround = true;
 	}
 	else
 	{
@@ -712,31 +710,32 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	
-	if(unit.getKeyAction(Unit::MOVE_FRONT) && hitGround)
+	FixedPoint mobility = unit.getMobility();
+	if(unit.getKeyAction(Unit::MOVE_FRONT))
 	{
-		FixedPoint scale = FixedPoint(10, 100);
+		FixedPoint scale = FixedPoint(10, 100) * mobility;
 		unit.velocity.x += apomath.getCos(unit.angle) * scale;
 		unit.velocity.z += apomath.getSin(unit.angle) * scale;
 	}
 	
-	if(unit.getKeyAction(Unit::MOVE_BACK) && hitGround)
+	if(unit.getKeyAction(Unit::MOVE_BACK))
 	{
-		FixedPoint scale = FixedPoint(6, 100);
+		FixedPoint scale = FixedPoint(6, 100) * mobility;
 		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
 		unit.velocity.z -= apomath.getSin(unit.angle) * scale;
 	}
 
-	if(unit.getKeyAction(Unit::MOVE_LEFT) && hitGround)
+	if(unit.getKeyAction(Unit::MOVE_LEFT))
 	{
-		FixedPoint scale = FixedPoint(8, 100);
+		FixedPoint scale = FixedPoint(8, 100) * mobility;
 		int dummy_angle = unit.angle - apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
 		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
 	}
-	if(unit.getKeyAction(Unit::MOVE_RIGHT) && hitGround)
+	if(unit.getKeyAction(Unit::MOVE_RIGHT))
 	{
-		FixedPoint scale = FixedPoint(8, 100);
+		FixedPoint scale = FixedPoint(8, 100) * mobility;
 		int dummy_angle = unit.angle + apomath.DEGREES_90;
 		
 		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
@@ -749,24 +748,24 @@ void World::tickUnit(Unit& unit, Model* model)
 	if(unit.leap_cooldown == 0)
 	{
 		FixedPoint scale(950,1000);
-		if(unit.getKeyAction(Unit::LEAP_LEFT) && hitGround)
+		if(unit.getKeyAction(Unit::LEAP_LEFT) && (mobility > 0))
 		{
 			int dummy_angle = unit.angle - apomath.DEGREES_90;
 			
-			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.x -= apomath.getCos(dummy_angle) * scale * mobility;
+			unit.velocity.z -= apomath.getSin(dummy_angle) * scale * mobility;
 			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 40;
 			
 			unit.soundInfo = "jump";
 			// unit.soundInfo = "leap";
 		}
-		if(unit.getKeyAction(Unit::LEAP_RIGHT) && hitGround)
+		if(unit.getKeyAction(Unit::LEAP_RIGHT) && (mobility > 0))
 		{
 			int dummy_angle = unit.angle + apomath.DEGREES_90;
 			
-			unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-			unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+			unit.velocity.x -= apomath.getCos(dummy_angle) * scale * mobility;
+			unit.velocity.z -= apomath.getSin(dummy_angle) * scale * mobility;
 			unit.velocity.y += FixedPoint(45, 100);
 			unit.leap_cooldown = 40;
 			
@@ -792,12 +791,12 @@ void World::tickUnit(Unit& unit, Model* model)
 	
 	FixedPoint yy_val = heightDifference2Velocity(y_diff);
 
-	if(!hitGround)
+	if(mobility == 0)
 	{
 		yy_val = FixedPoint(1);
 	}
 
-	if(unit.getKeyAction(Unit::JUMP) && hitGround)
+	if(unit.getKeyAction(Unit::JUMP) && mobility > 0)
 	{
 		unit.soundInfo = "jump";
 		unit.velocity.y = FixedPoint(900, 1000);
@@ -817,27 +816,37 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	*/
 	
-	unit.position.z += unit.velocity.z * yy_val;
-	unit.position.x += unit.velocity.x * yy_val;
-	unit.position.y += unit.velocity.y;
+	unit.velocity.z *= yy_val;
+	unit.velocity.x *= yy_val;
+	unit.position += unit.velocity;
 
 	
 	if(unit.position.x < 0)
 	{
 		unit.position.x = 0;
+		if(unit.velocity.x < 0)
+			unit.velocity.x = 0;
 	}
 	if(unit.position.x > lvl.max_x())
 	{
 		unit.position.x = lvl.max_x();
+		if(unit.velocity.x > 0)
+			unit.velocity.x = 0;
 	}
 	if(unit.position.z < 0)
 	{
 		unit.position.z = 0;
+		if(unit.velocity.z < 0)
+			unit.velocity.z = 0;
 	}
 	if(unit.position.z > lvl.max_z())
 	{
 		unit.position.z = lvl.max_z();
+		if(unit.velocity.z > 0)
+			unit.velocity.z = 0;
 	}
+	
+	unit.mobility = Unit::MOBILITY_CLEAR_VALUE;
 }
 
 void World::tickProjectile(Projectile& projectile, Model* model)
@@ -1002,16 +1011,9 @@ void World::worldTick(int tickCount)
 	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
-		if(iter->first != iter->second.id)
-		{
-			cerr << "ID: " << iter->first << " != " << iter->second.id << endl;
-		}
-		
 		tickUnit(iter->second, visualworld.models[iter->first]);
 		octree->insertObject(&(iter->second));
 	}
-	
-	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Projectile ticks + collisions   \
@@ -1023,8 +1025,14 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, visualworld.models[iter->first]);
 	}
 	
-	
 	octree->doCollisions();
+	
+	// a bit distasteful perhaps but its ok.
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
+	{
+		iter->second.position += iter->second.posCorrection;
+		iter->second.posCorrection = Location(0, 0, 0);
+	}
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \

@@ -3,6 +3,11 @@
 #include <iostream>
 #include <sstream>
 
+inline FixedPoint min(FixedPoint a, FixedPoint b)
+{
+	return (a < b)? a : b;
+}
+
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(1),
@@ -11,12 +16,12 @@ Unit::Unit():
 	weapon_cooldown(0),
 	leap_cooldown(0),
 	last_damage_dealt_by(-1),
-	birthTime(0)
+	birthTime(0),
+	mobility(0)
 	
 {
 	type = OctreeObject::UNIT;
 }
-
 
 void Unit::zeroMovement()
 {
@@ -94,7 +99,7 @@ void Unit::handleCopyOrder(std::stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule;
+		id >> weapon >> collision_rule >> mobility;
 
 	HasProperties::handleCopyOrder(ss);
 
@@ -115,7 +120,7 @@ std::string Unit::copyOrder(int ID) const
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " " << collision_rule << " ";
+		<< id << " " << weapon << " " << collision_rule << " " << mobility << " ";
 
 	hero_msg << HasProperties::copyOrder();
 
@@ -129,6 +134,21 @@ std::string Unit::copyOrder(int ID) const
 	
 	return hero_msg.str();
 }
+
+
+FixedPoint Unit::getMobility()
+{
+	if(mobility & (MOBILITY_STANDING_ON_OBJECT | MOBILITY_STANDING_ON_GROUND))
+	{
+		if(mobility & MOBILITY_SQUASHED)
+			return FixedPoint(1, 6);
+		else
+			return FixedPoint(1);
+	}
+	
+	return FixedPoint(0);
+}
+
 
 Location Unit::bb_top() const
 {
@@ -144,6 +164,10 @@ void Unit::collides(OctreeObject& o)
 {
 	// if one of the objects doesn't want to collide, then don't react.
 	if(!(collision_rule & o.collision_rule))
+		return;
+	
+	// if this object doesnt want to be moved by collisions, don't react.
+	if(staticObject)
 		return;
 	
 	// if my collision rule is STRING_SYSTEM, make changes to myself accordingly.
@@ -162,20 +186,70 @@ void Unit::collides(OctreeObject& o)
 	}
 	else if(collision_rule == CollisionRule::HARD_OBJECT)
 	{
-		Location direction = (position - o.position);
-		if(direction.length() == FixedPoint(0))
+		Location myTop = bb_top();
+		Location myBot = bb_bot();
+		
+		Location hisTop = o.bb_top();
+		Location hisBot = o.bb_bot();
+		
+		// is always positive, otherwise there would be no collision.
+		FixedPoint y_diff = min(hisTop.y - myBot.y, myTop.y - hisBot.y);
+		FixedPoint x_diff = min(hisTop.x - myBot.x, myTop.x - hisBot.x);
+		FixedPoint z_diff = min(hisTop.z - myBot.z, myTop.z - hisBot.z);
+		
+		if(y_diff < x_diff && y_diff < z_diff)
 		{
-			// unresolvable collision. leave it be.
-			return;
+			// least offending axis is y
+			velocity.y  = o.velocity.y * FixedPoint(1, 2) - FixedPoint(25, 1000);
+			
+			if(hisTop.y < myTop.y)
+			{
+				// i'm on top
+				posCorrection.y += y_diff * FixedPoint(9, 20);
+				
+				// if bottom object moves, move the top object with it.
+				posCorrection += o.velocity;
+				
+				mobility |= MOBILITY_STANDING_ON_OBJECT;
+			}
+			else
+			{
+				// i'm on bot
+				posCorrection.y -= y_diff * FixedPoint(9, 20);
+				mobility |= MOBILITY_SQUASHED;
+			}
+		}
+		else if(x_diff < z_diff)
+		{
+			// least offence by x
+			velocity.x  = o.velocity.x * FixedPoint(1, 2);
+			
+			if(hisTop.x < myTop.x)
+			{
+				// i'm on right
+				posCorrection.x += x_diff * FixedPoint(9, 20);
+			}
+			else
+			{
+				// i'm on left
+				posCorrection.x -= x_diff * FixedPoint(9, 20);
+			}
+		}
+		else
+		{
+			// least offence by z
+			velocity.z  = o.velocity.z * FixedPoint(1, 2);
+			
+			if(hisTop.z < myTop.z)
+			{
+				posCorrection.z += z_diff * FixedPoint(9, 20);
+			}
+			else
+			{
+				posCorrection.z -= z_diff * FixedPoint(11, 20);
+			}
 		}
 		
-		direction.normalize();
-		direction *= FixedPoint(1, 10);
-		position += direction;
-		velocity = Location();
-		
-		// TODO: Need to find out more information about the collision. How did they collide? Which is the least offending face?
-		// TODO: should set velocity to zero in the direction of the collision. What about non-axis aligned boxes?
 	}
 }
 

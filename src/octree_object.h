@@ -20,19 +20,15 @@ class OctreeObject : public MovableObject
 			HARD_OBJECT = 2
 		};
 		
-		OctreeObject():
-			type(UNDEFINED),
-			id(-1),
-			collision_rule(CollisionRule::STRING_SYSTEM)
-			//collision_rule(CollisionRule::HARD_OBJECT)
-			{
-			};
-
+		OctreeObject();
+		
 		int type;
 		int id;
 		
 		int collision_rule;
+		int staticObject;
 		
+		Location posCorrection; // this does not need to be sent over network
 		
 		virtual Location bb_top() const = 0;
 		virtual Location bb_bot() const = 0;
