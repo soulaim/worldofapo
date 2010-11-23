@@ -46,13 +46,18 @@ struct OctreeObjectLess
 
 struct OctreeObjectPairLess
 {
-	bool operator( )(const std::pair<OctreeObject*, OctreeObject*> pair1, const std::pair<OctreeObject*, OctreeObject*> pair2)
+	bool operator( )(const std::pair<OctreeObject*, OctreeObject*> p1, const std::pair<OctreeObject*, OctreeObject*> p2)
 	{
-		FixedPoint a_min_top = min(pair1.first->bb_top().y, pair1.second->bb_top().y);
-		FixedPoint b_min_top = min(pair2.first->bb_top().y, pair2.second->bb_top().y);
-		
-		return a_min_top < b_min_top;
-		// TODO ALERT: Should handle the case where min_tops are equal (danger of de-sync).
+
+		if (p1.first->id < p2.first->id)
+			return true;
+		else if (p1.first->id > p2.first->id)
+			return false;
+		else if (p1.second->id < p2.second->id)
+			return true;
+
+		assert(!(p1.first->id == p2.first->id && p1.second->id == p2.second->id));
+		return false;
 	}
 };
 
