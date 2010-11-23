@@ -94,7 +94,8 @@ void Octree::insertObject(OctreeObject* o)
 	if ((pos & TOP_X) && (pos & TOP_Y) && (pos & TOP_Z)) children[1][1][1]->insertObject(o);
 }
 
-const std::set<OctreeObject*, OctreeObjectLess>& Octree::nearObjects(const Location& p) const {
+const std::set<OctreeObject*, OctreeObjectLess>& Octree::nearObjects(const Location& p) const
+{
 	if (!hasChildren)
 		return objects;
 	int x = (p.x < center.x) ? 0 : 1;
@@ -103,7 +104,8 @@ const std::set<OctreeObject*, OctreeObjectLess>& Octree::nearObjects(const Locat
 	return children[x][y][z]->nearObjects(p);
 }
 
-void Octree::getUnitUnitColl(std::set<std::pair<OctreeObject*, OctreeObject*>>& l) const {
+void Octree::getUnitUnitColl(std::set<std::pair<OctreeObject*, OctreeObject*>, OctreeObjectPairLess>& l) const
+{
 	for(auto o_it = objects.begin(); o_it != objects.end(); ++o_it)
 	{
 		auto o2_it = o_it;
@@ -120,8 +122,9 @@ void Octree::getUnitUnitColl(std::set<std::pair<OctreeObject*, OctreeObject*>>& 
 					children[i][j][k]->getUnitUnitColl(l);
 }
 
-void Octree::doCollisions() {
-	std::set<std::pair<OctreeObject*, OctreeObject*>> l;
+void Octree::doCollisions()
+{
+	std::set<std::pair<OctreeObject*, OctreeObject*>, OctreeObjectPairLess> l;
 	getUnitUnitColl(l);
 	for(auto it = l.begin(); it != l.end(); ++it)
 	{

@@ -7,7 +7,8 @@
 class OctreeObject : public MovableObject
 {
 	public:
-		enum {
+		enum
+		{
 			UNDEFINED = 1,
 			UNIT = 2,
 			MEDIKIT = 4
@@ -35,10 +36,23 @@ class OctreeObject : public MovableObject
 		virtual void collides(OctreeObject&) = 0;
 };
 
-struct OctreeObjectLess {
+struct OctreeObjectLess
+{
 	bool operator( )(const OctreeObject* o1, const OctreeObject* o2)
 	{
 		return(o1->id < o2->id);
+	}
+};
+
+struct OctreeObjectPairLess
+{
+	bool operator( )(const std::pair<OctreeObject*, OctreeObject*> pair1, const std::pair<OctreeObject*, OctreeObject*> pair2)
+	{
+		FixedPoint a_min_top = min(pair1.first->bb_top().y, pair1.second->bb_top().y);
+		FixedPoint b_min_top = min(pair2.first->bb_top().y, pair2.second->bb_top().y);
+		
+		return a_min_top < b_min_top;
+		// TODO ALERT: Should handle the case where min_tops are equal (danger of de-sync).
 	}
 };
 

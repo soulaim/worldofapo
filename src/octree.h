@@ -35,13 +35,14 @@ public:
 	std::shared_ptr<Octree> children[2][2][2];
 	int depth;
 	int n;
+	
 	std::set<OctreeObject*, OctreeObjectLess> objects;
 
 	void split();
 	void insertObject(OctreeObject*);
 	void doCollisions();
 	const std::set<OctreeObject*, OctreeObjectLess>& nearObjects(const Location&) const;
-	void getUnitUnitColl(std::set<std::pair<OctreeObject*,OctreeObject*>>&) const;
+	void getUnitUnitColl(std::set<std::pair<OctreeObject*,OctreeObject*>, OctreeObjectPairLess>&) const;
 };
 
 

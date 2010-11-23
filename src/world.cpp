@@ -1002,7 +1002,7 @@ void World::worldTick(int tickCount)
 	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
-	*     \  Unit ticks + reconstruct octree \
+	*     \  Build octree + do collisions    \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
@@ -1011,28 +1011,27 @@ void World::worldTick(int tickCount)
 	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
-		tickUnit(iter->second, visualworld.models[iter->first]);
 		octree->insertObject(&(iter->second));
 	}
 	
+	octree->doCollisions();
+	
+	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
-	*     \  Projectile ticks + collisions   \
+	*     \  Tick units and projectiles      \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
+	
+	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	{
+		tickUnit(iter->second, visualworld.models[iter->first]);
+	}
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		tickProjectile(iter->second, visualworld.models[iter->first]);
 	}
 	
-	octree->doCollisions();
-	
-	// a bit distasteful perhaps but its ok.
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		iter->second.position += iter->second.posCorrection;
-		iter->second.posCorrection = Location(0, 0, 0);
-	}
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \

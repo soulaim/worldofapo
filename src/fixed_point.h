@@ -176,5 +176,10 @@ class FixedPoint
 };
 
 
+inline FixedPoint min(FixedPoint a, FixedPoint b)
+{
+	return (a < b)? a : b;
+}
+
 #endif
 

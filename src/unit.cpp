@@ -3,11 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-inline FixedPoint min(FixedPoint a, FixedPoint b)
-{
-	return (a < b)? a : b;
-}
-
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(1),
