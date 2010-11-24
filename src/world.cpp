@@ -634,10 +634,10 @@ void World::tickUnit(Unit& unit, Model* model)
 	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
 	
 	// some physics & game world information
-	if( (unit.velocity.y + unit.position.y) <= lvl.getHeight(unit.position.x, unit.position.z) )
+	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
 	
-	if( unit.mobility != Unit::MOBILITY_CLEAR_VALUE )
+	if( unit.mobility & Unit::MOBILITY_STANDING_ON_GROUND || unit.mobility & Unit::MOBILITY_STANDING_ON_OBJECT )
 	{
 		// TODO: Heavy landings should have a gameplay effect!
 		if(unit.velocity.y < FixedPoint(-7, 10))
@@ -659,7 +659,7 @@ void World::tickUnit(Unit& unit, Model* model)
 			{
 				unit.velocity.x *= FixedPoint(10, 100);
 				unit.velocity.z *= FixedPoint(10, 100);
-				unit.hitpoints -= damage_int * damage_int / 500;
+				unit.hitpoints  -= damage_int * damage_int / 500;
 			}
 		}
 		
@@ -674,16 +674,14 @@ void World::tickUnit(Unit& unit, Model* model)
 		unit.velocity.x *= friction;
 		unit.velocity.z *= friction;
 	}
-	else
-	{
-		unit.velocity.y -= FixedPoint(35,1000);
-		
-		// air resistance :DD
-		FixedPoint friction = FixedPoint(995, 1000);
-		unit.velocity.x *= friction;
-		unit.velocity.z *= friction;
-	}
-
+	
+	// gravity and air resistance.
+	unit.velocity.y -= FixedPoint(35,1000);
+	FixedPoint friction = FixedPoint(995, 1000);
+	unit.velocity.x *= friction;
+	unit.velocity.z *= friction;
+	
+	
 	if(unit.getKeyAction(Unit::WEAPON1))
 	{
 		unit.switchWeapon(1);
@@ -847,6 +845,10 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	unit.mobility = Unit::MOBILITY_CLEAR_VALUE;
+	unit.position += unit.posCorrection;
+	unit.posCorrection.x = 0;
+	unit.posCorrection.y = 0;
+	unit.posCorrection.z = 0;
 }
 
 void World::tickProjectile(Projectile& projectile, Model* model)
@@ -1108,7 +1110,7 @@ void World::addUnit(int id, bool playerCharacter)
 	{
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
-		units[id].hitpoints = 1000;
+		units[id].hitpoints = 100;
 	}
 	else
 	{
