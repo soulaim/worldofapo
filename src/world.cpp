@@ -354,8 +354,8 @@ void World::init()
 
 	lvl.generate(50);
 
-	visualworld->init();
-	
+	// TODO: maybe move light initialization things to visualworld::init(lvl).
+
 	// find the highest point in lvl and add a strong light there.
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
@@ -374,7 +374,9 @@ void World::init()
 	visualworld->lights[nextUnitID()] = tmp_light;
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
 	visualworld->lights[nextUnitID()] = tmp_light;
-	
+
+	visualworld->init(lvl);
+
 	show_errors = 0;
 }
 

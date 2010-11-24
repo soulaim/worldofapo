@@ -6,11 +6,34 @@
 
 using namespace std;
 
-void VisualWorld::init()
+void VisualWorld::init(const Level&)
 {
 	cerr << "VisualWorld init" << endl;
+	assert(models.empty());
+	assert(meadows.empty());
 
 	particles.reserve(40000);
+
+	/*
+	Vec3 wind(0, 0, 0);
+	size_t n = 10;
+	size_t k = 500;
+	winds.resize(n*k);
+	for(size_t i = 0; i < n; ++i)
+	{
+		size_t X = lvl.pointheight_info.size() * 1.0 * rand() / RAND_MAX;
+		size_t Z = lvl.pointheight_info[0].size() * 1.0 * rand() / RAND_MAX;
+
+		for(size_t j = 0; j < k; ++j)
+		{
+			size_t x = 8*X + 20.0 * rand() / RAND_MAX - 10;
+			size_t z = 8*Z + 20.0 * rand() / RAND_MAX - 10;
+			float y = lvl.getHeight(x, z).getFloat();
+			Vec3 v(x, y, z);
+			meadows.push_back(v);
+		}
+	}
+	*/
 }
 
 void VisualWorld::terminate()
@@ -26,6 +49,9 @@ void VisualWorld::terminate()
 	
 	psources.clear();
 	particles.clear();
+
+	meadows.clear();
+	winds.clear();
 }
 
 
