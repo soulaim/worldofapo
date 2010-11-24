@@ -1,6 +1,5 @@
 #include "apomodel.h"
 #include "primitives.h"
-#include "graphics.h"
 
 #include "shaders.h"
 
@@ -105,13 +104,13 @@ bool ApoModel::save(const string& filename) const
 	return bool(out);
 }
 
-void ApoModel::drawPartsRecursive(int current_node)
+void ApoModel::drawPartsRecursive(int current_node) const
 {
 	if(current_node < 0 || size_t(current_node) >= parts.size())
 	{
 		return;
 	}
-	ModelNode& node = parts[current_node];
+	const ModelNode& node = parts[current_node];
 	ObjectPart& obj_part = ApoModel::objects[node.wireframe];
 	
 	Animation& animation = Animation::getAnimation(node.name, animation_name);
@@ -121,7 +120,14 @@ void ApoModel::drawPartsRecursive(int current_node)
 	{
 		ani_addition = animation.totalTime() / 2;
 	}
-	animation.getAnimationState(animation_time + ani_addition, node.rotation_x, node.rotation_y, node.rotation_z);
+	float rot_x = 0;
+	float rot_y = 0;
+	float rot_z = 0;
+	animation.getAnimationState(animation_time + ani_addition, rot_x, rot_y, rot_z);
+
+	// If models with more persistent rotation values are needed in future,
+	// then don't update the rotation values when drawing, instead have a separate updating function...
+	rot_y += parts[root].rotation_y;
 	
 	if(node.hilight)
 	{
@@ -129,9 +135,9 @@ void ApoModel::drawPartsRecursive(int current_node)
 	}
 	glTranslatef(node.offset_x, node.offset_y, node.offset_z);
 	
-	glRotatef(node.rotation_x, 1, 0, 0);
-	glRotatef(node.rotation_y, 0, 1, 0);
-	glRotatef(node.rotation_z, 0, 0, 1);
+	glRotatef(rot_x, 1, 0, 0);
+	glRotatef(rot_y, 0, 1, 0);
+	glRotatef(rot_z, 0, 0, 1);
 	
 	glBegin(GL_TRIANGLES);
 	for(size_t i=0; i<obj_part.triangles.size(); i++)
@@ -168,7 +174,7 @@ void ApoModel::drawPartsRecursive(int current_node)
 	glTranslatef(-node.offset_x, -node.offset_y, -node.offset_z);
 }
 
-void ApoModel::draw()
+void ApoModel::draw() const
 {
 	if(root < 0)
 	{

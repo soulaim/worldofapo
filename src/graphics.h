@@ -22,6 +22,7 @@
 #include "medikit.h"
 #include "light_object.h"
 #include "projectile.h"
+#include "visualworld.h"
 
 struct Level;
 struct MenuButton;
@@ -40,7 +41,7 @@ class Graphics
 	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
 	void drawSkybox();
 	
-	void drawModels(std::map<int, Model*>& models);
+	void drawModels(const std::map<int, Model*>& models);
 	void drawParticles(std::vector<Particle>&);
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
@@ -84,10 +85,14 @@ public:
 	
 	void setCamera(const Camera& camera);
 	
-	void draw(std::map<int, Model*>&, const Level& lvl, const std::map<int,Unit>& units,
-		const std::map<int, LightObject>& lights, const std::shared_ptr<Octree> o, Hud* hud,
-		const std::map<int, Projectile>& projectiles,
-		std::vector<Particle>& particles);
+	void draw(
+		const Level& lvl,
+		const VisualWorld& visualworld,
+		Hud* hud,
+		const std::shared_ptr<Octree> o, // For debug.
+		const std::map<int, Projectile>& projectiles, // For debug.
+		const std::map<int, Unit>& units // For debug.
+		);
 	void drawMenu(const std::vector<MenuButton>&) const;
 
 	void drawBoundingBoxes(const std::map<int,Unit>& units);

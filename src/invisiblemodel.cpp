@@ -26,7 +26,7 @@ bool InvisibleModel::save(const string&) const
 	return false;
 }
 
-void InvisibleModel::draw()
+void InvisibleModel::draw() const
 {
 }
 

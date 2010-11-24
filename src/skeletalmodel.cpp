@@ -218,9 +218,9 @@ bool SkeletalModel::save(const string& filename) const
 	return bool(out);
 }
 
-void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state)
+void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state) const
 {
-	Bone& bone = bones[current_bone];
+	const Bone& bone = bones[current_bone];
 
 	Animation& animation = Animation::getAnimation(bone.name, animation_name);
 	// left and right sides of the body are in polarized animation_name states
@@ -229,15 +229,24 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 	{
 		ani_addition = animation.totalTime() / 2;
 	}
-	animation.getAnimationState(animation_state + ani_addition, bone.rotation_x, bone.rotation_y, bone.rotation_z);
+
+	float rot_x = 0;
+	float rot_y = 0;
+	float rot_z = 0;
+	animation.getAnimationState(animation_state + ani_addition, rot_x, rot_y, rot_z);
+
+	// If models with more persistent rotation values are needed in future,
+	// then don't update the rotation values when drawing, instead have a separate updating function...
+	rot_y += bones[current_bone].rotation_y;
+
 //	cerr << animation_state+ani_addition << " " << node.rotation_x << " " << node.rotation_y << " " << node.rotation_z << "\n";
 
 	// TODO: pass only angles and bone locations to shader and do matrix calculation there.
 
 	offset *= Matrix4(0,0,0, bone.start_x, bone.start_y, bone.start_z);
-	offset *= Matrix4(bone.rotation_x, 0, 0, 0,0,0);
-	offset *= Matrix4(0, bone.rotation_y, 0, 0,0,0);
-	offset *= Matrix4(0, 0, bone.rotation_z, 0,0,0);
+	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
+	offset *= Matrix4(0, rot_y, 0, 0,0,0);
+	offset *= Matrix4(0, 0, rot_z, 0,0,0);
 	offset *= Matrix4(0,0,0, -bone.start_x, -bone.start_y, -bone.start_z);
 
 	rotations[current_bone] = offset;
@@ -248,12 +257,12 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 	}
 }
 
-void SkeletalModel::draw()
+void SkeletalModel::draw() const
 {
 	draw(false, -1);
 }
 
-void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilight)
+void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilight) const
 {
 	glBegin(GL_LINES);
 	for(size_t i = 0; i < bones.size(); ++i)
@@ -278,7 +287,7 @@ void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilig
 	glEnd();
 }
 
-void SkeletalModel::old_draw(size_t hilight)
+void SkeletalModel::old_draw(size_t hilight) const
 {
 	// This draw function is not used anymore because it is so slow!
 	// Might be helpful for some debugging still.
@@ -293,7 +302,7 @@ void SkeletalModel::old_draw(size_t hilight)
 		for(int j = 0; j < 3; ++j)
 		{
 			size_t vi = triangles[i].vertices[j];
-			WeightedVertex& wv = weighted_vertices[vi];
+			const WeightedVertex& wv = weighted_vertices[vi];
 
 			size_t bone1i = wv.bone1;
 			size_t bone2i = wv.bone2;
@@ -349,7 +358,7 @@ void SkeletalModel::preload()
 	buffers_loaded = true;
 }
 
-void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight)
+void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 {
 	assert(weighted_vertices.size() == vertices.size());
 

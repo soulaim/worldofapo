@@ -1,6 +1,7 @@
 
 #include "unit.h"
 #include "world.h"
+#include "visualworld.h"
 #include "weapon.h"
 
 
@@ -42,7 +43,7 @@ void Weapon::fire()
 	size_t model_prototype = proto_projectile.prototype_model;
 	
 	if(intVals["FIRE_LIGHT_LIFE"] > 0)
-		world->visualworld.weaponFireLight(world->nextUnitID(), unit->position, intVals["FIRE_LIGHT_LIFE"], intVals["FIRE_LIGHT_R"], intVals["FIRE_LIGHT_G"], intVals["FIRE_LIGHT_B"]);
+		world->visualworld->weaponFireLight(world->nextUnitID(), unit->position, intVals["FIRE_LIGHT_LIFE"], intVals["FIRE_LIGHT_R"], intVals["FIRE_LIGHT_G"], intVals["FIRE_LIGHT_B"]);
 	
 	for(int i=0; i<intVals["PROJECTILES_PER_USE"]; ++i)
 	{

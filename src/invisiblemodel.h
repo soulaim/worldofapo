@@ -9,7 +9,7 @@ struct InvisibleModel: public Model
 {
 	virtual bool load(const std::string& filename);
 	virtual bool save(const std::string& filename) const;
-	virtual void draw();
+	virtual void draw() const;
 	virtual void rotate_y(float angle);
 
 	InvisibleModel();

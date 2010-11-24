@@ -109,6 +109,8 @@ void buildDebugMipmaps(size_t x, size_t y)
 
 unsigned TextureHandler::createTexture(const string& name, Image& img)
 {
+	assert(!name.empty());
+
 	if(img.data == 0)
 	{
 		cerr << "ERROR: Trying to build texture of image pointer -> 0" << endl;
@@ -174,15 +176,24 @@ void TextureHandler::deleteTexture(const std::string& name)
 int TextureHandler::bindTexture(size_t texture_unit, const std::string& name)
 {
 	assert(texture_unit < current_textures.size());
-	if(textureExists(name))
+	if(name == "")
 	{
 		glActiveTexture(GL_TEXTURE0 + texture_unit);
+		glDisable(GL_TEXTURE_2D);
+	}
+	else if(textureExists(name))
+	{
+		glActiveTexture(GL_TEXTURE0 + texture_unit);
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[name]);
 		current_textures[texture_unit] = name;
+
 		return 1;
 	}
 	else
+	{
 		cerr << "Trying to bind to a texture that doesnt exist: \"" << name << "\"" << endl;
+	}
 	return 0;
 }
 

@@ -1,5 +1,6 @@
 #include "world.h"
 #include "modelfactory.h"
+#include "visualworld.h"
 
 #include <iostream>
 
@@ -37,233 +38,6 @@ void getColor(const string& a, int& r, int& g, int& b)
 		return;
 	}
 }
-
-void VisualWorld::init()
-{
-	cerr << "VisualWorld init" << endl;
-	
-	particles.reserve(40000);
-}
-
-void VisualWorld::terminate()
-{
-	for(auto it = models.begin(); it != models.end(); ++it)
-	{
-		ModelFactory::destroy(it->second);
-	}
-	models.clear();
-}
-
-
-void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
-{
-	for(size_t i=0; i<particles.size(); ++i)
-	{
-		particles[i].viewTick();
-	}
-	
-	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		updateModel(models[iter->first], iter->second, currentWorldFrame);
-	}
-	
-	for(map<int, Projectile>::const_iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
-	{
-		Model* model = models[iter->first];
-		model->setAction("idle");
-		model->tick(currentWorldFrame);
-	}
-}
-
-
-void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
-{
-	assert(model != 0);
-	
-	if(unit.getKeyAction(Unit::MOVE_FRONT))
-	{
-		if(unit.getKeyAction(Unit::MOVE_LEFT))
-			model->setAction("run_forwardleft");
-		else if(unit.getKeyAction(Unit::MOVE_RIGHT))
-			model->setAction("run_forwardright");
-		else
-			model->setAction("run_forward");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_BACK))
-	{
-		model->setAction("run_backward");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_LEFT))
-	{
-		model->setAction("run_left");
-	}
-	else if(unit.getKeyAction(Unit::MOVE_RIGHT))
-	{
-		model->setAction("run_right");
-	}
-	else
-	{
-		model->setAction("idle2");
-	}
-	
-	// update state of model
-	model->tick(currentWorldFrame);
-}
-
-void VisualWorld::tickParticles()
-{
-	for(size_t i=0; i<psources.size(); ++i)
-	{
-		psources[i].tick(particles);
-		if(!psources[i].alive())
-		{
-			psources[i] = psources.back();
-			psources.pop_back();
-			--i;
-		}
-	}
-	
-	for(size_t i=0; i<particles.size(); ++i)
-	{
-		if(!particles[i].alive())
-		{
-			particles[i] = particles.back();
-			particles.pop_back();
-			--i;
-		}
-		else
-			particles[i].tick();
-	}
-}
-
-void VisualWorld::tickLights(const std::map<int, Unit>& units)
-{
-	vector<int> deadLights;
-	for(auto iter = lights.begin(); iter != lights.end(); iter++)
-	{
-		LightObject& light = iter->second;
-		
-		// TODO should have a world.tickMovableObject(&light); call here
-		
-		// update light qualities
-		if(!light.tickLight())
-		{
-			// if light has died out, should maybe like prepare to erase it or something.
-			light.deactivateLight();
-			deadLights.push_back(iter->first);
-			
-			// cerr << "DEAD LIGHT! ERASING" << endl;
-		}
-		
-		if(light.unitBind != -1)
-		{
-			if(units.find(light.unitBind) == units.end())
-			{
-				// master of the light is dead. must kill the light.
-				light.deactivateLight();
-				deadLights.push_back(iter->first);
-			}
-			else
-			{
-				// light.drawPos  = models.find(light.unitBind)->second.currentModelPos;
-				light.position = units.find(light.unitBind)->second.getPosition();
-				light.position.y += FixedPoint(7, 2);
-			}
-		}
-	}
-	
-	for(size_t i=0; i<deadLights.size(); i++)
-	{
-		lights.erase(deadLights[i]);
-	}
-	deadLights.clear();
-}
-
-
-void VisualWorld::addLight(int id, Location& location)
-{
-	//	cerr << "Adding light at " << location << endl;
-	LightObject& light = lights[id];
-	light.setDiffuse(1.f, 1.f, 1.f);
-	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(200); // Some frames of LIGHT!
-	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
-	light.activateLight(); // ACTIVATE :D
-	light.position = location;
-	light.position.y += FixedPoint(3, 2);
-}
-
-void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
-{
-	LightObject& light = lights[id];
-	light.setDiffuse(r / 255.f, g / 255.f, b / 255.f);
-	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(life);
-	light.activateLight();
-	light.position = pos;
-	light.position.y += FixedPoint(2);
-	
-	light.behaviour = LightSource::RISE_AND_DIE;
-	// light.behaviour = LightSource::ONLY_DIE;
-
-}
-
-void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
-{
-	ParticleSource pe;
-	pe.intVals["PPF"] = particlesPerFrame;
-	pe.intVals["CUR_LIFE"] = life;
-	pe.intVals["MAX_LIFE"] = life;
-	pe.intVals["PLIFE"]    = particleLife;
-	
-	pe.intVals["SRED"]     = r;
-	pe.intVals["ERED"]     = r / 2;
-	
-	pe.intVals["SGREEN"]   = g;
-	pe.intVals["EGREEN"]   = g / 2;
-	
-	pe.intVals["SBLUE"]    = b;
-	pe.intVals["EBLUE"]    = b / 2;
-	
-	pe.getIntProperty("MAX_RAND") = max_rand;
-	pe.getIntProperty("SCALE") = scale;
-	
-	pe.getIntProperty("PSP_1000") = scatteringCone;
-	
-	/*
-	pe.getIntProperty("RAND_X_1000") = 500;
-	pe.getIntProperty("RAND_Y_1000") = 0;
-	*/
-	
-	pe.position = pos;
-	pe.velocity = vel;
-	
-	psources.push_back(pe);
-}
-
-
-void VisualWorld::add_message(const std::string& message)
-{
-	worldMessages.push_back(message);
-}
-
-void VisualWorld::removeUnit(int id)
-{
-	auto it = models.find(id);
-	if(it != models.end())
-	{
-		ModelFactory::destroy(it->second);
-		models.erase(it);
-	}
-}
-
-void VisualWorld::add_event(const WorldEvent& event)
-{
-	events.push_back(event);
-}
-
-
-
 
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 {
@@ -380,17 +154,17 @@ void World::doDeathFor(Unit& unit)
 		
 		int i = currentWorldFrame % killWords.size();
 		msg << killer << killWords[i] << unit.name << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
-		visualworld.worldMessages.push_back(msg.str());
+		visualworld->add_message(msg.str());
 	}
 	else
 	{
 		event.actor_id  = -1; // For a suicide, no points are to be awarded.
 		
 		msg << killer << " has committed suicide by ^g" << unit("DAMAGED_BY");
-		visualworld.worldMessages.push_back(msg.str());
+		visualworld->add_message(msg.str());
 	}
 
-	visualworld.addLight(nextUnitID(), event.t_position);
+	visualworld->addLight(nextUnitID(), event.t_position);
 	
 	if(unit.human())
 	{
@@ -412,7 +186,7 @@ void World::doDeathFor(Unit& unit)
 	}
 	
 	// store the event information for later use.
-	visualworld.add_event(event);
+	visualworld->add_event(event);
 }
 
 void World::generateInput_RabidAlien(Unit& unit)
@@ -458,7 +232,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 		event.t_position = units.find(unitID)->second.position;
 		event.t_position.y += FixedPoint(2);
 		event.t_velocity.y = FixedPoint(900,1000);
-		visualworld.add_event(event);
+		visualworld->add_event(event);
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
@@ -565,21 +339,24 @@ void World::generateInput_RabidAlien(Unit& unit)
 }
 
 
-World::World()
+World::World(VisualWorld* vw)
 {
+	assert(vw);
+	visualworld = vw;
+
 	init();
 }
 
 void World::init()
 {
-	cerr << "World init" << endl;
+	cerr << "World::init()" << endl;
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 
 	lvl.generate(50);
 
-	visualworld.init();
+	visualworld->init();
 	
 	// find the highest point in lvl and add a strong light there.
 	LightObject tmp_light;
@@ -590,28 +367,30 @@ void World::init()
 	tmp_light.setLife(150);
 	tmp_light.activateLight();
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
-	visualworld.lights[nextUnitID()] = tmp_light;
+	visualworld->lights[nextUnitID()] = tmp_light;
 
 	// Make sure there is atleast MAX_NUM_ACTIVE_LIGHTS.
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(500));
-	visualworld.lights[nextUnitID()] = tmp_light;
+	visualworld->lights[nextUnitID()] = tmp_light;
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(100));
-	visualworld.lights[nextUnitID()] = tmp_light;
+	visualworld->lights[nextUnitID()] = tmp_light;
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
-	visualworld.lights[nextUnitID()] = tmp_light;
+	visualworld->lights[nextUnitID()] = tmp_light;
 	
 	show_errors = 0;
 }
 
 void World::terminate()
 {
+	cerr << "World::terminate()" << endl;
+
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 	
 	units.clear();
 	projectiles.clear();
 
-	visualworld.terminate();
+	visualworld->terminate();
 }
 
 
@@ -921,7 +700,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
 			ps.position = projectile.position;
 			
-			ps.tick(visualworld.particles);
+			ps.tick(visualworld->particles);
 		}
 		
 		projectile.tick();
@@ -979,7 +758,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				event.a_position = projectile.position;
 				event.a_velocity = projectile.velocity * projectile["TPF"];
 				
-				visualworld.add_event(event);
+				visualworld->add_event(event);
 				
 				u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
 				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
@@ -1028,12 +807,12 @@ void World::worldTick(int tickCount)
 	
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
-		tickUnit(iter->second, visualworld.models[iter->first]);
+		tickUnit(iter->second, visualworld->models[iter->first]);
 	}
 	
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		tickProjectile(iter->second, visualworld.models[iter->first]);
+		tickProjectile(iter->second, visualworld->models[iter->first]);
 	}
 	
 	
@@ -1068,8 +847,8 @@ void World::worldTick(int tickCount)
 	
 	
 	// Graphical things.
-	visualworld.tickParticles();
-	visualworld.tickLights(units);
+	visualworld->tickParticles();
+	visualworld->tickLights(units);
 	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -1086,7 +865,7 @@ void World::worldTick(int tickCount)
 			{
 				stringstream msg;
 				msg << currentWorldFrame << ": " << iter->second.name << " (" << iter->first << "): " << iter->second.position.x.getFloat() << ", " << iter->second.position.z.getFloat();
-				visualworld.worldMessages.push_back(msg.str());
+				visualworld->add_message(msg.str());
 			}
 		}
 	}
@@ -1106,7 +885,7 @@ void World::addUnit(int id, bool playerCharacter)
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
-	visualworld.models[id] = ModelFactory::create(World::PLAYER_MODEL);
+	visualworld->models[id] = ModelFactory::create(World::PLAYER_MODEL);
 	
 	if(!playerCharacter)
 	{
@@ -1130,7 +909,7 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 	position.z = location.z.getFloat();
 	
 	Model* model = ModelFactory::create(model_prototype);
-	auto iter = visualworld.models.insert(make_pair(id, model)).first;
+	auto iter = visualworld->models.insert(make_pair(id, model)).first;
 	iter->second->realUnitPos = position;
 	iter->second->currentModelPos = position;
 	
@@ -1164,7 +943,7 @@ void World::removeUnit(int id)
 	units.erase(id);
 	projectiles.erase(id);
 
-	visualworld.removeUnit(id);
+	visualworld->removeUnit(id);
 }
 
 int World::getZombies()
@@ -1189,18 +968,18 @@ std::vector<Location> World::humanPositions() const
 	return positions;
 }
 
-void World::add_message(const std::string& message)
-{
-	visualworld.add_message(message);
-}
-
-void World::add_event(const WorldEvent& event)
-{
-	visualworld.add_event(event);
-}
-
 void World::setNextUnitID(int id)
 {
 	_unitID_next_unit = id;
+}
+
+void World::add_message(const std::string& message) const
+{
+	visualworld->add_message(message);
+}
+
+void World::add_event(const WorldEvent& event) const
+{
+	visualworld->add_event(event);
 }
 

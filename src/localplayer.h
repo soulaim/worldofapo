@@ -3,6 +3,7 @@
 
 #include "game.h"
 #include "world.h"
+#include "visualworld.h"
 #include "userio.h"
 #include "graphics.h"
 #include "ordercontainer.h"
@@ -57,6 +58,7 @@ private:
 	Graphics* view;
 	UserIO* userio;
 	GameSound soundsystem;
+	VisualWorld visualworld;
 	World world;
 };
 

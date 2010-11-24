@@ -85,17 +85,17 @@ struct SkeletalModel: public Model
 {
 	virtual bool load(const std::string& filename);
 	virtual bool save(const std::string& filename) const;
-	virtual void draw();
+	virtual void draw() const;
 	virtual void rotate_y(float angle);
 
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
-	void draw(bool draw_only_skeleton = 0, size_t hilight = -1);
+	void draw(bool draw_only_skeleton = 0, size_t hilight = -1) const;
 	void preload();
 private:
-	void old_draw(size_t hilight);
-	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight);
-	void calcMatrices(size_t current_bone, std::vector<Matrix4>& rotations, Matrix4 offset, const std::string& animation_name, int animation_state);
+	void old_draw(size_t hilight) const;
+	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight) const;
+	void calcMatrices(size_t current_bone, std::vector<Matrix4>& rotations, Matrix4 offset, const std::string& animation_name, int animation_state) const;
 
 	static const size_t BUFFERS = 4;
 	GLuint locations[BUFFERS];
