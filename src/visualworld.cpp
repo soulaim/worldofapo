@@ -20,6 +20,12 @@ void VisualWorld::terminate()
 		ModelFactory::destroy(it->second);
 	}
 	models.clear();
+
+	lights.clear();
+	worldMessages.clear();
+	
+	psources.clear();
+	particles.clear();
 }
 
 

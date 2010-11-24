@@ -81,8 +81,7 @@ void Editor::release_swarm()
 
 void Editor::release_particles()
 {
-	psources.clear();
-	particles.clear();
+	visualworld.terminate();
 }
 
 Editor::~Editor()
@@ -198,12 +197,12 @@ bool Editor::do_tick()
 
 	if(view.lightsActive)
 	{
-//		view.drawParticles_old(particles);
-		view.drawParticles_vbo(particles);
+//		view.drawParticles_old(visualworld.particles);
+		view.drawParticles_vbo(visualworld.particles);
 	}
 	else
 	{
-		view.drawParticles(particles);
+		view.drawParticles(visualworld.particles);
 	}
 
 	view.finishDrawing();
@@ -234,28 +233,7 @@ bool Editor::tick()
 			it->second->tick(it->second->animation_time + 1);
 		}
 
-		for(size_t i=0; i<psources.size(); ++i)
-		{
-			psources[i].tick(particles);
-			if(!psources[i].alive())
-			{
-				psources[i] = psources.back();
-				psources.pop_back();
-				--i;
-			}
-		}
-
-		for(size_t i=0; i<particles.size(); ++i)
-		{
-			if(!particles[i].alive())
-			{
-				particles[i] = particles.back();
-				particles.pop_back();
-				--i;
-			}
-			else
-				particles[i].tick();
-		}
+		visualworld.tickParticles();
 
 		return do_tick();
 	}
@@ -1456,7 +1434,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 			{
 				Location place(x_scalar * (i - X/2), y_scalar * (j - Y/2), z_scalar * (k - Z/2));
 				Location direction(0,0,-1);
-				genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
+				visualworld.genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
 			}
 		}
 	}
@@ -1465,41 +1443,6 @@ void Editor::swarm_particles(int X, int Y, int Z)
 	ss << X*Y*Z;
 	hud.pushMessage(red("PARTICLES! " + ss.str()));
 }
-
-// Copy paste from world.
-void Editor::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
-{
-	ParticleSource pe;
-	pe.getIntProperty("PPF") = particlesPerFrame;
-	pe.getIntProperty("CUR_LIFE") = life;
-	pe.getIntProperty("MAX_LIFE") = life;
-	pe.getIntProperty("PLIFE")    = particleLife;
-	
-	pe.getIntProperty("SRED")     = r;
-	pe.getIntProperty("ERED")     = r / 2;
-	
-	pe.getIntProperty("SGREEN")   = g;
-	pe.getIntProperty("EGREEN")   = g / 2;
-	
-	pe.getIntProperty("SBLUE")    = b;
-	pe.getIntProperty("EBLUE")    = b / 2;
-	
-	pe.getIntProperty("MAX_RAND") = max_rand;
-	pe.getIntProperty("SCALE") = scale;
-	
-	pe.getIntProperty("PSP_1000") = scatteringCone;
-	
-	/*
-	pe.getIntProperty("RAND_X_1000") = 500;
-	pe.getIntProperty("RAND_Y_1000") = 0;
-	*/
-	
-	pe.position = pos;
-	pe.velocity = vel;
-	
-	psources.push_back(pe);
-}
-
 
 void Editor::swarm_meadows(int X, int Z, int y)
 {

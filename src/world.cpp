@@ -339,10 +339,15 @@ void World::generateInput_RabidAlien(Unit& unit)
 
 World::World(VisualWorld* vw)
 {
-	cerr << "World init" << endl;
-
+	assert(vw);
 	visualworld = vw;
 
+	init();
+}
+
+void World::init()
+{
+	cerr << "World::init()" << endl;
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
@@ -375,6 +380,8 @@ World::World(VisualWorld* vw)
 
 void World::terminate()
 {
+	cerr << "World::terminate()" << endl;
+
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 	

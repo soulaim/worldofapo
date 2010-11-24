@@ -38,6 +38,7 @@ public:
 	};
 	
 	World(VisualWorld*);
+	void init();
 
 	std::shared_ptr<Octree> octree;
 	

@@ -30,6 +30,7 @@ void Game::reset()
 	
 	UnitInput.clear();
 	world->terminate();
+	world->init();
 }
 
 void Game::init()

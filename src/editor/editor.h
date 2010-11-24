@@ -10,6 +10,7 @@
 #include "../hud.h"
 #include "../particle.h"
 #include "../particle_source.h"
+#include "../visualworld.h"
 
 #include <string>
 #include <vector>
@@ -100,9 +101,7 @@ class Editor
 
 	bool do_tick();
 
-	std::vector<ParticleSource> psources;
-	std::vector<Particle> particles;
-	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife);
+	VisualWorld visualworld;
 public:
 	Editor();
 	~Editor();
