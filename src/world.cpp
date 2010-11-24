@@ -417,6 +417,8 @@ void World::doDeathFor(Unit& unit)
 
 void World::generateInput_RabidAlien(Unit& unit)
 {
+	return;
+	
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
 	
@@ -984,7 +986,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				u->last_damage_dealt_by = projectile["OWNER"];
 				(*u)("DAMAGED_BY") = projectile("NAME");
 				
-				projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
+				projectile.destroyAfterFrame |= projectile["DEATH_IF_HITS_UNIT"];
 			}
 		}
 	}

@@ -23,6 +23,25 @@ vector<Vec3> DOTS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
+struct LightDistance
+{
+	int index;
+	FixedPoint squaredDistance;
+	
+	bool operator<(const LightDistance& rhs) const
+	{
+		return squaredDistance < rhs.squaredDistance;
+	}
+};
+
+float isLightUsed(LightDistance& light)
+{
+	if(light.squaredDistance > 1000)
+		return -1.f;
+	else
+		return light.index;
+}
+
 void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 {
 	return;
@@ -350,16 +369,6 @@ void Graphics::drawDebugLevelNormals(const Level& lvl)
 	glEnd();
 }
 
-struct LightDistance
-{
-	int index;
-	FixedPoint squaredDistance;
-
-	bool operator<(const LightDistance& rhs) const
-	{
-		return squaredDistance < rhs.squaredDistance;
-	}
-};
 /*
 void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
 {

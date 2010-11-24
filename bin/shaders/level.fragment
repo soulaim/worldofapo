@@ -33,10 +33,17 @@ void main()
 		//float shininess = pow(max(dot(n, halfV), 0.0), 10);
 		//color += vec4(1, 1, 1, 1) * shininess;
 	}
-
+	
+/*
 	float weigth0 = 3.0 + 1.0 * abs(sin(height));
 	float weigth1 = max(min(height,2.0), 0.0) + 1.0 * abs(sin(height+1.0));
 	float weigth2 = max(height/2.0, 0.0);
+	float weigth3 = 0.0;
+*/
+
+	float weigth0 = 80.0 / (abs(height + 3)  + 0.01);
+	float weigth2 = 80.0 / (abs(height - 6)  + 0.01);
+	float weigth1 = 80.0 / (abs(height - 20) + 0.01);
 	float weigth3 = 0.0;
 
 	gl_FragColor = vec4(0,0,0,0);

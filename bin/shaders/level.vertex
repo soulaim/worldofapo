@@ -34,13 +34,11 @@ void main()
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
 		int lightIndex = activeLight[i];
-//		aux = vec3(gl_LightSource[lightIndex].position - ecPos);
 		aux = vec3(gl_ModelViewMatrix * lights[lightIndex*2 + POSITION] - ecPos);
 		lightDir[i] = normalize(aux);
 		dist[i] = length(aux);
-	
+		
 		//halfVector[i] = normalize(gl_LightSource[lightIndex].halfVector.xyz);
-//		diffuse[i] = gl_FrontMaterial.diffuse * gl_LightSource[lightIndex].diffuse;
 		diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
 	}
 

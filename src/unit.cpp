@@ -157,6 +157,8 @@ Location Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
+	std::cerr << "resolving collision!" << std::endl;
+	
 	// if one of the objects doesn't want to collide, then don't react.
 	if(!(collision_rule & o.collision_rule))
 		return;
@@ -194,6 +196,8 @@ void Unit::collides(OctreeObject& o)
 		
 		if(y_diff < x_diff && y_diff < z_diff)
 		{
+			std::cerr << "y collision!" << std::endl;
+			
 			// least offending axis is y
 			// velocity.y  = o.velocity.y * FixedPoint(1, 2) - FixedPoint(25, 1000);
 			
@@ -217,6 +221,8 @@ void Unit::collides(OctreeObject& o)
 		}
 		else if(x_diff < z_diff)
 		{
+			std::cerr << "x collision!" << std::endl;
+			
 			// least offence by x
 			// velocity.x  = o.velocity.x * FixedPoint(1, 2);
 			
@@ -233,6 +239,8 @@ void Unit::collides(OctreeObject& o)
 		}
 		else
 		{
+			std::cerr << "z collision!" << std::endl;
+			
 			// least offence by z
 			// velocity.z  = o.velocity.z * FixedPoint(1, 2);
 			
@@ -242,7 +250,7 @@ void Unit::collides(OctreeObject& o)
 			}
 			else
 			{
-				posCorrection.z -= z_diff * FixedPoint(11, 20);
+				posCorrection.z -= z_diff * FixedPoint(9, 20);
 			}
 		}
 		
@@ -255,7 +263,6 @@ void Unit::init(World& w)
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
-	
 	weapon = 0;
 }
 
