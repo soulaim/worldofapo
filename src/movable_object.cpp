@@ -30,7 +30,6 @@ const Location& MovableObject::getLookDirection()
 	FixedPoint upsin = apomath.getSin(upangle);
 	
 	FixedPoint x = 30; // what is this actually? :D
-	
 	lookDirection.x = cos * upcos * x;
 	lookDirection.z = sin * upcos * x;
 	lookDirection.y =      -upsin * x;

@@ -143,13 +143,12 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
 	
 	// these could be stored and set somewhere else possibly
-	float angle = 100.f;
-	float ratio = 800.f / 600.f;
-	float nearP = 1.f;
-	float farP  = 200.f;
-	
-	gluPerspective(angle,ratio,nearP,farP);
-	frustum.setCamInternals(angle,ratio,nearP,farP);
+	fov = 100.f;
+	aspect_ratio = 800.f / 600.f;
+	nearP = 1.f;
+	farP  = 200.f;
+	gluPerspective(fov, aspect_ratio, nearP, farP);
+	frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
 	
 	glMatrixMode(GL_MODELVIEW);
 
@@ -1063,11 +1062,33 @@ void Graphics::toggleFullscreen()
 void Graphics::zoom_in()
 {
 	camera.zoomIn();
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	
+	fov /= 1.2;
+	if(fov < 15.f)
+		fov = 15.f;
+	gluPerspective(fov, aspect_ratio, nearP, farP);
+	// frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
+	
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void Graphics::zoom_out()
 {
 	camera.zoomOut();
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	
+	fov *= 1.2;
+	if(fov > 100.f)
+		fov = 100.f;
+	gluPerspective(fov, aspect_ratio, nearP, farP);
+	// frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
+	
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void Graphics::drawBox(const Location& top, const Location& bot,

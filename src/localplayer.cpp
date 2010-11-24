@@ -271,6 +271,31 @@ bool Localplayer::handleClientLocalInput()
 				disableGrab();
 			client_input_state ^= 4;
 		}
+		
+		if(key == "n")
+		{
+			auto iter = world.units.find(game.myID);
+			iter++;
+			if(iter != world.units.end())
+			{
+				game.myID = iter->first;
+				view->bindCamera(&world.units[game.myID]);
+				world.add_message("Increased value of myID!");
+			}
+		}
+		
+		if(key == "p")
+		{
+			auto iter = world.units.find(game.myID);
+			if(iter != world.units.begin())
+			{
+				iter--;
+				game.myID = iter->first;
+				view->bindCamera(&world.units[game.myID]);
+				world.add_message("Decreased value of myID!");
+			}
+		}
+		
 	}
 	return true;
 }

@@ -38,7 +38,7 @@ void Weapon::fire()
 	Location projectile_direction = unit->getLookDirection();
 	
 	weapon_position.y += 4;
-	projectile_direction.y += 4;
+	// projectile_direction.y += 4;
 
 	size_t model_prototype = proto_projectile.prototype_model;
 	

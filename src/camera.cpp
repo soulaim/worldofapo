@@ -2,7 +2,7 @@
 #include "unit.h"
 #include "frustum/matrix4.h"
 
-const double head_level = 6.0;
+const double head_level = 4.0;
 
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),

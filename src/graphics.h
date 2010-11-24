@@ -74,6 +74,11 @@ class Graphics
 	bool drawDebuglines;
 	bool drawDebugWireframe;
 	
+	float fov;
+	float aspect_ratio;
+	float nearP;
+	float farP;
+	
 public:
 	void initShaders(); // Public for debugging.
 	void releaseShaders();
