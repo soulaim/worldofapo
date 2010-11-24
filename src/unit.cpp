@@ -1,7 +1,10 @@
-
 #include "unit.h"
+
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
+using namespace std;
 
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
@@ -40,7 +43,7 @@ const Location& Unit::getVelocity() const
 	return velocity;
 }
 
-void Unit::setName(const std::string& newName)
+void Unit::setName(const string& newName)
 {
 	name = newName;
 }
@@ -87,7 +90,7 @@ int Unit::getMouseAction(int type) const
 }
 
 
-void Unit::handleCopyOrder(std::stringstream& ss)
+void Unit::handleCopyOrder(stringstream& ss)
 {
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
@@ -107,9 +110,9 @@ void Unit::handleCopyOrder(std::stringstream& ss)
 	getline(ss, name);
 }
 
-std::string Unit::copyOrder(int ID) const
+string Unit::copyOrder(int ID) const
 {
-	std::stringstream hero_msg;
+	stringstream hero_msg;
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "

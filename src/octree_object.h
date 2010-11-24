@@ -4,6 +4,8 @@
 #include "location.h"
 #include "movable_object.h"
 
+#include <algorithm>
+
 class OctreeObject : public MovableObject
 {
 	public:
@@ -38,23 +40,26 @@ class OctreeObject : public MovableObject
 
 struct OctreeObjectLess
 {
-	bool operator( )(const OctreeObject* o1, const OctreeObject* o2)
+	bool operator()(const OctreeObject* o1, const OctreeObject* o2) const
 	{
-		return(o1->id < o2->id);
+		return o1->id < o2->id;
 	}
 };
 
 struct OctreeObjectPairLess
 {
-	bool operator( )(const std::pair<OctreeObject*, OctreeObject*> pair1, const std::pair<OctreeObject*, OctreeObject*> pair2)
+	bool operator()(const std::pair<OctreeObject*, OctreeObject*> pair1, const std::pair<OctreeObject*, OctreeObject*> pair2) const
 	{
-		FixedPoint a_min_top = min(pair1.first->bb_top().y, pair1.second->bb_top().y);
-		FixedPoint b_min_top = min(pair2.first->bb_top().y, pair2.second->bb_top().y);
-		
-		return a_min_top < b_min_top;
-		// TODO ALERT: Should handle the case where min_tops are equal (danger of de-sync).
+		FixedPoint a_min_top = std::min(pair1.first->bb_top().y, pair1.second->bb_top().y);
+		FixedPoint b_min_top = std::min(pair2.first->bb_top().y, pair2.second->bb_top().y);
+
+		bool b1 = a_min_top < b_min_top;
+		bool b2 = a_min_top == b_min_top && pair1.first->id < pair2.first->id;
+		bool b3 = a_min_top == b_min_top && pair1.first->id == pair2.first->id && pair1.second->id < pair2.second->id;
+
+		return b1 || b2 || b3;
 	}
 };
 
-
 #endif
+

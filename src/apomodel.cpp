@@ -1,6 +1,5 @@
 #include "apomodel.h"
 #include "primitives.h"
-#include "graphics.h"
 
 #include "shaders.h"
 

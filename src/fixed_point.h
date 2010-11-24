@@ -9,8 +9,8 @@
 class FixedPoint
 {
 	long long number;
-	
-	public:
+
+public:
 	enum { FIXED_POINT_ONE = 1024, FP_BITS_DESIMALS = 9 };
 	static const FixedPoint ZERO;
 
@@ -20,7 +20,7 @@ class FixedPoint
 	{
 	}
 	FixedPoint(int a, int b = 1):
-	number( a * FIXED_POINT_ONE / b )
+		number( a * FIXED_POINT_ONE / b )
 	{
 	}
 
@@ -174,12 +174,6 @@ class FixedPoint
 	}
 	
 };
-
-
-inline FixedPoint min(FixedPoint a, FixedPoint b)
-{
-	return (a < b)? a : b;
-}
 
 #endif
 
