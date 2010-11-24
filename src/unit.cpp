@@ -97,7 +97,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule >> mobility;
+		id >> weapon >> collision_rule;
 
 	HasProperties::handleCopyOrder(ss);
 
@@ -118,7 +118,7 @@ string Unit::copyOrder(int ID) const
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " " << collision_rule << " " << mobility << " ";
+		<< id << " " << weapon << " " << collision_rule << " ";
 
 	hero_msg << HasProperties::copyOrder();
 
@@ -198,15 +198,16 @@ void Unit::collides(OctreeObject& o)
 		if(y_diff < x_diff && y_diff < z_diff)
 		{
 			// least offending axis is y
-			velocity.y  = o.velocity.y * FixedPoint(1, 2) - FixedPoint(25, 1000);
+			// velocity.y  = o.velocity.y * FixedPoint(1, 2) - FixedPoint(25, 1000);
 			
 			if(hisTop.y < myTop.y)
 			{
-				// i'm on top
-				posCorrection.y += y_diff * FixedPoint(9, 20);
+				velocity.y /= 2;
 				
+				// i'm on top
 				// if bottom object moves, move the top object with it.
-				posCorrection += o.velocity;
+				posCorrection.y += y_diff * FixedPoint(9, 20) * 2;
+				posCorrection   += o.velocity + o.posCorrection;
 				
 				mobility |= MOBILITY_STANDING_ON_OBJECT;
 			}
@@ -220,7 +221,7 @@ void Unit::collides(OctreeObject& o)
 		else if(x_diff < z_diff)
 		{
 			// least offence by x
-			velocity.x  = o.velocity.x * FixedPoint(1, 2);
+			// velocity.x  = o.velocity.x * FixedPoint(1, 2);
 			
 			if(hisTop.x < myTop.x)
 			{
@@ -236,7 +237,7 @@ void Unit::collides(OctreeObject& o)
 		else
 		{
 			// least offence by z
-			velocity.z  = o.velocity.z * FixedPoint(1, 2);
+			// velocity.z  = o.velocity.z * FixedPoint(1, 2);
 			
 			if(hisTop.z < myTop.z)
 			{

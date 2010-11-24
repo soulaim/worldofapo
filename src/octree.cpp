@@ -130,10 +130,25 @@ void Octree::doCollisions()
 	{
 		auto o = it->first;
 		auto o2 = it->second;
-		if (Collision::boxBox(o->bb_bot(), o->bb_top(), o2->bb_bot(), o2->bb_top()))
+		
+		Location bot1 = o->bb_bot();
+		Location top1 = o->bb_top();
+		
+		Location bot2 = o2->bb_bot();
+		Location top2 = o2->bb_top();
+		
+		if (Collision::boxBox(bot1, top1, bot2, top2))
 		{
-			o->collides(*o2);
-			o2->collides(*o);
+			if(top1.y < top2.y)
+			{
+				o->collides(*o2);
+				o2->collides(*o);
+			}
+			else
+			{
+				o2->collides(*o);
+				o->collides(*o2);
+			}
 		}
 	}
 }
