@@ -18,7 +18,6 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 	glLoadIdentity();
 	
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_TEXTURE_2D);
 	
 	for(size_t i = 0; i < buttons.size(); ++i)
 	{
@@ -39,8 +38,6 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
 		glEnd();
 	}
-	
-	glDisable(GL_TEXTURE_2D);
 	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

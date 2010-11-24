@@ -59,6 +59,7 @@ Hud::Hud():
 	charWidth['('] = 0.1;
 	charWidth['\''] = 0.1;
 	charWidth['-'] = 0.1;
+	charWidth['+'] = 0.1;
 	charWidth['|'] = 0.1;
 	charWidth['/'] = 0.1;
 	charWidth['_'] = 0.1;
@@ -272,7 +273,6 @@ void Hud::drawCrossHair() const
 {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -296,7 +296,6 @@ void Hud::drawCrossHair() const
 	
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -309,7 +308,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -341,7 +339,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	float edge_size = 1./16.;
 	
 	// draw a darker background box for the text if that was requested
-	glDisable(GL_TEXTURE_2D);
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
 	if(background)
@@ -353,7 +350,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
-	glEnable(GL_TEXTURE_2D);
 	
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
@@ -411,7 +407,6 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glDisable(GL_BLEND);
 	
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -424,6 +419,8 @@ void Hud::drawMinimap() const
 	auto iteratorMyUnit = (*units).find(myID);
 	if(iteratorMyUnit == units->end())
 		return;
+
+	TextureHandler::getSingleton().bindTexture(0, "");
 	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -465,6 +462,7 @@ void Hud::drawMinimap() const
 	glEnd();
 	*/
 	
+	glPointSize(5.0f);
 	glBegin(GL_POINTS);
 	for(auto it = units->begin(); it != units->end(); ++it)
 	{

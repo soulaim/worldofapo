@@ -36,6 +36,8 @@ void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 
 void Graphics::initLight()
 {
+	glDisable(GL_LIGHTING);
+
 	GLfloat light0ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
 	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
 	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
@@ -102,11 +104,10 @@ void Graphics::init()
 	initShaders();
 
 	glLineWidth(3.0f);
-	glEnable(GL_TEXTURE_2D);			// Enable Texture Mapping
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Clear The Background Color To Blue 
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set the background color.
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS);			// The Type Of Depth Test To Do
-	glEnable(GL_DEPTH_TEST);			// Enables Depth Testing
+	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);			// Enables Smooth Color Shading
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();				// Reset The Projection Matrix
@@ -588,6 +589,9 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	glDisableClientState(GL_VERTEX_ARRAY);
 	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
 
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(2, "");
+
 	glUseProgram(0);
 }
 
@@ -635,7 +639,6 @@ void Graphics::drawSkybox()
 			ans.x, ans.y, ans.z,
 			0,1,0);
 	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_TEXTURE_2D);
 	glDepthMask(GL_FALSE);
 	glDisable(GL_BLEND);
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -690,7 +693,7 @@ void Graphics::drawSkybox()
 	glPopMatrix();
 }
 
-void Graphics::drawModels(map<int, Model*>& models)
+void Graphics::drawModels(const map<int, Model*>& models)
 {
 	if(lightsActive)
 	{
@@ -701,9 +704,9 @@ void Graphics::drawModels(map<int, Model*>& models)
 		glDisable(GL_LIGHTING);
 	}
 	glUseProgram(shaders["unit_program"]);
-	for(map<int, Model*>::iterator iter = models.begin(); iter != models.end(); ++iter)
+	for(map<int, Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
-		Model& model = *iter->second;
+		const Model& model = *iter->second;
 
 		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
 		
@@ -731,7 +734,6 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 //	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
 	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
@@ -797,7 +799,6 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glDepthMask(GL_TRUE); // re-enable depth writing.
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 
 	glUseProgram(0);
@@ -814,7 +815,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 
 	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
@@ -848,7 +848,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glEnd();
 
 	glDepthMask(GL_TRUE); // re-enable depth writing.
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 
 	glUseProgram(0);
@@ -862,7 +861,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
@@ -906,7 +904,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glEnd();
 
 	glDepthMask(GL_TRUE); // re-enable depth writing.
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 }
 
@@ -947,18 +944,19 @@ void Graphics::startDrawing()
 }
 
 void Graphics::draw(
-	map<int, Model*>& models,
 	const Level& lvl,
-	const std::map<int,Unit>& units,
-	const std::map<int, LightObject>& lights,
-	const std::shared_ptr<Octree> o, Hud* hud,
-	const std::map<int, Projectile>& projectiles,
-	std::vector<Particle>& particles
+	const VisualWorld& visualworld,
+	Hud* hud,
+	const std::shared_ptr<Octree> o, // For debug.
+	const std::map<int, Projectile>& projectiles, // For debug.
+	const std::map<int, Unit>& units // For debug.
 	)
 {
 	updateCamera(lvl);
 	
 	startDrawing();
+
+
 	drawSkybox();
 	
 	if(drawDebuglines)
@@ -973,24 +971,32 @@ void Graphics::draw(
 	}
 	else
 	{
-		drawLevel(lvl, lights);
+		drawLevel(lvl, visualworld.lights);
 	}
 	
-	drawDebugLines();
-	drawBoundingBoxes(units);
-	drawModels(models);
-	
-	if(lightsActive) // TODO: drawParticles_old can be removed when drawParticles is good enough.
+	if(drawDebuglines)
 	{
-		drawParticles_old(particles);
+		drawDebugLines();
+	}
+
+	drawModels(visualworld.models);
+	
+	if(drawDebuglines) // TODO: drawParticles_old can be removed when drawParticles is good enough.
+	{
+//		drawParticles_old(visualworld.particles);
 	}
 	else
 	{
-		drawParticles(particles);
+		vector<Particle> p(visualworld.particles);
+		drawParticles(visualworld.particles);
 	}
 	
-	drawOctree(o);
-	
+	if(drawDebuglines)
+	{
+		drawBoundingBoxes(units);
+		drawOctree(o);
+	}
+
 	if(hud)
 	{
 		hud->draw(camera.isFirstPerson());
@@ -1090,9 +1096,8 @@ void Graphics::drawBox(const Location& top, const Location& bot,
 	glEnd();
 }
 
-void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
-	if (!drawDebuglines)
-		return;
+void Graphics::drawOctree(const std::shared_ptr<Octree>& o)
+{
 	if (o->n > 0)
 		drawBox(o->top, o->bot, 1.0f);
 	if (o->hasChildren) {
@@ -1105,8 +1110,6 @@ void Graphics::drawOctree(const std::shared_ptr<Octree>& o) {
 
 void Graphics::drawBoundingBoxes(const std::map<int,Unit>& units)
 {
-	if (!drawDebuglines)
-		return;
 	for(auto iter = units.begin(); iter != units.end(); iter++)
 	{
 		drawBox(iter->second.bb_top(), iter->second.bb_bot());
@@ -1133,7 +1136,6 @@ void Graphics::drawGrass(const std::vector<Vec3>& locations, const std::vector<V
 	glUseProgram(shaders["grass_program"]);
 	TextureHandler::getSingleton().bindTexture(0, "meadow1");
 	glDisable(GL_CULL_FACE);
-	glEnable(GL_TEXTURE_2D);
 //	glEnable(GL_BLEND);
 //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

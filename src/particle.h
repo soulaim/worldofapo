@@ -37,18 +37,18 @@ public:
 		--cur_life;
 	}
 
-	float getScale()
+	float getScale() const
 	{
 		// Don't scale too big.
 		return scale * 1.5f;
 	}
 	
-	float getAlpha()
+	float getAlpha() const
 	{
 		return float(cur_life) / (max_life + 1);
 	}
 	
-	bool alive()
+	bool alive() const
 	{
 		return cur_life > 0;
 	}

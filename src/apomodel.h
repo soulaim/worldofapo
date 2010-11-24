@@ -52,18 +52,17 @@ struct ApoModel: public Model
 	
 	~ApoModel();
 
-	bool load(const std::string& filename);
-	bool save(const std::string& filename) const;
-	float height() const;
-	void draw();
-	void rotate_y(float angle);
+	virtual bool load(const std::string& filename);
+	virtual bool save(const std::string& filename) const;
+	virtual void draw() const;
+	virtual void rotate_y(float angle);
 
 	static std::map<std::string, ObjectPart> objects;
 	static bool loadObjects(const std::string&);
 	static bool saveObjects(const std::string&);
 
 private:
-	void drawPartsRecursive(int current_node);
+	void drawPartsRecursive(int current_node) const;
 };
 
 #endif

@@ -51,7 +51,7 @@ public:
 	std::vector<std::string> worldMessages;
 	
 	std::vector<ParticleSource> psources;
-	std::vector<Particle> particles;
+	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
 
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
