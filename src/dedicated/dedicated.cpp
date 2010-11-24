@@ -17,7 +17,9 @@ long long time_now()
 }
 
 
-DedicatedServer::DedicatedServer(): fps_world(0)
+DedicatedServer::DedicatedServer():
+	fps_world(0),
+	world(&visualworld)
 {
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
@@ -589,9 +591,9 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 void DedicatedServer::handleWorldEvents()
 {
 	// output events to show the server is still in sync.
-	for(size_t i = 0; i < world.visualworld.events.size(); ++i)
+	for(size_t i = 0; i < visualworld.events.size(); ++i)
 	{
-		WorldEvent& event = world.visualworld.events[i];
+		WorldEvent& event = visualworld.events[i];
 		
 		if(event.type == WorldEvent::DEATH_ENEMY)
 		{
@@ -618,6 +620,6 @@ void DedicatedServer::handleWorldEvents()
 		}
 	}
 	
-	world.visualworld.events.clear();
+	visualworld.events.clear();
 }
 

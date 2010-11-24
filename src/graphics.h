@@ -22,9 +22,7 @@
 #include "medikit.h"
 #include "light_object.h"
 #include "projectile.h"
-
-
-#include "world.h" // TODO: change to visualworld.h
+#include "visualworld.h"
 
 struct Level;
 struct MenuButton;

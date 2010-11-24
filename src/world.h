@@ -8,68 +8,14 @@
 
 #include "unit.h"
 #include "projectile.h"
-#include "model.h"
 #include "level.h"
 #include "apomath.h"
 #include "octree.h"
 #include "movable_object.h"
+#include "worldevent.h"
 
-#include "light_object.h"
-#include "particle_source.h"
-
-struct WorldEvent
-{
-	// Identifications for events where we want to do some SFX.
-	enum EventType
-	{
-		DAMAGE_BULLET,
-		DAMAGE_DEVOUR,
-		DEATH_PLAYER,
-		DEATH_ENEMY,
-		CENTER_CAMERA
-	};
-
-	EventType type;
-	
-	Location t_position;
-	Location t_velocity;
-	
-	Location a_position;
-	Location a_velocity;
-	
-	int actor_id;
-	int target_id;
-};
-
-class VisualWorld
-{
-	void updateModel(Model*, const Unit&, int currentWorldFrame); // view frame update
-
-public:
-	std::map<int, Model*> models;
-	std::map<int, LightObject> lights;
-	std::vector<std::string> worldMessages;
-	
-	std::vector<ParticleSource> psources;
-	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
-
-	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
-	
-	void addLight(int id, Location& location);
-	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
-	void tickLights(const std::map<int, Unit>& units);
-	
-	void init();
-	void terminate();
-	void tickParticles();
-	void viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame);
-
-	void removeUnit(int id);
-	void add_message(const std::string& message);
-
-	std::vector<WorldEvent> events;
-	void add_event(const WorldEvent& event);
-};
+class VisualWorld;
+class Model;
 
 class World
 {
@@ -82,7 +28,7 @@ class World
 
 public:
 	int currentWorldFrame;
-	VisualWorld visualworld;
+	VisualWorld* visualworld;
 
 	enum ModelType
 	{
@@ -91,8 +37,7 @@ public:
 		BULLET_MODEL
 	};
 	
-	World();
-	void init();
+	World(VisualWorld*);
 
 	std::shared_ptr<Octree> octree;
 	
@@ -123,10 +68,10 @@ public:
 	
 	void terminate();
 	
-	void add_message(const std::string& message);
-	void add_event(const WorldEvent& event);
-	
 	unsigned long checksum() const;
+
+	void add_message(const std::string& message) const;
+	void add_event(const WorldEvent& event) const;
 	
 private:
 	std::vector<int> deadUnits;

@@ -3,6 +3,7 @@
 #define H_GAME_
 
 #include "../world.h"
+#include "../visualworld.h"
 #include "../ordercontainer.h"
 #include "../fps_manager.h"
 #include "../order.h"
@@ -53,6 +54,7 @@ class DedicatedServer
 	enum { SERVER_ID = -1 };
 
 	FPS_Manager fps_world;
+	VisualWorld visualworld;
 	World world;
 	
 	SocketHandler sockets;  // children, other processes connected to my hosted game.

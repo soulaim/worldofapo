@@ -1,5 +1,6 @@
 #include "game.h"
 #include "logger.h"
+#include "worldevent.h"
 
 #include <iostream>
 #include <sstream>
