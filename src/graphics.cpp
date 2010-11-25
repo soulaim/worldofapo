@@ -995,9 +995,9 @@ void Graphics::draw(
 	}
 	else
 	{
-		vector<Particle> p(visualworld.particles);
 		drawParticles(visualworld.particles);
 	}
+	drawGrass(visualworld.meadows, visualworld.winds);
 	
 	if(drawDebuglines)
 	{
