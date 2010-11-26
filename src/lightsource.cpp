@@ -17,10 +17,16 @@ LightSource::LightSource(): c_diffuse_start({})
 	lifeType = MORTAL;
 }
 
-const FixedPoint& LightSource::getIntensity()
+const FixedPoint& LightSource::getIntensity() const
 {
-	intensity = FixedPoint(life_current, life_maximum) * power_maximum;
 	return intensity;
+}
+
+void LightSource::updateIntensity()
+{
+	float r=0.f, g=0.f, b=0.f;
+	getDiffuse(r, g, b);
+	intensity = FixedPoint(1000 * (0.299 * r + 0.587 * g + 0.114 * b), 1);
 }
 
 void LightSource::setDiffuse(float r, float g, float b)

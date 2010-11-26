@@ -343,10 +343,10 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glBegin(GL_QUADS);
 	if(background)
 	{
-		glVertex3f(pos_x - 0.01 * scale , y_bot, -1);
+		glVertex3f(pos_x - 0.01 * scale  , y_bot, -1);
 		glVertex3f(pos_x + totalWidth    , y_bot, -1);
 		glVertex3f(pos_x + totalWidth    , y_top, -1);
-		glVertex3f(pos_x - 0.01 * scale , y_top, -1);
+		glVertex3f(pos_x - 0.01 * scale  , y_top, -1);
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();

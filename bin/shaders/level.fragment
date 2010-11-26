@@ -25,13 +25,17 @@ void main()
 	
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
-		NdotL = max(dot(n, normalize(lightDir[i])), 0.0);
-		att = 1.0 / (0.0001 + 0.0006 * dist[i] * dist[i]);
-		color += att * (diffuse[i] * NdotL);
+		NdotL = dot(n, normalize(lightDir[i]));
 		
-		//halfV = normalize(halfVector[i]);
-		//float shininess = pow(max(dot(n, halfV), 0.0), 10);
-		//color += vec4(1, 1, 1, 1) * shininess;
+		if(NdotL > 0.0)
+		{
+			att = 1.0 / (0.0001 + 0.0006 * dist[i] * dist[i]);
+			color += att * (diffuse[i] * NdotL);
+			
+			//halfV = normalize(halfVector[i]);
+			//float shininess = pow(max(dot(n, halfV), 0.0), 10);
+			//color += vec4(1, 1, 1, 1) * shininess;
+		}
 	}
 	
 /*

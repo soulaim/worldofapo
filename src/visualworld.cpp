@@ -142,6 +142,7 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 	for(auto iter = lights.begin(); iter != lights.end(); iter++)
 	{
 		LightObject& light = iter->second;
+		light.updateIntensity();
 		
 		// TODO should have a world.tickMovableObject(&light); call here
 		

@@ -21,8 +21,7 @@ public:
 		RELATIVE, // Camera rotates if unit rotates.
 		FIRST_PERSON // Camera moves at unit's location
 	};
-
-
+	
 	Camera();
 	Vec3& getTarget();
 	Vec3 getPosition() const;
@@ -41,7 +40,12 @@ public:
 	void zoomIn();
 	void zoomOut();
 	void setAboveGround(float min_cam_y);
-
+	
+	float fov, min_fov, max_fov;
+	float aspect_ratio;
+	float nearP;
+	float farP;
+	
 private:
 	
 	void getRelativePos(Vec3&);

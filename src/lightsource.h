@@ -23,7 +23,9 @@ public:
 	};
 	
 	virtual const Location& getPosition() const = 0;
-	const FixedPoint& getIntensity(); // lights can have an effect on game data, so return value in FixedPoint format.
+	
+	const FixedPoint& getIntensity() const;
+	void updateIntensity();
 	
 	void setDiffuse(float r, float g, float b);
 	void setSpecular(float r, float g, float b);
@@ -33,6 +35,8 @@ public:
 	
 	void setPower(int pow);
 	void setLife(int max_life);
+	
+	FixedPoint getPower();
 	
 	void activateLight();
 	void deactivateLight();

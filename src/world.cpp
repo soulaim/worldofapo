@@ -192,7 +192,6 @@ void World::doDeathFor(Unit& unit)
 void World::generateInput_RabidAlien(Unit& unit)
 {
 	return;
-	
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
 	

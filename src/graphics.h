@@ -70,14 +70,13 @@ class Graphics
 	
 	GLint MAX_NUM_LIGHTS;
 	GLint MAX_NUM_ACTIVE_LIGHTS;
+	
+	GLuint screenFBO;
+	GLuint screenRB;
+	
 	bool lightsActive;
 	bool drawDebuglines;
 	bool drawDebugWireframe;
-	
-	float fov;
-	float aspect_ratio;
-	float nearP;
-	float farP;
 	
 public:
 	void initShaders(); // Public for debugging.

@@ -13,6 +13,14 @@ Camera::Camera():
 	cur_cos = 0.f;
 	cur_upsin = 0.f;
 	cur_upcos = 0.f;
+	
+	fov = 100.f;
+	aspect_ratio = 800.f / 600.f;
+	nearP = 1.f;
+	farP  = 200.f;
+	
+	min_fov = 15.f;
+	max_fov = 100.f;
 }
 
 Vec3& Camera::getTarget()
@@ -229,6 +237,12 @@ void Camera::zoomIn()
 			position *= 2.0/3.0;
 		}
 	}
+	else if(mode == FIRST_PERSON)
+	{
+		fov /= 1.2;
+		if(fov < min_fov)
+			fov = min_fov;
+	}
 }
 
 void Camera::zoomOut()
@@ -239,6 +253,12 @@ void Camera::zoomOut()
 		{
 			position *= 3.0/2.0;
 		}
+	}
+	else if(mode == FIRST_PERSON)
+	{
+		fov *= 1.2;
+		if(fov > max_fov)
+			fov = max_fov;
 	}
 }
 

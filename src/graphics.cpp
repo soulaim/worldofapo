@@ -132,7 +132,26 @@ void Graphics::init()
 	glLoadIdentity();				// Reset The Projection Matrix
 	
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	
+	// TODO: This is completely obsolete?
 	initLight();
+	
+	
+	// Init screen framebuffer objects
+	glGenFramebuffersEXT(1, &screenFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	TextureHandler::getSingleton().createTexture("tmp", 800, 600);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp"), 0);
+	
+	glGenRenderbuffersEXT(1, &screenRB);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, screenRB);
+	glRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 800, 600);
+	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, screenRB);
+	
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	// ------------------------------
+	
 	
 	// do some weird magic i dont understand
 	glEnable(GL_COLOR_MATERIAL);
@@ -142,16 +161,10 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("crosshair", "data/images/crosshair.png");
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
 	
-	// these could be stored and set somewhere else possibly
-	fov = 100.f;
-	aspect_ratio = 800.f / 600.f;
-	nearP = 1.f;
-	farP  = 200.f;
-	gluPerspective(fov, aspect_ratio, nearP, farP);
-	frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
+	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
+	frustum.setCamInternals(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
 	
 	glMatrixMode(GL_MODELVIEW);
-
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -288,11 +301,12 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 
 	glUseProgram(shaders["level_program"]);
 	int i=0;
+	
+	int POSITION = 0;
+	int DIFFUSE = 1;
+	
 	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
 	{
-		int POSITION = 0;
-		int DIFFUSE = 1;
-
 		float rgb[4]; rgb[3] = 1.0f;
 		
 		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
@@ -401,6 +415,8 @@ struct ActiveLights
 
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
+	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
+	
 	glUseProgram(shaders["level_program"]);
 	if(drawDebuglines)
 	{
@@ -499,36 +515,36 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
 		}
 		
-		Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
-		
-		// Set active lights
-		Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
-
-		assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
-		static vector<LightDistance> distances;
-		distances.resize( max(lightsContainer.size(), distances.size()) );
-		int i = 0;
-		for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
-		{
-			FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
-			distances[i].index = i;
-			distances[i].squaredDistance = lightDistance;
-		}
-
-		assert(MAX_NUM_ACTIVE_LIGHTS <= 4);
-	//	sort(distances.begin(), distances.end());
-		size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
-		nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
-		ActiveLights ac = { float(distances[0].index), float(distances[1].index), float(distances[2].index), float(distances[3].index) };
-
 		for(size_t i = 0; i < 3; ++i)
 		{
+			//Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
+			Vec3& semiAverage = points[i];
+			
+			// Set active lights
+			Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
+			
+			static vector<LightDistance> distances;
+			distances.resize( max(lightsContainer.size(), distances.size()) );
+			int light_index = 0;
+			for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++light_index)
+			{
+				FixedPoint lightDistance = (iter->second.position - pos).lengthSquared(); // / (iter->second.getIntensity() + FixedPoint(1, 10));
+				distances[light_index].index = light_index;
+				distances[light_index].squaredDistance = lightDistance;
+			}
+
+			assert(MAX_NUM_ACTIVE_LIGHTS <= 4);
+		//	sort(distances.begin(), distances.begin() + lightsContainer.size());
+			size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
+			nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
+			
+			ActiveLights ac = { float(distances[0].index), float(distances[1].index), float(distances[2].index), float(distances[3].index) };
+		
 			size_t index = tri.points[i].x * width + tri.points[i].z;
 			active_lights[index] = ac; // TODO: now every vertex gets active lights only from a single face.
 		}
 	}
-
-
+	
 	assert(active_lights.size() == vertices.size());
 	assert(texture_coordinates1.size() == vertices.size());
 	assert(texture_coordinates2.size() == vertices.size());
@@ -927,10 +943,15 @@ void Graphics::updateCamera(const Level& lvl)
 
 void Graphics::startDrawing()
 {
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
 	glMatrixMode(GL_MODELVIEW);
 	
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear color buffer, since we're going to rewrite the color everywhere anyway.
 	
 	Vec3 camPos, camTarget, upVector;
 	camPos = camera.getPosition();
@@ -1015,7 +1036,39 @@ void Graphics::draw(
 
 void Graphics::finishDrawing()
 {
+	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	// glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	TextureHandler::getSingleton().bindTexture(0, "tmp");
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//gluPerspective(90, aspect_ratio, nearP, farP);
+	glMatrixMode(GL_MODELVIEW);
+	// glViewport(0, 0, 800, 600);
+	
+	// glUseProgram(shaders["blur_program"]);
+	
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+	
+	glUseProgram(0);
+	
+	
 	SDL_GL_SwapBuffers();
+	
+	// glMatrixMode(GL_MODELVIEW);
 }
 
 void Graphics::drawMedikits(const std::map<int, Medikit>& medikits) {
@@ -1062,33 +1115,11 @@ void Graphics::toggleFullscreen()
 void Graphics::zoom_in()
 {
 	camera.zoomIn();
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	fov /= 1.2;
-	if(fov < 15.f)
-		fov = 15.f;
-	gluPerspective(fov, aspect_ratio, nearP, farP);
-	// frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
-	
-	glMatrixMode(GL_MODELVIEW);
 }
 
 void Graphics::zoom_out()
 {
 	camera.zoomOut();
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	fov *= 1.2;
-	if(fov > 100.f)
-		fov = 100.f;
-	gluPerspective(fov, aspect_ratio, nearP, farP);
-	// frustum.setCamInternals(fov, aspect_ratio, nearP, farP);
-	
-	glMatrixMode(GL_MODELVIEW);
 }
 
 void Graphics::drawBox(const Location& top, const Location& bot,
