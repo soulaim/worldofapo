@@ -3,6 +3,8 @@
 #include "texturehandler.h"
 #include "apomath.h"
 
+#include <SDL.h>
+
 #include <string>
 #include <sstream>
 #include <map>

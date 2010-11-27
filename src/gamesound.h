@@ -1,13 +1,11 @@
-
-#ifndef GAMESOUND_H_
-#define GAMESOUND_H_
-
+#ifndef GAMESOUND_H
+#define GAMESOUND_H
 
 #include <string>
 #include <iostream>
 #include <map>
-#include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
+
+class Mix_Chunk;
 
 class GameSound
 {
@@ -27,3 +25,4 @@ class GameSound
 };
 
 #endif
+

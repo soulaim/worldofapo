@@ -1,12 +1,14 @@
+#include "graphics.h"
 
 #include "texturehandler.h"
-#include "graphics.h"
 #include "level.h"
 #include "shaders.h"
 #include "hud.h"
 #include "frustum/matrix4.h"
 #include "octree.h"
 #include "primitives.h"
+#include "window.h"
+#include "menubutton.h"
 
 #include <iostream>
 #include <iomanip>
@@ -105,7 +107,8 @@ void Graphics::toggleLightingStatus()
 	cerr << "Lightsactive: " << lightsActive << endl;
 }
 
-Graphics::Graphics()
+Graphics::Graphics(const Window& w):
+	window(w)
 {
 	init();
 }
@@ -113,13 +116,10 @@ Graphics::Graphics()
 Graphics::~Graphics()
 {
 	releaseShaders();
-	destroyWindow();
 }
 
 void Graphics::init()
 {
-	createWindow(); // let SDL handle this part..
-	
 	initShaders();
 
 	glLineWidth(3.0f);
@@ -159,39 +159,6 @@ void Graphics::init()
 	lightsActive = false;
 	drawDebuglines = false;
 	drawDebugWireframe = false;
-}
-
-void Graphics::createWindow()
-{
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
-	{
-		cerr << "ERROR: SDL init failed." << endl;
-		throw std::string("Unable to init SDL");
-	}
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	
-	drawContext = SDL_SetVideoMode(800, 600, 0, SDL_OPENGL); // | SDL_FULLSCREEN);
-	if(drawContext == 0)
-	{
-		cerr << "ERROR: drawContext = " << drawContext << endl;
-		throw std::string("Unable to set SDL video mode");
-	}
-	else
-	{
-		cerr << "SUCCESS: Got a drawContext!" << endl;
-	}
-}
-
-void Graphics::destroyWindow()
-{
-//	SDL_VideoQuit();
-	SDL_Quit();
 }
 
 void Graphics::setCamera(const Camera& cam)
@@ -1015,7 +982,7 @@ void Graphics::draw(
 
 void Graphics::finishDrawing()
 {
-	SDL_GL_SwapBuffers();
+	window.swap_buffers();
 }
 
 void Graphics::drawMedikits(const std::map<int, Medikit>& medikits) {
@@ -1056,7 +1023,7 @@ void Graphics::tick()
 
 void Graphics::toggleFullscreen()
 {
-	SDL_WM_ToggleFullScreen(drawContext);
+	window.toggle_fullscreen();
 }
 
 void Graphics::zoom_in()
@@ -1226,4 +1193,42 @@ void Graphics::drawGrass(const std::vector<Vec3>& locations, const std::vector<V
 
 }
 
+void Graphics::drawMenu(const vector<MenuButton>& buttons) const
+{
+	glDisable(GL_LIGHTING);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glClear(GL_DEPTH_BUFFER_BIT);
+	
+	for(size_t i = 0; i < buttons.size(); ++i)
+	{
+		if(buttons[i].selected == 1)
+			glColor3f(1.0f, 1.0f, 1.0f);
+		else
+			glColor3f(0.5f, 0.5f, 0.5f);
+		
+		float minus = 2.f * (i+0.f) / buttons.size() - 1.f;
+		float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
+		
+		TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
+		
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus, -1);
+		glTexCoord2f(1.f, 0.0f); glVertex3f(1, minus, -1);
+		glTexCoord2f(1.f, 1.0f); glVertex3f(1, plus, -1);
+		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
+		glEnd();
+	}
+	
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	
+	window.swap_buffers();
+}
 

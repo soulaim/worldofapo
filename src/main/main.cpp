@@ -1,7 +1,3 @@
-
-
-#include <SDL/SDL.h>
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -12,6 +8,7 @@
 #include "../graphics.h"
 #include "../userio.h"
 #include "../logger.h"
+#include "../window.h"
 
 using namespace std;
 
@@ -23,7 +20,8 @@ int main()
 	
 	cerr << "creating game object" << endl;
 	UserIO userio;
-	Graphics view;
+	Window window(800, 600);
+	Graphics view(window);
 	Localplayer master(&view, &userio);
 	master.init();
 	Menu menu(&view, &userio);

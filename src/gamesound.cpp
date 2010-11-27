@@ -6,6 +6,10 @@
 */
 
 #include "gamesound.h"
+
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 #include <iterator>
 #include <iostream>
 
