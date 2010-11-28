@@ -1,10 +1,26 @@
+
 uniform sampler2D particleTexture;
+uniform sampler2D depthTexture;
 
 varying vec2 texcoord;
+varying float frag_depth;
+
+const float FAR_CLIP_Z = 200.0;
 
 void main()
 {
 	vec4 color = gl_Color;
 	gl_FragColor = texture2D(particleTexture, texcoord) * color;
+	
+	/*
+	float my_z = (gl_FragCoord.z / gl_FragCoord.w) / FAR_CLIP_Z;
+	float my_z = frag_depth;
+	float screen_z = texture2D(depthTexture, gl_FragCoord.xy).r; // already in some nicer format
+	
+	gl_FragColor.r = screen_z / FAR_CLIP_Z;
+	gl_FragColor.g = -my_z;
+	gl_FragColor.b = val;
+	gl_FragColor.a = 1.0;
+	*/
 }
 

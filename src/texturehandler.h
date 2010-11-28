@@ -19,6 +19,7 @@ class TextureHandler
 		unsigned createTexture(const std::string&, const std::string&);
 		unsigned createTexture(const std::string&, Image& img);
 		unsigned createTexture(const std::string&, int width, int height);
+		unsigned createDepthTexture(const std::string& name, int width, int height);
 		
 		int bindTexture(size_t texture_unit, const std::string&);
 		unsigned getTextureID(const std::string&);

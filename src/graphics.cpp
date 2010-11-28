@@ -141,17 +141,20 @@ void Graphics::init()
 	glGenFramebuffersEXT(1, &screenFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
 	TextureHandler::getSingleton().createTexture("tmp", 800, 600);
+	TextureHandler::getSingleton().createDepthTexture("tmp_depth", 800, 600);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp"), 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	
+	/*
 	glGenRenderbuffersEXT(1, &screenRB);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, screenRB);
 	glRenderbufferStorageEXT( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 800, 600);
 	glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, screenRB);
-	
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	*/
+	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	// ------------------------------
-	
 	
 	// do some weird magic i dont understand
 	glEnable(GL_COLOR_MATERIAL);
@@ -168,7 +171,7 @@ void Graphics::init()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-
+	
 	lightsActive = false;
 	drawDebuglines = false;
 	drawDebugWireframe = false;
@@ -754,6 +757,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
+	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 //	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
@@ -836,6 +840,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
+	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 
 	glDisable(GL_LIGHTING);
@@ -874,6 +879,9 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_BLEND);
 
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+	
 	glUseProgram(0);
 }
 

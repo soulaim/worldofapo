@@ -171,9 +171,11 @@ void Graphics::initShaders()
 
 	glUseProgram(shaders["particle_program"]);
 	uniform_locations["particle_particleTexture"] = glGetUniformLocation(shaders["particle_program"], "particleTexture");
+	uniform_locations["particle_depthTexture"] = glGetUniformLocation(shaders["particle_program"], "depthTexture");
 	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
 	glUniform1i(uniform_locations["particle_particleTexture"], 0);
-
+	glUniform1i(uniform_locations["particle_depthTexture"], 1);
+	
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");
 	uniform_locations["lvl_baseMap1"] = glGetUniformLocation(shaders["level_program"], "baseMap1");

@@ -120,6 +120,16 @@ unsigned TextureHandler::createTexture(const std::string& name, int width, int h
 	return textures[name];
 }
 
+unsigned TextureHandler::createDepthTexture(const std::string& name, int width, int height)
+{
+	glGenTextures(1, &(textures[name]));
+	glBindTexture(GL_TEXTURE_2D, textures[name]);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+	return textures[name];
+}
+
 unsigned TextureHandler::createTexture(const string& name, Image& img)
 {
 	assert(!name.empty());
