@@ -10,8 +10,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <SDL/SDL.h>
-
 #include "btt.h"
 #include "model.h"
 #include "frustum/frustumr.h"
@@ -28,6 +26,7 @@ struct Level;
 struct MenuButton;
 class Hud;
 class Octree;
+class Window;
 
 class Graphics
 {
@@ -65,7 +64,6 @@ class Graphics
 	
 	std::vector<BTT_Triangle> level_triangles;
 	
-	SDL_Surface* drawContext;
 	Camera camera;
 	
 	GLint MAX_NUM_LIGHTS;
@@ -77,6 +75,8 @@ class Graphics
 	bool lightsActive;
 	bool drawDebuglines;
 	bool drawDebugWireframe;
+	
+	const Window& window;
 	
 public:
 	void initShaders(); // Public for debugging.
@@ -117,7 +117,7 @@ public:
 	
 	void depthSortParticles(Vec3&, std::vector<Particle>&);
 
-	Graphics();
+	Graphics(const Window& window);
 	~Graphics();
 	FrustumR frustum;
 };

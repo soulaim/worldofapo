@@ -31,7 +31,9 @@ std::string green(const std::string& s)
 	return "^g" + s;
 }
 
-Editor::Editor()
+Editor::Editor():
+	window(800, 600),
+	view(window)
 {
 	drawing_model = true;
 	drawing_skeleton = true;

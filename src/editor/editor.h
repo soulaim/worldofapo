@@ -11,6 +11,7 @@
 #include "../particle.h"
 #include "../particle_source.h"
 #include "../visualworld.h"
+#include "../window.h"
 
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@
 
 class Editor
 {
+	Window window;
 	UserIO userio;
 	Graphics view;
 	Hud hud;

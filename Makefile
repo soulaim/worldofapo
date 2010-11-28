@@ -1,5 +1,5 @@
-CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3
-LDLIBS   = -lSDL -lSDL_mixer -L ./lib/ -lGL -lGLU -lpng -lGLEW
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3 `pkg-config --cflags sdl`
+LDLIBS   = -lSDL_mixer -L ./lib/ -lGL -lGLU -lpng -lGLEW `pkg-config --libs sdl`
 CXX      = g++
 
 DIRS = src src/net src/frustum

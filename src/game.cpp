@@ -6,7 +6,7 @@
 #include <sstream>
 #include <algorithm>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 // required for obtaining character keys from file. could be located in another file.
 #include <fstream>

@@ -16,6 +16,7 @@ include_dirs = ['src'] + os.environ['C_INCLUDE_PATH'].split(':')
 libs = ['SDL', 'SDL_mixer', 'GL', 'GLU', 'png', 'GLEW']
 lib_dirs = [os.environ['LD_LIBRARY_PATH'].split(':'), './lib/']
 env = Environment(CPPPATH = include_dirs, LIBS = libs, LIBPATH = lib_dirs)
+env.ParseConfig('pkg-config --cflags --libs sdl')
 
 common_flags = '-Wall -Wextra -Werror -std=c++0x -pedantic'
 

@@ -1,6 +1,5 @@
-
-#ifndef H_GAME_
-#define H_GAME_
+#ifndef DEDICATEDSERVER_H
+#define DEDICATEDSERVER_H
 
 #include "../world.h"
 #include "../visualworld.h"
@@ -11,8 +10,6 @@
 
 #include "../net/socket.h"
 #include "../net/socket_handler.h"
-
-#include <SDL/SDL.h>
 
 #include <string>
 #include <vector>
