@@ -181,7 +181,7 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 }
 
 
-void VisualWorld::addLight(int id, Location& location)
+void VisualWorld::addLight(int id, const Location& location)
 {
 	//	cerr << "Adding light at " << location << endl;
 	LightObject& light = lights[id];

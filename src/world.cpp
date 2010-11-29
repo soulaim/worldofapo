@@ -68,8 +68,9 @@ unsigned long World::checksum() const
 
 
 // TODO: Force expansion should not be instant.
-void World::instantForceOutwards(const FixedPoint& power, const Location& pos)
+void World::instantForceOutwards(const FixedPoint& power, const Location& pos, const string& name, int owner)
 {
+	// find out who is inflicted an how.
 	for(auto iter = units.begin(); iter != units.end(); iter++)
 	{
 		const Location& pos2 = iter->second.getPosition();
@@ -82,10 +83,28 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos)
 			distance = FixedPoint(1, 10);
 		
 		velocity_vector *= power;
-		velocity_vector /= distance * distance;
+		velocity_vector /= distance;
+		
+		FixedPoint force = velocity_vector.length();
+		FixedPoint damage = force * force * FixedPoint(100);
+		
+		int int_damage = damage.getInteger();
+		if(int_damage > 0)
+		{
+			iter->second.hitpoints -= int_damage;
+			iter->second.last_damage_dealt_by = owner;
+			iter->second("DAMAGED_BY") = name;
+		}
 		
 		iter->second.velocity += velocity_vector;
 	}
+	
+	// create some effect or something
+	visualworld->addLight(nextUnitID(), pos);
+	
+	Location zero;
+	visualworld->genParticleEmitter(pos, zero, 25, 5000, 3500, 255, 166, 30, 1500, 50, 80);
+	// 	genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 }
 
 void World::atDeath(MovableObject& object, HasProperties& properties)
@@ -96,7 +115,7 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 		FixedPoint explode_power(properties["EXPLODE_POWER"]);
 		const Location& pos = object.position;
 		
-		instantForceOutwards(explode_power, pos);
+		instantForceOutwards(explode_power, pos, properties("NAME"), properties["OWNER"]);
 	}
 }
 
@@ -191,7 +210,6 @@ void World::doDeathFor(Unit& unit)
 
 void World::generateInput_RabidAlien(Unit& unit)
 {
-	return;
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
 	
@@ -654,6 +672,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
 		ps.getIntProperty("PPF") = num_particles;
 		ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
+		ps.getIntProperty("SCALE") = projectile["PARTICLE_SCALE"];
 		
 		// this should be in making a new ParticleSource
 		getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );

@@ -266,6 +266,7 @@ void Unit::init(World& w)
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
+	weapons.push_back(Weapon(&w, this, "data/items/weapon_rocket.dat"));
 	weapon = 0;
 }
 

@@ -25,7 +25,10 @@ class World
 	static FixedPoint heightDifference2Velocity(const FixedPoint& h_diff);
 	void generateInput_RabidAlien(Unit& unit);
 	void doDeathFor(Unit& unit);
-
+	
+	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
+	void atDeath(MovableObject&, HasProperties&);
+	
 public:
 	int currentWorldFrame;
 	VisualWorld* visualworld;
@@ -50,9 +53,6 @@ public:
 	
 	int getZombies();
 	std::vector<Location> humanPositions() const;
-	
-	void instantForceOutwards(const FixedPoint& power, const Location& pos); // this is shit
-	void atDeath(MovableObject&, HasProperties&);
 	
 	void worldTick(int tickCount);
 	

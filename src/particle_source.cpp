@@ -49,7 +49,7 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 	p.b = now_b;
 	p.a = 1.0f;
 	
-	p.scale = 0.8;
+	p.scale = intVals["SCALE"] / 1000.0f;
 	p.max_life = intVals["PLIFE"];
 	p.cur_life = p.max_life;
 	

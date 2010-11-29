@@ -15,7 +15,7 @@ class VisualWorld
 public:
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
-	void addLight(int id, Location& location);
+	void addLight(int id, const Location& location);
 	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
 	void tickLights(const std::map<int, Unit>& units);
 	
