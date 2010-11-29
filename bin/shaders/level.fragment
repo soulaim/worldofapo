@@ -1,4 +1,4 @@
-const int MAX_ACTIVE_LIGHTS = 4;
+const int MAX_ACTIVE_LIGHTS = 1;
 
 varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
 varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
