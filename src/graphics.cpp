@@ -545,7 +545,7 @@ else
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDepthFunc(GL_EQUAL);
 	
-	glUniform4f(uniform_locations["lvl_ambientLight"], 0.2f, 0.2f, 0.2f, 1.0f);
+	glUniform4f(uniform_locations["lvl_ambientLight"], 0.f, 0.f, 0.f, 1.0f);
 }
 	
 	
