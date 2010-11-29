@@ -1,5 +1,5 @@
 const int MAX_LIGHTS = 71;
-const int MAX_ACTIVE_LIGHTS = 1;
+const int MAX_ACTIVE_LIGHTS = 4;
 
 varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
 varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
@@ -10,7 +10,7 @@ varying vec3 normal;
 
 varying float height;
 
-attribute vec4 activeLights;
+uniform vec4 activeLights;
 uniform vec4 ambientLight;
 
 uniform vec4 lights[MAX_LIGHTS * 2];
@@ -21,9 +21,9 @@ void main()
 {
 	int activeLight[MAX_ACTIVE_LIGHTS];
 	activeLight[0] = int(activeLights.x);
-//	activeLight[1] = int(activeLights.y);
-//	activeLight[2] = int(activeLights.z);
-//	activeLight[3] = int(activeLights.w);
+	activeLight[1] = int(activeLights.y);
+	activeLight[2] = int(activeLights.z);
+	activeLight[3] = int(activeLights.w);
 
 	vec4 ecPos;
 	vec3 aux;
@@ -44,7 +44,7 @@ void main()
 
 	height = gl_Vertex.y;
 
-	ambientGlobal = ambientLight * gl_FrontMaterial.ambient;
+	ambientGlobal = ambientLight;
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 	gl_TexCoord[1] = gl_MultiTexCoord1;
 	gl_TexCoord[2] = gl_MultiTexCoord1;

@@ -341,6 +341,28 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			break;
 		}
 	}
+	
+	// always write multiples of four
+	for(int k=i % 4; (k % 4) != 0; k++)
+	{
+		if(i >= MAX_NUM_LIGHTS)
+		{
+			// if there are too many lights, just ignore the rest of them
+			break;
+		}
+		
+		float rgb[4]; rgb[0] = rgb[1] = rgb[2] = rgb[3] = 0.0f;
+		stringstream ss1;
+		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
+		glUniform4f(uniform_locations[ss1.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		
+		stringstream ss2;
+		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
+		glUniform4f(uniform_locations[ss2.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		
+		++i;
+	}
+	
 	glUseProgram(0);
 }
 
@@ -412,9 +434,8 @@ int pass;
 
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
+	glUseProgram(shaders["level_program"]);
 	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
-	
-	
 	const int multiplier = 8;
 
 	static vector<Vec3> vertices;
@@ -422,7 +443,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	static vector<TextureCoordinate> texture_coordinates1;
 	static vector<TextureCoordinate> texture_coordinates2;
 //	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
-	static vector<ActiveLights> active_lights;
+//	static vector<ActiveLights> active_lights;
 
 	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
@@ -456,8 +477,8 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
 
-				ActiveLights ac = { 0, 0, 0, 0};
-				active_lights.push_back(ac);
+				//ActiveLights ac = {0, 0, 0, 0};
+				//active_lights.push_back(ac);
 			}
 		}
 
@@ -483,7 +504,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 
 if(pass == 0)
 {
-indices.clear();
+	indices.clear();
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
 		Vec3 points[3];
@@ -496,62 +517,8 @@ indices.clear();
 
 			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
 		}
-		
-		for(size_t i = 0; i < 3; ++i)
-		{
-			//Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
-			const Vec3& semiAverage = points[i];
-			
-			// Set active lights
-			Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
-			
-			static vector<LightDistance> distances;
-			distances.resize( max(lightsContainer.size(), distances.size()) );
-			int light_index = 0;
-			for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++light_index)
-			{
-				FixedPoint lightDistance = (iter->second.position - pos).lengthSquared(); // / (iter->second.getIntensity() + FixedPoint(1, 10));
-				distances[light_index].index = light_index;
-				distances[light_index].squaredDistance = lightDistance;
-			}
-
-			assert(MAX_NUM_ACTIVE_LIGHTS <= 4);
-			sort(distances.begin(), distances.begin() + lightsContainer.size());
-		//	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
-		//	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
-			
-			ActiveLights ac = { float(distances[0].index), float(distances[1].index), float(distances[2].index), float(distances[3].index) };
-		
-			size_t index = tri.points[i].x * width + tri.points[i].z;
-			active_lights[index] = ac; // TODO: now every vertex gets active lights only from a single face.
-
-			bool drawDebugActivelights = drawDebuglines;
-			drawDebugActivelights = true;
-			if(drawDebugActivelights && near(camera, semiAverage))
-			{
-				stringstream ss;
-				ss << ac.active_light0 << " " << ac.active_light1 << " " << ac.active_light2 << " " << ac.active_light3;
-				STRINGS.push_back( {semiAverage + Vec3(0,0.5,0), ss.str()} );
-			}
-		}
 	}
-}
-else
-{
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-}
-
-ActiveLights ac = { float(pass), 0.0, 0.0, 0.0 };
-fill(active_lights.begin(), active_lights.end(), ac);
-
 	
-	assert(active_lights.size() == vertices.size());
-	assert(texture_coordinates1.size() == vertices.size());
-	assert(texture_coordinates2.size() == vertices.size());
-	assert(normals.size() == vertices.size());
-
-	glUseProgram(shaders["level_program"]);
 	if(drawDebuglines)
 	{
 		TextureHandler::getSingleton().bindTexture(0, "chessboard");
@@ -567,78 +534,66 @@ fill(active_lights.begin(), active_lights.end(), ac);
 	
 	// set ambient light
 	if(drawDebuglines)
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4f, 0.4f, 1.f);
 	else
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
-if(pass > 0)
-	glUniform4f(uniform_locations["lvl_ambientLight"], 0, 0, 0, 1.0f);
-/*
-	// Draw data.
-	glBegin(GL_TRIANGLES);
-	for(size_t k = 0; k < indices.size(); k += 3)
-	{
-		Vec3 points[3];
-		points[0] = vertices[indices[k+0]];
-		points[1] = vertices[indices[k+1]];
-		points[2] = vertices[indices[k+2]];
-
-		ActiveLights& lol = active_lights[indices[k+0]];
-		glVertexAttrib4f(uniform_locations["lvl_activeLights"], lol.active_light0, lol.active_light1, lol.active_light2, lol.active_light3);
-
-		// TODO: Terrain texture
-		for(size_t i = 0; i < 3; ++i)
-		{
-			Vec3 n = normals[indices[k+i]];
-			glNormal3f(n.x, n.y, n.z);
-			glTexCoord2f(texture_coordinates[indices[k+i]].x, texture_coordinates[indices[k+i]].y);
-			glVertex3f( points[i].x, points[i].y, points[i].z );
-		}
-		
-		++TRIANGLES_DRAWN_THIS_FRAME;
-	}
-	glEnd();
-*/
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.2f, 0.2f, 0.2f, 1.0f);
+	
+}
+else
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glDepthFunc(GL_EQUAL);
+	
+	glUniform4f(uniform_locations["lvl_ambientLight"], 0.2f, 0.2f, 0.2f, 1.0f);
+}
+	
+	
+	glUniform4f(uniform_locations["lvl_activeLights"], float(pass), float(pass+1), float(pass+2), float(pass+3));
+	
+	assert(texture_coordinates1.size() == vertices.size());
+	assert(texture_coordinates2.size() == vertices.size());
+	assert(normals.size() == vertices.size());
+	
 	buffer = 0;
+	
 	// Bind static data and send dynamic data to graphics card.
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_VERTEX_ARRAY);
-
+	
 	glClientActiveTexture(GL_TEXTURE1);
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	
 	glClientActiveTexture(GL_TEXTURE0);
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glNormalPointer(GL_FLOAT, 0, 0);
 	glEnableClientState(GL_NORMAL_ARRAY);
-
-	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
-	glVertexAttribPointer(uniform_locations["lvl_activeLights"], 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
-
+	
+	//glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
+	//glVertexAttribPointer(uniform_locations["lvl_activeLights"], 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
+	buffer++;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
-
-	assert(buffer == BUFFERS);
-
+	
+	// assert(buffer == BUFFERS);
+	
 	// Draw sent data.
-	glEnableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	//glEnableVertexAttribArray(uniform_locations["lvl_activeLights"]);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glDisableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	//glDisableVertexAttribArray(uniform_locations["lvl_activeLights"]);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
-
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(2, "");
-
+	
 	glUseProgram(0);
 }
 
@@ -1049,8 +1004,8 @@ void Graphics::draw(
 	updateCamera(lvl);
 	
 	startDrawing();
-
-
+	
+	
 	drawSkybox();
 	
 	if(drawDebuglines)
@@ -1065,12 +1020,18 @@ void Graphics::draw(
 	}
 	else
 	{
-		for(size_t i = 0; i < 1; ++i)
+		
+		for(size_t i = 0; i < visualworld.lights.size(); i+=4)
 		{
-			pass = i;
+			pass = int(i);
 			drawLevel(lvl, visualworld.lights);
 		}
+		
 		glDisable(GL_BLEND);
+		glDepthFunc(GL_LESS);
+		
+		TextureHandler::getSingleton().bindTexture(1, "");
+		TextureHandler::getSingleton().bindTexture(2, "");
 	}
 	
 	if(drawDebuglines)

@@ -855,7 +855,7 @@ void World::addUnit(int id, bool playerCharacter)
 	{
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
-		units[id].hitpoints = 100;
+		units[id].hitpoints = 500;
 	}
 	else
 	{
