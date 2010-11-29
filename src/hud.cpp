@@ -338,7 +338,11 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	
 	TextureHandler::getSingleton().bindTexture(0, "font");
 	
-	float totalWidth = 0.025f;
+	float totalWidth = 0.0f;
+	float aux_width = -0.05f;
+	float currentWidth = 0.f;
+	float lastWidth    = 0.f;
+	
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
 		if(msg[i] == '^')
@@ -347,20 +351,26 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 			continue;
 		}
 		
-		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+		currentWidth = 0.05 * charWidth[msg[i]];
+		totalWidth = aux_width - scale * (currentWidth + lastWidth - 0.05f);
+		aux_width = totalWidth - 0.05f * scale;
+		lastWidth = currentWidth;
+		
+		// totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
 	}
 	
-	float x_now     = 0.0f;
-	float x_next    = 0.05;
+	float halfWidth = -totalWidth / 2.0f;
+	
+	float x_now     = halfWidth + 0.35;
+	float x_next    = x_now - 0.05;
 	float y_bot     = 0.0f;
 	float y_top     = 0.05 * scale;
 	float edge_size = 1./16.;
-	
-	float currentWidth = 0.f;
-	float lastWidth    = 0.f;
+	currentWidth = 0.f;
+	lastWidth    = 0.f;
 	
 	glColor3f(1.0f, 1.0f, 1.0f);
-
+	
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
 	
@@ -371,12 +381,10 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 		{
 			++i;
 			choose_color(msg[i], 1.0f);
-			
 			continue;
 		}
 		
 		currentWidth = 0.05 * charWidth[msg[i]];
-		
 		x_now = x_next - scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now - 0.05f * scale;
 		
@@ -385,10 +393,10 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 		int x = msg[i] % 16;
 		int y = 15 - (msg[i] / 16);
 
-		Vec3 p1 = m * Vec3(x_now,  y_bot, 0);
-		Vec3 p2 = m * Vec3(x_next, y_bot, 0);
-		Vec3 p3 = m * Vec3(x_next, y_top, 0);
-		Vec3 p4 = m * Vec3(x_now,  y_top, 0);
+		Vec3 p1 = m * Vec3(x_now  ,  y_bot, 0);
+		Vec3 p2 = m * Vec3(x_next ,  y_bot, 0);
+		Vec3 p3 = m * Vec3(x_next ,  y_top, 0);
+		Vec3 p4 = m * Vec3(x_now  ,  y_top, 0);
 
 		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(p1.x, p1.y, p1.z);
 		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(p2.x, p2.y, p2.z);
