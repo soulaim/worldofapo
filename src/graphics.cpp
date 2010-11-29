@@ -21,9 +21,16 @@ using namespace std;
 
 vector<pair<Vec3,Vec3> > LINES;
 vector<Vec3> DOTS;
+vector<pair<Vec3,string> > STRINGS;
 
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
+
+bool near(const Camera& camera, const Vec3& position)
+{
+	float dist = 100.0;
+	return (camera.getPosition() - position).lengthSquared() < dist * dist;
+}
 
 struct LightDistance
 {
@@ -107,8 +114,9 @@ void Graphics::toggleLightingStatus()
 	cerr << "Lightsactive: " << lightsActive << endl;
 }
 
-Graphics::Graphics(const Window& w):
-	window(w)
+Graphics::Graphics(const Window& w, Hud& h):
+	window(w),
+	hud(h)
 {
 	init();
 }
@@ -120,6 +128,8 @@ Graphics::~Graphics()
 
 void Graphics::init()
 {
+	cerr << "Graphics::init()" << endl;
+
 	initShaders();
 
 	glLineWidth(3.0f);
@@ -203,6 +213,8 @@ void drawNormal(const Level& lvl, int x, int z, int multiplier)
 
 void Graphics::drawDebugHeightDots(const Level& lvl)
 {
+	TextureHandler::getSingleton().bindTexture(0, "");
+
 	int multiplier = 8;
 	Vec3 points[3];
 
@@ -243,8 +255,11 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(size_t z = 0; z < 1000; z += 2)
 		{
 			Vec3 v(x, 0, z);
-			v.y = lvl.getHeight(x,z).getFloat();
-			glVertex3f(v.x, v.y, v.z);
+			if(near(camera, v))
+			{
+				v.y = lvl.getHeight(x,z).getFloat();
+				glVertex3f(v.x, v.y, v.z);
+			}
 		}
 	}
 	glEnd();
@@ -256,8 +271,11 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(int z = 0; z < lvl.max_z(); z += 8)
 		{
 			Vec3 v(x, 0, z);
-			v.y = lvl.getHeight(x,z).getFloat();
-			glVertex3f(v.x, v.y, v.z);
+			if(near(camera, v))
+			{
+				v.y = lvl.getHeight(x,z).getFloat();
+				glVertex3f(v.x, v.y, v.z);
+			}
 		}
 	}
 	glEnd();
@@ -387,25 +405,6 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 {
 	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
 	
-	glUseProgram(shaders["level_program"]);
-	if(drawDebuglines)
-	{
-		TextureHandler::getSingleton().bindTexture(0, "chessboard");
-		TextureHandler::getSingleton().bindTexture(1, "chessboard");
-		TextureHandler::getSingleton().bindTexture(2, "chessboard");
-	}
-	else
-	{
-		TextureHandler::getSingleton().bindTexture(0, "grass");
-		TextureHandler::getSingleton().bindTexture(1, "hill");
-		TextureHandler::getSingleton().bindTexture(2, "highground");
-	}
-	
-	// set ambient light
-	if(drawDebuglines)
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
-	else
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
 	
 	const int multiplier = 8;
 
@@ -488,7 +487,7 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		for(size_t i = 0; i < 3; ++i)
 		{
 			//Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
-			Vec3& semiAverage = points[i];
+			const Vec3& semiAverage = points[i];
 			
 			// Set active lights
 			Location pos(int(semiAverage.x), int(semiAverage.y), int(semiAverage.z));
@@ -512,6 +511,14 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		
 			size_t index = tri.points[i].x * width + tri.points[i].z;
 			active_lights[index] = ac; // TODO: now every vertex gets active lights only from a single face.
+
+			bool drawDebugActivelights = drawDebuglines;
+			if(drawDebugActivelights && near(camera, semiAverage))
+			{
+				stringstream ss;
+				ss << ac.active_light0 << " " << ac.active_light1 << " " << ac.active_light2 << " " << ac.active_light3;
+				STRINGS.push_back({semiAverage + Vec3(0,0.5,0), ss.str()});
+			}
 		}
 	}
 	
@@ -519,6 +526,26 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	assert(texture_coordinates1.size() == vertices.size());
 	assert(texture_coordinates2.size() == vertices.size());
 	assert(normals.size() == vertices.size());
+
+	glUseProgram(shaders["level_program"]);
+	if(drawDebuglines)
+	{
+		TextureHandler::getSingleton().bindTexture(0, "chessboard");
+		TextureHandler::getSingleton().bindTexture(1, "chessboard");
+		TextureHandler::getSingleton().bindTexture(2, "chessboard");
+	}
+	else
+	{
+		TextureHandler::getSingleton().bindTexture(0, "grass");
+		TextureHandler::getSingleton().bindTexture(1, "hill");
+		TextureHandler::getSingleton().bindTexture(2, "highground");
+	}
+	
+	// set ambient light
+	if(drawDebuglines)
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
+	else
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
 /*
 	// Draw data.
 	glBegin(GL_TRIANGLES);
@@ -595,8 +622,8 @@ void Graphics::drawDebugLines()
 	glBegin(GL_LINES);
 	for(size_t i = 0; i < LINES.size(); ++i)
 	{
-		Vec3& p1 = LINES[i].first;
-		Vec3& p2 = LINES[i].second;
+		const Vec3& p1 = LINES[i].first;
+		const Vec3& p2 = LINES[i].second;
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);
 	}
@@ -607,10 +634,19 @@ void Graphics::drawDebugLines()
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < DOTS.size(); ++i)
 	{
-		Vec3& p1 = DOTS[i];
+		const Vec3& p1 = DOTS[i];
 		glVertex3f(p1.x, p1.y, p1.z);
 	}
 	glEnd();
+
+}
+
+void Graphics::drawDebugStrings()
+{
+	for(size_t i = 0; i < STRINGS.size(); ++i)
+	{
+		hud.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera.getXrot(), camera.getYrot());
+	}
 }
 
 void Graphics::drawSkybox()
@@ -873,7 +909,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	
 	Vec3 s1(-1.0f, -1.0f, 0.0f);
 	Vec3 s2(+1.0f, -1.0f, 0.0f);
-	Vec3 s3(+1.0f, +1.0, 0.0f);
+	Vec3 s3(+1.0f, +1.0f, 0.0f);
 	Vec3 s4(-1.0f, +1.0f, 0.0f);
 	
 	s1 = m * s1;
@@ -927,15 +963,13 @@ void Graphics::startDrawing()
 	
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear color buffer, since we're going to rewrite the color everywhere anyway.
-	
-	Vec3 camPos, camTarget, upVector;
-	camPos = camera.getPosition();
-	camTarget = camera.getTarget();
 
-	upVector.x = 0.f;
-	upVector.y = 1.f;
-	upVector.z = 0.f;
+	glClear(GL_COLOR_BUFFER_BIT);
 	
+	Vec3 camPos = camera.getPosition();
+	Vec3 camTarget = camera.getTarget();
+	Vec3 upVector(0.0, 1.0, 0.0);
+
 	glLoadIdentity();
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
@@ -950,10 +984,9 @@ void Graphics::startDrawing()
 void Graphics::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
-	Hud* hud,
 	const std::shared_ptr<Octree> o, // For debug.
 	const std::map<int, Projectile>& projectiles, // For debug.
-	const std::map<int, Unit>& units // For debug.
+	const std::map<int, Unit>& units // For debug and names.
 	)
 {
 	updateCamera(lvl);
@@ -984,7 +1017,7 @@ void Graphics::draw(
 	}
 
 	drawModels(visualworld.models);
-	
+
 	if(drawDebuglines) // TODO: drawParticles_old can be removed when drawParticles is good enough.
 	{
 //		drawParticles_old(visualworld.particles);
@@ -1001,16 +1034,35 @@ void Graphics::draw(
 		drawOctree(o);
 	}
 
-	if(hud)
-	{
-		hud->draw(camera.isFirstPerson());
-	}
-	
+	drawPlayerNames(units, visualworld.models);
+
+	drawDebugStrings();
+
+	hud.draw(camera.isFirstPerson());
+
 	finishDrawing();
+}
+
+void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, Model*>& models)
+{
+	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if(!iter->second.human())
+		{
+			continue;
+		}
+
+		const Model& model = *models.find(iter->first)->second;
+		Vec3 pos = model.currentModelPos;
+		pos.y += 5.0;
+
+		hud.draw3Dstring(iter->second.name, pos, camera.getXrot(), camera.getYrot());
+	}
 }
 
 void Graphics::finishDrawing()
 {
+	STRINGS.clear();
 	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	// glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
@@ -1026,9 +1078,11 @@ void Graphics::finishDrawing()
 	// glViewport(0, 0, 800, 600);
 	
 	// glUseProgram(shaders["blur_program"]);
-	
+
 	glDisable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	glColor3f(1.0, 1.0, 1.0);
 	
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);

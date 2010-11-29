@@ -7,6 +7,7 @@
 #include "../menu.h"
 #include "../graphics.h"
 #include "../userio.h"
+#include "../hud.h"
 #include "../logger.h"
 #include "../window.h"
 
@@ -21,8 +22,9 @@ int main()
 	cerr << "creating game object" << endl;
 	UserIO userio;
 	Window window(800, 600);
-	Graphics view(window);
-	Localplayer master(&view, &userio);
+	Hud hud;
+	Graphics view(window, hud);
+	Localplayer master(&view, &userio, &hud);
 	master.init();
 	Menu menu(&view, &userio);
 

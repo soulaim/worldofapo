@@ -4,14 +4,11 @@
 #include "game.h"
 #include "world.h"
 #include "visualworld.h"
-#include "userio.h"
-#include "graphics.h"
 #include "ordercontainer.h"
 #include "fps_manager.h"
 #include "order.h"
 #include "playerinfo.h"
 #include "gamesound.h"
-#include "hud.h"
 
 #include <string>
 #include <vector>
@@ -19,11 +16,14 @@
 #include <map>
 #include <set>
 
+class UserIO;
+class Graphics;
+class Hud;
 
 class Localplayer
 {
 public:
-	Localplayer(Graphics*, UserIO*);
+	Localplayer(Graphics*, UserIO*, Hud*);
 
 	bool client_tick();
 
@@ -53,10 +53,11 @@ private:
 	int client_input_state;
 	std::string clientCommand;
 
-	Game game;
-	Hud hud;
+	Hud* hud;
 	Graphics* view;
 	UserIO* userio;
+
+	Game game;
 	GameSound soundsystem;
 	VisualWorld visualworld;
 	World world;

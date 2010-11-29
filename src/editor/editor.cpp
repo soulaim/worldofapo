@@ -33,7 +33,7 @@ std::string green(const std::string& s)
 
 Editor::Editor():
 	window(800, 600),
-	view(window)
+	view(window, hud)
 {
 	drawing_model = true;
 	drawing_skeleton = true;
@@ -1427,7 +1427,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 	float x_scalar = 7;
 	float y_scalar = 7;
 	float z_scalar = 10;
-	int lifetime = 50000;
+//	int lifetime = 50000;
 	for(int i = 0; i < X; ++i)
 	{
 		for(int j = 0; j < Y; ++j)
@@ -1435,8 +1435,11 @@ void Editor::swarm_particles(int X, int Y, int Z)
 			for(int k = 0; k < Z; ++k)
 			{
 				Location place(x_scalar * (i - X/2), y_scalar * (j - Y/2), z_scalar * (k - Z/2));
-				Location direction(0,0,-1);
-				visualworld.genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
+//				Location direction(0,0,-1);
+//				visualworld.genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
+
+				Location zero;
+				visualworld.genParticleEmitter(place, zero, 25, 5000, 3500, 255, 166, 30, 1500, 50, 80);
 			}
 		}
 	}

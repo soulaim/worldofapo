@@ -13,6 +13,9 @@
 #include "animation.h"
 #include "modelfactory.h"
 #include "apomodel.h"
+#include "userio.h"
+#include "graphics.h"
+#include "hud.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -23,14 +26,15 @@
 #include <map>
 #include <set>
 
-Localplayer::Localplayer(Graphics* g, UserIO* u):
+Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h):
 	client_input_state(0),
-	game(&world),
+	hud(h),
 	view(g),
 	userio(u),
+	game(&world),
 	world(&visualworld)
 {
-	hud.setLevelSize(world.lvl.max_x(), world.lvl.max_z());
+	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 }
 
 
@@ -56,8 +60,8 @@ void Localplayer::init()
 	game.init();
 	userio->init();
 
-	hud.setPlayerInfo(&game.Players);
-	hud.setUnitsMap(&world.units);
+	hud->setPlayerInfo(&game.Players);
+	hud->setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
 	ApoModel::loadObjects("models/model.parts"); // TODO: this is ugly, we shouldn't have to know about apomodel here.
@@ -88,7 +92,7 @@ bool Localplayer::client_tick()
 			game.TICK();
 			handleWorldEvents();
 			
-			hud.world_tick();
+			hud->world_tick();
 			view->world_tick(world.lvl, visualworld.lights);
 		}
 	}
@@ -97,12 +101,12 @@ bool Localplayer::client_tick()
 
 void Localplayer::draw()
 {
-	hud.setTime( SDL_GetTicks() );
+	hud->setTime( SDL_GetTicks() );
 	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
-		view->draw(world.lvl, visualworld, &hud, world.octree, world.projectiles, world.units);
+		view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units);
 	}
 }
 
@@ -174,7 +178,7 @@ void Localplayer::process_sent_game_input()
 	int mousepress = userio->getMousePress();
 
 	view->updateInput(keyState); // Make only "small" local changes like change camera angle.
-	hud.setShowStats(keyState & (1 << 31));
+	hud->setShowStats(keyState & (1 << 31));
 
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
@@ -238,7 +242,7 @@ bool Localplayer::handleClientLocalInput()
 			clientCommand.append(" ");
 		
 		nick.append(clientCommand);
-		hud.setCurrentClientCommand(nick);
+		hud->setCurrentClientCommand(nick);
 	}
 	else
 	{
@@ -251,7 +255,7 @@ bool Localplayer::handleClientLocalInput()
 			}
 			
 			clientCommand = "";
-			hud.setCurrentClientCommand(clientCommand);
+			hud->setCurrentClientCommand(clientCommand);
 		}
 		
 		if(key == "escape")
@@ -308,17 +312,17 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID >= 0)
 	{
-		hud.setLocalPlayerID(game.myID);
-		hud.setLocalPlayerName(game.Players[game.myID].name);
-		hud.setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
+		hud->setLocalPlayerID(game.myID);
+		hud->setLocalPlayerName(game.Players[game.myID].name);
+		hud->setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
 	}
 
-	hud.setZombiesLeft(world.getZombies());
+	hud->setZombiesLeft(world.getZombies());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < visualworld.worldMessages.size(); ++i)
 	{
-		hud.pushMessage(visualworld.worldMessages[i]);
+		hud->pushMessage(visualworld.worldMessages[i]);
 	}
 	visualworld.worldMessages.clear();
 	
@@ -401,8 +405,8 @@ void Localplayer::handleWorldEvents()
 	}
 	
 	visualworld.events.clear();
-	hud.setLocalPlayerKills(game.Players[game.myID].kills);
-	hud.setLocalPlayerDeaths(game.Players[game.myID].deaths);
+	hud->setLocalPlayerKills(game.Players[game.myID].kills);
+	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 
 	for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
