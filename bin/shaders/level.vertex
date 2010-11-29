@@ -1,5 +1,5 @@
 const int MAX_LIGHTS = 71;
-const int MAX_ACTIVE_LIGHTS = 4;
+const int MAX_ACTIVE_LIGHTS = 1;
 
 varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
 varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
@@ -21,9 +21,9 @@ void main()
 {
 	int activeLight[MAX_ACTIVE_LIGHTS];
 	activeLight[0] = int(activeLights.x);
-	activeLight[1] = int(activeLights.y);
-	activeLight[2] = int(activeLights.z);
-	activeLight[3] = int(activeLights.w);
+//	activeLight[1] = int(activeLights.y);
+//	activeLight[2] = int(activeLights.z);
+//	activeLight[3] = int(activeLights.w);
 
 	vec4 ecPos;
 	vec3 aux;

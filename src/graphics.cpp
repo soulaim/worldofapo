@@ -332,7 +332,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
 		}
 //		cerr << uniform_locations[ss2.str()]  << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
-//		cerr << "POSITION  is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+//		cerr << "POSITION of light " << i << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 		
 		++i;
 		if(i >= MAX_NUM_LIGHTS)
@@ -408,6 +408,8 @@ struct ActiveLights
 	float active_light3;
 };
 
+int pass;
+
 void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
@@ -477,7 +479,11 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 	}
 
 	// Load dynamic indices.
-	vector<unsigned> indices;
+	static vector<unsigned> indices;
+
+if(pass == 0)
+{
+indices.clear();
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
 		Vec3 points[3];
@@ -510,9 +516,9 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 			}
 
 			assert(MAX_NUM_ACTIVE_LIGHTS <= 4);
-		//	sort(distances.begin(), distances.begin() + lightsContainer.size());
-			size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
-			nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
+			sort(distances.begin(), distances.begin() + lightsContainer.size());
+		//	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
+		//	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
 			
 			ActiveLights ac = { float(distances[0].index), float(distances[1].index), float(distances[2].index), float(distances[3].index) };
 		
@@ -520,14 +526,25 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 			active_lights[index] = ac; // TODO: now every vertex gets active lights only from a single face.
 
 			bool drawDebugActivelights = drawDebuglines;
+			drawDebugActivelights = true;
 			if(drawDebugActivelights && near(camera, semiAverage))
 			{
 				stringstream ss;
 				ss << ac.active_light0 << " " << ac.active_light1 << " " << ac.active_light2 << " " << ac.active_light3;
-				STRINGS.push_back({semiAverage + Vec3(0,0.5,0), ss.str()});
+				STRINGS.push_back( {semiAverage + Vec3(0,0.5,0), ss.str()} );
 			}
 		}
 	}
+}
+else
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+}
+
+ActiveLights ac = { float(pass), 0.0, 0.0, 0.0 };
+fill(active_lights.begin(), active_lights.end(), ac);
+
 	
 	assert(active_lights.size() == vertices.size());
 	assert(texture_coordinates1.size() == vertices.size());
@@ -553,6 +570,8 @@ void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsCo
 		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4, 0.4f, 1.f);
 	else
 		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
+if(pass > 0)
+	glUniform4f(uniform_locations["lvl_ambientLight"], 0, 0, 0, 1.0f);
 /*
 	// Draw data.
 	glBegin(GL_TRIANGLES);
@@ -1046,7 +1065,12 @@ void Graphics::draw(
 	}
 	else
 	{
-		drawLevel(lvl, visualworld.lights);
+		for(size_t i = 0; i < 1; ++i)
+		{
+			pass = i;
+			drawLevel(lvl, visualworld.lights);
+		}
+		glDisable(GL_BLEND);
 	}
 	
 	if(drawDebuglines)

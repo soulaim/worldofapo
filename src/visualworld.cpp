@@ -173,8 +173,9 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 		}
 	}
 	
-	for(size_t i=0; i<deadLights.size(); i++)
+	for(size_t i = 0; i < deadLights.size(); ++i)
 	{
+//		cerr << "Removing light " << deadLights[i] << endl;
 		lights.erase(deadLights[i]);
 	}
 	deadLights.clear();
@@ -183,7 +184,7 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 
 void VisualWorld::addLight(int id, const Location& location, Location direction)
 {
-	//	cerr << "Adding light at " << location << endl;
+//	cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
 	light.setDiffuse(1.3f, 1.3f, 1.3f);
 	light.setSpecular(0.f, 0.f, 0.f);
