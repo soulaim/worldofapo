@@ -49,6 +49,7 @@ class Graphics
 
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
+	void drawDebugStrings();
 	void drawDebugLevelNormals(const Level& lvl);
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
 
@@ -78,6 +79,7 @@ class Graphics
 	bool drawDebugWireframe;
 	
 	const Window& window;
+	Hud& hud;
 	
 public:
 	void initShaders(); // Public for debugging.
@@ -93,7 +95,6 @@ public:
 	void draw(
 		const Level& lvl,
 		const VisualWorld& visualworld,
-		Hud* hud,
 		const std::shared_ptr<Octree> o, // For debug.
 		const std::map<int, Projectile>& projectiles, // For debug.
 		const std::map<int, Unit>& units // For debug.
@@ -106,6 +107,7 @@ public:
 	void drawOctree(const std::shared_ptr<Octree>& o);
 
 	void drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds);
+	void drawPlayerNames(const std::map<int, Unit>& units, const std::map<int, Model*>& models);
 	
 	void toggleLightingStatus();
 	void toggleWireframeStatus();
@@ -118,7 +120,7 @@ public:
 	
 	void depthSortParticles(Vec3&, std::vector<Particle>&);
 
-	Graphics(const Window& window);
+	Graphics(const Window& window, Hud& hud);
 	~Graphics();
 	FrustumR frustum;
 };

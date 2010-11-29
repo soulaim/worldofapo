@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <cmath>
 
+#include "frustum/matrix4.h"
+
 using namespace std;
 
 extern int TRIANGLES_DRAWN_THIS_FRAME;
@@ -306,6 +308,100 @@ void Hud::drawCrossHair() const
 //		glEnable(GL_LIGHTING);
 }
 
+void choose_color(char code, float alpha)
+{
+	switch(code)
+	{
+		case 'g': glColor4f(0.1f, 0.6f, 0.1f, alpha); break;
+		case 'G': glColor4f(0.1f, 1.0f, 0.1f, alpha); break;
+		case 'r': glColor4f(0.6f, 0.1f, 0.1f, alpha); break;
+		case 'R': glColor4f(1.0f, 0.1f, 0.1f, alpha); break;
+		case 'b': glColor4f(0.1f, 0.1f, 0.6f, alpha); break;
+		case 'B': glColor4f(0.1f, 0.1f, 1.0f, alpha); break;
+		case 'y': glColor4f(0.7f, 0.7f, 0.0f, alpha); break;
+		case 'Y': glColor4f(1.0f, 1.0f, 0.0f, alpha); break;
+		case 'W': glColor4f(1.0f, 1.0f, 1.0f, alpha); break;
+		case 'w': glColor4f(0.6f, 0.6f, 0.6f, alpha); break;
+		default: break;
+	}
+}
+
+void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float y_angle) const
+{
+	float scale = 50.0f;
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	TextureHandler::getSingleton().bindTexture(0, "font");
+	
+	float totalWidth = 0.025f;
+	for(size_t i = 0; i < msg.size(); ++i)
+	{
+		if(msg[i] == '^')
+		{
+			++i;
+			continue;
+		}
+		
+		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+	}
+	
+	float x_now     = 0.0f;
+	float x_next    = 0.05;
+	float y_bot     = 0.0f;
+	float y_top     = 0.05 * scale;
+	float edge_size = 1./16.;
+	
+	float currentWidth = 0.f;
+	float lastWidth    = 0.f;
+	
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	y_angle = -y_angle + 90.f;
+	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
+	
+	glBegin(GL_QUADS);
+	for(size_t i = 0; i < msg.size(); ++i)
+	{
+		if(msg[i] == '^')
+		{
+			++i;
+			choose_color(msg[i], 1.0f);
+			
+			continue;
+		}
+		
+		currentWidth = 0.05 * charWidth[msg[i]];
+		
+		x_now = x_next - scale * (currentWidth + lastWidth - 0.05f);
+		x_next = x_now - 0.05f * scale;
+		
+		lastWidth = currentWidth;
+		
+		int x = msg[i] % 16;
+		int y = 15 - (msg[i] / 16);
+
+		Vec3 p1 = m * Vec3(x_now,  y_bot, 0);
+		Vec3 p2 = m * Vec3(x_next, y_bot, 0);
+		Vec3 p3 = m * Vec3(x_next, y_top, 0);
+		Vec3 p4 = m * Vec3(x_now,  y_top, 0);
+
+		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(p1.x, p1.y, p1.z);
+		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(p2.x, p2.y, p2.z);
+		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(p3.x, p3.y, p3.z);
+		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(p4.x, p4.y, p4.z);
+		++QUADS_DRAWN_THIS_FRAME;
+	}
+	glEnd();
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+}
+
 void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background, float alpha) const
 {
 	glDisable(GL_LIGHTING);
@@ -365,26 +461,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		if(msg[i] == '^')
 		{
 			++i;
-			if(msg[i] == 'g')
-				glColor4f(0.1f, 0.6f, 0.1f, alpha);
-			else if(msg[i] == 'G')
-				glColor4f(0.1f, 1.0f, 0.1f, alpha);
-			else if(msg[i] == 'r')
-				glColor4f(0.6f, 0.1f, 0.1f, alpha);
-			else if(msg[i] == 'R')
-				glColor4f(1.0f, 0.1f, 0.1f, alpha);
-			else if(msg[i] == 'b')
-				glColor4f(0.1f, 0.1f, 0.6f, alpha);
-			else if(msg[i] == 'B')
-				glColor4f(0.1f, 0.1f, 1.0f, alpha);
-			else if(msg[i] == 'y')
-				glColor4f(0.7f, 0.7f, 0.0f, alpha);
-			else if(msg[i] == 'Y')
-				glColor4f(1.0f, 1.0f, 0.0f, alpha);
-			else if(msg[i] == 'W')
-				glColor4f(1.0f, 1.0f, 1.0f, alpha);
-			else if(msg[i] == 'w')
-				glColor4f(0.6f, 0.6f, 0.6f, alpha);
+			choose_color(msg[i], alpha);
 			
 			continue;
 		}
