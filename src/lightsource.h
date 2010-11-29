@@ -23,6 +23,7 @@ public:
 	};
 	
 	virtual const Location& getPosition() const = 0;
+	virtual void childTick() = 0;
 	
 	const FixedPoint& getIntensity() const;
 	void updateIntensity();

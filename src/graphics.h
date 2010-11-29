@@ -69,6 +69,7 @@ class Graphics
 	GLint MAX_NUM_LIGHTS;
 	GLint MAX_NUM_ACTIVE_LIGHTS;
 	
+	GLuint particlesFBO;
 	GLuint screenFBO;
 	GLuint screenRB;
 	

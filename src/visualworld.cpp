@@ -181,17 +181,18 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 }
 
 
-void VisualWorld::addLight(int id, const Location& location)
+void VisualWorld::addLight(int id, const Location& location, Location direction)
 {
 	//	cerr << "Adding light at " << location << endl;
 	LightObject& light = lights[id];
-	light.setDiffuse(1.f, 1.f, 1.f);
+	light.setDiffuse(1.3f, 1.3f, 1.3f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(200); // Some frames of LIGHT!
+	light.setLife(140); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
 	light.position = location;
 	light.position.y += FixedPoint(3, 2);
+	light.velocity = direction;
 }
 
 void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
@@ -209,7 +210,7 @@ void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, 
 
 }
 
-void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone, int particlesPerFrame, int particleLife)
+void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const string& s_color_s, const string& s_color_e, const string& e_color_s, const string& e_color_e, int scatteringCone, int particlesPerFrame, int particleLife)
 {
 	ParticleSource pe;
 	pe.intVals["PPF"] = particlesPerFrame;
@@ -217,14 +218,7 @@ void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, i
 	pe.intVals["MAX_LIFE"] = life;
 	pe.intVals["PLIFE"]    = particleLife;
 	
-	pe.intVals["SRED"]     = r;
-	pe.intVals["ERED"]     = r / 2;
-	
-	pe.intVals["SGREEN"]   = g;
-	pe.intVals["EGREEN"]   = g / 2;
-	
-	pe.intVals["SBLUE"]    = b;
-	pe.intVals["EBLUE"]    = b / 2;
+	pe.setColors(s_color_s, s_color_e, e_color_s, e_color_e);
 	
 	pe.getIntProperty("MAX_RAND") = max_rand;
 	pe.getIntProperty("SCALE") = scale;

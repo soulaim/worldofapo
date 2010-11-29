@@ -325,6 +325,9 @@ void Localplayer::handleWorldEvents()
 	// handle any world events <-> graphics structure
 	for(size_t i = 0; i < visualworld.events.size(); ++i)
 	{
+		int scale = 1000;
+		int max_rand = 500;
+		
 		WorldEvent& event = visualworld.events[i];
 		switch(event.type)
 		{
@@ -338,20 +341,20 @@ void Localplayer::handleWorldEvents()
 				Location bulletDirection = event.a_velocity;
 				bulletDirection.normalize();
 				
-				visualworld.genParticleEmitter(event.a_position, bulletDirection, 5, 20, 20, 160, 50, 50);
+				visualworld.genParticleEmitter(event.a_position, bulletDirection, 5, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED");
 				break;
 			}
 			case WorldEvent::DAMAGE_DEVOUR:
 			{
 				playSound("hit0", event.t_position);
-				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 5, 20, 20, 160, 50, 50);
+				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 5, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED");
 				break;
 			}
 			case WorldEvent::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.t_position);
 
-				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
+				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
 				{
@@ -362,7 +365,7 @@ void Localplayer::handleWorldEvents()
 			case WorldEvent::DEATH_PLAYER:
 			{
 				playSound("player_death", event.t_position);
-				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, 20, 20, 160, 50, 50, 2000, 25);
+				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 				
 				/*
 				if(event.actor_id == game.myID)

@@ -12,6 +12,8 @@ void main()
 	vec4 color = gl_Color;
 	gl_FragColor = texture2D(particleTexture, texcoord) * color;
 	
+	// gl_FragColor.a = max(max(gl_FragColor.r, gl_FragColor.g), gl_FragColor.b);
+	
 	/*
 	float my_z = (gl_FragCoord.z / gl_FragCoord.w);
 	my_z = my_z * 0.5 + 0.5;

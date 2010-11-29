@@ -20,9 +20,9 @@ public:
 	// graphics only
 	float depthVal;
 	float scale;
-	float r;
-	float g;
-	float b;
+	float sr, er;
+	float sg, eg;
+	float sb, eb;
 	float a;
 	
 	void viewTick()
@@ -46,6 +46,22 @@ public:
 	float getAlpha() const
 	{
 		return float(cur_life) / (max_life + 1);
+	}
+	
+	void getColor(float* colors) const
+	{
+		float relativeLife = float(cur_life) / (max_life + 1);
+		colors[0] = er + (sr - er) * relativeLife;
+		colors[1] = eg + (sg - eg) * relativeLife;
+		colors[2] = eb + (sb - eb) * relativeLife;
+	}
+	
+	void getColor(float& r, float& g, float& b) const
+	{
+		float relativeLife = float(cur_life) / (max_life + 1);
+		r = er + (sr - er) * relativeLife;
+		g = eg + (sg - eg) * relativeLife;
+		b = eb + (sb - eb) * relativeLife;
 	}
 	
 	bool alive() const

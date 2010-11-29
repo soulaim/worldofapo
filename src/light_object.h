@@ -10,6 +10,7 @@ class LightObject : public LightSource, public MovableObject
 public:
 	LightObject()
 	{
+		
 	}
 	
 	const Location& getPosition() const
@@ -17,6 +18,10 @@ public:
 		return position;
 	}
 	
+	void childTick()
+	{
+		position += velocity;
+	}
 };
 
 #endif

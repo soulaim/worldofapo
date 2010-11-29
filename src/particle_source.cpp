@@ -3,6 +3,50 @@
 
 using namespace std;
 
+
+// TODO: this should be a bit smarter maybe? oh well.
+void getColor(const string& a, int& r, int& g, int& b)
+{
+	if(a == "WHITE")
+	{
+		r = 255;
+		g = 255;
+		b = 255;
+		return;
+	}
+	else if(a == "ORANGE")
+	{
+		r = 255;
+		g = 165;
+		b = 0;
+		return;
+	}
+	else if(a == "DARK_RED")
+	{
+		r = 100;
+		g = 0;
+		b = 0;
+		return;
+	}
+	else
+	{
+		r = 0;
+		g = 255;
+		b = 255;
+		return;
+	}
+}
+
+
+void ParticleSource::setColors(const string& scstart, const string& scend, const string& ecstart, const string& ecend)
+{
+	getColor( scstart, ssred, ssgreen, ssblue );
+	getColor( scend  , sered, segreen, seblue );
+	
+	getColor( ecstart  , esred, esgreen, esblue );
+	getColor( ecend    , eered, eegreen, eeblue );
+}
+
 string& ParticleSource::getStrProperty(const string& a)
 {
 	return (*this)(a);
@@ -29,26 +73,34 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 	
 	float relativeLife = float(getIntProperty("CUR_LIFE")) / getIntProperty("MAX_LIFE");
 	
-	float start_red   = intVals["SRED"] / 256.f;
-	float start_green = intVals["SGREEN"] / 256.f;
-	float start_blue  = intVals["SBLUE"] / 256.f;
+	// this should usually be in ParticleSource.tick() probably
+	int cs_red   = esred   + (ssred - esred)     * relativeLife;
+	int cs_green = esgreen + (ssgreen - esgreen) * relativeLife;
+	int cs_blue  = esblue  + (ssblue - esblue)   * relativeLife;
 	
-	float end_red   = intVals["ERED"] / 256.f;
-	float end_green = intVals["EGREEN"] / 256.f;
-	float end_blue  = intVals["EBLUE"] / 256.f;
+	// these values are never used
+	int ce_red   = eered   + (sered - eered)     * relativeLife;
+	int ce_green = eegreen + (segreen - eegreen) * relativeLife;
+	int ce_blue  = eeblue  + (seblue - eeblue)   * relativeLife;
 	
+	Particle p;
+	p.sr = cs_red   / 256.f;
+	p.sg = cs_green / 256.f;
+	p.sb = cs_blue  / 256.f;
+	
+	p.er = ce_red   / 256.f;
+	p.eg = ce_green / 256.f;
+	p.eb = ce_blue  / 256.f;
+	
+	/*
 	float now_r = end_red   + relativeLife * (start_red   - end_red);
 	float now_g = end_green + relativeLife * (start_green - end_green);
 	float now_b = end_blue  + relativeLife * (start_blue  - end_blue);
+	*/
 	
 	int particlesPerFrame = intVals["PPF"];
 	
-	Particle p;
-	p.r = now_r;
-	p.g = now_g;
-	p.b = now_b;
 	p.a = 1.0f;
-	
 	p.scale = intVals["SCALE"] / 1000.0f;
 	p.max_life = intVals["PLIFE"];
 	p.cur_life = p.max_life;

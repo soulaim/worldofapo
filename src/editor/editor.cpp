@@ -1436,7 +1436,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 			{
 				Location place(x_scalar * (i - X/2), y_scalar * (j - Y/2), z_scalar * (k - Z/2));
 				Location direction(0,0,-1);
-				visualworld.genParticleEmitter(place, direction, lifetime, 20, 20,  r, g, b,    500, 5, 50);
+				visualworld.genParticleEmitter(place, direction, lifetime, 20, 1000,  "WHITE", "ORANGE", "ORANGE", "DARK_RED", 500, 5, 50);
 			}
 		}
 	}

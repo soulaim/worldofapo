@@ -98,6 +98,8 @@ void LightSource::deactivateLight()
 
 bool LightSource::tickLight()
 {
+	childTick();
+	
 	if(--life_current < 0)
 	{
 		if(lifeType == MORTAL)

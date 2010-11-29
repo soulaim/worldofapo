@@ -143,7 +143,14 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("tmp", 800, 600);
 	TextureHandler::getSingleton().createDepthTexture("tmp_depth", 800, 600);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp"), 0);
+	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
+	
+	glGenFramebuffersEXT(1, &particlesFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
+	TextureHandler::getSingleton().createTexture("tmp_particles", 400, 300);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
+	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	
 	/*
 	glGenRenderbuffersEXT(1, &screenRB);
@@ -760,11 +767,8 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 
 		particles[i] = Vec3(viewParticles[i].pos.x.getFloat(), viewParticles[i].pos.y.getFloat(), viewParticles[i].pos.z.getFloat());
 
-		colors[i*4 + 0] = viewParticles[i].r;
-		colors[i*4 + 1] = viewParticles[i].g;
-		colors[i*4 + 2] = viewParticles[i].b;
+		viewParticles[i].getColor(&colors[i*4]);
 		colors[i*4 + 3] = viewParticles[i].getAlpha();
-
 		scales[i] = viewParticles[i].getScale();
 
 		++QUADS_DRAWN_THIS_FRAME;
@@ -801,21 +805,24 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
+	// glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
+	// glClear(GL_COLOR_BUFFER_BIT);
+	// glViewport(0, 0, 400, 300); // do we need this?
+	
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = uniform_locations["particle_particleScale"];
-
+	
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
-
-	glDisable(GL_LIGHTING);
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
-
+	
+	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -827,29 +834,56 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 		float pz = viewParticles[i].pos.z.getFloat();
 		
 		float color[4];
-		color[0] = viewParticles[i].r;
-		color[1] = viewParticles[i].g;
-		color[2] = viewParticles[i].b;
+		viewParticles[i].getColor(color);
 		color[3] = viewParticles[i].getAlpha();
-
-
+		
 		float scale = viewParticles[i].getScale();
 		glVertexAttrib1f(scale_location, scale);
-		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
+		glColor4fv(color);
 
 		glVertex3f(px, py, pz);
 
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
-
-	glDepthMask(GL_TRUE); // re-enable depth writing.
-	glDisable(GL_BLEND);
-
+	
+	
+	// glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	// glViewport(0, 0, 800, 600);
+	
 	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	// TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
 	
 	glUseProgram(0);
+	
+	/*
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
+	glEnd();
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	*/
+	
+	
+	TextureHandler::getSingleton().bindTexture(0, "");
+	glDepthMask(GL_TRUE); // re-enable depth writing.
+	glDisable(GL_BLEND);
+	
 }
 
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
@@ -881,6 +915,8 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	s3 = m * s3;
 	s4 = m * s4;
 	
+	float color[4];
+	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
 		viewParticles[i].viewTick();
@@ -889,7 +925,9 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 		float py = viewParticles[i].pos.y.getFloat();
 		float pz = viewParticles[i].pos.z.getFloat();
 		
-		glColor4f(viewParticles[i].r, viewParticles[i].g, viewParticles[i].b, viewParticles[i].getAlpha());
+		viewParticles[i].getColor(color);
+		color[3] = viewParticles[i].getAlpha();
+		glColor4fv(color);
 		
 		float s = viewParticles[i].getScale();
 		glTexCoord2f(0.f, 0.f); glVertex3f(px+s1.x*s, py+s1.y*s, pz+s1.z*s);

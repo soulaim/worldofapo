@@ -6,38 +6,6 @@
 
 using namespace std;
 
-// TODO: this should be a bit smarter maybe? oh well.
-void getColor(const string& a, int& r, int& g, int& b)
-{
-	if(a == "WHITE")
-	{
-		r = 255;
-		g = 255;
-		b = 255;
-		return;
-	}
-	else if(a == "ORANGE")
-	{
-		r = 255;
-		g = 165;
-		b = 0;
-		return;
-	}
-	else if(a == "DARK_RED")
-	{
-		r = 100;
-		g = 0;
-		b = 0;
-		return;
-	}
-	else
-	{
-		r = 0;
-		g = 255;
-		b = 255;
-		return;
-	}
-}
 
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 {
@@ -100,10 +68,9 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	}
 	
 	// create some effect or something
-	visualworld->addLight(nextUnitID(), pos);
-	
-	Location zero;
-	visualworld->genParticleEmitter(pos, zero, 25, 5000, 3500, 255, 166, 30, 1500, 50, 80);
+	Location zero; zero.y = FixedPoint(1, 2);
+	visualworld->addLight(nextUnitID(), pos, zero);
+	visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
 	// 	genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 }
 
@@ -660,10 +627,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	int num_particles = projectile["PARTICLES_PER_FRAME"];
 	
 	static ParticleSource ps;
-	// static int sered, segreen, seblue;
-	// static int eered, eegreen, eeblue;
-	static int esred, esgreen, esblue;
-	static int ssred, ssgreen, ssblue;
 	
 	if(num_particles > 0)
 	{
@@ -674,12 +637,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
 		ps.getIntProperty("SCALE") = projectile["PARTICLE_SCALE"];
 		
-		// this should be in making a new ParticleSource
-		getColor( projectile("START_COLOR_START"), ssred, ssgreen, ssblue );
-		// getColor( projectile("START_COLOR_END")  , sered, segreen, seblue );
-		
-		getColor( projectile("END_COLOR_START")  , esred, esgreen, esblue );
-		// getColor( projectile("END_COLOR_END")    , eered, eegreen, eeblue );
+		ps.setColors(projectile("START_COLOR_START"), projectile("START_COLOR_END"), projectile("END_COLOR_START"), projectile("END_COLOR_END"));
 	}
 	
 	
@@ -701,25 +659,11 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			break;
 		}
 
+		// generate particles
 		if(num_particles > 0)
 		{
-			float percentage_life = float(lifetime) / projectile["MAX_LIFETIME"];
-			
-			// this should usually be in ParticleSource.tick() probably
-			ps.getIntProperty("SRED")   = esred   + (ssred - esred)     * percentage_life;
-			ps.getIntProperty("SGREEN") = esgreen + (ssgreen - esgreen) * percentage_life;
-			ps.getIntProperty("SBLUE")  = esblue  + (ssblue - esblue)   * percentage_life;
-			
-			// these values are never used
-			/*
-			ps.getIntProperty("ERED")   = eered   + (sered - eered)     * percentage_life;
-			ps.getIntProperty("EGREEN") = eegreen + (segreen - eegreen) * percentage_life;
-			ps.getIntProperty("EBLUE")  = eeblue  + (seblue - eeblue)   * percentage_life;
-			*/
-			
 			ps.velocity = projectile.velocity * FixedPoint(projectile["PARTICLE_VELOCITY"], 1000);
 			ps.position = projectile.position;
-			
 			ps.tick(visualworld->particles);
 		}
 		
