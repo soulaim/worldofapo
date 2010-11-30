@@ -1074,11 +1074,12 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 {
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
+		/*
 		if(!iter->second.human())
 		{
 			continue;
 		}
-
+		*/
 		const Model& model = *models.find(iter->first)->second;
 		Vec3 pos = model.currentModelPos;
 		pos.y += 5.0;

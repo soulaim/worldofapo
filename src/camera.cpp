@@ -17,7 +17,7 @@ Camera::Camera():
 	fov = 100.f;
 	aspect_ratio = 800.f / 600.f;
 	nearP = 1.f;
-	farP  = 500.f;
+	farP  = 200.f;
 	
 	min_fov = 15.f;
 	max_fov = 100.f;

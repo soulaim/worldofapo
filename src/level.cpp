@@ -246,9 +246,9 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	int x_index = x.getInteger() / 8;
 	int z_index = z.getInteger() / 8;
 
-	if(x_index < 1 || x_index > static_cast<int>(pointheight_info.size()) - 2)
+	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
-	if(z_index < 1 || z_index > static_cast<int>(pointheight_info.size()) - 2)
+	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	
 	FixedPoint x_desimal = (x - x_index * 8) / 8;
@@ -418,7 +418,7 @@ void Level::generate(int seed)
 	buildVarianceTree();
 }
 
-
+// TODO: THIS IS BULLSHIT
 FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
 {
 	int x_index = x.getInteger() / 8;
