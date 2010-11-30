@@ -3,21 +3,30 @@ uniform sampler2D particleTexture;
 uniform sampler2D depthTexture;
 
 varying vec2 texcoord;
-varying vec4 v_position;
+// varying vec4 v_position;
 
-const float FAR_CLIP_Z = 200.0;
+const float FAR_CLIP_Z = 500.0;
 
 void main()
 {
-	vec4 color = gl_Color;
-	gl_FragColor = texture2D(particleTexture, texcoord) * color;
+	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
 	
-	// gl_FragColor.a = max(max(gl_FragColor.r, gl_FragColor.g), gl_FragColor.b);
+	// vec4 color = gl_Color;
+	
+	/*
+	float screen_z = texture2D(depthTexture, gl_FragCoord.xy * 4.0).r;
+	float my_z     = gl_FragCoord.z;
+	
+	if(my_z > screen_z)
+	{
+		gl_FragColor = texture2D(particleTexture, texcoord) * color;
+		// gl_FragColor.a = 0.1;
+	}
+	*/
 	
 	/*
 	float my_z = (gl_FragCoord.z / gl_FragCoord.w);
 	my_z = my_z * 0.5 + 0.5;
-	float screen_z = texture2D(depthTexture, gl_FragCoord.xy).r; // already in some nicer format
 	
 	float val = (my_z - screen_z);
 	

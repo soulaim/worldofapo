@@ -620,11 +620,14 @@ void World::tickUnit(Unit& unit, Model* model)
 
 void World::tickProjectile(Projectile& projectile, Model* model)
 {
-	int ticks = projectile["TPF"];
+	int ticks = projectile["TPF"]; assert(ticks > 0);
 	
-	assert(ticks > 0);
+	bool friendly_fire     = (intVals["FRIENDLY_FIRE"] == 1);
 	
-	int num_particles = projectile["PARTICLES_PER_FRAME"];
+	int num_particles      = projectile["PARTICLES_PER_FRAME"];
+	int death_at_collision = projectile["DEATH_IF_HITS_UNIT"];
+	int projectile_owner   = projectile["OWNER"];
+	string& projectile_name = projectile("NAME");
 	
 	static ParticleSource ps;
 	
@@ -640,12 +643,11 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		ps.setColors(projectile("START_COLOR_START"), projectile("START_COLOR_END"), projectile("END_COLOR_START"), projectile("END_COLOR_END"));
 	}
 	
-	
-	bool shooterIsMonster = false;
-	auto owner_unit_iter = units.find(projectile["OWNER"]);
+	int team = -1;
+	auto owner_unit_iter = units.find(projectile_owner);
 	if(owner_unit_iter != units.end())
 	{
-		shooterIsMonster = !owner_unit_iter->second.human();
+		team = owner_unit_iter->second["TEAM"];
 	}
 	
 	for(int i=0; i<ticks; i++)
@@ -671,10 +673,9 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		
 		if(projectile.collidesTerrain(lvl))
 		{
-			// if collides with terrain, projectile will die at the end of this turn.
-			// But should still check whether we hit something on the way to the point of collision!
-			projectile.destroyAfterFrame = true;
+			// behaviour here should be defined by the projectile..
 			
+			projectile.destroyAfterFrame = true;
 			// intentional continue of execution
 		}
 		
@@ -686,26 +687,26 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			
 			Unit* u = static_cast<Unit*>(*it);
 			
-			// if the target unit is already dead, just continue. ALERT: This might cause desync, if potColl is unordered
+			// if the target unit is already dead, just continue.
 			if(u->hitpoints <= 0)
 				continue;
 			
-			// if monster is shooting a monster, just destroy the bullet. dont let them kill each other :(
-			if(!u->human() && shooterIsMonster)
-			{
-				//projectile.destroyAfterFrame = projectile["DEATH_IF_HITS_UNIT"];
-				continue;
-			}
 			
 			if(projectile["DISTANCE_TEST"])
 			{
-				// distance test
-				Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
-				if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
+				if(!friendly_fire && ((*u)["TEAM"] == team))
 				{
-					u->hitpoints -= projectile["DISTANCE_DAMAGE"];
-					u->last_damage_dealt_by = projectile["OWNER"];
-					(*u)("DAMAGED_BY") = projectile("NAME");
+				}
+				else
+				{
+					// distance test
+					Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
+					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
+					{
+						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
+						u->last_damage_dealt_by = projectile_owner;
+						(*u)("DAMAGED_BY") = projectile_name;
+					}
 				}
 			}
 			
@@ -723,13 +724,19 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				event.a_velocity = projectile.velocity * projectile["TPF"];
 				
 				visualworld->add_event(event);
-				
-				u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
 				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
-				u->last_damage_dealt_by = projectile["OWNER"];
-				(*u)("DAMAGED_BY") = projectile("NAME");
 				
-				projectile.destroyAfterFrame |= projectile["DEATH_IF_HITS_UNIT"];
+				if(!friendly_fire && ((*u)["TEAM"] == team))
+				{
+				}
+				else
+				{
+					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+					u->last_damage_dealt_by = projectile_owner;
+					(*u)("DAMAGED_BY") = projectile_name;
+				}
+				
+				projectile.destroyAfterFrame |= death_at_collision;
 			}
 		}
 	}
@@ -856,12 +863,14 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 500;
+		units[id]["TEAM"] = 2;
 	}
 	else
 	{
 		units[id].name = "Unknown Player";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
+		units[id]["TEAM"] = 1;
 	}
 }
 

@@ -132,6 +132,7 @@ void Graphics::initShaders()
 	glLinkProgram(shaders["blur_program"]);
 	printLog(shaders["blur_program"]);
 	
+	
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
 	loadVertexShader("unit_vert", "shaders/unit.vertex");
 	shaders["unit_program"] = glCreateProgram();
@@ -168,13 +169,15 @@ void Graphics::initShaders()
 	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 2 * 3);
 	glLinkProgram(shaders["particle_program"]);
 	printLog(shaders["particle_program"]);
-
+	
+	
 	glUseProgram(shaders["particle_program"]);
 	uniform_locations["particle_particleTexture"] = glGetUniformLocation(shaders["particle_program"], "particleTexture");
 	uniform_locations["particle_depthTexture"] = glGetUniformLocation(shaders["particle_program"], "depthTexture");
 	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
 	glUniform1i(uniform_locations["particle_particleTexture"], 0);
 	glUniform1i(uniform_locations["particle_depthTexture"], 1);
+	
 	
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");

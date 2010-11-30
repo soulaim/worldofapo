@@ -326,7 +326,7 @@ void choose_color(char code, float alpha)
 	}
 }
 
-void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float y_angle) const
+void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float y_angle, int team) const
 {
 	float scale = 50.0f;
 
@@ -369,7 +369,18 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	currentWidth = 0.f;
 	lastWidth    = 0.f;
 	
-	glColor3f(1.0f, 1.0f, 1.0f);
+	switch(team)
+	{
+		case 1:
+			glColor3f(0.0f, 1.0f, 0.0f);
+			break;
+		case 2:
+			glColor3f(1.0f, 0.0f, 0.0f);
+			break;
+		default:
+			glColor3f(1.0f, 1.0f, 1.0f);
+			break;
+	};
 	
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);

@@ -37,7 +37,7 @@ class Graphics
 	void destroyWindow();
 	
 	void startDrawing();
-	void drawLevel(const Level&, const std::map<int, LightObject>& lights);
+	void drawLevelFR(const Level&, const std::map<int, LightObject>& lights);
 	void drawSkybox();
 	
 	void drawModels(const std::map<int, Model*>& models);

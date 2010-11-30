@@ -153,14 +153,15 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("tmp", 800, 600);
 	TextureHandler::getSingleton().createDepthTexture("tmp_depth", 800, 600);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp"), 0);
-	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
+	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
 	
 	glGenFramebuffersEXT(1, &particlesFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
-	TextureHandler::getSingleton().createTexture("tmp_particles", 400, 300);
+	TextureHandler::getSingleton().createTexture("tmp_particles", 200, 150);
+	TextureHandler::getSingleton().createDepthTexture("particle_depth", 200, 150);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
-	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particle_depth"), 0);
 	
 	/*
 	glGenRenderbuffersEXT(1, &screenRB);
@@ -432,7 +433,7 @@ struct ActiveLights
 
 int pass;
 
-void Graphics::drawLevel(const Level& lvl, const map<int, LightObject>& lightsContainer)
+void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lightsContainer)
 {
 	glUseProgram(shaders["level_program"]);
 	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
@@ -815,9 +816,14 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
-	// glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
-	// glClear(GL_COLOR_BUFFER_BIT);
-	// glViewport(0, 0, 400, 300); // do we need this?
+	/*
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, 200, 150); // do we need this?
+	*/
+	
+	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
+	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = uniform_locations["particle_particleScale"];
@@ -825,13 +831,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
-	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
-	TextureHandler::getSingleton().bindTexture(0, "particle");
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
-	
+	// glDepthFunc(GL_ALWAYS);
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
@@ -857,16 +860,17 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	}
 	glEnd();
 	
-	
-	// glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
-	// glViewport(0, 0, 800, 600);
-	
 	TextureHandler::getSingleton().bindTexture(1, "");
-	// TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
+	
+	/*
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	glViewport(0, 0, 800, 600);
+	
+	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
 	
 	glUseProgram(0);
 	
-	/*
+	//glBlendFunc(GL_ONE, GL_ONE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -889,11 +893,11 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glPopMatrix();
 	*/
 	
-	
+	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glDepthMask(GL_TRUE); // re-enable depth writing.
+	glDepthFunc(GL_LESS);
 	glDisable(GL_BLEND);
-	
 }
 
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
@@ -1020,11 +1024,11 @@ void Graphics::draw(
 	}
 	else
 	{
-		
+		// draw terrain with forward rendering, applying lights there
 		for(size_t i = 0; i < visualworld.lights.size(); i+=4)
 		{
 			pass = int(i);
-			drawLevel(lvl, visualworld.lights);
+			drawLevelFR(lvl, visualworld.lights);
 		}
 		
 		glDisable(GL_BLEND);
@@ -1079,7 +1083,7 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		Vec3 pos = model.currentModelPos;
 		pos.y += 5.0;
 
-		hud.draw3Dstring(iter->second.name, pos, camera.getXrot(), camera.getYrot());
+		hud.draw3Dstring(iter->second.name, pos, camera.getXrot(), camera.getYrot(), iter->second["TEAM"]);
 	}
 }
 

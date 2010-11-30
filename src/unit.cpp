@@ -237,7 +237,6 @@ void Unit::collides(OctreeObject& o)
 		}
 		else
 		{
-			
 			// least offence by z
 			// velocity.z  = o.velocity.z * FixedPoint(1, 2);
 			
@@ -261,7 +260,7 @@ void Unit::init(World& w)
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
 	weapons.push_back(Weapon(&w, this, "data/items/weapon_rocket.dat"));
-	weapon = 0;
+	weapon = 1;
 }
 
 void Unit::switchWeapon(unsigned x)

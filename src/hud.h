@@ -42,7 +42,7 @@ public:
 	void drawStats() const;
 	void draw(bool firstPerson);
 
-	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle) const;
+	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle, int team = 0) const;
 
 private:
 	// Define some character widths in our particular font.

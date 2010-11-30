@@ -17,7 +17,7 @@
 class VisualWorld;
 class Model;
 
-class World
+class World : public HasProperties
 {
 	void tickUnit(Unit&, Model*);       // world frame update
 	void tickProjectile(Projectile&, Model*); // world frame update
