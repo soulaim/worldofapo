@@ -6,7 +6,7 @@
 #include "hud.h"
 #include "frustum/matrix4.h"
 #include "octree.h"
-#include "primitives.h"
+#include "texturecoordinate.h"
 #include "window.h"
 #include "menubutton.h"
 
@@ -200,13 +200,13 @@ void Graphics::setCamera(const Camera& cam)
 	camera = cam;
 }
 
-void drawNormal(const Level& lvl, int x, int z, int multiplier)
+void drawNormal(const Level& lvl, int x, int z)
 {
 	Location n = lvl.getNormal(x, z) * 10;
 	Location start;
-	start.x = FixedPoint(int(x * multiplier));
+	start.x = FixedPoint(x * Level::BLOCK_SIZE);
 	start.y = lvl.getVertexHeight(x, z);
-	start.z = FixedPoint(int(z * multiplier));
+	start.z = FixedPoint(z * Level::BLOCK_SIZE);
 	
 	Location end = start + n;
 	
@@ -223,7 +223,6 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 {
 	TextureHandler::getSingleton().bindTexture(0, "");
 
-	int multiplier = 8;
 	Vec3 points[3];
 
 	// this should only be done at world ticks! not at draw ticks..
@@ -239,8 +238,8 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
-			points[i].x = tri.points[i].x * multiplier;
-			points[i].z = tri.points[i].z * multiplier;
+			points[i].x = tri.points[i].x * Level::BLOCK_SIZE;
+			points[i].z = tri.points[i].z * Level::BLOCK_SIZE;
 			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 		}
 		
@@ -258,11 +257,11 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 	glColor3f(1,0,0);
 	glPointSize(2.0f);
 	glBegin(GL_POINTS);
-	for(size_t x = 0; x < 500; x += 2)
+	for(FixedPoint x; x < lvl.max_x(); x += 2)
 	{
-		for(size_t z = 0; z < 1000; z += 2)
+		for(FixedPoint z; z < lvl.max_z(); z += 2)
 		{
-			Vec3 v(x, 0, z);
+			Vec3 v(x.getFloat(), 0, z.getFloat());
 			if(near(camera, v))
 			{
 				v.y = lvl.getHeight(x,z).getFloat();
@@ -274,14 +273,14 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 	glColor3f(0,1,0);
 	glPointSize(4.0f);
 	glBegin(GL_POINTS);
-	for(int x = 0; x < lvl.max_x(); x += 8)
+	for(int x = 0; x < lvl.max_block_x(); ++x)
 	{
-		for(int z = 0; z < lvl.max_z(); z += 8)
+		for(int z = 0; z < lvl.max_block_z(); ++z)
 		{
-			Vec3 v(x, 0, z);
+			Vec3 v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
 			if(near(camera, v))
 			{
-				v.y = lvl.getHeight(x,z).getFloat();
+				v.y = lvl.getVertexHeight(x,z).getFloat();
 				glVertex3f(v.x, v.y, v.z);
 			}
 		}
@@ -369,7 +368,6 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 
 void Graphics::drawDebugLevelNormals(const Level& lvl)
 {
-	int multiplier = 8;
 	Vec3 points[3];
 
 	glBegin(GL_LINES);
@@ -378,8 +376,8 @@ void Graphics::drawDebugLevelNormals(const Level& lvl)
 		BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
-			points[i].x = tri.points[i].x * multiplier;
-			points[i].z = tri.points[i].z * multiplier;
+			points[i].x = tri.points[i].x * Level::BLOCK_SIZE;
+			points[i].z = tri.points[i].z * Level::BLOCK_SIZE;
 			points[i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 		}
 		
@@ -437,7 +435,6 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 {
 	glUseProgram(shaders["level_program"]);
 	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
-	const int multiplier = 8;
 
 	static vector<Vec3> vertices;
 	static vector<Vec3> normals;
@@ -512,8 +509,8 @@ if(pass == 0)
 		BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
-			points[2-i].x = tri.points[i].x * multiplier;
-			points[2-i].z = tri.points[i].z * multiplier;
+			points[2-i].x = tri.points[i].x * Level::BLOCK_SIZE;
+			points[2-i].z = tri.points[i].z * Level::BLOCK_SIZE;
 			points[2-i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 
 			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
@@ -533,11 +530,14 @@ if(pass == 0)
 		TextureHandler::getSingleton().bindTexture(2, "highground");
 	}
 	
-	// set ambient light
 	if(drawDebuglines)
+	{
 		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4f, 0.4f, 1.f);
+	}
 	else
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.2f, 0.2f, 0.2f, 1.0f);
+	{
+		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
+	}
 	
 }
 else
@@ -545,6 +545,7 @@ else
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDepthFunc(GL_EQUAL);
+	glDepthMask(GL_FALSE);
 	
 	glUniform4f(uniform_locations["lvl_ambientLight"], 0.f, 0.f, 0.f, 1.0f);
 }
@@ -1031,6 +1032,7 @@ void Graphics::draw(
 			drawLevelFR(lvl, visualworld.lights);
 		}
 		
+		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 		

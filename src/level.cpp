@@ -16,8 +16,6 @@ void Level::splitBTT(const Location& position, const FrustumR& frustum)
 
 Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
-	fpZero = FixedPoint(0);
-	
 	unitVectorUp.x = FixedPoint(0);
 	unitVectorUp.y = FixedPoint(1);
 	unitVectorUp.z = FixedPoint(0);
@@ -62,8 +60,8 @@ void Level::buildVarianceTree()
 Location Level::getRandomLocation(int seed)
 {
 	Location result;
-	result.x = ((173  * seed) % LEVEL_LVLSIZE) * 8;
-	result.z = ((833 * seed) % LEVEL_LVLSIZE) * 8;
+	result.x = ((173  * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
+	result.z = ((833 * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
 	result.y = FixedPoint(15);
 	return result;
 }
@@ -132,18 +130,18 @@ Location Level::estimateNormal(int x, int z)
 		return result;
 	
 	Location a;
-	a.x = x*8;
-	a.z = z*8;
+	a.x = x*BLOCK_SIZE;
+	a.z = z*BLOCK_SIZE;
 	a.y = pointheight_info[x][z];
 	
 	Location b;
-	b.x = x*8;
-	b.z = z*8+8;
+	b.x = x*BLOCK_SIZE;
+	b.z = z*BLOCK_SIZE+BLOCK_SIZE;
 	b.y = pointheight_info[x][z+1];
 	
 	Location c;
-	c.x = x*8+8;
-	c.z = z*8;
+	c.x = x*BLOCK_SIZE+BLOCK_SIZE;
+	c.z = z*BLOCK_SIZE;
 	c.y = pointheight_info[x+1][z];
 	
 	result = (b-a).crossProduct(c-a);
@@ -201,14 +199,14 @@ FixedPoint Level::estimateHeightDifference(int x, int y) const
 
 const FixedPoint& Level::getHeightDifference(FixedPoint& x, FixedPoint& z) const
 {
-	int x_index = x.getInteger() / 8;
-	int z_index = z.getInteger() / 8;
+	int x_index = x.getInteger() / BLOCK_SIZE;
+	int z_index = z.getInteger() / BLOCK_SIZE;
 	
 	// These checks should not have to be necessary
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
-		return fpZero;
+		return FixedPoint::ZERO;
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
-		return fpZero;
+		return FixedPoint::ZERO;
 	
 	return h_diff[x_index][z_index];
 }
@@ -225,8 +223,8 @@ const FixedPoint& Level::getHeightDifference(int x_index, int z_index) const
 
 const Location& Level::getNormal(FixedPoint& x, FixedPoint& z) const
 {
-	int x_index = x.getInteger() / 8;
-	int z_index = z.getInteger() / 8;
+	int x_index = x.getInteger() / BLOCK_SIZE;
+	int z_index = z.getInteger() / BLOCK_SIZE;
 	return normals[x_index][z_index];
 }
 
@@ -236,23 +234,23 @@ const Location& Level::getNormal(int x_index, int z_index) const
 }
 
 
-const FixedPoint& Level::getVertexHeight(const int& x, const int& z) const
+const FixedPoint& Level::getVertexHeight(int x, int z) const
 {
 	return pointheight_info[x][z];
 }
 
 FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 {
-	int x_index = x.getInteger() / 8;
-	int z_index = z.getInteger() / 8;
+	int x_index = x.getInteger() / BLOCK_SIZE;
+	int z_index = z.getInteger() / BLOCK_SIZE;
 
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
 	
-	FixedPoint x_desimal = (x - x_index * 8) / 8;
-	FixedPoint z_desimal = (z - z_index * 8) / 8;
+	FixedPoint x_desimal = (x - x_index * BLOCK_SIZE) / BLOCK_SIZE;
+	FixedPoint z_desimal = (z - z_index * BLOCK_SIZE) / BLOCK_SIZE;
 	
 	const FixedPoint& A = pointheight_info[x_index][z_index];
 	const FixedPoint& B = pointheight_info[x_index+1][z_index];
@@ -260,10 +258,10 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	const FixedPoint& C = pointheight_info[x_index][z_index+1];
 	const FixedPoint& D = pointheight_info[x_index+1][z_index+1];
 
-	Location pA(8*x_index,     A, 8*z_index);
-	Location pB(8*(x_index+1), B, 8*z_index);
-	Location pC(8*x_index,     C, 8*(z_index+1));
-	Location pD(8*(x_index+1), D, 8*(z_index+1));
+	Location pA(BLOCK_SIZE*x_index,     A, BLOCK_SIZE*z_index);
+	Location pB(BLOCK_SIZE*(x_index+1), B, BLOCK_SIZE*z_index);
+	Location pC(BLOCK_SIZE*x_index,     C, BLOCK_SIZE*(z_index+1));
+	Location pD(BLOCK_SIZE*(x_index+1), D, BLOCK_SIZE*(z_index+1));
 	
 	const Location* p1 = 0;
 	const Location* p2 = 0;
@@ -421,8 +419,8 @@ void Level::generate(int seed)
 // TODO: THIS IS BULLSHIT
 FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
 {
-	int x_index = x.getInteger() / 8;
-	int z_index = z.getInteger() / 8;
+	int x_index = x.getInteger() / BLOCK_SIZE;
+	int z_index = z.getInteger() / BLOCK_SIZE;
 	
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1, 2);
@@ -433,13 +431,23 @@ FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
 }
 
 
-int Level::max_x() const
+FixedPoint Level::max_x() const
 {
-	return pointheight_info.size() * 8 - 9;
+	return pointheight_info.size() * BLOCK_SIZE - (BLOCK_SIZE+1);
 }
 
-int Level::max_z() const
+FixedPoint Level::max_z() const
 {
-	return pointheight_info.front().size() * 8 - 9;
+	return pointheight_info.front().size() * BLOCK_SIZE - (BLOCK_SIZE+1);
+}
+
+int Level::max_block_x() const
+{
+	return pointheight_info.size();
+}
+
+int Level::max_block_z() const
+{
+	return pointheight_info.front().size();
 }
 
