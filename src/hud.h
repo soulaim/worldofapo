@@ -26,7 +26,7 @@ public:
 	void setCurrentClientCommand(const std::string&);
 	void setTime(unsigned);
 	void world_tick();
-	void setLevelSize(int x, int z);
+	void setLevelSize(const FixedPoint& x, const FixedPoint& z);
 	void setUnitsMap(std::map<int, Unit>* units);
 	void setLocalPlayerID(int _myID);
 	void setShowStats(bool);
@@ -48,8 +48,8 @@ private:
 	// Define some character widths in our particular font.
 	std::vector<float> charWidth;
 
-	int level_max_z;
-	int level_max_x;
+	FixedPoint level_max_z;
+	FixedPoint level_max_x;
 
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;

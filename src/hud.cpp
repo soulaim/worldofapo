@@ -81,7 +81,8 @@ Hud::Hud():
 	charWidth['M'] = 0.3;
 }
 
-void Hud::setLevelSize(int x, int z) {
+void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)
+{
 	level_max_x = x;
 	level_max_z = z;
 }
@@ -524,8 +525,8 @@ void Hud::drawMinimap() const
 	float map_r = 0.18f;
 	float minimap_angle = apomath.getDegrees( myUnit.angle );
 	
-	float tx = myUnit.position.x.getFloat() / level_max_x;
-	float tz = myUnit.position.z.getFloat() / level_max_z;
+	float tx = (myUnit.position.x / level_max_x).getFloat();
+	float tz = (myUnit.position.z / level_max_z).getFloat();
 	
 	float unit_x_on_minimap = -2.f * map_r * tx + map_r;
 	float unit_z_on_minimap = +2.f * map_r * tz - map_r;
@@ -569,8 +570,8 @@ void Hud::drawMinimap() const
 		const Unit& u = it->second;
 		const Location& loc = u.getPosition();
 		
-		float x = -(loc.x.getFloat() / level_max_x) * 2 * map_r + map_r - unit_x_on_minimap;
-		float z = +(loc.z.getFloat() / level_max_z) * 2 * map_r - map_r - unit_z_on_minimap;
+		float x = -(loc.x / level_max_x).getFloat() * 2 * map_r + map_r - unit_x_on_minimap;
+		float z = +(loc.z / level_max_z).getFloat() * 2 * map_r - map_r - unit_z_on_minimap;
 		
 		glColor3f(r, g, b); glVertex3f(x, z, 0.0f);
 	}

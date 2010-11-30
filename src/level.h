@@ -17,8 +17,6 @@ struct Level
 	std::vector<std::vector<FixedPoint> > pointheight_info;
 	
 	void generate(int);
-	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
-	const FixedPoint& getVertexHeight(const int& x, const int& z) const;
 	
 	void splitBTT(const Location& pos, const FrustumR& frustum);
 	
@@ -37,15 +35,20 @@ struct Level
 	// Dynamic environment changes can be done with this function
 	void updateHeight(int x, int z, FixedPoint h);
 	
-	int max_x() const;
-	int max_z() const;
+	FixedPoint max_x() const;
+	FixedPoint max_z() const;
+	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
+
+	int max_block_x() const;
+	int max_block_z() const;
+	const FixedPoint& getVertexHeight(int x, int z) const;
+
+	enum { BLOCK_SIZE = 8 };
 
 private:
 	
 	BinaryTriangleTree btt;
 	std::vector<FixedPoint> variance_tree;
-	
-	FixedPoint fpZero;
 	
 	// dont use these!! ffs!
 	std::vector<std::vector<FixedPoint> > h_diff;

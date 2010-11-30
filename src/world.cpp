@@ -753,7 +753,7 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
-	octree.reset(new Octree(Location(0, 0, 0), Location(FixedPoint(lvl.max_x()), FixedPoint(400), FixedPoint(lvl.max_z()))));
+	octree.reset(new Octree(Location(0, 0, 0), Location(lvl.max_x(), FixedPoint(400), lvl.max_z())));
 	currentWorldFrame = tickCount;
 	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
