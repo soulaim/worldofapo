@@ -45,9 +45,6 @@ public:
 	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle) const;
 
 private:
-	// Define some character widths in our particular font.
-	std::vector<float> charWidth;
-
 	FixedPoint level_max_z;
 	FixedPoint level_max_x;
 

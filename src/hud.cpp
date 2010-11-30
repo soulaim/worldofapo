@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "texturehandler.h"
 #include "apomath.h"
+#include "font.h"
 
 #include <SDL.h>
 
@@ -24,61 +25,6 @@ Hud::Hud():
 	currentTime(0),
 	world_ticks(0)
 {
-	charWidth.resize(255, 1.f);
-	
-	for(char symbol = 'A'; symbol <= 'Z'; symbol++)
-		charWidth[symbol] = 0.22;
-	for(char symbol = 'a'; symbol <= 'z'; symbol++)
-		charWidth[symbol] = 0.19;
-	for(char symbol = '0'; symbol <= '9'; symbol++)
-		charWidth[symbol] = 0.16;
-	
-	charWidth['9'] = 0.20;
-	charWidth['8'] = 0.20;
-	charWidth['4'] = 0.20;
-	charWidth['0'] = 0.23;
-	charWidth['l'] = 0.1;
-	charWidth['r'] = 0.1;
-	charWidth['f'] = 0.1;
-	charWidth['!'] = 0.1;
-	charWidth['t'] = 0.15;
-	charWidth['>'] = 0.15;
-	charWidth['<'] = 0.15;
-	charWidth['i'] = 0.1;
-	charWidth['w'] = 0.25;
-	charWidth['m'] = 0.25;
-	charWidth['j'] = 0.12;
-	charWidth['o'] = 0.19;
-	charWidth['s'] = 0.12;
-	charWidth['I'] = 0.1;
-	charWidth['J'] = 0.12;
-	charWidth['.'] = 0.1;
-	charWidth[','] = 0.1;
-	charWidth[':'] = 0.1;
-	charWidth['?'] = 0.15;
-	charWidth[' '] = 0.1;
-	charWidth[']'] = 0.1;
-	charWidth['['] = 0.1;
-	charWidth[')'] = 0.1;
-	charWidth['('] = 0.1;
-	charWidth['\''] = 0.1;
-	charWidth['-'] = 0.1;
-	charWidth['+'] = 0.1;
-	charWidth['|'] = 0.1;
-	charWidth['/'] = 0.1;
-	charWidth['_'] = 0.1;
-	charWidth['%'] = 0.13;
-	charWidth['&'] = 0.12;
-	charWidth['='] = 0.13;
-	charWidth['"'] = 0.1;
-	
-	charWidth['S'] = 0.17;
-	charWidth['T'] = 0.19;
-	charWidth['W'] = 0.24;
-	charWidth['Q'] = 0.24;
-	charWidth['O'] = 0.3;
-	charWidth['Z'] = 0.1;
-	charWidth['M'] = 0.3;
 }
 
 void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)
@@ -352,12 +298,12 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 			continue;
 		}
 		
-		currentWidth = 0.05 * charWidth[msg[i]];
+		currentWidth = 0.05 * Font::width(msg[i]);
 		totalWidth = aux_width - scale * (currentWidth + lastWidth - 0.05f);
 		aux_width = totalWidth - 0.05f * scale;
 		lastWidth = currentWidth;
 		
-		// totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+		// totalWidth += 0.05 * Font::width(msg[i]) * 2 * scale;
 	}
 	
 	float halfWidth = -totalWidth / 2.0f;
@@ -366,7 +312,6 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	float x_next    = x_now - 0.05;
 	float y_bot     = 0.0f;
 	float y_top     = 0.05 * scale;
-	float edge_size = 1./16.;
 	currentWidth = 0.f;
 	lastWidth    = 0.f;
 	
@@ -385,24 +330,23 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 			continue;
 		}
 		
-		currentWidth = 0.05 * charWidth[msg[i]];
+		currentWidth = 0.05 * Font::width(msg[i]);
 		x_now = x_next - scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now - 0.05f * scale;
 		
 		lastWidth = currentWidth;
-		
-		int x = msg[i] % 16;
-		int y = 15 - (msg[i] / 16);
 
-		Vec3 p1 = m * Vec3(x_now  ,  y_bot, 0);
-		Vec3 p2 = m * Vec3(x_next ,  y_bot, 0);
-		Vec3 p3 = m * Vec3(x_next ,  y_top, 0);
-		Vec3 p4 = m * Vec3(x_now  ,  y_top, 0);
+		Vec3 p1 = m * Vec3(x_now , y_bot, 0);
+		Vec3 p2 = m * Vec3(x_next, y_bot, 0);
+		Vec3 p3 = m * Vec3(x_next, y_top, 0);
+		Vec3 p4 = m * Vec3(x_now , y_top, 0);
 
-		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(p1.x, p1.y, p1.z);
-		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(p2.x, p2.y, p2.z);
-		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(p3.x, p3.y, p3.z);
-		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(p4.x, p4.y, p4.z);
+		TextureCoordinates coords = Font::texture_coordinates(msg[i]);
+		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(p1.x, p1.y, p1.z);
+		glTexCoord2f(coords.corner[1].x, coords.corner[1].y); glVertex3f(p2.x, p2.y, p2.z);
+		glTexCoord2f(coords.corner[2].x, coords.corner[2].y); glVertex3f(p3.x, p3.y, p3.z);
+		glTexCoord2f(coords.corner[3].x, coords.corner[3].y); glVertex3f(p4.x, p4.y, p4.z);
+
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
@@ -436,14 +380,13 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 			continue;
 		}
 		
-		totalWidth += 0.05 * charWidth[msg[i]] * 2 * scale;
+		totalWidth += 0.05 * Font::width(msg[i]) * 2 * scale;
 	}
 	
 	float x_now     = 0.0f;
 	float x_next    = pos_x + 0.05;
 	float y_bot     = pos_y;
 	float y_top     = pos_y + 0.05 * scale;
-	float edge_size = 1./16.;
 	
 	// draw a darker background box for the text if that was requested
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
@@ -475,20 +418,19 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 			continue;
 		}
 		
-		currentWidth = 0.05 * charWidth[msg[i]];
+		currentWidth = 0.05 * Font::width(msg[i]);
 		
 		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now + 0.05f * scale;
 		
 		lastWidth = currentWidth;
 		
-		int x = msg[i] % 16;
-		int y = 15 - (msg[i] / 16);
+		TextureCoordinates coords = Font::texture_coordinates(msg[i]);
+		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(x_now , y_bot, -1);
+		glTexCoord2f(coords.corner[1].x, coords.corner[1].y); glVertex3f(x_next, y_bot, -1);
+		glTexCoord2f(coords.corner[2].x, coords.corner[2].y); glVertex3f(x_next, y_top, -1);
+		glTexCoord2f(coords.corner[3].x, coords.corner[3].y); glVertex3f(x_now , y_top, -1);
 
-		glTexCoord2f( x    * edge_size, y * edge_size);     glVertex3f(x_now , y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, y * edge_size);     glVertex3f(x_next, y_bot, -1);
-		glTexCoord2f((x+1) * edge_size, (y+1) * edge_size); glVertex3f(x_next, y_top, -1);
-		glTexCoord2f( x    * edge_size, (y+1) * edge_size); glVertex3f(x_now , y_top, -1);
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();

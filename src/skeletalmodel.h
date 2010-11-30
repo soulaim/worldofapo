@@ -13,7 +13,7 @@
 #include "animation.h"
 #include "frustum/vec3.h"
 #include "frustum/matrix4.h"
-#include "primitives.h"
+#include "texturecoordinate.h"
 #include "model.h"
 
 struct Bone

@@ -6,7 +6,7 @@
 #include "hud.h"
 #include "frustum/matrix4.h"
 #include "octree.h"
-#include "primitives.h"
+#include "texturecoordinate.h"
 #include "window.h"
 #include "menubutton.h"
 
