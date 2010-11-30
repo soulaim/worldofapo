@@ -33,12 +33,12 @@ void DedicatedServer::serverSendMonsterSpawn()
 	serverMsgs.push_back(tmp_msg.str());
 }
 
-void DedicatedServer::serverSendMonsterSpawn(int n)
+void DedicatedServer::serverSendMonsterSpawn(int n, int team)
 {
 	for(int i=0; i<n; i++)
 	{
 		stringstream tmp_msg;
-		tmp_msg << "-1 " << (serverAllow+10+i) << " 10#";
+		tmp_msg << "-1 " << (serverAllow+10+i) << " 15 " << team << "#";
 		serverMsgs.push_back(tmp_msg.str());
 	}
 }

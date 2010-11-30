@@ -371,11 +371,29 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	
 	switch(team)
 	{
-		case 1:
+		case 0:
 			glColor3f(0.0f, 1.0f, 0.0f);
 			break;
-		case 2:
+		case 1:
 			glColor3f(1.0f, 0.0f, 0.0f);
+			break;
+		case 2:
+			glColor3f(0.0f, 0.0f, 1.0f);
+			break;
+		case 3:
+			glColor3f(1.0f, 0.0f, 1.0f);
+			break;
+		case 4:
+			glColor3f(1.0f, 1.0f, 0.0f);
+			break;
+		case 5:
+			glColor3f(0.0f, 1.0f, 1.0f);
+			break;
+		case 6:
+			glColor3f(1.0f, 5.0f, 0.0f);
+			break;
+		case 7:
+			glColor3f(0.0f, 1.0f, 5.0f);
 			break;
 		default:
 			glColor3f(1.0f, 1.0f, 1.0f);

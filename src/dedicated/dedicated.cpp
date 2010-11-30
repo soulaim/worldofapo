@@ -21,6 +21,8 @@ DedicatedServer::DedicatedServer():
 	fps_world(0),
 	world(&visualworld)
 {
+	visualworld.disable(); // server doesnt need visual information
+	
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
 	init();
@@ -322,19 +324,31 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			serverSendMonsterSpawn();
 			return;
 		}
-		
-		if(cmd == "SWARM")
+		else if(cmd == "SWARM")
 		{
 			int n = 70;
-			ss >> n;
+			int team = -1;
+			if(ss >> n)
+				ss >> team;
+			
 			n = min(100, n);
-			serverSendMonsterSpawn(n);
+			
+			serverSendMonsterSpawn(n, team);
 			
 			stringstream chatmsg;
 			chatmsg << "3 -1 ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
 			serverMsgs.push_back(chatmsg.str());
 			
 			return;
+		}
+		else if(cmd == "TEAM")
+		{
+			int new_team = 0;
+			ss >> new_team;
+			
+			stringstream team_change;
+			team_change << "-1 " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
+			serverMsgs.push_back(team_change.str());
 		}
 	}
 	else if(orderWord == "-1")
@@ -385,7 +399,18 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	{
 		world.addUnit(world.nextUnitID(), false);
 	}
-	
+	else if(server_msg.serverCommand == 11) // change team message
+	{
+		int unitID     = server_msg.keyState;
+		int new_teamID = server_msg.mousex;
+		
+		Unit& u = world.units.find(unitID)->second;
+		u["TEAM"] = new_teamID;
+	}
+	else if(server_msg.serverCommand == 15)
+	{
+		world.addUnit(world.nextUnitID(), false, server_msg.keyState);
+	}
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
 		cerr << "THIS IS WHAT SERVER SHOULD DO WHEN DISCONNECT HAPPENS" << endl;
@@ -500,6 +525,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.serverCommand;
 		ss >> tmp_order.keyState;
+		ss >> tmp_order.mousex >> tmp_order.mousey;
 		UnitInput.push_back(tmp_order);
 	}
 	
@@ -590,6 +616,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 
 void DedicatedServer::handleWorldEvents()
 {
+	/*
 	// output events to show the server is still in sync.
 	for(size_t i = 0; i < visualworld.events.size(); ++i)
 	{
@@ -619,6 +646,7 @@ void DedicatedServer::handleWorldEvents()
 			}
 		}
 	}
+	*/
 	
 	visualworld.events.clear();
 }

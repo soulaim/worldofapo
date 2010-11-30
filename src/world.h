@@ -56,7 +56,7 @@ public:
 	
 	void worldTick(int tickCount);
 	
-	void addUnit(int id, bool player = true);
+	void addUnit(int id, bool player = true, int team = -1);
 	void addProjectile(Location& location, int id, size_t model_prototype);
 	void removeUnit(int id);
 	
@@ -66,6 +66,7 @@ public:
 	int nextPlayerID();
 	
 	int show_errors;
+	bool friendly_fire; // not to be sent over network.
 	
 	void terminate();
 	

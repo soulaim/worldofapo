@@ -179,21 +179,35 @@ void World::generateInput_RabidAlien(Unit& unit)
 {
 	FixedPoint bestSquaredDistance = FixedPoint(1000000);
 	int unitID = -1;
+	int my_team = unit["TEAM"];
 	
 	// find the nearest human controlled unit
-	for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
+	if( (unit.birthTime + currentWorldFrame) % 70 == 0)
 	{
-		if(it->second.controllerTypeID == Unit::HUMAN_INPUT) // MMM!! MAYBE I CAN GO KILL THIS PLAYER ? :DD
+		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
 		{
-			FixedPoint tmp_dist = (it->second.position - unit.position).lengthSquared();
-			if( tmp_dist < bestSquaredDistance )
+			if(it->second["TEAM"] != my_team)
 			{
-				bestSquaredDistance = tmp_dist;
-				unitID = it->first;
+				FixedPoint tmp_dist = (it->second.position - unit.position).lengthSquared();
+				if( tmp_dist < bestSquaredDistance )
+				{
+					bestSquaredDistance = tmp_dist;
+					unitID = it->first;
+				}
 			}
 		}
+		
+		unit["T"] = unitID;
 	}
-	
+	else
+	{
+		unitID = unit["T"];
+		if(units.find(unitID) == units.end())
+		{
+			unit["T"] = -1;
+			unitID = -1;
+		}
+	}
 	// if no nearby human controlled unit was found, sleep
 	if(unitID == -1)
 	{
@@ -202,13 +216,16 @@ void World::generateInput_RabidAlien(Unit& unit)
 		return;
 	}
 	
+	bestSquaredDistance = (units.find(unitID)->second.position - unit.position).lengthSquared();
+	Unit& target = units.find(unitID)->second;
+	
 	// if close enough, do damage by DEVOURING
 	if(bestSquaredDistance < FixedPoint(9))
 	{
 		// DEVOUR!
-		units.find(unitID)->second.hitpoints -= 173; // devouring does LOTS OF DAMAGE!
-		units.find(unitID)->second.last_damage_dealt_by = unit.id;
-		units.find(unitID)->second("DAMAGED_BY") = "devour";
+		target.hitpoints -= 173; // devouring does LOTS OF DAMAGE!
+		target.last_damage_dealt_by = unit.id;
+		target("DAMAGED_BY") = "devour";
 		
 		// save this information for later use.
 		WorldEvent event;
@@ -220,7 +237,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	}
 	
 	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = unit.position - units.find(unitID)->second.position;
+	Location direction = unit.position - target.position;
 	
 	if(direction.length() == 0)
 	{
@@ -622,8 +639,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 {
 	int ticks = projectile["TPF"]; assert(ticks > 0);
 	
-	bool friendly_fire     = (intVals["FRIENDLY_FIRE"] == 1);
-	
 	int num_particles      = projectile["PARTICLES_PER_FRAME"];
 	int death_at_collision = projectile["DEATH_IF_HITS_UNIT"];
 	int projectile_owner   = projectile["OWNER"];
@@ -700,7 +715,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				else
 				{
 					// distance test
-					Location distance_vector = projectile.position - u->position; // TODO: Unit position is at ground level. sux.
+					Location distance_vector = projectile.position + Location(0, 2, 0) - u->position; // TODO: Point to point distance is maybe not ideal.
 					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
 					{
 						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
@@ -754,6 +769,7 @@ void World::worldTick(int tickCount)
 {
 	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
 	
+	friendly_fire = (intVals["FRIENDLY_FIRE"] == 1);
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Build octree + do collisions    \
@@ -845,7 +861,7 @@ void World::worldTick(int tickCount)
 
 
 
-void World::addUnit(int id, bool playerCharacter)
+void World::addUnit(int id, bool playerCharacter, int team)
 {
 	if(units.find(id) != units.end())
 		cerr << "FUCK FUCK FUCK FUCK FUCK" << endl;
@@ -863,14 +879,15 @@ void World::addUnit(int id, bool playerCharacter)
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 500;
-		units[id]["TEAM"] = 2;
+		units[id]["TEAM"] = team;
+		units[id]["T"] = -1;
 	}
 	else
 	{
 		units[id].name = "Unknown Player";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
-		units[id]["TEAM"] = 1;
+		units[id]["TEAM"] = id;
 	}
 }
 

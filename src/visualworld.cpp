@@ -13,6 +13,8 @@ void VisualWorld::init(const Level&)
 	assert(meadows.empty());
 
 	particles.reserve(40000);
+	
+	enable();
 
 	/*
 	Vec3 wind(0, 0, 0);
@@ -57,6 +59,11 @@ void VisualWorld::terminate()
 
 void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	for(size_t i = 0; i < particles.size(); ++i)
 	{
 		particles[i].viewTick();
@@ -78,6 +85,11 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 
 void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	assert(model != 0);
 	
 	if(unit.getKeyAction(Unit::MOVE_FRONT))
@@ -112,6 +124,11 @@ void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFr
 
 void VisualWorld::tickParticles()
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	for(size_t i=0; i<psources.size(); ++i)
 	{
 		psources[i].tick(particles);
@@ -138,6 +155,11 @@ void VisualWorld::tickParticles()
 
 void VisualWorld::tickLights(const std::map<int, Unit>& units)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	vector<int> deadLights;
 	for(auto iter = lights.begin(); iter != lights.end(); iter++)
 	{
@@ -184,6 +206,11 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 
 void VisualWorld::addLight(int id, const Location& location, Location direction)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
 	light.setDiffuse(1.3f, 1.3f, 1.3f);
@@ -198,6 +225,13 @@ void VisualWorld::addLight(int id, const Location& location, Location direction)
 
 void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
 {
+	return;
+	
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	LightObject& light = lights[id];
 	light.setDiffuse(r / 255.f, g / 255.f, b / 255.f);
 	light.setSpecular(0.f, 0.f, 0.f);
@@ -213,6 +247,11 @@ void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, 
 
 void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const string& s_color_s, const string& s_color_e, const string& e_color_s, const string& e_color_e, int scatteringCone, int particlesPerFrame, int particleLife)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	ParticleSource pe;
 	pe.intVals["PPF"] = particlesPerFrame;
 	pe.intVals["CUR_LIFE"] = life;
@@ -240,6 +279,11 @@ void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, i
 
 void VisualWorld::add_message(const std::string& message)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
+	
 	worldMessages.push_back(message);
 }
 
@@ -255,6 +299,19 @@ void VisualWorld::removeUnit(int id)
 
 void VisualWorld::add_event(const WorldEvent& event)
 {
+	/*
+	if(active == 0)
+		return;
+	*/
 	events.push_back(event);
 }
 
+void VisualWorld::enable()
+{
+	active = 1;
+}
+
+void VisualWorld::disable()
+{
+	active = 0;
+}

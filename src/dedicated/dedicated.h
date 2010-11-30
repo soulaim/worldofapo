@@ -78,7 +78,7 @@ class DedicatedServer
 	void disconnect(int leaver);
 	
 	// some message sending stuff
-	void serverSendMonsterSpawn(int n);
+	void serverSendMonsterSpawn(int n, int t);
 	void serverSendMonsterSpawn();
 	void serverSendRequestPlayerNameMessage(int player_id);
 	

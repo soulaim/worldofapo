@@ -255,11 +255,26 @@ void Game::handleServerMessage(const Order& server_msg)
 		paused_state = PAUSED;
 		cerr << "Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
-	else if(server_msg.serverCommand == 10)
+	else if(server_msg.serverCommand == 10) // This is probably alien spawning.
 	{
 		world->addUnit(world->nextUnitID(), false);
 	}
-	
+	else if(server_msg.serverCommand == 11) // change team message
+	{
+		int unitID     = server_msg.keyState;
+		int new_teamID = server_msg.mousex;
+		
+		Unit& u = world->units.find(unitID)->second;
+		u["TEAM"] = new_teamID;
+		
+		stringstream newViewMessage;
+		newViewMessage << "^R" << u.name << " ^Wchanged team ID to ^G" << new_teamID << "!";
+		world->add_message(newViewMessage.str());
+	}
+	else if(server_msg.serverCommand == 15)
+	{
+		world->addUnit(world->nextUnitID(), false, server_msg.keyState);
+	}
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
 		string message = "^R[";
@@ -430,6 +445,7 @@ void Game::processClientMsgs()
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.serverCommand;
 			ss >> tmp_order.keyState;
+			ss >> tmp_order.mousex >> tmp_order.mousey; // use these as more storage space
 			UnitInput.push_back(tmp_order);
 		}
 		

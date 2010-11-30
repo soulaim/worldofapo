@@ -11,7 +11,8 @@
 class VisualWorld
 {
 	void updateModel(Model*, const Unit&, int currentWorldFrame); // view frame update
-
+	int active;
+	
 public:
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
@@ -28,7 +29,10 @@ public:
 
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
-
+	
+	void disable();
+	void enable();
+	
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
