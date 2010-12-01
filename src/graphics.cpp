@@ -1127,7 +1127,7 @@ void Graphics::finishDrawing(int blur)
 	glEnd();
 	glEnable(GL_DEPTH_TEST);
 	
-//	glUseProgram(0);
+	glUseProgram(0);
 
 //	TextureHandler::getSingleton().bindTexture(1, "");
 //	TextureHandler::getSingleton().bindTexture(0, "");
