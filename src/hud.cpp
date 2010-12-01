@@ -33,7 +33,8 @@ void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)
 	level_max_z = z;
 }
 
-void Hud::setLocalPlayerName(const std::string& name)
+// TODO: These are pointless. HUD has units map and local player ID stored, so doesnt need function calls to deduce these things..
+void Hud::setLocalPlayerName(const string& name)
 {
 	plr_name = name;
 }
@@ -109,6 +110,42 @@ void Hud::drawStatusBar() const
 void Hud::drawBanner() const
 {
 	drawString("World of Apo");
+}
+
+void Hud::drawAmmo() const
+{
+	Unit& myUnit = units->find(myID)->second;
+	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
+	int clip_ammo = myUnit.weapons[myUnit.weapon].intVals["CLIP_BULLETS"];
+	
+	stringstream ammo;
+	string colorCode;
+	
+	int numAmmo = myUnit.intVals[ammotype];
+	
+	if(numAmmo > 50)
+	{
+		colorCode = "^G";
+	}
+	else if(numAmmo > 35)
+	{
+		colorCode = "^g";
+	}
+	else if(numAmmo > 20)
+	{
+		colorCode = "^Y";
+	}
+	else if(numAmmo > 10)
+	{
+		colorCode = "^y";
+	}
+	else
+	{
+		colorCode = "^R";
+	}
+	
+	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
+	drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
 }
 
 void Hud::drawZombiesLeft() const
@@ -197,6 +234,7 @@ void Hud::draw(bool firstPerson)
 	drawBanner();
 	drawStats();
 	drawFPS();
+	drawAmmo();
 }
 
 void Hud::setShowStats(bool _showStats) {
@@ -211,7 +249,7 @@ void Hud::drawStats() const
 	int i = 0;
 	for(map<int, PlayerInfo>::iterator iter = Players->begin(); iter != Players->end(); iter++)
 	{
-		if (iter->first < 0)
+		if(iter->first < 0)
 		  continue;
 		stringstream line;
 		line << iter->second.name << " " << iter->second.kills << "/" << iter->second.deaths;

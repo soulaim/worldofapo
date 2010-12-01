@@ -59,9 +59,10 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 		int int_damage = damage.getInteger();
 		if(int_damage > 0)
 		{
-			iter->second.hitpoints -= int_damage;
-			iter->second.last_damage_dealt_by = owner;
-			iter->second("DAMAGED_BY") = name;
+			Unit& u = iter->second;
+			u.takeDamage(int_damage);
+			u.last_damage_dealt_by = owner;
+			u("DAMAGED_BY") = name;
 		}
 		
 		iter->second.velocity += velocity_vector;
@@ -223,7 +224,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	if(bestSquaredDistance < FixedPoint(9))
 	{
 		// DEVOUR!
-		target.hitpoints -= 173; // devouring does LOTS OF DAMAGE!
+		target.takeDamage(173); // devouring does LOTS OF DAMAGE!
 		target.last_damage_dealt_by = unit.id;
 		target("DAMAGED_BY") = "devour";
 		
@@ -400,6 +401,11 @@ void World::terminate()
 
 void World::tickUnit(Unit& unit, Model* model)
 {
+	if(unit.intVals["D"] > 0)
+	{
+		unit.intVals["D"] *= 0.98;
+	}
+	
 	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
 	{
 		generateInput_RabidAlien(unit);
@@ -407,6 +413,11 @@ void World::tickUnit(Unit& unit, Model* model)
 	else if(unit.controllerTypeID == Unit::INANIMATE_OBJECT)
 	{
 		// hmm?
+	}
+	
+	if(unit.getKeyAction(Unit::RELOAD))
+	{
+		unit.weapons[unit.weapon].reload(unit);
 	}
 	
 	unit.soundInfo = "";
@@ -443,7 +454,7 @@ void World::tickUnit(Unit& unit, Model* model)
 			{
 				unit.velocity.x *= FixedPoint(10, 100);
 				unit.velocity.z *= FixedPoint(10, 100);
-				unit.hitpoints  -= damage_int * damage_int / 500;
+				unit.takeDamage(damage_int * damage_int / 500);
 			}
 		}
 		
@@ -563,7 +574,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.weapons[unit.weapon].tick();
 	if(unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		unit.weapons[unit.weapon].onUse();
+		unit.weapons[unit.weapon].onUse(*this, unit);
 	}
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
@@ -867,7 +878,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		cerr << "FUCK FUCK FUCK FUCK FUCK" << endl;
 	
 	units[id] = Unit();
-	units[id].init(*this);
+	units[id].init();
 	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	

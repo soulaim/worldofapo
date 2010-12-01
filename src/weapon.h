@@ -16,15 +16,10 @@ class Unit;
 
 class Weapon : public Item, public HasProperties
 {
-	World* world;
-	Unit* unit;
-	
 	Projectile proto_projectile;
 public:
 	
-	Weapon(World* w, Unit* u, const std::string& fileName):
-		world(w),
-		unit(u)
+	Weapon(const std::string& fileName)
 	{
 		load(fileName);
 		
@@ -35,18 +30,13 @@ public:
 	}
 	
 	void generatePrototypeProjectile();
-	void fire();
 	
-	void tick()
-	{
-		if(intVals["CD_LEFT"] > 0)
-			--intVals["CD_LEFT"];
-	}
+	void reload(Unit& user);
+	void fire(World& world, Unit& user);
 	
-	void onUse()
-	{
-		fire();
-	}
+	void onUse(World& world, Unit& user);
+	void tick();
+	
 };
 
 #endif

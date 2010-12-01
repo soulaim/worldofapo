@@ -228,6 +228,9 @@ void Graphics::initShaders()
 	uniform_locations["grass_scale"] = glGetAttribLocation(shaders["grass_program"], "scale");
 	glUniform1i(uniform_locations["grass_texture"], 0);
 
+	glUseProgram(shaders["blur_program"]);
+	uniform_locations["blur_amount"] = glGetUniformLocation(shaders["blur_program"], "amount");
+
 	glUseProgram(0);
 
 	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)

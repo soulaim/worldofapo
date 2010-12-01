@@ -28,6 +28,7 @@ class Unit : public HasProperties, public OctreeObject
 			JUMP         = 16,
 			LEAP_LEFT    = 32,
 			LEAP_RIGHT   = 64,
+			RELOAD       = 1<<16,
 			WEAPON1      = 1<<20,
 			WEAPON2      = 1<<21,
 			WEAPON3      = 1<<22,
@@ -84,6 +85,8 @@ class Unit : public HasProperties, public OctreeObject
 		int getMouseAction(int type) const;
 		bool human() const;
 		
+		void takeDamage(int);
+		
 		std::string copyOrder(int ID) const;
 		void handleCopyOrder(std::stringstream& ss);
 		
@@ -93,7 +96,7 @@ class Unit : public HasProperties, public OctreeObject
 		Location bb_bot() const;
 		void collides(OctreeObject&);
 
-		void init(World& w);
+		void init();
 		void switchWeapon(unsigned);
 
 		bool operator<(const Unit& u) const;

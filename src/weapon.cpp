@@ -25,17 +25,63 @@ void Weapon::generatePrototypeProjectile()
 	proto_projectile.prototype_model = proto_projectile["MODEL_PROTOTYPE"];
 }
 
-void Weapon::fire()
+void Weapon::onUse(World& world, Unit& user)
+{
+	if(intVals["CLIP_BULLETS"] == 0)
+	{
+		reload(user);
+		return;
+	}
+	
+	fire(world, user);
+}
+
+void Weapon::tick()
 {
 	if(intVals["CD_LEFT"] > 0)
+		--intVals["CD_LEFT"];
+	
+	if(intVals["RELOAD"])
+		--intVals["RELOAD"];
+}
+
+inline int min(const int a, const int b)
+{
+	return (a < b)?a:b;
+}
+
+void Weapon::reload(Unit& user)
+{
+	std::string& ammotype = strVals["AMMUNITION_TYPE"];
+	int& ammo             = user.intVals[ammotype];
+	int& clip_ammo        = intVals["CLIP_BULLETS"];
+	
+	int ammo_change = min(intVals["CLIP_SIZE"] - clip_ammo, ammo);
+	
+	// if theres nothing to reload, don't reload.
+	if(ammo_change == 0)
+		return;
+	
+	intVals["RELOAD"] = intVals["RELOAD_TIME"];
+	clip_ammo += ammo_change;
+	ammo      -= ammo_change; // reduce ammunition
+}
+
+
+void Weapon::fire(World& world, Unit& user)
+{
+	if(intVals["CD_LEFT"] > 0 || intVals["RELOAD"])
 	{
 		return;
 	}
 	
-	unit->soundInfo = strVals["FIRE_SOUND"];
+	// shooting may now begin!
+	--intVals["CLIP_BULLETS"];
 	
-	Location weapon_position = unit->getPosition();
-	Location projectile_direction = unit->getLookDirection();
+	user.soundInfo = strVals["FIRE_SOUND"];
+	
+	Location weapon_position = user.getPosition();
+	Location projectile_direction = user.getLookDirection();
 	
 	weapon_position.y += 4;
 	// projectile_direction.y += 4;
@@ -43,29 +89,29 @@ void Weapon::fire()
 	size_t model_prototype = proto_projectile.prototype_model;
 	
 	if(intVals["FIRE_LIGHT_LIFE"] > 0)
-		world->visualworld->weaponFireLight(world->nextUnitID(), unit->position, intVals["FIRE_LIGHT_LIFE"], intVals["FIRE_LIGHT_R"], intVals["FIRE_LIGHT_G"], intVals["FIRE_LIGHT_B"]);
+		world.visualworld->weaponFireLight(world.nextUnitID(), user.position, intVals["FIRE_LIGHT_LIFE"], intVals["FIRE_LIGHT_R"], intVals["FIRE_LIGHT_G"], intVals["FIRE_LIGHT_B"]);
 	
 	for(int i=0; i<intVals["PROJECTILES_PER_USE"]; ++i)
 	{
-		int id = world->nextUnitID();
-		world->addProjectile(weapon_position, id, model_prototype);
-		Projectile& projectile = world->projectiles[id];
+		int id = world.nextUnitID();
+		world.addProjectile(weapon_position, id, model_prototype);
+		Projectile& projectile = world.projectiles[id];
 		
 		projectile.intVals = proto_projectile.intVals;
 		projectile.strVals = proto_projectile.strVals;
 		
 		projectile["ID"]     = id;
-		projectile["OWNER"]  = unit->id;
+		projectile["OWNER"]  = user.id;
 		
 		// need to move projectile out of self-range (don't want to shoot self LOL)
 		projectile_direction.normalize();
-		projectile.velocity = projectile_direction * FixedPoint(9, 2); // this might also mean that it's impossible to hit a target that is very close, since the bullet spawns on the other side.
+		projectile.velocity = projectile_direction * FixedPoint(9, 2);
 		projectile.tick();
 		
 		assert((projectile["TPF"] != 0) && strVals["NAME"].c_str());
 		
 		FixedPoint speedPerTick(intVals["CHILD_SPEED_TOP"], intVals["CHILD_SPEED_BOT"]);
-		projectile.velocity = projectile_direction * speedPerTick + unit->getVelocity() / projectile["TPF"];
+		projectile.velocity = projectile_direction * speedPerTick + user.getVelocity() / projectile["TPF"];
 		
 		// variance term for velocity
 		if(intVals["HAS_VARIANCE"])

@@ -104,10 +104,13 @@ public:
 	std::unordered_map<std::string, std::string> strVals;
 };
 
+class World;
+class Unit;
+
 class Item
 {
 public:
-	virtual void onUse() = 0;
+	virtual void onUse(World&, Unit&) = 0;
 	
 };
 
