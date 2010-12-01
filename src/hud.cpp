@@ -116,6 +116,7 @@ void Hud::drawAmmo() const
 {
 	Unit& myUnit = units->find(myID)->second;
 	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
+	int clip_ammo = myUnit.weapons[myUnit.weapon].intVals["CLIP_BULLETS"];
 	
 	stringstream ammo;
 	string colorCode;
@@ -143,7 +144,7 @@ void Hud::drawAmmo() const
 		colorCode = "^R";
 	}
 	
-	ammo << "^Y" << ammotype << ": " << colorCode << numAmmo;
+	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
 	drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
 }
 

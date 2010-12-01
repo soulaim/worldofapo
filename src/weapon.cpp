@@ -34,18 +34,40 @@ void Weapon::tick()
 {
 	if(intVals["CD_LEFT"] > 0)
 		--intVals["CD_LEFT"];
+	
+	if(intVals["RELOAD"])
+		--intVals["RELOAD"];
+}
+
+inline int min(const int& a, const int& b)
+{
+	return (a < b)?a:b;
 }
 
 void Weapon::fire(World& world, Unit& user)
 {
 	std::string& ammotype = strVals["AMMUNITION_TYPE"];
-	int& ammo        = user.intVals[ammotype];
-	if(intVals["CD_LEFT"] > 0 || ammo == 0)
+	int& ammo             = user.intVals[ammotype];
+	if(intVals["CD_LEFT"] > 0 || intVals["RELOAD"])
 	{
 		return;
 	}
 	
-	--ammo; // reduce ammunition
+	if(intVals["CLIP_BULLETS"] == 0)
+	{
+		// if theres nothing to reload with, don't reload.
+		if(ammo == 0)
+			return;
+		
+		intVals["RELOAD"] = intVals["RELOAD_TIME"];
+		int ammo_change = min(intVals["CLIP_SIZE"], ammo);
+		intVals["CLIP_BULLETS"] = ammo_change;
+		ammo -= ammo_change; // reduce ammunition
+		return;
+	}
+	
+	// shooting may now begin!
+	--intVals["CLIP_BULLETS"];
 	
 	user.soundInfo = strVals["FIRE_SOUND"];
 	
