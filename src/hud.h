@@ -65,6 +65,8 @@ private:
 
 	std::map<int, PlayerInfo>* Players;
 	std::map<int, Unit>* units;
+	
+public:
 	int myID;
 };
 

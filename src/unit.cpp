@@ -21,6 +21,12 @@ Unit::Unit():
 	type = OctreeObject::UNIT;
 }
 
+void Unit::takeDamage(int damage)
+{
+	hitpoints -= damage;
+	intVals["D"] += damage;
+}
+
 void Unit::zeroMovement()
 {
 	velocity.x = 0;

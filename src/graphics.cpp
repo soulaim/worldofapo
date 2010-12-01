@@ -1066,7 +1066,8 @@ void Graphics::draw(
 
 	hud.draw(camera_p->isFirstPerson());
 
-	finishDrawing();
+	int blur = units.find(hud.myID)->second["D"];
+	finishDrawing(blur);
 }
 
 void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, Model*>& models)
@@ -1087,7 +1088,7 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 	}
 }
 
-void Graphics::finishDrawing()
+void Graphics::finishDrawing(int blur)
 {
 	STRINGS.clear();
 	
@@ -1100,12 +1101,13 @@ void Graphics::finishDrawing()
 	TextureHandler::getSingleton().bindTexture(0, "tmp");
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluPerspective(90, aspect_ratio, nearP, farP);
+	// gluPerspective(90, aspect_ratio, nearP, farP);
 	glMatrixMode(GL_MODELVIEW);
 	// glViewport(0, 0, 800, 600);
 	
-	// glUseProgram(shaders["blur_program"]);
-
+	glUseProgram(shaders["blur_program"]);
+	glUniform1f(uniform_locations["blur_amount"], float(blur));
+	
 	glDisable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	

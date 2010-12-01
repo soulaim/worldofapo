@@ -85,6 +85,8 @@ class Unit : public HasProperties, public OctreeObject
 		int getMouseAction(int type) const;
 		bool human() const;
 		
+		void takeDamage(int);
+		
 		std::string copyOrder(int ID) const;
 		void handleCopyOrder(std::stringstream& ss);
 		
