@@ -4,6 +4,7 @@
 varying out vec2 texcoord;
 varying in float scale_var[];
 
+
 void main()
 {
 	gl_FrontColor = gl_FrontColorIn[0];

@@ -1,0 +1,32 @@
+uniform sampler2D tex;
+uniform sampler2D depthTex;
+
+varying vec2 vTexCoord;
+
+float LinearizeDepth(float z)
+{
+	float n = 1.0; // camera z near
+	float f = 200.0; // camera z far
+	return (2.0 * n) / (f + n - z * (f - n));
+}
+
+void main()
+{
+	vec4 tmp1 = texture2D(tex, vTexCoord.st);
+	vec4 tmp2 = texture2D(depthTex, vTexCoord.st);
+	
+	if(gl_FragCoord.x < 400.0)
+	{
+		gl_FragColor = tmp1;
+	}
+	else
+	{
+		float z = tmp2.r;
+		z = LinearizeDepth(z);
+		tmp2 = vec4(z, z, z, 1.0);
+		gl_FragColor = tmp2;
+	}
+
+//	gl_FragColor = vec4(tmp.r, tmp.g, tmp.b * 0.5, 1.0);
+}
+

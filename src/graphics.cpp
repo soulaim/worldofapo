@@ -815,6 +815,9 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_BLEND);
 
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+
 	glUseProgram(0);
 }
 
@@ -838,7 +841,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
-	// glDepthFunc(GL_ALWAYS);
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
@@ -864,7 +866,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	}
 	glEnd();
 	
-	TextureHandler::getSingleton().bindTexture(1, "");
 	
 	/*
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
@@ -898,6 +899,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	*/
 	
 	glUseProgram(0);
+	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDepthFunc(GL_LESS);
@@ -1013,7 +1015,6 @@ void Graphics::draw(
 	
 	startDrawing();
 	
-	
 	drawSkybox();
 	
 	if(drawDebuglines)
@@ -1039,8 +1040,9 @@ void Graphics::draw(
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 		
-		TextureHandler::getSingleton().bindTexture(1, "");
 		TextureHandler::getSingleton().bindTexture(2, "");
+		TextureHandler::getSingleton().bindTexture(1, "");
+		TextureHandler::getSingleton().bindTexture(0, "");
 	}
 	
 	if(drawDebuglines)
@@ -1104,6 +1106,7 @@ void Graphics::finishDrawing(int blur)
 	glLoadIdentity();
 	
 	TextureHandler::getSingleton().bindTexture(0, "tmp");
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	// gluPerspective(90, aspect_ratio, nearP, farP);
@@ -1118,6 +1121,9 @@ void Graphics::finishDrawing(int blur)
 	
 	glColor3f(1.0, 1.0, 1.0);
 	
+//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
+//	glUseProgram(shaders["debug_program"]);
+
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
 		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
@@ -1147,6 +1153,9 @@ void Graphics::finishDrawing(int blur)
 	
 	
 	glUseProgram(0);
+
+//	TextureHandler::getSingleton().bindTexture(1, "");
+//	TextureHandler::getSingleton().bindTexture(0, "");
 	
 	window.swap_buffers();
 }
