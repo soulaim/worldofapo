@@ -31,7 +31,9 @@ public:
 	
 	void generatePrototypeProjectile();
 	
+	void reload(Unit& user);
 	void fire(World& world, Unit& user);
+	
 	void onUse(World& world, Unit& user);
 	void tick();
 	

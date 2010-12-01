@@ -409,6 +409,11 @@ void World::tickUnit(Unit& unit, Model* model)
 		// hmm?
 	}
 	
+	if(unit.getKeyAction(Unit::RELOAD))
+	{
+		unit.weapons[unit.weapon].reload(unit);
+	}
+	
 	unit.soundInfo = "";
 	assert(model && "this should never happen");
 

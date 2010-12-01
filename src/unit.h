@@ -28,6 +28,7 @@ class Unit : public HasProperties, public OctreeObject
 			JUMP         = 16,
 			LEAP_LEFT    = 32,
 			LEAP_RIGHT   = 64,
+			RELOAD       = 1<<16,
 			WEAPON1      = 1<<20,
 			WEAPON2      = 1<<21,
 			WEAPON3      = 1<<22,
