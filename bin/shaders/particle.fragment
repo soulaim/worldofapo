@@ -3,47 +3,30 @@ uniform sampler2D particleTexture;
 uniform sampler2D depthTexture;
 
 varying vec2 texcoord;
-// varying vec4 v_position;
 
-const float FAR_CLIP_Z = 500.0;
+float LinearizeDepth(float z)
+{
+	float n = 1.0; // camera z near
+	float f = 200.0; // camera z far
+	return (2.0 * n) / (f + n - z * (f - n));
+}
 
 void main()
 {
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
+
+
+	vec2 depthtexcoord = vec2(gl_FragCoord.x / 800.0, gl_FragCoord.y / 600.0);
+	float screen_z = texture2D(depthTexture, depthtexcoord).r;
+	float particle_z = gl_FragCoord.z;
 	
-	// vec4 color = gl_Color;
-	
-	/*
-	float screen_z = texture2D(depthTexture, gl_FragCoord.xy * 4.0).r;
-	float my_z     = gl_FragCoord.z;
-	
-	if(my_z > screen_z)
-	{
-		gl_FragColor = texture2D(particleTexture, texcoord) * color;
-		// gl_FragColor.a = 0.1;
-	}
-	*/
-	
-	/*
-	float my_z = (gl_FragCoord.z / gl_FragCoord.w);
-	my_z = my_z * 0.5 + 0.5;
-	
-	float val = (my_z - screen_z);
-	
-	if(val < 0.0)
-	{
-		gl_FragColor.r = 1.0;
-		gl_FragColor.g = 0.0;
-		gl_FragColor.b = 0.0;
-		gl_FragColor.a = 1.0;
-	}
-	else
-	{
-		gl_FragColor.r = val;
-		gl_FragColor.g = val;
-		gl_FragColor.b = 0.0;
-		gl_FragColor.a = 1.0;
-	}
-	*/
+	float z1 = LinearizeDepth(screen_z);
+	float z2 = LinearizeDepth(particle_z);
+	float z = z1 - z2;
+
+	float scale = 20.0;
+	float fade = clamp(z * scale, 0.0, 1.0);
+	gl_FragColor.a *= fade;
+
 }
 
