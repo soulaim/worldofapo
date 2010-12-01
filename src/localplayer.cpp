@@ -280,8 +280,16 @@ bool Localplayer::handleClientLocalInput()
 		
 		if(key == "n")
 		{
-			auto iter = world.units.find(game.myID);
-			iter++;
+			auto iter = world.units.find(visualworld.camera.unit_id);
+			if(iter == world.units.end())
+				iter = world.units.begin();
+			else
+			{
+				iter++;
+				if(iter == world.units.end())
+					iter = world.units.begin();
+			}
+			
 			if(iter != world.units.end())
 			{
 				visualworld.bindCamera(&world.units[iter->first]);
@@ -293,11 +301,10 @@ bool Localplayer::handleClientLocalInput()
 		
 		if(key == "p")
 		{
-			auto iter = world.units.find(game.myID);
+			auto iter = world.units.find(visualworld.camera.unit_id);
 			if(iter != world.units.begin())
 			{
 				iter--;
-				iter->first;
 				visualworld.bindCamera(&world.units[iter->first]);
 				std::stringstream ss_msg;
 				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;

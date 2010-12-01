@@ -48,27 +48,28 @@ public:
 	float nearP;
 	float farP;
 	
+	int unit_id;
+	
 private:
 	
 	void getRelativePos(Vec3&);
 	
 	Vec3 position;
 	Vec3 fps_direction;
-
+	
 	// Lagging dudes
 	Vec3 currentPosition;
 	Vec3 currentRelative;
 	Vec3 currentTarget;
-
+	
 	float cur_sin;
 	float cur_cos;
 	float cur_upsin;
 	float cur_upcos;
 	
-	int unit_id;
 	Unit* unit;
 	FollowMode mode;
-
+	
 	void fpsTick();
 	void relativeTick();
 	void staticTick();

@@ -55,33 +55,29 @@ bool Camera::unitDie(int id)
 
 const Location& Camera::getUnitLocation() const
 {
+	static Location lastPos;
 	if(unit)
-	{
-		return unit->getPosition();
-	}
-	
-	static Location zero;
-	return zero;
+		lastPos = unit->getPosition();
+	return lastPos;
 }
 
 Vec3 Camera::getPosition() const
 {
-	if(unit)
-	{
+	//if(unit)
+	//{
 		if(mode == RELATIVE)
 		{
 			return currentPosition + currentRelative;
 		}
-		
-		if(mode == FIRST_PERSON)
+		else if(mode == FIRST_PERSON)
 		{
 			return currentPosition;
 		}
 		
 		return currentPosition;
-	}
+	//}
 	
-	return position;
+	//return position;
 }
 
 void Camera::tick()
@@ -276,21 +272,17 @@ void Camera::zoomOut()
 
 float Camera::getXrot()
 {
+	static float x_rot = 0.f;
 	if(unit)
-	{
-		return ApoMath().getDegrees(unit->angle);
-	}
-	
-	return 0.f;
+		x_rot = ApoMath().getDegrees(unit->angle);
+	return x_rot;
 }
 
 float Camera::getYrot()
 {
+	static float y_rot = 0.f;
 	if(unit)
-	{
-		return ApoMath().getDegrees(unit->upangle);
-	}
-	
-	return 0.f;
+		y_rot = ApoMath().getDegrees(unit->upangle);
+	return y_rot;
 }
 
