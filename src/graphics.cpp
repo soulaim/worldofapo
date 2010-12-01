@@ -158,6 +158,12 @@ void Graphics::init(Camera& camera)
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
 	
+	glGenFramebuffersEXT(1, &postFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
+	TextureHandler::getSingleton().createTexture("pp_tmp", 800, 600);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("pp_tmp"), 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
+	
 	glGenFramebuffersEXT(1, &particlesFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
 	TextureHandler::getSingleton().createTexture("tmp_particles", 200, 150);
@@ -1092,8 +1098,7 @@ void Graphics::finishDrawing(int blur)
 {
 	STRINGS.clear();
 	
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	// glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -1120,6 +1125,26 @@ void Graphics::finishDrawing(int blur)
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
 	glEnd();
 	glEnable(GL_DEPTH_TEST);
+	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
+	
+	glUseProgram(shaders["blur_program2"]);
+	glUniform1f(uniform_locations["blur_amount2"], float(blur));
+	
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+	
 	
 	glUseProgram(0);
 	

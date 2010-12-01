@@ -132,6 +132,14 @@ void Graphics::initShaders()
 	glLinkProgram(shaders["blur_program"]);
 	printLog(shaders["blur_program"]);
 	
+	loadFragmentShader("blur_frag2", "shaders/blur_horizontalpass.fragment");
+	// loadVertexShader("blur_vert", "shaders/blur.vertex");
+	shaders["blur_program2"] = glCreateProgram();
+	glAttachShader(shaders["blur_program2"], shaders["blur_frag2"]);
+	glAttachShader(shaders["blur_program2"], shaders["blur_vert"]);
+	glLinkProgram(shaders["blur_program2"]);
+	printLog(shaders["blur_program2"]);
+	
 	
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
 	loadVertexShader("unit_vert", "shaders/unit.vertex");
@@ -216,6 +224,9 @@ void Graphics::initShaders()
 
 	glUseProgram(shaders["blur_program"]);
 	uniform_locations["blur_amount"] = glGetUniformLocation(shaders["blur_program"], "amount");
+	
+	glUseProgram(shaders["blur_program2"]);
+	uniform_locations["blur_amount2"] = glGetUniformLocation(shaders["blur_program2"], "amount");
 
 	glUseProgram(0);
 

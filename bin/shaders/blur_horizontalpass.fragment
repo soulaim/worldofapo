@@ -1,12 +1,10 @@
 
-uniform float amount;
 uniform sampler2D BlurScene;
 varying vec2 vTexCoord;
+varying float blurSize;
 
 void main(void)
 {
-	float blurSize = amount / 2048.0;
-	
 	vec4 sum = vec4(0.0);
 	sum += texture2D(BlurScene, vec2(vTexCoord.x - 4.0*blurSize, vTexCoord.y)) * 0.06;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x - 3.0*blurSize, vTexCoord.y)) * 0.09;

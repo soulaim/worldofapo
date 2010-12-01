@@ -729,7 +729,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					Location distance_vector = projectile.position + Location(0, 2, 0) - u->position; // TODO: Point to point distance is maybe not ideal.
 					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
 					{
-						u->hitpoints -= projectile["DISTANCE_DAMAGE"];
+						u->takeDamage(projectile["DISTANCE_DAMAGE"]);
 						u->last_damage_dealt_by = projectile_owner;
 						(*u)("DAMAGED_BY") = projectile_name;
 					}
@@ -757,7 +757,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				}
 				else
 				{
-					u->hitpoints -= projectile["DAMAGE"]; // does damage according to weapon definition :)
+					u->takeDamage(projectile["DAMAGE"]); // does damage according to weapon definition :)
 					u->last_damage_dealt_by = projectile_owner;
 					(*u)("DAMAGED_BY") = projectile_name;
 				}
