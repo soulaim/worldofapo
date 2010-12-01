@@ -22,7 +22,7 @@ public:
 	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
 	void tickLights(const std::map<int, Unit>& units);
 	
-	void init(const Level& lvl);
+	void init();
 	void terminate();
 	void tickParticles();
 	void viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame);

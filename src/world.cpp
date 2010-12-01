@@ -379,7 +379,7 @@ void World::init()
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
 	visualworld->lights[nextUnitID()] = tmp_light;
 
-	visualworld->init(lvl);
+	visualworld->init();
 
 	show_errors = 0;
 }

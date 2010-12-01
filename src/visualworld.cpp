@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void VisualWorld::init(const Level&)
+void VisualWorld::init()
 {
 	cerr << "VisualWorld init" << endl;
 	assert(models.empty());

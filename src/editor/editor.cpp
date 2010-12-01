@@ -48,12 +48,14 @@ Editor::Editor():
 	selected_part = 0;
 	selected_dot = 0;
 	userio.init();
+	visualworld.init();
 
-	TextureHandler::getSingleton().createTextures("data/textures.txt");
-	
 	view.init(visualworld.camera);
 	visualworld.bindCamera(&dummy);
 //	view.toggleLightingStatus();
+
+	TextureHandler::getSingleton().createTextures("data/textures.txt");
+	
 
 //	handle_command("load objects model.parts");
 //	handle_command("load model model.bones");
@@ -235,7 +237,8 @@ bool Editor::tick()
 		{
 			it->second->tick(it->second->animation_time + 1);
 		}
-
+	
+		visualworld.camera.tick();
 		visualworld.tickParticles();
 
 		return do_tick();
