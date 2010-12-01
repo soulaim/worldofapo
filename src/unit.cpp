@@ -253,13 +253,13 @@ void Unit::collides(OctreeObject& o)
 	}
 }
 
-void Unit::init(World& w)
+void Unit::init()
 {
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_shotgun.dat"));
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_mgun.dat"));
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_flame.dat"));
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_railgun.dat"));
-	weapons.push_back(Weapon(&w, this, "data/items/weapon_rocket.dat"));
+	weapons.push_back(Weapon("data/items/weapon_shotgun.dat"));
+	weapons.push_back(Weapon("data/items/weapon_mgun.dat"));
+	weapons.push_back(Weapon("data/items/weapon_flame.dat"));
+	weapons.push_back(Weapon("data/items/weapon_railgun.dat"));
+	weapons.push_back(Weapon("data/items/weapon_rocket.dat"));
 	weapon = 1;
 }
 

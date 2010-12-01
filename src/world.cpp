@@ -563,7 +563,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.weapons[unit.weapon].tick();
 	if(unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
-		unit.weapons[unit.weapon].onUse();
+		unit.weapons[unit.weapon].onUse(*this, unit);
 	}
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
@@ -867,7 +867,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		cerr << "FUCK FUCK FUCK FUCK FUCK" << endl;
 	
 	units[id] = Unit();
-	units[id].init(*this);
+	units[id].init();
 	units[id].position = lvl.getRandomLocation(currentWorldFrame);
 	units[id].id = id;
 	

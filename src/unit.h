@@ -93,7 +93,7 @@ class Unit : public HasProperties, public OctreeObject
 		Location bb_bot() const;
 		void collides(OctreeObject&);
 
-		void init(World& w);
+		void init();
 		void switchWeapon(unsigned);
 
 		bool operator<(const Unit& u) const;
