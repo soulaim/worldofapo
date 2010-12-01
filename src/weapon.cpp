@@ -38,10 +38,14 @@ void Weapon::tick()
 
 void Weapon::fire(World& world, Unit& user)
 {
-	if(intVals["CD_LEFT"] > 0)
+	std::string& ammotype = strVals["AMMUNITION_TYPE"];
+	int& ammo        = user.intVals[ammotype];
+	if(intVals["CD_LEFT"] > 0 || ammo == 0)
 	{
 		return;
 	}
+	
+	--ammo; // reduce ammunition
 	
 	user.soundInfo = strVals["FIRE_SOUND"];
 	

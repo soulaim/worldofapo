@@ -260,6 +260,12 @@ void Unit::init()
 	weapons.push_back(Weapon("data/items/weapon_flame.dat"));
 	weapons.push_back(Weapon("data/items/weapon_railgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_rocket.dat"));
+	
+	for(size_t i=0; i<weapons.size(); i++)
+	{
+		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 50;
+	}
+	
 	weapon = 1;
 }
 

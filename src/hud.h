@@ -40,6 +40,7 @@ public:
 	void drawMinimap() const;
 	void drawFPS();
 	void drawStats() const;
+	void drawAmmo() const;
 	void draw(bool firstPerson);
 
 	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle, int team = 0) const;
@@ -56,6 +57,8 @@ private:
 	std::string plr_name;
 	bool showStats;
 	int zombieCount;
+	int plr_ID;
+	
 	Location unit_location;
 	unsigned currentTime;
 	int world_ticks;
