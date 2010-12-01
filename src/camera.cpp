@@ -120,18 +120,36 @@ void Camera::updateInput(int keystate)
 {
 	if(mode == STATIC)
 	{
+		float wtf = position.length();
+		
 		Vec3 delta = (currentTarget - currentPosition);
 		delta.normalize();
-		delta *= position.length() / 30.0;
+		
+		Vec3 delta_sides = delta * Vec3(0.0f, 1.0f, 0.0f);
+		delta_sides.normalize();
+		
+		delta *=  wtf / 30.0f;
+		delta_sides *= wtf / 30.0f;
+		
+		if(keystate & 2)
+		{
+			currentPosition += delta_sides;
+			currentTarget   += delta_sides;
+		}
+		if(keystate & 1)
+		{
+			currentPosition -= delta_sides;
+			currentTarget   -= delta_sides;
+		}
 		if(keystate & 4)
 		{
 			currentPosition += delta;
-			currentTarget += delta;
+			currentTarget   += delta;
 		}
 		if(keystate & 8)
 		{
 			currentPosition -= delta;
-			currentTarget -= delta;
+			currentTarget   -= delta;
 		}
 	}
 
@@ -190,7 +208,10 @@ void Camera::staticTick()
 	double angle2 = math.getDegrees(unit->upangle) + 90;
 	Matrix4 rotation1(0, angle1, 0, 0,0,0);
 	Matrix4 rotation2(0, 0, angle2, 0,0,0);
-
+	
+	// Vec3 relative_position;
+	// getRelativePos(relative_position);
+	
 	currentTarget = currentPosition + rotation1 * rotation2 * position;
 }
 

@@ -38,13 +38,13 @@ public:
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
-
+	
 	std::vector<std::string> worldMessages;
 	std::vector<WorldEvent> events;
-
+	
 	std::vector<ParticleSource> psources;
 	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
-
+	
 	std::vector<Vec3> meadows;
 	std::vector<Vec3> winds;
 	
