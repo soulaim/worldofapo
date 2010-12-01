@@ -7,6 +7,8 @@
 #include "worldevent.h"
 #include "level.h"
 
+#include "camera.h"
+
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld
 {
@@ -45,6 +47,10 @@ public:
 
 	std::vector<Vec3> meadows;
 	std::vector<Vec3> winds;
+	
+	Camera camera;
+	void setCamera(const Camera& camera);
+	void bindCamera(Unit* unit);
 };
 
 #endif

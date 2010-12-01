@@ -25,6 +25,7 @@
 #include <queue>
 #include <map>
 #include <set>
+#include <sstream>
 
 Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h):
 	client_input_state(0),
@@ -59,7 +60,8 @@ void Localplayer::init()
 	soundsystem.init();
 	game.init();
 	userio->init();
-
+	view->init(visualworld.camera);
+	
 	hud->setPlayerInfo(&game.Players);
 	hud->setUnitsMap(&world.units);
 
@@ -282,9 +284,10 @@ bool Localplayer::handleClientLocalInput()
 			iter++;
 			if(iter != world.units.end())
 			{
-				game.myID = iter->first;
-				view->bindCamera(&world.units[game.myID]);
-				world.add_message("Increased value of myID!");
+				visualworld.bindCamera(&world.units[iter->first]);
+				std::stringstream ss_msg;
+				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;
+				world.add_message(ss_msg.str());
 			}
 		}
 		
@@ -294,9 +297,11 @@ bool Localplayer::handleClientLocalInput()
 			if(iter != world.units.begin())
 			{
 				iter--;
-				game.myID = iter->first;
-				view->bindCamera(&world.units[game.myID]);
-				world.add_message("Decreased value of myID!");
+				iter->first;
+				visualworld.bindCamera(&world.units[iter->first]);
+				std::stringstream ss_msg;
+				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;
+				world.add_message(ss_msg.str());
 			}
 		}
 		
@@ -396,7 +401,7 @@ void Localplayer::handleWorldEvents()
 				if( (world.units.find(event.actor_id) != world.units.end()) )
 				{
 					std::cerr << "Binding camera to unit " << event.actor_id << std::endl;
-					view->bindCamera(&world.units.find(event.actor_id)->second);
+					visualworld.bindCamera(&world.units.find(event.actor_id)->second);
 				}
 				break;
 			}

@@ -30,7 +30,6 @@ class Window;
 
 class Graphics
 {
-	void init();
 	void initLight();
 	
 	void createWindow();
@@ -46,16 +45,16 @@ class Graphics
 	void drawParticles_vbo(std::vector<Particle>&);
 	void updateCamera(const Level&);
 	void finishDrawing();
-
+	
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
 	void drawDebugStrings();
 	void drawDebugLevelNormals(const Level& lvl);
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
-
+	
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
 //	void setActiveLights(const std::map<int, LightObject>&, const Location&);
-
+	
 	void loadVertexShader(const std::string& name, const std::string& filename);
 	void loadFragmentShader(const std::string& name, const std::string& filename);
 	void loadGeometryShader(const std::string& name, const std::string& filename);
@@ -65,7 +64,7 @@ class Graphics
 	
 	std::vector<BTT_Triangle> level_triangles;
 	
-	Camera camera;
+	Camera* camera_p;
 	
 	GLint MAX_NUM_LIGHTS;
 	GLint MAX_NUM_ACTIVE_LIGHTS;
@@ -82,15 +81,13 @@ class Graphics
 	Hud& hud;
 	
 public:
+	void init(Camera&);
 	void initShaders(); // Public for debugging.
 	void releaseShaders();
-
-	friend class Editor;
-
-	void bindCamera(Unit* unit);
-	void updateInput(int keystate);
 	
-	void setCamera(const Camera& camera);
+	friend class Editor;
+	
+	void updateInput(int keystate);
 	
 	void draw(
 		const Level& lvl,
@@ -100,26 +97,26 @@ public:
 		const std::map<int, Unit>& units // For debug.
 		);
 	void drawMenu(const std::vector<MenuButton>&) const;
-
+	
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
 	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
-
+	
 	void drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds);
 	void drawPlayerNames(const std::map<int, Unit>& units, const std::map<int, Model*>& models);
 	
 	void toggleLightingStatus();
 	void toggleWireframeStatus();
 	void toggleFullscreen();
-
+	
 	void zoom_in();
 	void zoom_out();
 	void tick();
 	void world_tick(Level& lvl, const std::map<int, LightObject>&);
 	
 	void depthSortParticles(Vec3&, std::vector<Particle>&);
-
+	
 	Graphics(const Window& window, Hud& hud);
 	~Graphics();
 	FrustumR frustum;

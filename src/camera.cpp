@@ -42,6 +42,17 @@ void Camera::setAboveGround(float min_cam_y)
 	}
 }
 
+bool Camera::unitDie(int id)
+{
+	if(id == unit_id)
+	{
+		unit = 0;
+		return true;
+	}
+	
+	return false;
+}
+
 const Location& Camera::getUnitLocation() const
 {
 	if(unit)
@@ -96,6 +107,7 @@ void Camera::bind(Unit* unit, FollowMode mode)
 {
 	this->unit = unit;
 	this->mode = mode;
+	this->unit_id = unit->id;
 }
 
 void Camera::setMode(FollowMode mode)

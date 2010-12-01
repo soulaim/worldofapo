@@ -929,10 +929,9 @@ int World::currentUnitID() const
 void World::removeUnit(int id)
 {
 	// Note that same id might be removed twice on the same frame!
-
+	
 	units.erase(id);
 	projectiles.erase(id);
-
 	visualworld->removeUnit(id);
 }
 

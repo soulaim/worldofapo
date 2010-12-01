@@ -26,7 +26,9 @@ public:
 	Vec3& getTarget();
 	Vec3 getPosition() const;
 	const Location& getUnitLocation() const;
-
+	
+	bool unitDie(int id);
+	
 	void tick();
 
 	float getXrot();
@@ -63,6 +65,7 @@ private:
 	float cur_upsin;
 	float cur_upcos;
 	
+	int unit_id;
 	Unit* unit;
 	FollowMode mode;
 

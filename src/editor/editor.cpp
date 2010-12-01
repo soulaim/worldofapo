@@ -50,8 +50,9 @@ Editor::Editor():
 	userio.init();
 
 	TextureHandler::getSingleton().createTextures("data/textures.txt");
-
-	view.bindCamera(&dummy);
+	
+	view.init(visualworld.camera);
+	visualworld.bindCamera(&dummy);
 //	view.toggleLightingStatus();
 
 //	handle_command("load objects model.parts");

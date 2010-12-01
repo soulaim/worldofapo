@@ -26,10 +26,10 @@ vector<pair<Vec3,string> > STRINGS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
-bool near(const Camera& camera, const Vec3& position)
+bool near(const Camera* camera, const Vec3& position)
 {
 	float dist = 100.0;
-	return (camera.getPosition() - position).lengthSquared() < dist * dist;
+	return (camera->getPosition() - position).lengthSquared() < dist * dist;
 }
 
 struct LightDistance
@@ -118,7 +118,7 @@ Graphics::Graphics(const Window& w, Hud& h):
 	window(w),
 	hud(h)
 {
-	init();
+	// init();
 }
 
 Graphics::~Graphics()
@@ -126,10 +126,12 @@ Graphics::~Graphics()
 	releaseShaders();
 }
 
-void Graphics::init()
+void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;
 
+	camera_p = &camera;
+	
 	initShaders();
 
 	glLineWidth(3.0f);
@@ -182,8 +184,8 @@ void Graphics::init()
 	TextureHandler::getSingleton().createTexture("crosshair", "data/images/crosshair.png");
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
 	
-	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
-	frustum.setCamInternals(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
+	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
+	frustum.setCamInternals(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_CULL_FACE);
@@ -193,11 +195,6 @@ void Graphics::init()
 	lightsActive = false;
 	drawDebuglines = false;
 	drawDebugWireframe = false;
-}
-
-void Graphics::setCamera(const Camera& cam)
-{
-	camera = cam;
 }
 
 void drawNormal(const Level& lvl, int x, int z)
@@ -262,7 +259,7 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(FixedPoint z; z < lvl.max_z(); z += 2)
 		{
 			Vec3 v(x.getFloat(), 0, z.getFloat());
-			if(near(camera, v))
+			if(near(camera_p, v))
 			{
 				v.y = lvl.getHeight(x,z).getFloat();
 				glVertex3f(v.x, v.y, v.z);
@@ -278,7 +275,7 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(int z = 0; z < lvl.max_block_z(); ++z)
 		{
 			Vec3 v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
-			if(near(camera, v))
+			if(near(camera_p, v))
 			{
 				v.y = lvl.getVertexHeight(x,z).getFloat();
 				glVertex3f(v.x, v.y, v.z);
@@ -628,7 +625,7 @@ void Graphics::drawDebugStrings()
 {
 	for(size_t i = 0; i < STRINGS.size(); ++i)
 	{
-		hud.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera.getXrot(), camera.getYrot());
+		hud.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera_p->getXrot(), camera_p->getYrot());
 	}
 }
 
@@ -646,7 +643,7 @@ void Graphics::drawSkybox()
 	glPushMatrix();
 	glLoadIdentity();
 
-	Vec3 ans = camera.getTarget() - camera.getPosition();
+	Vec3 ans = camera_p->getTarget() - camera_p->getPosition();
 	gluLookAt(
 			0,0,0,
 			ans.x, ans.y, ans.z,
@@ -740,7 +737,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = uniform_locations["particle_particleScale"];
 
-	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
+	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
@@ -829,7 +826,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = uniform_locations["particle_particleScale"];
 	
-	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
+	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
 	glEnable(GL_BLEND);
@@ -904,7 +901,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
 void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 {
-	Vec3 direction_vector = camera.getTarget() - camera.getPosition();
+	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(0, "particle");
@@ -916,8 +913,8 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 
 	glBegin(GL_QUADS);
 	
-	float x_angle =  camera.getXrot();
-	float y_angle = -camera.getYrot() - 90.f;
+	float x_angle =  camera_p->getXrot();
+	float y_angle = -camera_p->getYrot() - 90.f;
 	Matrix4 m(y_angle, x_angle, 0.f, 0.f, 0.f, 0.f);
 	
 	Vec3 s1(-1.0f, -1.0f, 0.0f);
@@ -961,12 +958,12 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 
 void Graphics::updateCamera(const Level& lvl)
 {
-	Vec3 camStartPos = camera.getPosition();
+	Vec3 camStartPos = camera_p->getPosition();
 	FixedPoint camX = FixedPoint(camStartPos.x);
 	FixedPoint camZ = FixedPoint(camStartPos.z);
 	
 	float cam_min_y = lvl.getHeight(camX, camZ).getFloat() + 3.f;
-	camera.setAboveGround(cam_min_y);
+	camera_p->setAboveGround(cam_min_y);
 }
 
 void Graphics::startDrawing()
@@ -975,7 +972,7 @@ void Graphics::startDrawing()
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
+	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
 	glMatrixMode(GL_MODELVIEW);
 	
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
@@ -983,8 +980,8 @@ void Graphics::startDrawing()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	Vec3 camPos = camera.getPosition();
-	Vec3 camTarget = camera.getTarget();
+	Vec3 camPos = camera_p->getPosition();
+	Vec3 camTarget = camera_p->getTarget();
 	Vec3 upVector(0.0, 1.0, 0.0);
 
 	glLoadIdentity();
@@ -1067,7 +1064,7 @@ void Graphics::draw(
 
 	drawDebugStrings();
 
-	hud.draw(camera.isFirstPerson());
+	hud.draw(camera_p->isFirstPerson());
 
 	finishDrawing();
 }
@@ -1086,7 +1083,7 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		Vec3 pos = model.currentModelPos;
 		pos.y += 5.0;
 
-		hud.draw3Dstring(iter->second.name, pos, camera.getXrot(), camera.getYrot(), iter->second["TEAM"]);
+		hud.draw3Dstring(iter->second.name, pos, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
 	}
 }
 
@@ -1134,14 +1131,10 @@ void Graphics::drawMedikits(const std::map<int, Medikit>& medikits) {
 	}
 }
 
+// TODO: This could be in visualworld
 void Graphics::updateInput(int keystate)
 {
-	camera.updateInput(keystate);
-}
-
-void Graphics::bindCamera(Unit* unit)
-{
-	camera.bind(unit, Camera::RELATIVE);
+	camera_p->updateInput(keystate);
 }
 
 void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)
@@ -1160,7 +1153,7 @@ void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)
 
 void Graphics::tick()
 {
-	camera.tick();
+	
 }
 
 void Graphics::toggleFullscreen()
@@ -1170,12 +1163,12 @@ void Graphics::toggleFullscreen()
 
 void Graphics::zoom_in()
 {
-	camera.zoomIn();
+	camera_p->zoomIn();
 }
 
 void Graphics::zoom_out()
 {
-	camera.zoomOut();
+	camera_p->zoomOut();
 }
 
 void Graphics::drawBox(const Location& top, const Location& bot,

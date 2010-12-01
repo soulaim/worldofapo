@@ -59,10 +59,10 @@ void VisualWorld::terminate()
 
 void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
 {
-	/*
 	if(active == 0)
 		return;
-	*/
+	
+	camera.tick();
 	
 	for(size_t i = 0; i < particles.size(); ++i)
 	{
@@ -82,13 +82,22 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 	}
 }
 
+void VisualWorld::setCamera(const Camera& cam)
+{
+	camera = cam;
+}
+
+void VisualWorld::bindCamera(Unit* unit)
+{
+	camera.bind(unit, Camera::RELATIVE);
+}
 
 void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	assert(model != 0);
 	
@@ -124,10 +133,10 @@ void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFr
 
 void VisualWorld::tickParticles()
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	for(size_t i=0; i<psources.size(); ++i)
 	{
@@ -155,10 +164,10 @@ void VisualWorld::tickParticles()
 
 void VisualWorld::tickLights(const std::map<int, Unit>& units)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	vector<int> deadLights;
 	for(auto iter = lights.begin(); iter != lights.end(); iter++)
@@ -206,10 +215,10 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 
 void VisualWorld::addLight(int id, const Location& location, Location direction)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
@@ -227,10 +236,10 @@ void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, 
 {
 	return;
 	
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	LightObject& light = lights[id];
 	light.setDiffuse(r / 255.f, g / 255.f, b / 255.f);
@@ -247,10 +256,10 @@ void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, 
 
 void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const string& s_color_s, const string& s_color_e, const string& e_color_s, const string& e_color_e, int scatteringCone, int particlesPerFrame, int particleLife)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	ParticleSource pe;
 	pe.intVals["PPF"] = particlesPerFrame;
@@ -279,16 +288,18 @@ void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, i
 
 void VisualWorld::add_message(const std::string& message)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	
 	worldMessages.push_back(message);
 }
 
 void VisualWorld::removeUnit(int id)
 {
+	camera.unitDie(id);
+	
 	auto it = models.find(id);
 	if(it != models.end())
 	{
@@ -299,10 +310,10 @@ void VisualWorld::removeUnit(int id)
 
 void VisualWorld::add_event(const WorldEvent& event)
 {
-	/*
+	
 	if(active == 0)
 		return;
-	*/
+	
 	events.push_back(event);
 }
 
