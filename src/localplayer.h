@@ -19,11 +19,12 @@
 class UserIO;
 class Graphics;
 class Hud;
+class Window;
 
 class Localplayer
 {
 public:
-	Localplayer(Graphics*, UserIO*, Hud*);
+	Localplayer(Graphics*, UserIO*, Hud*, Window* window);
 
 	bool client_tick();
 
@@ -46,9 +47,6 @@ private:
 	// fully 3D single channel sounds! :DD
 	void playSound(const std::string& name, const Location& position);
 	
-	void enableGrab();
-	void disableGrab();
-
 private:
 	int client_input_state;
 	std::string clientCommand;
@@ -56,6 +54,7 @@ private:
 	Hud* hud;
 	Graphics* view;
 	UserIO* userio;
+	Window* window;
 
 	Game game;
 	GameSound soundsystem;

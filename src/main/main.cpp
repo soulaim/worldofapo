@@ -24,7 +24,7 @@ int main()
 	Window window(800, 600);
 	Hud hud;
 	Graphics view(window, hud);
-	Localplayer master(&view, &userio, &hud);
+	Localplayer master(&view, &userio, &hud, &window);
 	master.init();
 	Menu menu(&view, &userio);
 
