@@ -417,7 +417,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	
 	if(unit.getKeyAction(Unit::RELOAD))
 	{
-		unit.weapons[unit.weapon].reload(unit);
+		unit.weapons[unit.weapon].prepareReload(unit);
 	}
 	
 	unit.soundInfo = "";
