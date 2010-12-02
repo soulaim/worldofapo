@@ -48,6 +48,8 @@ private:
 	void playSound(const std::string& name, const Location& position);
 	
 private:
+	bool need_to_tick_world;
+	
 	int client_input_state;
 	std::string clientCommand;
 

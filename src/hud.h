@@ -11,7 +11,9 @@
 #include "viewmessage.h"
 #include "frustum/vec3.h"
 
-class Hud
+#include "hasproperties.h"
+
+class Hud : public HasProperties
 {
 	friend class Graphics;
 	

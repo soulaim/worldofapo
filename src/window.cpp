@@ -10,15 +10,30 @@
 
 using namespace std;
 
-Window::Window(size_t width, size_t height):
-	width_(width),
-	height_(height)
+Window::Window()
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
 		cerr << "ERROR: SDL init failed." << endl;
 		throw std::string("Unable to init SDL");
 	}
+	
+	// createWindow(width, height);
+}
+
+Window::~Window()
+{
+//	SDL_VideoQuit();
+	SDL_Quit();
+}
+
+void Window::createWindow(int width, int height)
+{
+	width_  = width;
+	height_ = height;
+	
+	SDL_FreeSurface(drawContext);
+	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	
@@ -27,7 +42,7 @@ Window::Window(size_t width, size_t height):
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	
-	drawContext = SDL_SetVideoMode(width, height, 0, SDL_OPENGL); // | SDL_FULLSCREEN);
+	drawContext = SDL_SetVideoMode(width_, height_, 0, SDL_OPENGL); // | SDL_FULLSCREEN);
 	if(drawContext == 0)
 	{
 		cerr << "ERROR: drawContext = " << drawContext << endl;
@@ -37,12 +52,6 @@ Window::Window(size_t width, size_t height):
 	{
 		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
-}
-
-Window::~Window()
-{
-//	SDL_VideoQuit();
-	SDL_Quit();
 }
 
 size_t Window::width() const

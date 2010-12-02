@@ -21,7 +21,7 @@ int main()
 	
 	cerr << "creating game object" << endl;
 	UserIO userio;
-	Window window(800, 600);
+	Window window;
 	Hud hud;
 	Graphics view(window, hud);
 	Localplayer master(&view, &userio, &hud, &window);

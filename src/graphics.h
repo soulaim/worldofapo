@@ -17,10 +17,11 @@
 #include "location.h"
 #include "particle.h"
 
-#include "medikit.h"
 #include "light_object.h"
 #include "projectile.h"
 #include "visualworld.h"
+
+#include "hasproperties.h"
 
 struct Level;
 struct MenuButton;
@@ -28,7 +29,7 @@ class Hud;
 class Octree;
 class Window;
 
-class Graphics
+class Graphics : public HasProperties
 {
 	void initLight();
 	
@@ -78,7 +79,7 @@ class Graphics
 	bool drawDebuglines;
 	bool drawDebugWireframe;
 	
-	const Window& window;
+	Window& window;
 	Hud& hud;
 	
 public:
@@ -101,7 +102,6 @@ public:
 	
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
-	void drawMedikits(const std::map<int, Medikit>& medikits);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
 	void drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds);
@@ -118,7 +118,7 @@ public:
 	
 	void depthSortParticles(Vec3&, std::vector<Particle>&);
 	
-	Graphics(const Window& window, Hud& hud);
+	Graphics(Window& window, Hud& hud);
 	~Graphics();
 	FrustumR frustum;
 };

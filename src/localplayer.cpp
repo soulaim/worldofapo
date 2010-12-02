@@ -38,6 +38,7 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	world(&visualworld)
 {
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
+	need_to_tick_world = false;
 }
 
 
@@ -90,6 +91,8 @@ bool Localplayer::client_tick()
 	{
 		if(game.client_tick_local())
 		{
+			need_to_tick_world = true;
+			
 			process_sent_game_input();
 			game.process_received_game_input();
 			
@@ -98,6 +101,10 @@ bool Localplayer::client_tick()
 			
 			hud->world_tick();
 			view->world_tick(world.lvl, visualworld.lights);
+		}
+		else
+		{
+			need_to_tick_world = false;
 		}
 	}
 	return stop;
@@ -110,7 +117,10 @@ void Localplayer::draw()
 	{
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
-		view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units);
+		
+		// if we didn't need to tick the world right now, then there should be time to draw the scene.
+		if(!need_to_tick_world)
+			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units);
 	}
 }
 

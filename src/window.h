@@ -8,7 +8,7 @@ class SDL_Surface;
 class Window
 {
 public:
-	Window(size_t width, size_t height);
+	Window();
 	~Window();
 
 	size_t width() const;
@@ -18,6 +18,8 @@ public:
 	void swap_buffers() const;
 	void screenshot() const;
 
+	void createWindow(int, int);
+	
 	void enable_grab() const;
 	void disable_grab() const;
 private:

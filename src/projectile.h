@@ -11,7 +11,7 @@
 #include "level.h"
 #include "apomath.h"
 #include "movable_object.h"
-#include "item.h"
+#include "hasproperties.h"
 
 class Unit;
 

@@ -2,6 +2,9 @@
 uniform sampler2D particleTexture;
 uniform sampler2D depthTexture;
 
+uniform float width;
+uniform float height;
+
 varying vec2 texcoord;
 
 float LinearizeDepth(float z)
@@ -16,7 +19,7 @@ void main()
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
 
 
-	vec2 depthtexcoord = vec2(gl_FragCoord.x / 800.0, gl_FragCoord.y / 600.0);
+	vec2 depthtexcoord = vec2(gl_FragCoord.x / width, gl_FragCoord.y / height);
 	float screen_z = texture2D(depthTexture, depthtexcoord).r;
 	float particle_z = gl_FragCoord.z;
 	

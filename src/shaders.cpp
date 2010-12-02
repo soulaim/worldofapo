@@ -133,23 +133,6 @@ void Graphics::initShaders()
 	printLog(shaders["blur_program"]);
 	
 	
-	loadFragmentShader("blur_frag2", "shaders/blur_horizontalpass.fragment");
-	// loadVertexShader("blur_vert", "shaders/blur.vertex");
-	shaders["blur_program2"] = glCreateProgram();
-	glAttachShader(shaders["blur_program2"], shaders["blur_frag2"]);
-	glAttachShader(shaders["blur_program2"], shaders["blur_vert"]);
-	glLinkProgram(shaders["blur_program2"]);
-	printLog(shaders["blur_program2"]);
-	
-
-	loadFragmentShader("debug_frag", "shaders/debugdepth.fragment");
-	loadVertexShader("debug_vert", "shaders/blur.vertex");
-	shaders["debug_program"] = glCreateProgram();
-	glAttachShader(shaders["debug_program"], shaders["debug_frag"]);
-	glAttachShader(shaders["debug_program"], shaders["debug_vert"]);
-	glLinkProgram(shaders["debug_program"]);
-	printLog(shaders["debug_program"]);
-	
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
 	loadVertexShader("unit_vert", "shaders/unit.vertex");
 	shaders["unit_program"] = glCreateProgram();
@@ -186,22 +169,18 @@ void Graphics::initShaders()
 	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 2 * 3);
 	glLinkProgram(shaders["particle_program"]);
 	printLog(shaders["particle_program"]);
-
-
-	glUseProgram(shaders["debug_program"]);
-	uniform_locations["debug_tex"] = glGetUniformLocation(shaders["debug_program"], "tex");
-	uniform_locations["debug_depthTex"] = glGetUniformLocation(shaders["debug_program"], "depthTex");
-	glUniform1i(uniform_locations["debug_tex"], 0);
-	glUniform1i(uniform_locations["debug_depthTex"], 1);
-
-
+	
+	
 	glUseProgram(shaders["particle_program"]);
+	uniform_locations["particle_screen_width"] = glGetUniformLocation(shaders["particle_program"],  "width");
+	uniform_locations["particle_screen_height"] = glGetUniformLocation(shaders["particle_program"], "height");
 	uniform_locations["particle_particleTexture"] = glGetUniformLocation(shaders["particle_program"], "particleTexture");
 	uniform_locations["particle_depthTexture"] = glGetUniformLocation(shaders["particle_program"], "depthTexture");
 	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
 	glUniform1i(uniform_locations["particle_particleTexture"], 0);
 	glUniform1i(uniform_locations["particle_depthTexture"], 1);
-	
+	glUniform1f(uniform_locations["particle_screen_width"],  intVals["RESOLUTION_X"]);
+	glUniform1f(uniform_locations["particle_screen_height"], intVals["RESOLUTION_Y"]);
 	
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");
@@ -238,11 +217,6 @@ void Graphics::initShaders()
 	uniform_locations["grass_scale"] = glGetAttribLocation(shaders["grass_program"], "scale");
 	glUniform1i(uniform_locations["grass_texture"], 0);
 
-	glUseProgram(shaders["blur_program"]);
-	uniform_locations["blur_amount"] = glGetUniformLocation(shaders["blur_program"], "amount");
-	
-	glUseProgram(shaders["blur_program2"]);
-	uniform_locations["blur_amount2"] = glGetUniformLocation(shaders["blur_program2"], "amount");
 
 	glUseProgram(0);
 

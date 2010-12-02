@@ -27,6 +27,8 @@ Hud::Hud():
 	currentTime(0),
 	world_ticks(0)
 {
+	cerr << "loading config file for HUD.." << endl;
+	load("hud.conf");
 }
 
 void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)

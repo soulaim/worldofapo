@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "item.h"
+#include "hasproperties.h"
 #include "fixed_point.h"
 #include "location.h"
 #include "projectile.h"

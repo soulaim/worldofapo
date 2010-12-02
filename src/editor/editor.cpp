@@ -32,7 +32,7 @@ std::string green(const std::string& s)
 }
 
 Editor::Editor():
-	window(800, 600),
+	window(),
 	view(window, hud)
 {
 	drawing_model = true;

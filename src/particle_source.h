@@ -3,7 +3,7 @@
 #define PARTICLE_SOURCE_H
 
 #include "movable_object.h"
-#include "item.h"
+#include "hasproperties.h"
 
 #include "particle.h"
 
