@@ -293,6 +293,16 @@ void Camera::zoomOut()
 
 float Camera::getXrot()
 {
+	if(mode == STATIC)
+	{
+		Vec3 v1 = currentPosition - currentTarget;
+		v1.y = 0.0;
+		v1.normalize();
+		Vec3 v2(-1, 0, 0);
+		float angle = atan2(v2.z, v2.x) - atan2(v1.z, v1.x);
+		return angle / M_PI * 180.0 + 90.0;
+	}
+
 	static float x_rot = 0.f;
 	if(unit)
 		x_rot = ApoMath().getDegrees(unit->angle);
@@ -301,6 +311,14 @@ float Camera::getXrot()
 
 float Camera::getYrot()
 {
+	if(mode == STATIC)
+	{
+		Vec3 v1 = currentTarget - currentPosition;
+		v1.normalize();
+		float angle = acos(v1.innerProduct(Vec3(0,1,0)));
+		return -angle / M_PI * 180.0 + 180.0;
+	}
+
 	static float y_rot = 0.f;
 	if(unit)
 		y_rot = ApoMath().getDegrees(unit->upangle);
