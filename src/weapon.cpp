@@ -27,10 +27,13 @@ void Weapon::generatePrototypeProjectile()
 
 void Weapon::onUse(World& world, Unit& user)
 {
-	if(intVals["CLIP_BULLETS"] == 0)
+	if (!isReloading())
 	{
-		reload(user);
-		return;
+		if(intVals["CLIP_BULLETS"] == 0)
+		{
+			prepareReload(user);
+			return;
+		}
 	}
 	
 	fire(world, user);
@@ -45,12 +48,22 @@ void Weapon::tick()
 		--intVals["RELOAD"];
 }
 
+bool Weapon::isReloading()
+{
+	return (bool) (intVals["RELOAD"]);
+}
+
+bool Weapon::onCooldown()
+{
+	return (intVals["CD_LEFT"] > 0);
+}
+
 inline int min(const int a, const int b)
 {
 	return (a < b)?a:b;
 }
 
-void Weapon::reload(Unit& user)
+void Weapon::prepareReload(Unit& user)
 {
 	std::string& ammotype = strVals["AMMUNITION_TYPE"];
 	int& ammo             = user.intVals[ammotype];
@@ -67,10 +80,9 @@ void Weapon::reload(Unit& user)
 	ammo      -= ammo_change; // reduce ammunition
 }
 
-
 void Weapon::fire(World& world, Unit& user)
 {
-	if(intVals["CD_LEFT"] > 0 || intVals["RELOAD"])
+	if(onCooldown() || isReloading())
 	{
 		return;
 	}
