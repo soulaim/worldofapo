@@ -16,6 +16,7 @@
 #include "userio.h"
 #include "graphics.h"
 #include "hud.h"
+#include "window.h"
 
 #include "net/socket.h"
 #include "net/socket_handler.h"
@@ -27,11 +28,12 @@
 #include <set>
 #include <sstream>
 
-Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h):
+Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	client_input_state(0),
 	hud(h),
 	view(g),
 	userio(u),
+	window(w),
 	game(&world),
 	world(&visualworld)
 {
@@ -157,18 +159,6 @@ void Localplayer::camera_handling()
 	}
 }
 
-void Localplayer::enableGrab()
-{
-	SDL_WM_GrabInput(SDL_GRAB_ON);
-	SDL_ShowCursor(0);
-}
-
-void Localplayer::disableGrab()
-{
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
-	SDL_ShowCursor(1);
-}
-
 void Localplayer::process_sent_game_input()
 {
 	int keyState = userio->getGameInput();
@@ -248,8 +238,11 @@ bool Localplayer::handleClientLocalInput()
 	}
 	else
 	{
-		
-		if(key == "return") // handle client local command
+		if(key == "pause")
+		{
+			window->screenshot();
+		}
+		else if(key == "return") // handle client local command
 		{
 			if(clientCommand.size() > 0)
 			{
@@ -259,8 +252,7 @@ bool Localplayer::handleClientLocalInput()
 			clientCommand = "";
 			hud->setCurrentClientCommand(clientCommand);
 		}
-		
-		if(key == "escape")
+		else if(key == "escape")
 		{
 			game.endGame();
 			
@@ -268,17 +260,19 @@ bool Localplayer::handleClientLocalInput()
 			std::cerr << "User pressed ESC, shutting down." << std::endl;
 			return false;
 		}
-		
-		if(key == "g")
+		else if(key == "g")
 		{
-			if (client_input_state & 4)
-				enableGrab();
+			if(client_input_state & 4)
+			{
+				window->enable_grab();
+			}
 			else
-				disableGrab();
+			{
+				window->disable_grab();
+			}
 			client_input_state ^= 4;
 		}
-		
-		if(key == "n")
+		else if(key == "n")
 		{
 			auto iter = world.units.find(visualworld.camera.unit_id);
 			if(iter == world.units.end())
@@ -298,8 +292,7 @@ bool Localplayer::handleClientLocalInput()
 				world.add_message(ss_msg.str());
 			}
 		}
-		
-		if(key == "p")
+		else if(key == "p")
 		{
 			auto iter = world.units.find(visualworld.camera.unit_id);
 			if(iter != world.units.begin())

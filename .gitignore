@@ -26,6 +26,7 @@ gmon.out
 .sconsign.dblite
 html
 
-# World of Apo's character codes for accessing profiles on the server
-myKeys
+# Client's temporary files:
+bin/myKeys
+bin/screenshot*.bmp
 

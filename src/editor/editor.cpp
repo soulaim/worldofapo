@@ -1131,6 +1131,10 @@ bool Editor::handle_input()
 
 	if(key.size() != 0)
 	{
+		if(key == "pause")
+		{
+			window.screenshot();
+		}
 		if(key == "f3")
 		{
 			view.releaseShaders();
@@ -1173,16 +1177,13 @@ bool Editor::handle_input()
 		{
 			if(grabbed)
 			{
-				grabbed = false;
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-				SDL_ShowCursor(1);
+				window.disable_grab();
 			}
 			else
 			{
-				grabbed = true;
-				SDL_WM_GrabInput(SDL_GRAB_ON);
-				SDL_ShowCursor(0);
+				window.enable_grab();
 			}
+			grabbed = !grabbed;
 		}
 		
 		if(writing)

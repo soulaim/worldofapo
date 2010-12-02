@@ -16,6 +16,10 @@ public:
 
 	void toggle_fullscreen() const;
 	void swap_buffers() const;
+	void screenshot() const;
+
+	void enable_grab() const;
+	void disable_grab() const;
 private:
 	Window& operator=(const Window&); // Disabled.
 	Window(const Window&); // Disabled.
