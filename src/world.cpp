@@ -403,7 +403,7 @@ void World::tickUnit(Unit& unit, Model* model)
 {
 	if(unit.intVals["D"] > 0)
 	{
-		unit.intVals["D"] *= 0.98;
+		unit.intVals["D"] *= 0.95;
 	}
 	
 	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
@@ -571,7 +571,8 @@ void World::tickUnit(Unit& unit, Model* model)
 		--unit.leap_cooldown;
 	}
 
-	unit.weapons[unit.weapon].tick();
+	unit.weapons[unit.weapon].tick(unit);
+	
 	if(unit.getMouseAction(Unit::ATTACK_BASIC))
 	{
 		unit.weapons[unit.weapon].onUse(*this, unit);

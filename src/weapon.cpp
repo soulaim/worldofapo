@@ -5,6 +5,12 @@
 #include "weapon.h"
 
 
+inline int min(const int a, const int b)
+{
+	return (a < b)?a:b;
+}
+
+
 void Weapon::generatePrototypeProjectile()
 {
 	// set some properties first
@@ -27,66 +33,71 @@ void Weapon::generatePrototypeProjectile()
 
 void Weapon::onUse(World& world, Unit& user)
 {
-	if (!isReloading())
+	if(intVals["CLIP_BULLETS"] == 0)
 	{
-		if(intVals["CLIP_BULLETS"] == 0)
-		{
-			prepareReload(user);
-			return;
-		}
+		prepareReload(user);
+		return;
 	}
+	
+	if(onCooldown() > FixedPoint(0) || isReloading() > FixedPoint(0))
+		return;
 	
 	fire(world, user);
 }
 
-void Weapon::tick()
+void Weapon::tick(Unit& unit)
 {
 	if(intVals["CD_LEFT"] > 0)
 		--intVals["CD_LEFT"];
 	
 	if(intVals["RELOAD"])
-		--intVals["RELOAD"];
+	{
+		if(--intVals["RELOAD"] == 0)
+			reloadComplete(unit);
+	}
 }
 
-bool Weapon::isReloading()
+FixedPoint Weapon::isReloading()
 {
-	return (bool) (intVals["RELOAD"]);
+	return FixedPoint(intVals["RELOAD"], intVals["RELOAD_TIME"]);
 }
 
-bool Weapon::onCooldown()
+FixedPoint Weapon::onCooldown()
 {
-	return (intVals["CD_LEFT"] > 0);
+	return FixedPoint(intVals["CD_LEFT"], intVals["COOLDOWN"]);
 }
 
-inline int min(const int a, const int b)
-{
-	return (a < b)?a:b;
-}
-
-void Weapon::prepareReload(Unit& user)
+void Weapon::reloadComplete(Unit& user)
 {
 	std::string& ammotype = strVals["AMMUNITION_TYPE"];
 	int& ammo             = user.intVals[ammotype];
 	int& clip_ammo        = intVals["CLIP_BULLETS"];
+	int ammo_change       = min(intVals["CLIP_SIZE"] - clip_ammo, ammo);
 	
-	int ammo_change = min(intVals["CLIP_SIZE"] - clip_ammo, ammo);
+	clip_ammo += ammo_change;
+	ammo      -= ammo_change; // reduce ammunition
+}
+
+
+void Weapon::prepareReload(Unit& user)
+{
+	if(isReloading() > FixedPoint(0)) // don't restart reloading process..
+		return;
+	
+	std::string& ammotype = strVals["AMMUNITION_TYPE"];
+	int& ammo             = user.intVals[ammotype];
+	int& clip_ammo        = intVals["CLIP_BULLETS"];
+	int ammo_change       = min(intVals["CLIP_SIZE"] - clip_ammo, ammo);
 	
 	// if theres nothing to reload, don't reload.
 	if(ammo_change == 0)
 		return;
 	
 	intVals["RELOAD"] = intVals["RELOAD_TIME"];
-	clip_ammo += ammo_change;
-	ammo      -= ammo_change; // reduce ammunition
 }
 
 void Weapon::fire(World& world, Unit& user)
-{
-	if(onCooldown() || isReloading())
-	{
-		return;
-	}
-	
+{	
 	// shooting may now begin!
 	--intVals["CLIP_BULLETS"];
 	

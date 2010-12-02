@@ -16,6 +16,8 @@
 
 using namespace std;
 
+#include "string2rgb.h"
+
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 extern int QUADS_DRAWN_THIS_FRAME;
 
@@ -116,8 +118,8 @@ void Hud::drawAmmo() const
 {
 	Unit& myUnit = units->find(myID)->second;
 	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
-	bool reloading = myUnit.weapons[myUnit.weapon].isReloading();
-	bool oncooldown = myUnit.weapons[myUnit.weapon].onCooldown();
+	float reloading = myUnit.weapons[myUnit.weapon].isReloading().getFloat();
+	// float oncooldown = myUnit.weapons[myUnit.weapon].onCooldown().getFloat();
 	int clip_ammo = myUnit.weapons[myUnit.weapon].intVals["CLIP_BULLETS"];
 	
 	stringstream ammo;
@@ -146,17 +148,23 @@ void Hud::drawAmmo() const
 		colorCode = "^R";
 	}
 
-	ammo << "^Y" << ammotype;
-	if (reloading)
-		ammo << ": ^GRELOADING";
-	else
+	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
+	
+	/*
+	if(oncooldown > 0.00001f)
 	{
-		ammo << ": " << colorCode << clip_ammo << "/" << numAmmo;
-		if (oncooldown)
-			ammo << " ^R*";
+		
 	}
-
+	*/
+	
 	drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
+	
+	if(reloading > 0.00001f)
+	{
+		// this should be centered
+		drawString("^RRELOADING", -0.2, 0.0f, 2.0f, true);
+		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.07f, -0.02f);
+	}
 }
 
 void Hud::drawZombiesLeft() const
@@ -433,9 +441,53 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	glEnable(GL_DEPTH_TEST);
 }
 
+
+void Hud::drawBar(float size, const string& start_color, const string& end_color, float min_x, float max_x, float min_y, float max_y) const
+{
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	TextureHandler::getSingleton().bindTexture(0, "");
+	
+	float width = max_x - min_x;
+	
+	float rgb1[4];
+	float rgb2[4];
+	float rgb_current[4];
+	
+	getColor(start_color, rgb1);
+	getColor(end_color, rgb2);
+	
+	for(int i=0; i<3; i++)
+		rgb_current[i] = rgb2[i] + (rgb1[i] - rgb2[i]) * size;
+	rgb_current[3] = 1.0f;
+	
+	glColor4fv(rgb_current);
+	
+	glBegin(GL_QUADS);
+		glVertex3f(min_x, min_y, 1.0f);
+		glVertex3f(min_x + width * size, min_y, 1.0f);
+		glVertex3f(min_x + width * size, max_y, 1.0f);
+		glVertex3f(min_x, max_y, 1.0f);
+	glEnd();
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
 void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, bool background, float alpha) const
 {
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -472,9 +524,9 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	if(background)
 	{
 		glVertex3f(pos_x - 0.01 * scale  , y_bot, -1);
-		glVertex3f(pos_x + totalWidth    , y_bot, -1);
-		glVertex3f(pos_x + totalWidth    , y_top, -1);
 		glVertex3f(pos_x - 0.01 * scale  , y_top, -1);
+		glVertex3f(pos_x + totalWidth    , y_top, -1);
+		glVertex3f(pos_x + totalWidth    , y_bot, -1);
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();

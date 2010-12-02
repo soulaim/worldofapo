@@ -30,15 +30,15 @@ public:
 	}
 	
 	void generatePrototypeProjectile();
-	
+	void reloadComplete(Unit& user);
 	void prepareReload(Unit& user);
 	void fire(World& world, Unit& user);
 	
 	void onUse(World& world, Unit& user);
-	void tick();
-
-	bool isReloading();
-	bool onCooldown();
+	void tick(Unit& user); // its a little bit silly that a reference to the user is required..
+	
+	FixedPoint isReloading();
+	FixedPoint onCooldown();
 	
 };
 

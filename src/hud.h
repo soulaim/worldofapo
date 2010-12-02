@@ -13,6 +13,8 @@
 
 class Hud
 {
+	friend class Graphics;
+	
 public:
 	Hud();
 
@@ -31,6 +33,7 @@ public:
 	void setLocalPlayerID(int _myID);
 	void setShowStats(bool);
 
+	void drawBar(float size, const std::string& start_color, const std::string& end_color, float min_x, float max_x, float min_y, float max_y) const;
 	void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
 	void drawMessages();
 	void drawCrossHair() const;
@@ -65,8 +68,6 @@ private:
 
 	std::map<int, PlayerInfo>* Players;
 	std::map<int, Unit>* units;
-	
-public:
 	int myID;
 };
 

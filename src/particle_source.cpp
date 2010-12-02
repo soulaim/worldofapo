@@ -3,39 +3,7 @@
 
 using namespace std;
 
-
-// TODO: this should be a bit smarter maybe? oh well.
-void getColor(const string& a, int& r, int& g, int& b)
-{
-	if(a == "WHITE")
-	{
-		r = 255;
-		g = 255;
-		b = 255;
-		return;
-	}
-	else if(a == "ORANGE")
-	{
-		r = 255;
-		g = 165;
-		b = 0;
-		return;
-	}
-	else if(a == "DARK_RED")
-	{
-		r = 100;
-		g = 0;
-		b = 0;
-		return;
-	}
-	else
-	{
-		r = 0;
-		g = 255;
-		b = 255;
-		return;
-	}
-}
+#include "string2rgb.h"
 
 
 void ParticleSource::setColors(const string& scstart, const string& scend, const string& ecstart, const string& ecend)
