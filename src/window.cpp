@@ -69,15 +69,17 @@ std::string next_screenshot_filename()
 {
 	static int next = 0;
 
-	stringstream ss;
+	string filename;
 	do
 	{
+		stringstream ss;
 		ss << "screenshot" << next << ".bmp";
+		filename = ss.str();
 		++next;
 	}
-	while(ifstream(ss.str().c_str()));
+	while(ifstream(filename));
 
-	return ss.str();
+	return filename;
 }
 
 void Window::screenshot() const
