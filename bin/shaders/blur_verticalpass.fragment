@@ -6,15 +6,15 @@ varying float blurSize;
 void main(void)
 {
 	vec4 sum = vec4(0.0);
-	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 4.0*blurSize)) * 0.06;
-	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 3.0*blurSize)) * 0.09;
+	// sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 4.0*blurSize)) * 0.06;
+	// sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 3.0*blurSize)) * 0.09;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 2.0*blurSize)) * 0.12;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y - 1.0*blurSize)) * 0.15;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y)) * 0.16;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 1.0*blurSize)) * 0.15;
 	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 2.0*blurSize)) * 0.12;
-	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 3.0*blurSize)) * 0.09;
-	sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 4.0*blurSize)) * 0.06;
+	// sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 3.0*blurSize)) * 0.09;
+	// sum += texture2D(BlurScene, vec2(vTexCoord.x, vTexCoord.y + 4.0*blurSize)) * 0.06;
 	
 	gl_FragColor = sum;
 }

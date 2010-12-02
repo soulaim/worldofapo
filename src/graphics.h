@@ -45,7 +45,9 @@ class Graphics : public HasProperties
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
 	void updateCamera(const Level&);
-	void finishDrawing(int blur);
+	void finishDrawing();
+	
+	void applyBlur(int blur);
 	
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();

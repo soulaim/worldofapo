@@ -210,7 +210,7 @@ bool Editor::do_tick()
 		view.drawParticles(visualworld.particles);
 	}
 
-	view.finishDrawing(0);
+	view.finishDrawing();
 
 	models.erase(0);
 	return true;
