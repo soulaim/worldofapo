@@ -36,7 +36,8 @@ public:
 	
 	void bind(Unit* unit, FollowMode mode);
 	void setMode(FollowMode mode);
-	bool isFirstPerson() const;
+	FollowMode mode() const;
+
 	void updateInput(int keystate);
 	void fixHeight(float h);
 	void zoomIn();
@@ -68,7 +69,7 @@ private:
 	float cur_upcos;
 	
 	Unit* unit;
-	FollowMode mode;
+	FollowMode mode_;
 	
 	void fpsTick();
 	void relativeTick();
