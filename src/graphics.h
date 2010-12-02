@@ -16,7 +16,7 @@
 #include "camera.h"
 #include "location.h"
 #include "particle.h"
-
+#include "shaders.h"
 #include "light_object.h"
 #include "projectile.h"
 #include "visualworld.h"
@@ -56,13 +56,6 @@ class Graphics : public HasProperties
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
 //	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 	
-	void loadVertexShader(const std::string& name, const std::string& filename);
-	void loadFragmentShader(const std::string& name, const std::string& filename);
-	void loadGeometryShader(const std::string& name, const std::string& filename);
-	
-	std::map<std::string, GLuint> shaders;
-	std::map<std::string, GLint> uniform_locations;
-	
 	std::vector<BTT_Triangle> level_triangles;
 	
 	Camera* camera_p;
@@ -81,11 +74,12 @@ class Graphics : public HasProperties
 	
 	Window& window;
 	Hud& hud;
+	Shaders shaders;
 	
 public:
 	void init(Camera&);
-	void initShaders(); // Public for debugging.
-	void releaseShaders();
+
+	void reload_shaders();
 	
 	friend class Editor;
 	

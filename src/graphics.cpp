@@ -85,7 +85,7 @@ void Graphics::initLight()
 		int DIFFUSE = 1;
 		stringstream ss;
 		ss << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(uniform_locations[ss.str()], light0diffuse[0], light0diffuse[1], light0diffuse[2], light0diffuse[3]);
+		glUniform4f(shaders.uniform(ss.str()), light0diffuse[0], light0diffuse[1], light0diffuse[2], light0diffuse[3]);
 	}
 }
 
@@ -126,16 +126,15 @@ Graphics::Graphics(Window& w, Hud& h):
 
 Graphics::~Graphics()
 {
-	releaseShaders();
 }
 
 void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;
+
+	shaders.init();
 	
 	camera_p = &camera;
-	
-	initShaders();
 
 	glLineWidth(3.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set the background color.
@@ -148,6 +147,12 @@ void Graphics::init(Camera& camera)
 	
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	
+	MAX_NUM_LIGHTS = 71;
+	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
+
+	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"]);
+	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"]);
+
 	// TODO: This is completely obsolete?
 	initLight();
 	
@@ -315,13 +320,13 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 //		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, rgb);
 		stringstream ss1;
 		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(uniform_locations[ss1.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		glUniform4f(shaders.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 		GLenum error;
 		if((error = glGetError()) != GL_NO_ERROR)
 		{
 			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
 		}
-//		cerr << uniform_locations[ss1.str()] << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+//		cerr << shaders.uniform(ss1.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 //		cerr << "DIFFUSE is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 
 		const Location& pos = iter->second.getPosition();
@@ -333,12 +338,12 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 
 		stringstream ss2;
 		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
-		glUniform4f(uniform_locations[ss2.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		glUniform4f(shaders.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 		if((error = glGetError()) != GL_NO_ERROR)
 		{
 			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
 		}
-//		cerr << uniform_locations[ss2.str()]  << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+//		cerr << shaders.uniform(ss2.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 //		cerr << "POSITION of light " << i << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 		
 		++i;
@@ -361,11 +366,11 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 		float rgb[4]; rgb[0] = rgb[1] = rgb[2] = rgb[3] = 0.0f;
 		stringstream ss1;
 		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(uniform_locations[ss1.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		glUniform4f(shaders.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 		
 		stringstream ss2;
 		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
-		glUniform4f(uniform_locations[ss2.str()], rgb[0], rgb[1], rgb[2], rgb[3]);
+		glUniform4f(shaders.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 		
 		++i;
 	}
@@ -424,7 +429,7 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
 	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
 	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
-	glVertexAttrib4f(uniform_locations["lvl_activeLights"], distances[0].index, distances[1].index, distances[2].index, distances[3].index);
+	glVertexAttrib4f(shaders.uniform("lvl_activeLights"), distances[0].index, distances[1].index, distances[2].index, distances[3].index);
 }
 */
 
@@ -539,11 +544,11 @@ if(pass == 0)
 	
 	if(drawDebuglines)
 	{
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.4f, 0.4f, 0.4f, 1.f);
+		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
 	}
 	else
 	{
-		glUniform4f(uniform_locations["lvl_ambientLight"], 0.1f, 0.1f, 0.1f, 1.0f);
+		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.1f, 0.1f, 0.1f, 1.0f);
 	}
 	
 }
@@ -554,11 +559,11 @@ else
 	glDepthFunc(GL_EQUAL);
 	glDepthMask(GL_FALSE);
 	
-	glUniform4f(uniform_locations["lvl_ambientLight"], 0.f, 0.f, 0.f, 1.0f);
+	glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
 }
 	
 	
-	glUniform4f(uniform_locations["lvl_activeLights"], float(pass), float(pass+1), float(pass+2), float(pass+3));
+	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
 	
 	assert(texture_coordinates1.size() == vertices.size());
 	assert(texture_coordinates2.size() == vertices.size());
@@ -587,7 +592,7 @@ else
 	
 	//glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
-	//glVertexAttribPointer(uniform_locations["lvl_activeLights"], 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
+	//glVertexAttribPointer(shaders.uniform("lvl_activeLights"), 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
 	buffer++;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
@@ -595,9 +600,9 @@ else
 	// assert(buffer == BUFFERS);
 	
 	// Draw sent data.
-	//glEnableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	//glEnableVertexAttribArray(shaders.uniform("lvl_activeLights"));
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	//glDisableVertexAttribArray(uniform_locations["lvl_activeLights"]);
+	//glDisableVertexAttribArray(shaders.uniform("lvl_activeLights"));
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -745,7 +750,7 @@ void Graphics::drawModels(const map<int, Model*>& models)
 void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 {
 	glUseProgram(shaders["particle_program"]);
-	GLint scale_location = uniform_locations["particle_particleScale"];
+	GLint scale_location = shaders.uniform("particle_particleScale");
 
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
@@ -837,7 +842,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
 	glUseProgram(shaders["particle_program"]);
-	GLint scale_location = uniform_locations["particle_particleScale"];
+	GLint scale_location = shaders.uniform("particle_particleScale");
 	
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
@@ -1126,7 +1131,7 @@ void Graphics::finishDrawing(int blur)
 		// glViewport(0, 0, 800, 600);
 		
 		glUseProgram(shaders["blur_program"]);
-		glUniform1f(uniform_locations["blur_amount"], float(blur));
+		glUniform1f(shaders.uniform("blur_amount"), float(blur));
 		
 		glDisable(GL_DEPTH_TEST);
 		//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -1148,7 +1153,7 @@ void Graphics::finishDrawing(int blur)
 		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
 		
 		glUseProgram(shaders["blur_program2"]);
-		glUniform1f(uniform_locations["blur_amount2"], float(blur));
+		glUniform1f(shaders.uniform("blur_amount2"), float(blur));
 		
 		glDisable(GL_DEPTH_TEST);
 		//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -1330,42 +1335,13 @@ void Graphics::drawGrass(const std::vector<Vec3>& locations, const std::vector<V
 		const Vec3& wind = winds[i];
 		float scale = 1.0;
 
-		glVertexAttrib1f(uniform_locations["grass_scale"], scale);
-		glVertexAttrib3f(uniform_locations["grass_wind"], wind.x, wind.y, wind.z);
+		glVertexAttrib1f(shaders.uniform("grass_scale"), scale);
+		glVertexAttrib3f(shaders.uniform("grass_wind"), wind.x, wind.y, wind.z);
 		glVertex3f(v.x, v.y, v.z);
 
 		QUADS_DRAWN_THIS_FRAME += 3;
 	}
 	glEnd();
-	/*
-	glBegin(GL_QUADS);
-	for(size_t i = 0; i < locations.size(); ++i)
-	{
-		const Vec3& v = locations[i];
-		float s = 1.0f;
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(v.x - s, v.y + 2*s, v.z);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(v.x + s, v.y + 2*s, v.z);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(v.x + s, v.y, v.z);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(v.x - s, v.y, v.z);
-
-		float small = 0.886f;
-		float big   = 1.0f;
-
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(v.x - s*small, v.y + 2*s, v.z - s*big);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(v.x + s*small, v.y + 2*s, v.z + s*big);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(v.x + s*small, v.y, v.z + s*big);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(v.x - s*small, v.y, v.z - s*big);
-
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(v.x + s*small, v.y + 2*s, v.z - s*big);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(v.x - s*small, v.y + 2*s, v.z + s*big);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(v.x - s*small, v.y, v.z + s*big);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(v.x + s*small, v.y, v.z - s*big);
-
-		QUADS_DRAWN_THIS_FRAME += 3;
-	}
-	glEnd();
-	*/
-//	glDisable(GL_BLEND);
 
 	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_CULL_FACE);
@@ -1411,5 +1387,11 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 	glPopMatrix();
 	
 	window.swap_buffers();
+}
+
+void Graphics::reload_shaders()
+{
+	shaders.release();
+	shaders.init();
 }
 
