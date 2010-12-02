@@ -7,7 +7,7 @@ const double head_level = 4.0;
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),
 	unit(0),
-	mode(RELATIVE)
+	mode_(RELATIVE)
 {
 	cur_sin = 0.f;
 	cur_cos = 0.f;
@@ -25,14 +25,14 @@ Camera::Camera():
 
 Vec3& Camera::getTarget()
 {
-	if(mode == FIRST_PERSON)
+	if(mode_ == FIRST_PERSON)
 		return fps_direction;
 	return currentTarget;
 }
 
 void Camera::setAboveGround(float min_cam_y)
 {
-	if(mode == RELATIVE)
+	if(mode_ == RELATIVE)
 	{
 		//std::cerr << min_cam_y << "\n";
 		if(currentPosition.y + currentRelative.y < min_cam_y)
@@ -65,11 +65,11 @@ Vec3 Camera::getPosition() const
 {
 	//if(unit)
 	//{
-		if(mode == RELATIVE)
+		if(mode_ == RELATIVE)
 		{
 			return currentPosition + currentRelative;
 		}
-		else if(mode == FIRST_PERSON)
+		else if(mode_ == FIRST_PERSON)
 		{
 			return currentPosition;
 		}
@@ -84,11 +84,11 @@ void Camera::tick()
 {
 	if(unit)
 	{
-		if(mode == RELATIVE)
+		if(mode_ == RELATIVE)
 		{
 			relativeTick();
 		}
-		else if(mode == FIRST_PERSON)
+		else if(mode_ == FIRST_PERSON)
 		{
 			fpsTick();
 		}
@@ -102,23 +102,23 @@ void Camera::tick()
 void Camera::bind(Unit* unit, FollowMode mode)
 {
 	this->unit = unit;
-	this->mode = mode;
+	this->mode_ = mode;
 	this->unit_id = unit->id;
 }
 
 void Camera::setMode(FollowMode mode)
 {
-	this->mode = mode;
+	this->mode_ = mode;
 }
 
-bool Camera::isFirstPerson() const
+Camera::FollowMode Camera::mode() const
 {
-	return mode == FIRST_PERSON;
+	return mode_;
 }
 
 void Camera::updateInput(int keystate)
 {
-	if(mode == STATIC)
+	if(mode_ == STATIC)
 	{
 		float wtf = position.length();
 		
@@ -259,14 +259,14 @@ void Camera::relativeTick()
 
 void Camera::zoomIn()
 {
-	if(mode == RELATIVE || mode == STATIC)
+	if(mode_ == RELATIVE || mode_ == STATIC)
 	{
 		if(position.length() > 1.0)
 		{
 			position *= 2.0/3.0;
 		}
 	}
-	else if(mode == FIRST_PERSON)
+	else if(mode_ == FIRST_PERSON)
 	{
 		fov /= 1.2;
 		if(fov < min_fov)
@@ -276,14 +276,14 @@ void Camera::zoomIn()
 
 void Camera::zoomOut()
 {
-	if(mode == RELATIVE || mode == STATIC)
+	if(mode_ == RELATIVE || mode_ == STATIC)
 	{
 		if(position.length() < 100.0)
 		{
 			position *= 3.0/2.0;
 		}
 	}
-	else if(mode == FIRST_PERSON)
+	else if(mode_ == FIRST_PERSON)
 	{
 		fov *= 1.2;
 		if(fov > max_fov)
@@ -293,7 +293,7 @@ void Camera::zoomOut()
 
 float Camera::getXrot()
 {
-	if(mode == STATIC)
+	if(mode_ == STATIC)
 	{
 		Vec3 v1 = currentPosition - currentTarget;
 		v1.y = 0.0;
@@ -311,7 +311,7 @@ float Camera::getXrot()
 
 float Camera::getYrot()
 {
-	if(mode == STATIC)
+	if(mode_ == STATIC)
 	{
 		Vec3 v1 = currentTarget - currentPosition;
 		v1.normalize();

@@ -1072,9 +1072,14 @@ void Graphics::draw(
 
 	drawDebugStrings();
 
-	hud.draw(camera_p->isFirstPerson());
+	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 
 	int blur = units.find(hud.myID)->second["D"];
+	if(camera_p->mode() == Camera::STATIC)
+	{
+		blur = 0;
+	}
+
 	finishDrawing(blur);
 }
 
