@@ -33,6 +33,13 @@ void getColor(const string& a, int& r, int& g, int& b)
 		b = 0;
 		return;
 	}
+	else if(a == "BLUE")
+	{
+		r = 0;
+		g = 0;
+		b = 255;
+		return;
+	}
 	else
 	{
 		r = 0;

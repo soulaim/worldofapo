@@ -69,12 +69,12 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	}
 	
 	// create some effect or something
-	Location zero; zero.y = FixedPoint(1, 2);
+	Location zero; zero.y = FixedPoint(1, 1);
 	visualworld->addLight(nextUnitID(), pos, zero);
 	
 	if(visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"] == 0)
 	{
-		visualworld->genParticleEmitter(pos, zero, 20, 3500, 4500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, 3, 40);
+		visualworld->genParticleEmitter(pos, zero, 20, 3500, 4500, "WHITE", "DARK_RED", "ORANGE", "WHITE", 1200, 3, 400);
 	}
 	else
 	{
@@ -380,6 +380,7 @@ void World::init()
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
 	visualworld->lights[nextUnitID()] = tmp_light;
 
+	/*
 	// Make sure there is atleast MAX_NUM_ACTIVE_LIGHTS.
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(500));
 	visualworld->lights[nextUnitID()] = tmp_light;
@@ -387,7 +388,8 @@ void World::init()
 	visualworld->lights[nextUnitID()] = tmp_light;
 	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
 	visualworld->lights[nextUnitID()] = tmp_light;
-
+	*/
+	
 	visualworld->init();
 
 	show_errors = 0;

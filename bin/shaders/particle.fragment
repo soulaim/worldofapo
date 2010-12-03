@@ -28,8 +28,8 @@ void main()
 	
 	float z1 = LinearizeDepth(screen_z);
 	float z2 = LinearizeDepth(particle_z);
-	float z = z1 - z2;
-
+	float z  = z1 - z2;
+	
 	float scale = 20.0;
 	float fade = clamp(z * scale, 0.0, 1.0);
 	gl_FragColor.a *= fade;
