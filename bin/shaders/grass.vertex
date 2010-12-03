@@ -21,8 +21,10 @@ void main()
 
 	gl_Position = gl_ModelViewProjectionMatrix * vec4(newVertex.xyz, 1.0);
 */
-	wind_var = wind;
-	scale_var = scale;
+//	wind_var = wind;
+//	scale_var = scale;
+	wind_var = vec3(0,0,0);
+	scale_var = 3.0;
 	gl_Position = gl_Vertex;
 	modelview = gl_ModelViewProjectionMatrix;
 }

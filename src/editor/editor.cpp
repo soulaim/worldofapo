@@ -1,5 +1,6 @@
 #include "editor.h"
 #include "../texturehandler.h"
+#include "../grasscluster.h"
 
 #include <iostream>
 #include <sstream>
@@ -13,9 +14,8 @@ using namespace std;
 
 extern vector<pair<Vec3,Vec3> > LINES;
 extern vector<Vec3> DOTS;
-vector<Vec3> meadows;
+GrassCluster meadows;
 Vec3 wind;
-vector<Vec3> winds;
 
 int r = 50;
 int g = 50;
@@ -73,6 +73,7 @@ Editor::Editor():
 	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
 	LINES.push_back(make_pair(Vec3(0,0,100),Vec3(0,0,-100)));
 
+	meadows.preload();
 }
 
 void Editor::release_swarm()
@@ -183,7 +184,8 @@ bool Editor::do_tick()
 	}
 
 	view.drawDebugLines();
-
+	
+	/*
 	static int counter = 0;
 	++counter;
 	winds.resize(meadows.size());
@@ -194,7 +196,8 @@ bool Editor::do_tick()
 		w.y = wind.y * sin((counter + 20 * (meadows[i].x + meadows[i].y)) / 100.0) * 0.2;
 		w.z = wind.z * sin((counter + 20 * meadows[i].x) / 100.0);
 	}
-	view.drawGrass(meadows, winds);
+	*/
+	view.drawGrass(vector<GrassCluster>(1, meadows));
 
 	hud.drawFPS();
 	hud.drawMessages();
@@ -1456,7 +1459,7 @@ void Editor::swarm_particles(int X, int Y, int Z)
 
 void Editor::swarm_meadows(int X, int Z, int y)
 {
-	meadows.clear();
+	meadows.bushes.clear();
 
 	for(int i = 0; i < X; ++i)
 	{
@@ -1464,8 +1467,10 @@ void Editor::swarm_meadows(int X, int Z, int y)
 		{
 			float x = 1*(i-X/2) + 0.7 * rand() / RAND_MAX;
 			float z = 1*(j-Z/2) + 0.7 * rand() / RAND_MAX;
-			meadows.push_back(Vec3(x, y, z));
+			meadows.bushes.push_back(Vec3(x, y, z));
 		}
 	}
+	meadows.unload();
+	meadows.preload();
 }
 

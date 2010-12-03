@@ -1,6 +1,7 @@
 #include "world.h"
 #include "modelfactory.h"
 #include "visualworld.h"
+#include "random.h"
 
 #include <iostream>
 
@@ -15,27 +16,41 @@ void VisualWorld::init()
 	particles.reserve(40000);
 	
 	enable();
+}
 
-	/*
+void VisualWorld::decorate(const Level& lvl)
+{
+	cerr << "Decorating world with some random grass" << endl;
+
 	Vec3 wind(0, 0, 0);
 	size_t n = 10;
-	size_t k = 500;
-	winds.resize(n*k);
+	size_t k = 400;
+//	winds.resize(n*k);
+	meadows.resize(n);
 	for(size_t i = 0; i < n; ++i)
 	{
-		size_t X = lvl.pointheight_info.size() * 1.0 * rand() / RAND_MAX;
-		size_t Z = lvl.pointheight_info[0].size() * 1.0 * rand() / RAND_MAX;
+		size_t X = randf(0.0, lvl.max_x().getFloat());
+		size_t Z = randf(0.0, lvl.max_z().getFloat());
 
+		float radius = 30.0;
 		for(size_t j = 0; j < k; ++j)
 		{
-			size_t x = 8*X + 20.0 * rand() / RAND_MAX - 10;
-			size_t z = 8*Z + 20.0 * rand() / RAND_MAX - 10;
-			float y = lvl.getHeight(x, z).getFloat();
-			Vec3 v(x, y, z);
-			meadows.push_back(v);
+			float x = randf(-radius, radius);
+			float z = randf(-radius, radius);
+			if(x*x + z*z > radius*radius)
+			{
+				--j;
+				continue;
+			}
+
+			float y = lvl.getHeight(X + x, Z + z).getFloat();
+			Vec3 v(X + x, y, Z + z);
+			meadows[i].bushes.push_back(v);
 		}
+		meadows[i].center = Vec3(X, 0.0, Z);
+		meadows[i].radius = radius;
+		meadows[i].preload();
 	}
-	*/
 }
 
 void VisualWorld::terminate()
@@ -53,7 +68,6 @@ void VisualWorld::terminate()
 	particles.clear();
 
 	meadows.clear();
-	winds.clear();
 }
 
 
