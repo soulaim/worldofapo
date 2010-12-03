@@ -151,8 +151,8 @@ void Graphics::init(Camera& camera)
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
 
 	glUseProgram(shaders["particle_program"]);
-	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"]);
-	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"]);
+	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	glUseProgram(0);
 
 	// TODO: This is completely obsolete?
@@ -174,14 +174,10 @@ void Graphics::init(Camera& camera)
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("pp_tmp"), 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	
-	/*
 	glGenFramebuffersEXT(1, &particlesFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
-	TextureHandler::getSingleton().createTexture("tmp_particles", intVals["RESOLUTION_X"] / 4, intVals["RESOLUTION_Y"] / 4);
-	TextureHandler::getSingleton().createDepthTexture("particle_depth", intVals["RESOLUTION_X"] / 4, intVals["RESOLUTION_Y"] / 4);
+	TextureHandler::getSingleton().createTexture("tmp_particles", intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particle_depth"), 0);
-	*/
 	
 	/*
 	glGenRenderbuffersEXT(1, &screenRB);
@@ -778,6 +774,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	static bool buffers_loaded = false;
 	static const int BUFFERS = 3;
 	static GLuint locations[BUFFERS];
+	
 	if(!buffers_loaded)
 	{
 		buffers_loaded = true;
@@ -794,14 +791,11 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		viewParticles[i].viewTick();
-
 		particles[i] = Vec3(viewParticles[i].pos.x.getFloat(), viewParticles[i].pos.y.getFloat(), viewParticles[i].pos.z.getFloat());
 
 		viewParticles[i].getColor(&colors[i*4]);
 		colors[i*4 + 3] = viewParticles[i].getAlpha();
 		scales[i] = viewParticles[i].getScale();
-
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 
@@ -839,31 +833,31 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 {
-	/*
+	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glViewport(0, 0, 200, 150); // do we need this?
-	*/
+	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	
 	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
+	//glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+	
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = shaders.uniform("particle_particleScale");
 	
-	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
-	depthSortParticles(direction_vector, viewParticles);
+	// Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
+	// depthSortParticles(direction_vector, viewParticles);
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
+	glDisable(GL_DEPTH_TEST);
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		viewParticles[i].viewTick();
-		
 		float px = viewParticles[i].pos.x.getFloat();
 		float py = viewParticles[i].pos.y.getFloat();
 		float pz = viewParticles[i].pos.z.getFloat();
@@ -872,20 +866,26 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 		viewParticles[i].getColor(color);
 		color[3] = viewParticles[i].getAlpha();
 		
+		// cerr << color[0] << " " << color[1] << " " << color[2] << " " << color[3] << "\n";
+		
 		float scale = viewParticles[i].getScale();
+		
 		glVertexAttrib1f(scale_location, scale);
 		glColor4fv(color);
-
 		glVertex3f(px, py, pz);
-
+		
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
 	
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	TextureHandler::getSingleton().bindTexture(1, "");
 	
-	/*
+	// /*
+	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	
 	
 	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
 	
@@ -901,6 +901,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glPushMatrix();
 	glLoadIdentity();
 	
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
 		glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
@@ -912,27 +913,36 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	*/
+	
+	// */
 	
 	glUseProgram(0);
-	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
-	glDepthMask(GL_TRUE); // re-enable depth writing.
+	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }
 
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
 void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 {
-	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
-	depthSortParticles(direction_vector, viewParticles);
 	
+	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
+	// depthSortParticles(direction_vector, viewParticles);
+	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+	
+	//TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
-	glDisable(GL_LIGHTING);
+	
+	// glUseProgram(shaders["particle_program"]);
+	// GLint scale_location = shaders.uniform("particle_particleScale");
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
 	glBegin(GL_QUADS);
@@ -955,7 +965,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		viewParticles[i].viewTick();
 		
 		float px = viewParticles[i].pos.x.getFloat();
 		float py = viewParticles[i].pos.y.getFloat();
@@ -975,9 +984,54 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	}
 	
 	glEnd();
-
-	glDepthMask(GL_TRUE); // re-enable depth writing.
+	
+	
+	
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	TextureHandler::getSingleton().bindTexture(1, "");
+	
+	// /*
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	
+	
+	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
+	
+	glUseProgram(0);
+	
+	//glBlendFunc(GL_ONE, GL_ONE);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
+	glEnd();
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	// */
+	
+	glUseProgram(0);
+	TextureHandler::getSingleton().bindTexture(0, "");
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+	
+	glUseProgram(0);
 }
 
 void Graphics::updateCamera(const Level& lvl)
@@ -1138,6 +1192,7 @@ void Graphics::draw(
 	else
 	{
 		drawParticles(visualworld.particles);
+		// drawParticles_old(visualworld.particles);
 	}
 	
 	if(drawDebuglines)
@@ -1234,7 +1289,6 @@ void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)
 
 void Graphics::tick()
 {
-	
 }
 
 void Graphics::toggleFullscreen()

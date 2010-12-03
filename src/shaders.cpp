@@ -169,13 +169,14 @@ void Shaders::init()
 	shaders["particle_program"] = glCreateProgram();
 	glAttachShader(shaders["particle_program"], shaders["particle_frag"]);
 	glAttachShader(shaders["particle_program"], shaders["particle_vert"]);
+	
 	glAttachShader(shaders["particle_program"], shaders["particle_geom"]);
 	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
 	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLES);
 	glProgramParameteriEXT(shaders["particle_program"], GL_GEOMETRY_VERTICES_OUT_EXT, 2 * 3);
+	
 	glLinkProgram(shaders["particle_program"]);
 	printLog(shaders["particle_program"]);
-	
 	
 	glUseProgram(shaders["particle_program"]);
 	uniform_locations["particle_screen_width"] = glGetUniformLocation(shaders["particle_program"],  "width");

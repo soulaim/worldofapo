@@ -45,7 +45,8 @@ public:
 	
 	float getAlpha() const
 	{
-		return float(cur_life) / (max_life + 1);
+		float tmp = float(cur_life) / (max_life + 1);
+		return tmp * tmp;
 	}
 	
 	void getColor(float* colors) const
