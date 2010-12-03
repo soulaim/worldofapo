@@ -174,12 +174,14 @@ void Graphics::init(Camera& camera)
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("pp_tmp"), 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	
+	/*
 	glGenFramebuffersEXT(1, &particlesFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
 	TextureHandler::getSingleton().createTexture("tmp_particles", intVals["RESOLUTION_X"] / 4, intVals["RESOLUTION_Y"] / 4);
 	TextureHandler::getSingleton().createDepthTexture("particle_depth", intVals["RESOLUTION_X"] / 4, intVals["RESOLUTION_Y"] / 4);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particle_depth"), 0);
+	*/
 	
 	/*
 	glGenRenderbuffersEXT(1, &screenRB);
@@ -469,7 +471,7 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 	{
 		level_buffers_loaded = true;
 		assert(height*width > 0);
-
+		
 		vertices.reserve(height * width);
 		normals.reserve(height * width);
 		for(size_t x = 0; x < height; ++x)
@@ -478,17 +480,17 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 			{
 				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
 				vertices.push_back(point);
-
+				
 				Location normal = lvl.getNormal(x, z);
 				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
-
+				
 				 // TODO: These coordinates are like :G
 				const int divisions = 25;
 //				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
 				TextureCoordinate tc1 = { float(x) / (height/divisions), float(z) / (width/divisions) };
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
-
+				
 				//ActiveLights ac = {0, 0, 0, 0};
 				//active_lights.push_back(ac);
 			}
@@ -550,7 +552,10 @@ if(pass == 0)
 	}
 	else
 	{
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.1f, 0.1f, 0.1f, 1.0f);
+		float r = intVals["AMBIENT_RED"]   / 255.0f;
+		float g = intVals["AMBIENT_GREEN"] / 255.0f;
+		float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+		glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
 	}
 	
 }
@@ -1014,6 +1019,67 @@ void Graphics::startDrawing()
 	QUADS_DRAWN_THIS_FRAME = 0;
 }
 
+
+void Graphics::applyBlur(int blur)
+{
+	
+	if(intVals["BLUR"])
+	{
+		
+		glDisable(GL_DEPTH_TEST);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
+		TextureHandler::getSingleton().bindTexture(0, "tmp");
+		
+		
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		
+		glUseProgram(shaders["blur_program1"]);
+		glUniform1f(shaders.uniform("blur_amount1"), float(blur));
+		
+		glColor3f(1.0, 1.0, 1.0);
+		
+		//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
+		//	glUseProgram(shaders["debug_program"]);
+		
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+		glEnd();
+		
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
+		
+		glUseProgram(shaders["blur_program2"]);
+		glUniform1f(shaders.uniform("blur_amount2"), float(blur));
+		
+		glColor3f(1.0, 1.0, 1.0);
+		
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+		glEnd();
+		glEnable(GL_DEPTH_TEST);
+		
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		
+		glUseProgram(0);
+		TextureHandler::getSingleton().bindTexture(0, "");
+	}
+}
+
+
 void Graphics::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
@@ -1081,18 +1147,17 @@ void Graphics::draw(
 	}
 
 	drawPlayerNames(units, visualworld.models);
-
+	
 	drawDebugStrings();
-
-	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
-
+	
 	int blur = units.find(hud.myID)->second["D"];
 	if(camera_p->mode() == Camera::STATIC)
-	{
 		blur = 0;
-	}
-
-	finishDrawing(blur);
+	applyBlur(blur);
+	
+	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
+	
+	finishDrawing();
 }
 
 void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, Model*>& models)
@@ -1113,94 +1178,34 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 	}
 }
 
-void Graphics::finishDrawing(int blur)
+void Graphics::finishDrawing()
 {
 	STRINGS.clear();
 	
-	if(intVals["BLUR"])
-	{
-		
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
-		
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		
-		TextureHandler::getSingleton().bindTexture(0, "tmp");
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		// gluPerspective(90, aspect_ratio, nearP, farP);
-		glMatrixMode(GL_MODELVIEW);
-		// glViewport(0, 0, 800, 600);
-		
-		glUseProgram(shaders["blur_program"]);
-		glUniform1f(shaders.uniform("blur_amount"), float(blur));
-		
-		glDisable(GL_DEPTH_TEST);
-		//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
-		glColor3f(1.0, 1.0, 1.0);
-		
-	//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
-	//	glUseProgram(shaders["debug_program"]);
-
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-			glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-			glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-			glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-		glEnd();
-		glEnable(GL_DEPTH_TEST);
-		
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
-		
-		glUseProgram(shaders["blur_program2"]);
-		glUniform1f(shaders.uniform("blur_amount2"), float(blur));
-		
-		glDisable(GL_DEPTH_TEST);
-		//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
-		glColor3f(1.0, 1.0, 1.0);
-		
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-		glEnd();
-		glEnable(GL_DEPTH_TEST);
-	
-	}
-	else
-	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		TextureHandler::getSingleton().bindTexture(0, "tmp");
-		
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		
-		glMatrixMode(GL_MODELVIEW);
-		glUseProgram(0);
-		
-		glDisable(GL_DEPTH_TEST);
-		//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
-		glColor3f(1.0, 1.0, 1.0);
-		
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-		glEnd();
-		glEnable(GL_DEPTH_TEST);
-	}
-	
 	glUseProgram(0);
-
+	
+	glDisable(GL_DEPTH_TEST);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	TextureHandler::getSingleton().bindTexture(0, "tmp");
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	
+	glMatrixMode(GL_MODELVIEW);
+	glUseProgram(0);
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+	
 //	TextureHandler::getSingleton().bindTexture(1, "");
 //	TextureHandler::getSingleton().bindTexture(0, "");
 	

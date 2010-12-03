@@ -124,13 +124,19 @@ void Shaders::init()
 	glLinkProgram(shaders["level_program"]);
 	printLog(shaders["level_program"]);
 
-	loadFragmentShader("blur_frag", "shaders/blur_verticalpass.fragment");
+	loadFragmentShader("blur_frag_vertical", "shaders/blur_verticalpass.fragment");
+	loadFragmentShader("blur_frag_horizontal", "shaders/blur_horizontalpass.fragment");
 	loadVertexShader("blur_vert", "shaders/blur.vertex");
-	shaders["blur_program"] = glCreateProgram();
-	glAttachShader(shaders["blur_program"], shaders["blur_frag"]);
-	glAttachShader(shaders["blur_program"], shaders["blur_vert"]);
-	glLinkProgram(shaders["blur_program"]);
-	printLog(shaders["blur_program"]);
+	shaders["blur_program1"] = glCreateProgram();
+	shaders["blur_program2"] = glCreateProgram();
+	glAttachShader(shaders["blur_program1"], shaders["blur_frag_vertical"]);
+	glAttachShader(shaders["blur_program1"], shaders["blur_vert"]);
+	glAttachShader(shaders["blur_program2"], shaders["blur_frag_horizontal"]);
+	glAttachShader(shaders["blur_program2"], shaders["blur_vert"]);
+	glLinkProgram(shaders["blur_program1"]);
+	glLinkProgram(shaders["blur_program2"]);
+	printLog(shaders["blur_program1"]);
+	printLog(shaders["blur_program2"]);
 	
 	
 	loadFragmentShader("unit_frag", "shaders/unit.fragment");
@@ -207,6 +213,10 @@ void Shaders::init()
 	bone_weight_location = glGetAttribLocation(shaders["unit_program"], "bone_weight" );
 	bone_index_location = glGetAttribLocation(shaders["unit_program"], "bone_index" );
 
+	glUseProgram(shaders["blur_program1"]);
+	uniform_locations["blur_amount1"] = glGetUniformLocation(shaders["blur_program1"], "amount");
+	glUseProgram(shaders["blur_program2"]);
+	uniform_locations["blur_amount2"] = glGetUniformLocation(shaders["blur_program2"], "amount");	
 
 	glUseProgram(shaders["grass_program"]);
 	uniform_locations["grass_texture"] = glGetUniformLocation(shaders["grass_program"], "texture");

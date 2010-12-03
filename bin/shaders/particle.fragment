@@ -17,8 +17,7 @@ float LinearizeDepth(float z)
 void main()
 {
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
-
-
+	
 	vec2 depthtexcoord = vec2(gl_FragCoord.x / width, gl_FragCoord.y / height);
 	float screen_z = texture2D(depthTexture, depthtexcoord).r;
 	float particle_z = gl_FragCoord.z;

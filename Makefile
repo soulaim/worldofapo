@@ -32,6 +32,7 @@ dep := $(sort $(dep))
 
 $(target1): $(obj1)
 	$(CXX) $^ $(LDLIBS) -o $@
+	rm -f bin/myKeys
 
 $(target2): $(obj2)
 	$(CXX) $^ $(LDLIBS) -o $@
