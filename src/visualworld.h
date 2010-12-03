@@ -9,9 +9,10 @@
 #include "grasscluster.h"
 
 #include "camera.h"
+#include "hasproperties.h"
 
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
-class VisualWorld
+class VisualWorld : public HasProperties
 {
 	void updateModel(Model*, const Unit&, int currentWorldFrame); // view frame update
 	int active;
