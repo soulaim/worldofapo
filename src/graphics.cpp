@@ -149,10 +149,12 @@ void Graphics::init(Camera& camera)
 	
 	MAX_NUM_LIGHTS = 71;
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
-
+	
+	glUseProgram(shaders["particle_program"]);
 	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"]);
 	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"]);
-
+	glUseProgram(0);
+	
 	// TODO: This is completely obsolete?
 	initLight();
 	
@@ -469,7 +471,7 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 	{
 		level_buffers_loaded = true;
 		assert(height*width > 0);
-
+		
 		vertices.reserve(height * width);
 		normals.reserve(height * width);
 		for(size_t x = 0; x < height; ++x)
@@ -478,17 +480,17 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 			{
 				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
 				vertices.push_back(point);
-
+				
 				Location normal = lvl.getNormal(x, z);
 				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
-
+				
 				 // TODO: These coordinates are like :G
 				const int divisions = 25;
 //				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
 				TextureCoordinate tc1 = { float(x) / (height/divisions), float(z) / (width/divisions) };
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
-
+				
 				//ActiveLights ac = {0, 0, 0, 0};
 				//active_lights.push_back(ac);
 			}
@@ -550,7 +552,10 @@ if(pass == 0)
 	}
 	else
 	{
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.1f, 0.1f, 0.1f, 1.0f);
+		float r = intVals["AMBIENT_RED"]   / 255.0f;
+		float g = intVals["AMBIENT_GREEN"] / 255.0f;
+		float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+		glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
 	}
 	
 }
@@ -1035,7 +1040,7 @@ void Graphics::applyBlur(int blur)
 		glLoadIdentity();
 		
 		glUseProgram(shaders["blur_program1"]);
-		glUniform1f(uniform_locations["blur_amount1"], float(blur));
+		glUniform1f(shaders.uniform("blur_amount1"), float(blur));
 		
 		glColor3f(1.0, 1.0, 1.0);
 		
@@ -1053,7 +1058,7 @@ void Graphics::applyBlur(int blur)
 		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
 		
 		glUseProgram(shaders["blur_program2"]);
-		glUniform1f(uniform_locations["blur_amount2"], float(blur));
+		glUniform1f(shaders.uniform("blur_amount2"), float(blur));
 		
 		glColor3f(1.0, 1.0, 1.0);
 		
