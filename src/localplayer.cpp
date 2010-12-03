@@ -204,20 +204,10 @@ bool Localplayer::handleClientLocalInput()
 		view->toggleWireframeStatus();
 	else if(key == "f9")
 		world.show_errors ^= 1;
-	else if(key == "f5")
-	{
-		std::cerr << "LOADING SHADERS" << std::endl;
-		view->initShaders();
-	}
-	else if(key == "f6")
-	{
-		std::cerr << "RELEASING SHADERS" << std::endl;
-		view->releaseShaders();
-	}
 	else if(key == "f7")
 	{
 		std::cerr << "RELOADING SHADERS" << std::endl;
-		view->initShaders();
+		view->reload_shaders();
 	}
 	
 	if(client_input_state & 2) // chat message

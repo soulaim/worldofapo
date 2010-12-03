@@ -1,5 +1,4 @@
 #include "shaders.h"
-#include "graphics.h"
 
 #include <iostream>
 #include <sstream>
@@ -13,7 +12,7 @@ GLint bone_index_location = -1;
 GLint bone_weight_location = -1;
 GLint active_location = -1;
 
-char* readFile(const char *path)
+char* Shaders::readFile(const char *path)
 {
 	FILE *fd;
 	long len,
@@ -42,12 +41,12 @@ char* readFile(const char *path)
 	return str;
 }
 
-void releaseFile(char* file)
+void Shaders::releaseFile(char* file)
 {
 	delete[] file;
 }
 
-void Graphics::loadVertexShader(const std::string& name, const std::string& filename)
+void Shaders::loadVertexShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 	
@@ -60,7 +59,7 @@ void Graphics::loadVertexShader(const std::string& name, const std::string& file
 	releaseFile(data);
 }
 
-void Graphics::loadFragmentShader(const std::string& name, const std::string& filename)
+void Shaders::loadFragmentShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 
@@ -73,7 +72,7 @@ void Graphics::loadFragmentShader(const std::string& name, const std::string& fi
 	releaseFile(data);
 }
 
-void Graphics::loadGeometryShader(const std::string& name, const std::string& filename)
+void Shaders::loadGeometryShader(const std::string& name, const std::string& filename)
 {
 	char* data = readFile(filename.c_str());
 
@@ -86,7 +85,7 @@ void Graphics::loadGeometryShader(const std::string& name, const std::string& fi
 	releaseFile(data);
 }
 
-void printLog(GLuint obj)
+void Shaders::printLog(GLuint obj)
 {
 	int infologLength = 0;
 	char infoLog[1024];
@@ -100,16 +99,17 @@ void printLog(GLuint obj)
 		printf("%s\n", infoLog);
 }
 
-void Graphics::initShaders()
+void Shaders::init()
 {
 	if(glewInit() == GLEW_OK)
+	{
 		std::cerr << "GLEW JIHUU :DD" << std::endl;
+	}
 	else
+	{
 		std::cerr << "GLEW VITYYY DD:" << std::endl;
-	
-	glGetIntegerv(GL_MAX_LIGHTS, &MAX_NUM_LIGHTS);
-	std::cerr << "OpenGL MAX_LIGHTS: " << MAX_NUM_LIGHTS << std::endl;
-	std::cerr << std::endl;
+		std::exit(-1);
+	}
 
 	loadFragmentShader("level_frag", "shaders/level.fragment");
 	loadVertexShader("level_vert", "shaders/level.vertex");
@@ -185,8 +185,6 @@ void Graphics::initShaders()
 	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
 	glUniform1i(uniform_locations["particle_particleTexture"], 0);
 	glUniform1i(uniform_locations["particle_depthTexture"], 1);
-	glUniform1f(uniform_locations["particle_screen_width"],  intVals["RESOLUTION_X"]);
-	glUniform1f(uniform_locations["particle_screen_height"], intVals["RESOLUTION_Y"]);
 	
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");
@@ -199,8 +197,7 @@ void Graphics::initShaders()
 	glUniform1i(uniform_locations["lvl_baseMap3"], 3);
 	uniform_locations["lvl_ambientLight"] = glGetUniformLocation(shaders["level_program"], "ambientLight");
 	uniform_locations["lvl_activeLights"] = glGetUniformLocation(shaders["level_program"], "activeLights");
-	MAX_NUM_LIGHTS = 71;
-	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
+	int MAX_NUM_LIGHTS = 71;
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		std::stringstream ss;
@@ -248,7 +245,7 @@ void Graphics::initShaders()
 	std::cerr << std::endl;
 }
 
-void Graphics::releaseShaders()
+void Shaders::release()
 {
 	glUseProgram(0);
 	glDetachShader(shaders["unit_program"], shaders["unit_frag"]);
@@ -265,5 +262,23 @@ void Graphics::releaseShaders()
 	glDeleteShader(shaders["level_frag"]);
 	glDeleteShader(shaders["level_vert"]);
 //	glDeleteShader(shaders["level_geom"]);
+}
+
+GLint Shaders::uniform(const std::string& name) const
+{
+	auto it = uniform_locations.find(name);
+	if(it == uniform_locations.end())
+		return -1;
+	else
+		return it->second;
+}
+
+GLuint Shaders::operator[](const std::string& program_name) const
+{
+	auto it = shaders.find(program_name);
+	if(it == shaders.end())
+		return -1;
+	else
+		return it->second;
 }
 

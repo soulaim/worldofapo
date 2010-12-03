@@ -1137,8 +1137,7 @@ bool Editor::handle_input()
 		}
 		if(key == "f3")
 		{
-			view.releaseShaders();
-			view.initShaders();
+			view.reload_shaders();
 		}
 		else if(key == "f4")
 		{
