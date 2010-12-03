@@ -10,6 +10,9 @@ using namespace std;
 void VisualWorld::init()
 {
 	cerr << "VisualWorld init" << endl;
+	
+	load("visualworld.conf");
+	
 	assert(models.empty());
 	assert(meadows.empty());
 
@@ -20,8 +23,10 @@ void VisualWorld::init()
 
 void VisualWorld::decorate(const Level& lvl)
 {
+	if(active == 0)
+		return;
+	
 	cerr << "Decorating world with some random grass" << endl;
-
 	Vec3 wind(0, 0, 0);
 	size_t n = 10;
 	size_t k = 400;
@@ -48,7 +53,7 @@ void VisualWorld::decorate(const Level& lvl)
 			meadows[i].bushes.push_back(v);
 		}
 		meadows[i].center = Vec3(X, 0.0, Z);
-		meadows[i].radius = radius;
+		meadows[i].radius = radius / 2.0f;
 		meadows[i].preload();
 	}
 }

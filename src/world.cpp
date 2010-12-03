@@ -71,7 +71,16 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	// create some effect or something
 	Location zero; zero.y = FixedPoint(1, 2);
 	visualworld->addLight(nextUnitID(), pos, zero);
-	visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
+	
+	if(visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"] == 0)
+	{
+		visualworld->genParticleEmitter(pos, zero, 20, 3500, 4500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, 3, 40);
+	}
+	else
+	{
+		visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
+	}
+	
 	// 	genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 }
 
@@ -151,7 +160,7 @@ void World::doDeathFor(Unit& unit)
 		visualworld->add_message(msg.str());
 	}
 
-	visualworld->addLight(nextUnitID(), event.t_position);
+	// visualworld->addLight(nextUnitID(), event.t_position);
 	
 	if(unit.human())
 	{
