@@ -6,6 +6,7 @@
 #include "particle_source.h"
 #include "worldevent.h"
 #include "level.h"
+#include "grasscluster.h"
 
 #include "camera.h"
 
@@ -34,6 +35,8 @@ public:
 	
 	void disable();
 	void enable();
+
+	void decorate(const Level& lvl);
 	
 public:
 	std::map<int, Model*> models;
@@ -45,8 +48,7 @@ public:
 	std::vector<ParticleSource> psources;
 	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
 	
-	std::vector<Vec3> meadows;
-	std::vector<Vec3> winds;
+	std::vector<GrassCluster> meadows;
 	
 	Camera camera;
 	void setCamera(const Camera& camera);

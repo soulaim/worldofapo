@@ -7,10 +7,12 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cassert>
 
 using namespace std;
 
-Window::Window()
+Window::Window():
+	drawContext(0)
 {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
@@ -29,10 +31,15 @@ Window::~Window()
 
 void Window::createWindow(int width, int height)
 {
+	assert(width > 10);
+	assert(width <= 4096);
+	assert(height > 10);
+	assert(height <= 4096);
+
 	width_  = width;
 	height_ = height;
 	
-	SDL_FreeSurface(drawContext);
+	assert(!drawContext);
 	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);

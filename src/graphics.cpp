@@ -118,7 +118,7 @@ Graphics::Graphics(Window& w, Hud& h):
 	window(w),
 	hud(h)
 {
-	cerr << "loading config file for Graphics.." << endl;
+	cerr << "Loading config file for Graphics.." << endl;
 	load("graphics.conf");
 	
 	window.createWindow(intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
@@ -149,12 +149,12 @@ void Graphics::init(Camera& camera)
 	
 	MAX_NUM_LIGHTS = 71;
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
-	
+
 	glUseProgram(shaders["particle_program"]);
 	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"]);
 	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"]);
 	glUseProgram(0);
-	
+
 	// TODO: This is completely obsolete?
 	initLight();
 	
@@ -1129,6 +1129,8 @@ void Graphics::draw(
 
 	drawModels(visualworld.models);
 
+	drawGrass(visualworld.meadows);
+
 	if(drawDebuglines) // TODO: drawParticles_old can be removed when drawParticles is good enough.
 	{
 //		drawParticles_old(visualworld.particles);
@@ -1137,7 +1139,6 @@ void Graphics::draw(
 	{
 		drawParticles(visualworld.particles);
 	}
-	drawGrass(visualworld.meadows, visualworld.winds);
 	
 	if(drawDebuglines)
 	{
@@ -1319,39 +1320,25 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 	glEnd();
 }
 
-void Graphics::drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds)
+void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 {
-	assert(locations.size() == winds.size());
-
 	glUseProgram(shaders["grass_program"]);
-	TextureHandler::getSingleton().bindTexture(0, "meadow1");
-	glDisable(GL_CULL_FACE);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glAlphaFunc( GL_GREATER, 0.5 ) ;
-	glEnable( GL_ALPHA_TEST ) ;
-
-	glColor3f(1.0, 1.0, 1.0);
-	glColor3f(0.3, 0.3, 0.3);
-	glPointSize(5.0f);
-	glBegin(GL_POINTS);
-	for(size_t i = 0; i < locations.size(); ++i)
+	if(drawDebuglines)
 	{
-		const Vec3& v = locations[i];
-		const Vec3& wind = winds[i];
-		float scale = 1.0;
-
-		glVertexAttrib1f(shaders.uniform("grass_scale"), scale);
-		glVertexAttrib3f(shaders.uniform("grass_wind"), wind.x, wind.y, wind.z);
-		glVertex3f(v.x, v.y, v.z);
-
-		QUADS_DRAWN_THIS_FRAME += 3;
+		TextureHandler::getSingleton().bindTexture(0, "chessboard");
 	}
-	glEnd();
+	else
+	{
+		TextureHandler::getSingleton().bindTexture(0, "meadow1");
+	}
 
-	glDisable(GL_ALPHA_TEST);
-	glEnable(GL_CULL_FACE);
+	for(size_t i = 0; i < meadows.size(); ++i)
+	{
+		if(frustum.sphereInFrustum(meadows[i].center, meadows[i].radius) != FrustumR::OUTSIDE)
+		{
+			meadows[i].draw(&shaders);
+		}
+	}
 
 	glUseProgram(0);
 

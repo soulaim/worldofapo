@@ -100,7 +100,7 @@ public:
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 	
-	void drawGrass(const std::vector<Vec3>& locations, const std::vector<Vec3>& winds);
+	void drawGrass(const std::vector<GrassCluster>& meadows);
 	void drawPlayerNames(const std::map<int, Unit>& units, const std::map<int, Model*>& models);
 	
 	void toggleLightingStatus();

@@ -28,6 +28,8 @@
 #include <set>
 #include <sstream>
 
+using namespace std;
+
 Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	client_input_state(0),
 	hud(h),
@@ -37,6 +39,8 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	game(&world),
 	world(&visualworld)
 {
+	cerr << "Localplayer(...)" << endl;
+
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 	need_to_tick_world = false;
 }
@@ -60,6 +64,8 @@ void Localplayer::reset()
 
 void Localplayer::init()
 {
+	cerr << "Localplayer::init()" << endl;
+
 	soundsystem.init();
 	game.init();
 	userio->init();
@@ -78,6 +84,8 @@ void Localplayer::init()
 	Animation::load("models/skeleani.animation");
 
 	TextureHandler::getSingleton().createTextures("data/textures.txt");
+
+	visualworld.decorate(world.lvl);
 }
 
 bool Localplayer::client_tick()
