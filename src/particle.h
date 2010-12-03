@@ -40,13 +40,14 @@ public:
 	float getScale() const
 	{
 		// Don't scale too big.
-		return scale * 1.5f;
+		return scale * 1.5f * getAlpha();
 	}
 	
 	float getAlpha() const
 	{
-		float tmp = float(cur_life) / (max_life + 1);
-		return tmp * tmp;
+		// float x     = float(cur_life) / (max_life + 1);
+		float x_inv = float(max_life - cur_life) / (max_life + 1);
+		return 1.f - x_inv * x_inv;
 	}
 	
 	void getColor(float* colors) const

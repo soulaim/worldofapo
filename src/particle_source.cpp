@@ -77,7 +77,9 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 	p.target_pos = position;
 	
 	FixedPoint max_var(intVals["PSP_1000"], 1000);
-	max_var *= FixedPoint(intVals["CUR_LIFE"], intVals["MAX_LIFE"]);
+	FixedPoint fp_life(intVals["CUR_LIFE"], intVals["MAX_LIFE"]);
+	max_var *= fp_life;
+	
 	FixedPoint half_var = max_var / FixedPoint(2);
 	
 	
