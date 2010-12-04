@@ -41,13 +41,17 @@ class Graphics : public HasProperties
 	void drawSkybox();
 	
 	void drawModels(const std::map<int, Model*>& models);
+	
+	void prepareForParticleRendering();
+	void renderParticles(std::vector<Particle>&);
+	
 	void drawParticles(std::vector<Particle>&);
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
 	void updateCamera(const Level&);
 	void finishDrawing();
 	
-	void applyBlur(int blur);
+	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
 	
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
@@ -67,6 +71,9 @@ class Graphics : public HasProperties
 	
 	GLuint postFBO;
 	GLuint particlesFBO;
+	
+	GLuint particlesUpScaledFBO;
+	
 	GLuint screenFBO;
 	GLuint screenRB;
 	

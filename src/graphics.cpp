@@ -172,12 +172,17 @@ void Graphics::init(Camera& camera)
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
 	TextureHandler::getSingleton().createTexture("pp_tmp", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("pp_tmp"), 0);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
+	// glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_depth"), 0);
 	
 	glGenFramebuffersEXT(1, &particlesFBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
 	TextureHandler::getSingleton().createTexture("tmp_particles", intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("tmp_particles"), 0);
+	
+	glGenFramebuffersEXT(1, &particlesUpScaledFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesUpScaledFBO);
+	TextureHandler::getSingleton().createTexture("upscaled_particles", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("upscaled_particles"), 0);
 	
 	/*
 	glGenRenderbuffersEXT(1, &screenRB);
@@ -831,9 +836,8 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glUseProgram(0);
 }
 
-void Graphics::drawParticles(std::vector<Particle>& viewParticles)
+void Graphics::prepareForParticleRendering()
 {
-	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
@@ -841,10 +845,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
-	//glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
-	
 	glUseProgram(shaders["particle_program"]);
-	GLint scale_location = shaders.uniform("particle_particleScale");
 	
 	// Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	// depthSortParticles(direction_vector, viewParticles);
@@ -853,6 +854,11 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 	glDisable(GL_DEPTH_TEST);
+}
+
+void Graphics::renderParticles(std::vector<Particle>& viewParticles)
+{
+	GLint scale_location = shaders.uniform("particle_particleScale");
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
@@ -880,20 +886,18 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().bindTexture(1, "");
+}
+
+void Graphics::drawParticles(std::vector<Particle>& viewParticles)
+{
 	
-	// /*
+	prepareForParticleRendering();
 	
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
-	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	// create a downscaled depth texture for particle rendering
 	
+	renderParticles(viewParticles);
 	
-	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
-	
-	glUseProgram(0);
-	
-	//glBlendFunc(GL_ONE, GL_ONE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+	// upscale particle rendering result
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -901,12 +905,41 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glPushMatrix();
 	glLoadIdentity();
 	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesUpScaledFBO);
+	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
+	glUseProgram(0);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glDisable(GL_BLEND);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
+	glEnd();
+	
+	/*
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	*/
+	
+	// blur upscaled particle texture
+	applyBlur(30, "upscaled_particles", particlesUpScaledFBO);
+	
+	// render to screen.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+	TextureHandler::getSingleton().bindTexture(0, "upscaled_particles");
+	glUseProgram(0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
 	glEnd();
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -914,10 +947,9 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	
-	// */
-	
 	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
+	
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
@@ -1074,7 +1106,7 @@ void Graphics::startDrawing()
 }
 
 
-void Graphics::applyBlur(int blur)
+void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 {
 	
 	if(intVals["BLUR"])
@@ -1082,7 +1114,7 @@ void Graphics::applyBlur(int blur)
 		
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
-		TextureHandler::getSingleton().bindTexture(0, "tmp");
+		TextureHandler::getSingleton().bindTexture(0, inputImg);
 		
 		
 		glMatrixMode(GL_MODELVIEW);
@@ -1108,7 +1140,7 @@ void Graphics::applyBlur(int blur)
 		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
 		glEnd();
 		
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, renderTarget);
 		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
 		
 		glUseProgram(shaders["blur_program2"]);
@@ -1208,7 +1240,8 @@ void Graphics::draw(
 	int blur = units.find(hud.myID)->second["D"];
 	if(camera_p->mode() == Camera::STATIC)
 		blur = 0;
-	applyBlur(blur);
+	
+	applyBlur(blur, "tmp", screenFBO);
 	
 	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 	
