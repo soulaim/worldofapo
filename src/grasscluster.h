@@ -26,6 +26,7 @@ struct GrassCluster
 	Vec3 center;
 	float radius;
 	std::vector<Vec3> bushes;
+	
 private:
 	void draw_old(const Shaders* shaders) const;
 	void draw_fbo(const Shaders* shaders) const;

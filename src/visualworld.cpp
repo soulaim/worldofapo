@@ -49,11 +49,26 @@ void VisualWorld::decorate(const Level& lvl)
 			}
 
 			float y = lvl.getHeight(X + x, Z + z).getFloat();
+			
+			float y_competitors[4];
+			y_competitors[0] = lvl.getHeight(X + x + 1.f, Z + z).getFloat();
+			y_competitors[1] = lvl.getHeight(X + x - 1.f, Z + z).getFloat();
+			y_competitors[2] = lvl.getHeight(X + x, Z + z + 1.f).getFloat();
+			y_competitors[3] = lvl.getHeight(X + x, Z + z - 1.f).getFloat();
+			
+			bool nono = false;
+			for(int qq = 0; qq < 4; ++qq)
+				if( (y_competitors[qq] - y) * (y_competitors[qq] - y) > 0.2f)
+					nono = true;
+			if(nono)
+				continue;
+			
 			Vec3 v(X + x, y, Z + z);
+			
 			meadows[i].bushes.push_back(v);
 		}
 		meadows[i].center = Vec3(X, 0.0, Z);
-		meadows[i].radius = radius / 2.0f;
+		meadows[i].radius = radius;
 		meadows[i].preload();
 	}
 }

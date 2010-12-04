@@ -301,7 +301,6 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	Location p(x, 0, z);
 	interpolate(*p1, *p2, *p3, p);
 	return p.y;
-
 }
 
 

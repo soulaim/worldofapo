@@ -61,6 +61,7 @@ private:
 	void buildVarianceTree();
 	
 	Location unitVectorUp;
+	
 	Location estimateNormal(int x, int z);
 };
 
