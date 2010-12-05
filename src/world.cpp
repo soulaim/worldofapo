@@ -358,6 +358,11 @@ World::World(VisualWorld* vw)
 	init();
 }
 
+void World::buildTerrain(int n)
+{
+	lvl.generate(n);
+}
+
 void World::init()
 {
 	cerr << "World::init()" << endl;
@@ -365,8 +370,8 @@ void World::init()
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
 
-	lvl.generate(50);
-
+	// lvl.generate(50);
+	
 	// TODO: maybe move light initialization things to visualworld::init(lvl).
 
 	// find the highest point in lvl and add a strong light there.

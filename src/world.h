@@ -75,6 +75,8 @@ public:
 	void add_message(const std::string& message) const;
 	void add_event(const WorldEvent& event) const;
 	
+	void buildTerrain(int n);
+	
 private:
 	std::vector<int> deadUnits;
 	ApoMath apomath;

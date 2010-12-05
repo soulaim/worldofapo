@@ -26,6 +26,8 @@ DedicatedServer::DedicatedServer():
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
 	init();
+	
+	world.buildTerrain(1);
 }
 
 void DedicatedServer::init()

@@ -45,9 +45,12 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	need_to_tick_world = false;
 }
 
-
+// returns true on success.
 bool Localplayer::joinInternetGame(const std::string& hostname)
 {
+	world.buildTerrain(1); // TODO: Parameters should be obtained from server.
+	visualworld.decorate(world.lvl);
+	
 	return game.joinInternetGame(hostname);
 }
 
@@ -84,9 +87,8 @@ void Localplayer::init()
 	Animation::load("models/skeleani.animation");
 
 	TextureHandler::getSingleton().createTextures("data/textures.txt");
-
-	visualworld.decorate(world.lvl);
 }
+
 
 bool Localplayer::client_tick()
 {
