@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <iomanip>
 
 using namespace std;
 
@@ -89,7 +90,7 @@ std::string next_screenshot_filename()
 	do
 	{
 		stringstream ss;
-		ss << "screenshot" << next << ".bmp";
+		ss << "screenshots/screenshot" << setw(3) << setfill('0') << next << ".bmp";
 		filename = ss.str();
 		++next;
 	}
