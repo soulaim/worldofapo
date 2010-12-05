@@ -322,6 +322,9 @@ void Editor::saveAnimations(const std::string& file)
 
 void Editor::loadObjects(const string& file)
 {
+	if(file.empty())
+		return;
+
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Loading objects from '" + pathed_file + "'");
 	if(ApoModel::loadObjects(pathed_file))
@@ -339,6 +342,9 @@ void Editor::loadObjects(const string& file)
 
 void Editor::loadModel(const string& file)
 {
+	if(file.empty())
+		return;
+
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Loading model from '" + pathed_file + "'");
 
@@ -363,6 +369,9 @@ void Editor::loadModel(const string& file)
 
 void Editor::loadSkeletalModel(const string& file)
 {
+	if(file.empty())
+		return;
+
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Loading skeletal model from '" + pathed_file + "'");
 
@@ -389,6 +398,9 @@ void Editor::loadSkeletalModel(const string& file)
 
 void Editor::loadAnimations(const string& file)
 {
+	if(file.empty())
+		return;
+
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Loading animations from '" + pathed_file + "'");
 
@@ -1144,13 +1156,13 @@ bool Editor::handle_input()
 		}
 		else if(key == "f4")
 		{
-			loadObjects(objectsFile);
 			if(skele)
 			{
 				loadSkeletalModel(modelFile);
 			}
 			else
 			{
+				loadObjects(objectsFile);
 				loadModel(modelFile);
 			}
 			loadAnimations(animationsFile);
