@@ -1,0 +1,1 @@
+for i in *.bmp; do echo "converting $i .."; convert $i ${i/.bmp/.png}; done
