@@ -1255,8 +1255,11 @@ void Graphics::draw(
 	
 	drawGrass(visualworld.meadows);
 	
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	applySSAO(3.f, "tmp", "tmp_depth", screenFBO);
+	if(intVals["SSAO"])
+	{
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		applySSAO(intVals["SSAO_DISTANCE"], "tmp", "tmp_depth", screenFBO);
+	}
 	
 	drawParticles(visualworld.particles);
 	

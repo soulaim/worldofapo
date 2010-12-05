@@ -20,12 +20,14 @@ void main()
 	vec2 depthtexcoord = vec2(gl_FragCoord.x / 800.0, gl_FragCoord.y / 600.0);
 	
 	float screen_z  = texture2D(depthTexture, depthtexcoord).r;
+	float z  = LinearizeDepth(screen_z);
+	// e /= z;
+	
 	float surround1 = texture2D(depthTexture, depthtexcoord + vec2(e, 0)).r;
 	float surround2 = texture2D(depthTexture, depthtexcoord + vec2(-e, 0)).r;
 	float surround3 = texture2D(depthTexture, depthtexcoord + vec2(0, e)).r;
 	float surround4 = texture2D(depthTexture, depthtexcoord + vec2(0, -e)).r;
 	
-	float z  = LinearizeDepth(screen_z);
 	float z1 = LinearizeDepth(surround1);
 	float z2 = LinearizeDepth(surround2);
 	float z3 = LinearizeDepth(surround3);
@@ -42,7 +44,7 @@ void main()
 	//if(res <= epsilon)
 	//	res = 1.0;
 	
-	float multiplier = max(1.0 - res, 0.0);
+	float multiplier = max(1.0 - res, 0.2);
 	gl_FragColor *= vec4(multiplier, multiplier, multiplier, 1.0);
 }
 

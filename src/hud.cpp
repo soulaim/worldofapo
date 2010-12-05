@@ -164,8 +164,8 @@ void Hud::drawAmmo() const
 	if(reloading > 0.00001f)
 	{
 		// this should be centered
-		drawString("^RRELOADING", -0.2, 0.0f, 2.0f, true);
-		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.07f, -0.02f);
+		drawString("^RRELOADING", -0.2, -0.7f, 2.0f, true);
+		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.77f, -0.72f);
 	}
 }
 

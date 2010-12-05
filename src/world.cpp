@@ -72,14 +72,21 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	Location zero; zero.y = FixedPoint(1, 2);
 	// visualworld->addLight(nextUnitID(), pos, zero);
 	
-	if(visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"] == 0)
-	{
-		visualworld->genParticleEmitter(pos, zero, 50, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, 3, 80);
-	}
-	else
-	{
-		visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
-	}
+	int complexity = visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"];
+
+	stringstream ss_explosion_life; ss_explosion_life << "BOOM_" << complexity << "_LIFE";
+	int explosion_life = intVals[ss_explosion_life.str()];
+	
+	stringstream ss_explosion_ppf; ss_explosion_ppf << "BOOM_" << complexity << "_PPF";
+	int ppf = intVals[ss_explosion_ppf.str()];
+	
+	stringstream ss_explosion_plife; ss_explosion_plife << "BOOM_" << complexity << "_PLIFE";
+	int plife = intVals[ss_explosion_plife.str()];
+		
+	visualworld->genParticleEmitter(pos, zero, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
+
+	// original values for the explosion effect.
+	// visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
 	
 	// 	genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 }
@@ -366,6 +373,8 @@ void World::buildTerrain(int n)
 void World::init()
 {
 	cerr << "World::init()" << endl;
+	
+	load("world.conf");
 	
 	_unitID_next_unit = 10000;
 	_playerID_next_player = 0;
