@@ -52,6 +52,7 @@ class Graphics : public HasProperties
 	void finishDrawing();
 	
 	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
+	void applySSAO(int power, std::string inputImg, std::string depthImage, GLuint renderTarget);
 	
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();

@@ -905,12 +905,13 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glPushMatrix();
 	glLoadIdentity();
 	
+	glDisable(GL_BLEND);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, particlesUpScaledFBO);
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	TextureHandler::getSingleton().bindTexture(0, "tmp_particles");
 	glUseProgram(0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glDisable(GL_BLEND);
+	
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
 	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
@@ -918,21 +919,15 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
 	glEnd();
 	
-	/*
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	*/
-	
 	// blur upscaled particle texture
-	applyBlur(30, "upscaled_particles", particlesUpScaledFBO);
+	applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
+	applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
 	
 	// render to screen.
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, screenFBO);
-	TextureHandler::getSingleton().bindTexture(0, "upscaled_particles");
+	
 	glUseProgram(0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
@@ -1106,63 +1101,106 @@ void Graphics::startDrawing()
 }
 
 
+
+void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint renderTarget)
+{
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, renderTarget);
+	TextureHandler::getSingleton().bindTexture(0, inputImg);
+	TextureHandler::getSingleton().bindTexture(1, depthImage);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glUseProgram(shaders["ssao"]);
+	glUniform1f(shaders.uniform("ssao_power"), float(power));
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
+	//	glUseProgram(shaders["debug_program"]);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	
+	TextureHandler::getSingleton().bindTexture(1, "");
+	glUseProgram(0);
+}
+
+
 void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 {
+	glDisable(GL_DEPTH_TEST);
+	//glDepthMask(GL_FALSE);
 	
-	if(intVals["BLUR"])
-	{
-		
-		glDisable(GL_DEPTH_TEST);
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
-		TextureHandler::getSingleton().bindTexture(0, inputImg);
-		
-		
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-		
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		
-		glUseProgram(shaders["blur_program1"]);
-		glUniform1f(shaders.uniform("blur_amount1"), float(blur));
-		
-		glColor3f(1.0, 1.0, 1.0);
-		
-		//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
-		//	glUseProgram(shaders["debug_program"]);
-		
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-		glEnd();
-		
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, renderTarget);
-		TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
-		
-		glUseProgram(shaders["blur_program2"]);
-		glUniform1f(shaders.uniform("blur_amount2"), float(blur));
-		
-		glColor3f(1.0, 1.0, 1.0);
-		
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-		glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-		glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-		glEnd();
-		glEnable(GL_DEPTH_TEST);
-		
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		
-		glUseProgram(0);
-		TextureHandler::getSingleton().bindTexture(0, "");
-	}
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, postFBO);
+	TextureHandler::getSingleton().bindTexture(0, inputImg);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glUseProgram(shaders["blur_program1"]);
+	glUniform1f(shaders.uniform("blur_amount1"), float(blur));
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	//	TextureHandler::getSingleton().bindTexture(1, "tmp_depth");
+	//	glUseProgram(shaders["debug_program"]);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, renderTarget);
+	TextureHandler::getSingleton().bindTexture(0, "pp_tmp");
+	
+	glUseProgram(shaders["blur_program2"]);
+	glUniform1f(shaders.uniform("blur_amount2"), float(blur));
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
+	glEnd();
+	
+	glEnable(GL_DEPTH_TEST);
+	//glDepthMask(GL_TRUE);
+	
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	
+	glUseProgram(0);
+	// TextureHandler::getSingleton().bindTexture(0, "");
 }
 
 
@@ -1214,18 +1252,13 @@ void Graphics::draw(
 	}
 
 	drawModels(visualworld.models);
-
+	
 	drawGrass(visualworld.meadows);
-
-	if(drawDebuglines) // TODO: drawParticles_old can be removed when drawParticles is good enough.
-	{
-//		drawParticles_old(visualworld.particles);
-	}
-	else
-	{
-		drawParticles(visualworld.particles);
-		// drawParticles_old(visualworld.particles);
-	}
+	
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	applySSAO(3.f, "tmp", "tmp_depth", screenFBO);
+	
+	drawParticles(visualworld.particles);
 	
 	if(drawDebuglines)
 	{
@@ -1240,8 +1273,11 @@ void Graphics::draw(
 	int blur = units.find(hud.myID)->second["D"];
 	if(camera_p->mode() == Camera::STATIC)
 		blur = 0;
+	else if( blur > 13 )
+		blur = 13;
 	
-	applyBlur(blur, "tmp", screenFBO);
+	if(intVals["DAMAGE_BLUR"])
+		applyBlur(blur, "tmp", screenFBO);
 	
 	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 	
@@ -1433,7 +1469,6 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 
 void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 {
-	glDisable(GL_LIGHTING);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -1441,7 +1476,21 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 	glPushMatrix();
 	glLoadIdentity();
 	
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	
+	// render a menu background scene! Falling particles would be awesome.
+	
+	
+	
+	// render menu buttons on top of the scene.
+	
+	float menu_height = 0.6f;
+	float menu_y_offset  = 0.0f;
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
 	
 	for(size_t i = 0; i < buttons.size(); ++i)
 	{
@@ -1456,16 +1505,20 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
 		
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus, -1);
-		glTexCoord2f(1.f, 0.0f); glVertex3f(1, minus, -1);
-		glTexCoord2f(1.f, 1.0f); glVertex3f(1, plus, -1);
-		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus, -1);
+		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus * menu_height + menu_y_offset, -1);
+		glTexCoord2f(1.f, 0.0f); glVertex3f(+0, minus * menu_height + menu_y_offset, -1);
+		glTexCoord2f(1.f, 1.0f); glVertex3f(+0, plus  * menu_height + menu_y_offset, -1);
+		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus  * menu_height + menu_y_offset, -1);
 		glEnd();
 	}
 	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	
 	window.swap_buffers();
 }

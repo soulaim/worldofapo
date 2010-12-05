@@ -162,6 +162,13 @@ void Shaders::init()
 	printLog(shaders["grass_program"]);
 
 
+	loadFragmentShader("ssao_frag", "shaders/ssao_simple.fragment");
+	loadVertexShader("ssao_vert", "shaders/ssao_simple.vertex");
+	shaders["ssao"] = glCreateProgram();
+	glAttachShader(shaders["ssao"], shaders["ssao_frag"]);
+	glAttachShader(shaders["ssao"], shaders["ssao_vert"]);
+	glLinkProgram(shaders["ssao"]);
+	printLog(shaders["ssao"]);
 
 	loadFragmentShader("particle_frag", "shaders/particle.fragment");
 	loadVertexShader("particle_vert", "shaders/particle.vertex");
@@ -186,6 +193,13 @@ void Shaders::init()
 	uniform_locations["particle_particleScale"] = glGetAttribLocation(shaders["particle_program"], "particleScale");
 	glUniform1i(uniform_locations["particle_particleTexture"], 0);
 	glUniform1i(uniform_locations["particle_depthTexture"], 1);
+	
+	glUseProgram(shaders["ssao"]);
+	uniform_locations["ssao_power"] = glGetUniformLocation(shaders["ssao"], "power");
+	uniform_locations["ssao_texture"] = glGetUniformLocation(shaders["ssao"], "imageTexture");
+	uniform_locations["ssao_depth"] = glGetUniformLocation(shaders["ssao"], "depthTexture");
+	glUniform1i(uniform_locations["ssao_texture"], 0);
+	glUniform1i(uniform_locations["ssao_depth"], 1);
 	
 	glUseProgram(shaders["level_program"]);
 	uniform_locations["lvl_baseMap0"] = glGetUniformLocation(shaders["level_program"], "baseMap0");
