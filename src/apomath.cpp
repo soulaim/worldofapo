@@ -2,6 +2,7 @@
 #include "apomath.h"
 
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -25,26 +26,58 @@ void ApoMath::init(int size)
 	{
 		return;
 	}
-
-//	cerr << "Creating a NEW APOMATH :DD" << endl;
+	
+	cerr << "Creating a NEW APOMATH :DD" << endl;
 	DEGREES_90 = size / 4;
 	DEGREES_180 = size / 2;
 	DEGREES_360 = size;
-
-	for(int i=0; i<size; i++)
+	
+	ifstream infile("data/math.dat");
+	
+	if(infile)
 	{
-		int sin_val = 1000 * sin(2 * 3.14159265 * i / size);
-		int cos_val = 1000 * cos(2 * 3.14159265 * i / size);
-		float degree = 360. * i / size;
+		cerr << "Reading math data from file..";
 		
-		//cerr << sin_val << " " << cos_val << " " << degree << endl;
+		int sinval, cosval;
+		float degreeval;
 		
-		sin_vals.push_back(FixedPoint(sin_val, 1000));
-		cos_vals.push_back(FixedPoint(cos_val, 1000));
-		degree_vals.push_back(degree);
+		while(infile >> sinval >> cosval >> degreeval)
+		{
+			sin_vals.push_back(sinval);
+			cos_vals.push_back(sinval);
+			degree_vals.push_back(degreeval);
+		}
+		assert(sin_vals.size()    == unsigned(size));
+		assert(cos_vals.size()    == unsigned(size));
+		assert(degree_vals.size() == unsigned(size));
+		cerr << " SUCCESS!" << endl;
 	}
-
-//	cerr << "ApoMath initialized with size " << size << "\n";
+	else
+	{
+		cerr << "ERROR: math data file was not found!" << endl;
+		exit(0);
+		
+		// this code would generate a new math file, but may give different values than original
+		/*
+		ofstream outfile("data/math.dat");
+		
+		for(int i=0; i<size; i++)
+		{
+			int sin_val = 1000 * sin(2 * 3.14159265f * i / size);
+			int cos_val = 1000 * cos(2 * 3.14159265f * i / size);
+			float degree = 360. * i / size;
+			
+			outfile << sin_val << " " << cos_val << " " << degree << endl;
+			
+			sin_vals.push_back(FixedPoint(sin_val, 1000));
+			cos_vals.push_back(FixedPoint(cos_val, 1000));
+			degree_vals.push_back(degree);
+		}
+		*/
+	}
+	
+	
+	cerr << "ApoMath initialized with size " << size << "\n";
 }
 
 void ApoMath::clamp(int& angle) const

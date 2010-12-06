@@ -7,9 +7,10 @@ using namespace std;
 
 int main()
 {
-	cerr << "square root of 2 = " << FixedPoint(2).squareRoot().getFloat() << endl;
-	cerr << "square root of 3 = " << FixedPoint(3).squareRoot().getFloat() << endl;
-	cerr << "square root of 4 = " << FixedPoint(4).squareRoot().getFloat() << endl;
+	
+	cerr << "square root of 2 = " << FixedPoint(2).squareRoot() << endl;
+	cerr << "square root of 3 = " << FixedPoint(3).squareRoot() << endl;
+	cerr << "square root of 4 = " << FixedPoint(4).squareRoot() << endl;
 	
 	Location a;
 	a.x = 0;
