@@ -62,7 +62,7 @@ void Window::createWindow(int width, int height)
 	}
 	else
 	{
-		cerr << "SUCCESS: Got a drawContext!" << endl;
+//		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
 }
 

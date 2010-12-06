@@ -7,6 +7,9 @@
 
 #include <map>
 #include <string>
+#include <memory>
+
+#include "shader.h"
 
 extern GLint unit_color_location;
 extern GLint color_index_location;
@@ -23,17 +26,9 @@ public:
 
 	GLint uniform(const std::string& name) const;
 	GLuint operator[](const std::string& program_name) const;
+
 private:
-	char* readFile(const char *path);
-	void releaseFile(char* data);
-
-	void printLog(GLuint obj);
-
-	void loadVertexShader(const std::string& name, const std::string& filename);
-	void loadFragmentShader(const std::string& name, const std::string& filename);
-	void loadGeometryShader(const std::string& name, const std::string& filename);
-
-	std::map<std::string, GLuint> shaders;
+	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::map<std::string, GLint> uniform_locations;
 };
 

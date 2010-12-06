@@ -26,7 +26,7 @@ GrassCluster::GrassCluster():
 
 void GrassCluster::preload()
 {
-	std::cerr << "Preloading grasscluster buffers." << std::endl;
+//	std::cerr << "Preloading grasscluster buffers." << std::endl;
 
 	assert(!buffers_loaded);
 	glGenBuffers(BUFFERS, locations);
