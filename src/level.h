@@ -18,15 +18,8 @@ struct Level
 	
 	void generate(int);
 	
-#ifndef _WIN32
-	void splitBTT(const Location& position, const FrustumR& frustum);
-#else
-	void splitBTT(const Location& position, const FrustumR& frustum)
-	{
-		btt.doSplit(pointheight_info, variance_tree, position, frustum);
-	}
-#endif
-
+	void splitBTT(const Location& pos, const FrustumR& frustum);
+	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int);
 	
@@ -68,6 +61,7 @@ private:
 	void buildVarianceTree();
 	
 	Location unitVectorUp;
+	RandomMachine randomer;
 	
 	Location estimateNormal(int x, int z);
 };

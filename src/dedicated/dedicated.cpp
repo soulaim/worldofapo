@@ -43,7 +43,7 @@ void DedicatedServer::init()
 	fps_world.reset(milliseconds);
 	
 	srand(time(0));
-
+	
 	// TODO: This should definetly not be necessary to do in the server :D
 	ModelFactory::load(World::BULLET_MODEL, "", "");
 	ModelFactory::load(World::PLAYER_MODEL, "", ""); // TODO: (pre)loading any skeletalmodel in server fails because OpenGL is not initialized.

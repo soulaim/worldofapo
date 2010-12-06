@@ -9,13 +9,10 @@ using namespace std;
 // level size should be ((2^n) + 1) because binary triangle trees work best then.
 #define LEVEL_LVLSIZE 129
 
-
-/*
 void Level::splitBTT(const Location& position, const FrustumR& frustum)
 {
 	btt.doSplit(pointheight_info, variance_tree, position, frustum);
 }
-*/
 
 Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
@@ -43,12 +40,6 @@ Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 		h_diff[i].resize(pointheight_info[i].size(), FixedPoint(0));
 }
 
-#ifndef _WIN32
-void Level::splitBTT(const Location& position, const FrustumR& frustum)
-{
-	btt.doSplit(pointheight_info, variance_tree, position, frustum);
-}
-#endif
 
 void Level::buildVarianceTree()
 {
@@ -317,7 +308,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 void Level::generate(int seed)
 {
-	srand(seed);
+	randomer.setSeed(seed);
 	
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
@@ -328,8 +319,8 @@ void Level::generate(int seed)
 	for(int i=0; i<350; i++)
 	{
 		
-		int x_p = rand() % pointheight_info.size();
-		int y_p = rand() % pointheight_info[x_p].size();
+		int x_p = randomer.getInt() % pointheight_info.size();
+		int y_p = randomer.getInt() % pointheight_info[x_p].size();
 		FixedPoint height = FixedPoint(15);
 		
 		for(int k=0; k<15; k++)
@@ -349,16 +340,16 @@ void Level::generate(int seed)
 				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
 			}
 			
-			x_p += (rand() % 3) - 1;
-			y_p += (rand() % 3) - 1;
+			x_p += (randomer.getInt() % 3) - 1;
+			y_p += (randomer.getInt() % 3) - 1;
 		}
 	}
 	
 	// create some valleys
 	for(int i=0; i<150; i++)
 	{
-		int x_p = rand() % pointheight_info.size();
-		int y_p = rand() % pointheight_info[x_p].size();
+		int x_p = randomer.getInt() % pointheight_info.size();
+		int y_p = randomer.getInt() % pointheight_info[x_p].size();
 		FixedPoint height = FixedPoint(-2);
 		
 		for(int k=0; k<20; k++)
@@ -379,8 +370,8 @@ void Level::generate(int seed)
 				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
 			}
 			
-			x_p += (rand() % 3) - 1;
-			y_p += (rand() % 3) - 1;
+			x_p += (randomer.getInt() % 3) - 1;
+			y_p += (randomer.getInt() % 3) - 1;
 		}
 	}
 	
@@ -389,8 +380,8 @@ void Level::generate(int seed)
 	for(int i=0; i<150; i++)
 	{
 		
-		int x_p = rand() % pointheight_info.size();
-		int y_p = rand() % pointheight_info[x_p].size();
+		int x_p = randomer.getInt() % pointheight_info.size();
+		int y_p = randomer.getInt() % pointheight_info[x_p].size();
 		FixedPoint height = FixedPoint(2);
 		
 		for(int k=0; k<20; k++)
@@ -411,8 +402,8 @@ void Level::generate(int seed)
 					updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
 				}
 				
-				x_p += (rand() % 3) - 1;
-			y_p += (rand() % 3) - 1;
+				x_p += (randomer.getInt() % 3) - 1;
+			y_p += (randomer.getInt() % 3) - 1;
 		}
 	}
 	
