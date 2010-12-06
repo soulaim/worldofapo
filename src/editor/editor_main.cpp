@@ -5,8 +5,10 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+	cerr << "LOL: " << argc << " " << argv << endl;
+	
 	cerr << "Starting logger" << endl;
 	Logger log;
 	log.open("editor.log");

@@ -7,7 +7,7 @@ const double head_level = 4.0;
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),
 	unit(0),
-	mode_(RELATIVE)
+	mode_(THIRD_PERSON)
 {
 	cur_sin = 0.f;
 	cur_cos = 0.f;
@@ -32,7 +32,7 @@ Vec3& Camera::getTarget()
 
 void Camera::setAboveGround(float min_cam_y)
 {
-	if(mode_ == RELATIVE)
+	if(mode_ == THIRD_PERSON)
 	{
 		//std::cerr << min_cam_y << "\n";
 		if(currentPosition.y + currentRelative.y < min_cam_y)
@@ -65,7 +65,7 @@ Vec3 Camera::getPosition() const
 {
 	//if(unit)
 	//{
-		if(mode_ == RELATIVE)
+		if(mode_ == THIRD_PERSON)
 		{
 			return currentPosition + currentRelative;
 		}
@@ -84,7 +84,7 @@ void Camera::tick()
 {
 	if(unit)
 	{
-		if(mode_ == RELATIVE)
+		if(mode_ == THIRD_PERSON)
 		{
 			relativeTick();
 		}
@@ -155,7 +155,7 @@ void Camera::updateInput(int keystate)
 
 	if(keystate & 1 << 18)
 	{
-		setMode(Camera::RELATIVE);
+		setMode(Camera::THIRD_PERSON);
 	}
 	if(keystate & 1 << 19)
 	{
@@ -259,7 +259,7 @@ void Camera::relativeTick()
 
 void Camera::zoomIn()
 {
-	if(mode_ == RELATIVE || mode_ == STATIC)
+	if(mode_ == THIRD_PERSON || mode_ == STATIC)
 	{
 		if(position.length() > 1.0)
 		{
@@ -276,7 +276,7 @@ void Camera::zoomIn()
 
 void Camera::zoomOut()
 {
-	if(mode_ == RELATIVE || mode_ == STATIC)
+	if(mode_ == THIRD_PERSON || mode_ == STATIC)
 	{
 		if(position.length() < 100.0)
 		{
@@ -300,7 +300,7 @@ float Camera::getXrot()
 		v1.normalize();
 		Vec3 v2(-1, 0, 0);
 		float angle = atan2(v2.z, v2.x) - atan2(v1.z, v1.x);
-		return angle / M_PI * 180.0 + 90.0;
+		return angle / 3.14159265f * 180.0f + 90.0f;
 	}
 
 	static float x_rot = 0.f;
@@ -316,7 +316,7 @@ float Camera::getYrot()
 		Vec3 v1 = currentTarget - currentPosition;
 		v1.normalize();
 		float angle = acos(v1.innerProduct(Vec3(0,1,0)));
-		return -angle / M_PI * 180.0 + 180.0;
+		return -angle / 3.14159265f * 180.0f + 180.0f;
 	}
 
 	static float y_rot = 0.f;

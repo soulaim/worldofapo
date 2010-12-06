@@ -8,13 +8,20 @@
 #include <iostream>
 
 #include <sys/types.h>
+
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <sys/socket.h>
-#include <errno.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <limits.h>
-#include <netdb.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#endif
+
+#include <errno.h>
+// #include <unistd.h>
+#include <limits.h>
+
 
 class SocketHandler;
 

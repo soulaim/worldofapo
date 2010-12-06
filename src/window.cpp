@@ -1,5 +1,9 @@
 #include "window.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <SDL.h>
 #include <GL/gl.h>
 

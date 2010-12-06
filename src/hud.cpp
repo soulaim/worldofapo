@@ -149,7 +149,7 @@ void Hud::drawAmmo() const
 	{
 		colorCode = "^R";
 	}
-
+	
 	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
 	
 	/*

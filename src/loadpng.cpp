@@ -17,9 +17,9 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	int           bit_depth;
 	int           color_type;
 	
-	unsigned long width;            /* PNG image width in pixels */
-	unsigned long height;           /* PNG image height in pixels */
-	unsigned int rowbytes;         /* raw bytes at row n in image */
+	png_uint_32 width;            /* PNG image width in pixels */
+	png_uint_32 height;           /* PNG image height in pixels */
+	png_uint_32 rowbytes;         /* raw bytes at row n in image */
 	
 	image_data = NULL;
 	unsigned long i;
@@ -39,7 +39,7 @@ int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, cha
 	
 	/* Check for the 8-byte signature */
 	size_t ret = fread(sig, 1, 8, infile);
-	if(ret != 8 || !png_check_sig((unsigned char *) sig, 8))
+	if(ret != 8) // || !png_check_sig((unsigned char *) sig, 8)) // TODO: hahahahahahahahahahahahahahahaha :G
 	{
 		fclose(infile);
 		return 0;

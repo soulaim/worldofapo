@@ -1,7 +1,14 @@
 #include "texturehandler.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include "glew/glew.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
+#include <GL/glu.h>
+
 
 #include <iostream>
 #include <cassert>
@@ -19,8 +26,12 @@ std::map<std::string, unsigned> textures;
 TextureHandler::TextureHandler()
 {
 	int max_texture_units = 0;
+#ifndef _WIN32
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &max_texture_units);
 	cerr << "Max texture units: " << max_texture_units << endl;
+#else
+	max_texture_units = 4; // make a wild guess :DD
+#endif
 	current_textures.resize(max_texture_units);
 }
 
@@ -126,7 +137,12 @@ unsigned TextureHandler::createDepthTexture(const std::string& name, int width, 
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // scale linearly when image smalled than texture
+
+#ifndef _WIN32
+	// not really sure if this is 100% necessary anyway..
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_NONE);
+#endif
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
 	return textures[name];
 }

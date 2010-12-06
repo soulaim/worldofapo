@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\bin\graphics.conf" />
+    <None Include="..\bin\hud.conf" />
+    <None Include="..\bin\shaders\blur.vertex" />
+    <None Include="..\bin\shaders\blur_horizontalpass.fragment" />
+    <None Include="..\bin\shaders\blur_verticalpass.fragment" />
+    <None Include="..\bin\shaders\debugdepth.fragment" />
+    <None Include="..\bin\shaders\grass.fragment" />
+    <None Include="..\bin\shaders\grass.geometry" />
+    <None Include="..\bin\shaders\grass.vertex" />
+    <None Include="..\bin\shaders\level.fragment" />
+    <None Include="..\bin\shaders\level.geometry" />
+    <None Include="..\bin\shaders\level.vertex" />
+    <None Include="..\bin\shaders\particle.fragment" />
+    <None Include="..\bin\shaders\particle.geometry" />
+    <None Include="..\bin\shaders\particle.vertex" />
+    <None Include="..\bin\shaders\ssao.fragment" />
+    <None Include="..\bin\shaders\ssao.vertex" />
+    <None Include="..\bin\shaders\ssao_simple.fragment" />
+    <None Include="..\bin\shaders\ssao_simple.vertex" />
+    <None Include="..\bin\shaders\unit.fragment" />
+    <None Include="..\bin\shaders\unit.vertex" />
+    <None Include="..\bin\visualworld.conf" />
+    <None Include="..\bin\world.conf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\algorithms.cpp" />
+    <ClCompile Include="..\src\animation.cpp" />
+    <ClCompile Include="..\src\apomath.cpp" />
+    <ClCompile Include="..\src\apomodel.cpp" />
+    <ClCompile Include="..\src\btt.cpp" />
+    <ClCompile Include="..\src\camera.cpp" />
+    <ClCompile Include="..\src\collision.cpp" />
+    <ClCompile Include="..\src\fixed_point.cpp" />
+    <ClCompile Include="..\src\font.cpp" />
+    <ClCompile Include="..\src\fps_manager.cpp" />
+    <ClCompile Include="..\src\frustum\frustumr.cpp" />
+    <ClCompile Include="..\src\frustum\matrix4.cpp" />
+    <ClCompile Include="..\src\frustum\plane.cpp" />
+    <ClCompile Include="..\src\frustum\vec3.cpp" />
+    <ClCompile Include="..\src\game.cpp" />
+    <ClCompile Include="..\src\gamesound.cpp" />
+    <ClCompile Include="..\src\graphics.cpp" />
+    <ClCompile Include="..\src\grasscluster.cpp" />
+    <ClCompile Include="..\src\hud.cpp" />
+    <ClCompile Include="..\src\image.cpp" />
+    <ClCompile Include="..\src\invisiblemodel.cpp" />
+    <ClCompile Include="..\src\keymanager.cpp" />
+    <ClCompile Include="..\src\level.cpp" />
+    <ClCompile Include="..\src\lightsource.cpp" />
+    <ClCompile Include="..\src\loadpng.cpp" />
+    <ClCompile Include="..\src\localplayer.cpp" />
+    <ClCompile Include="..\src\location.cpp" />
+    <ClCompile Include="..\src\logger.cpp" />
+    <ClCompile Include="..\src\main\main.cpp" />
+    <ClCompile Include="..\src\medikit.cpp" />
+    <ClCompile Include="..\src\menu.cpp" />
+    <ClCompile Include="..\src\model.cpp" />
+    <ClCompile Include="..\src\modelfactory.cpp" />
+    <ClCompile Include="..\src\movable_object.cpp" />
+    <ClCompile Include="..\src\net\socket.cpp" />
+    <ClCompile Include="..\src\net\socket_handler.cpp" />
+    <ClCompile Include="..\src\octree.cpp" />
+    <ClCompile Include="..\src\octree_object.cpp" />
+    <ClCompile Include="..\src\ordercontainer.cpp" />
+    <ClCompile Include="..\src\particle_source.cpp" />
+    <ClCompile Include="..\src\playerinfo.cpp" />
+    <ClCompile Include="..\src\projectile.cpp" />
+    <ClCompile Include="..\src\shaders.cpp" />
+    <ClCompile Include="..\src\skeletalmodel.cpp" />
+    <ClCompile Include="..\src\string2rgb.cpp" />
+    <ClCompile Include="..\src\texturehandler.cpp" />
+    <ClCompile Include="..\src\unit.cpp" />
+    <ClCompile Include="..\src\userio.cpp" />
+    <ClCompile Include="..\src\visualworld.cpp" />
+    <ClCompile Include="..\src\weapon.cpp" />
+    <ClCompile Include="..\src\window.cpp" />
+    <ClCompile Include="..\src\world.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\algorithms.h" />
+    <ClInclude Include="..\src\animation.h" />
+    <ClInclude Include="..\src\apomath.h" />
+    <ClInclude Include="..\src\apomodel.h" />
+    <ClInclude Include="..\src\btt.h" />
+    <ClInclude Include="..\src\camera.h" />
+    <ClInclude Include="..\src\collision.h" />
+    <ClInclude Include="..\src\fixed_point.h" />
+    <ClInclude Include="..\src\font.h" />
+    <ClInclude Include="..\src\fps_manager.h" />
+    <ClInclude Include="..\src\frustum\frustumr.h" />
+    <ClInclude Include="..\src\frustum\matrix4.h" />
+    <ClInclude Include="..\src\frustum\plane.h" />
+    <ClInclude Include="..\src\frustum\vec3.h" />
+    <ClInclude Include="..\src\game.h" />
+    <ClInclude Include="..\src\gamesound.h" />
+    <ClInclude Include="..\src\graphics.h" />
+    <ClInclude Include="..\src\grasscluster.h" />
+    <ClInclude Include="..\src\hasproperties.h" />
+    <ClInclude Include="..\src\hud.h" />
+    <ClInclude Include="..\src\image.h" />
+    <ClInclude Include="..\src\invisiblemodel.h" />
+    <ClInclude Include="..\src\item.h" />
+    <ClInclude Include="..\src\keymanager.h" />
+    <ClInclude Include="..\src\level.h" />
+    <ClInclude Include="..\src\lightsource.h" />
+    <ClInclude Include="..\src\light_object.h" />
+    <ClInclude Include="..\src\localplayer.h" />
+    <ClInclude Include="..\src\location.h" />
+    <ClInclude Include="..\src\logger.h" />
+    <ClInclude Include="..\src\medikit.h" />
+    <ClInclude Include="..\src\menu.h" />
+    <ClInclude Include="..\src\menubutton.h" />
+    <ClInclude Include="..\src\model.h" />
+    <ClInclude Include="..\src\modelfactory.h" />
+    <ClInclude Include="..\src\movable_object.h" />
+    <ClInclude Include="..\src\net\socket.h" />
+    <ClInclude Include="..\src\net\socket_handler.h" />
+    <ClInclude Include="..\src\octree.h" />
+    <ClInclude Include="..\src\octree_object.h" />
+    <ClInclude Include="..\src\order.h" />
+    <ClInclude Include="..\src\ordercontainer.h" />
+    <ClInclude Include="..\src\particle.h" />
+    <ClInclude Include="..\src\particle_source.h" />
+    <ClInclude Include="..\src\playerinfo.h" />
+    <ClInclude Include="..\src\primitives.h" />
+    <ClInclude Include="..\src\projectile.h" />
+    <ClInclude Include="..\src\random.h" />
+    <ClInclude Include="..\src\shaders.h" />
+    <ClInclude Include="..\src\skeletalmodel.h" />
+    <ClInclude Include="..\src\string2rgb.h" />
+    <ClInclude Include="..\src\stringsystem.h" />
+    <ClInclude Include="..\src\texturecoordinate.h" />
+    <ClInclude Include="..\src\texturehandler.h" />
+    <ClInclude Include="..\src\unit.h" />
+    <ClInclude Include="..\src\userio.h" />
+    <ClInclude Include="..\src\viewmessage.h" />
+    <ClInclude Include="..\src\visualworld.h" />
+    <ClInclude Include="..\src\weapon.h" />
+    <ClInclude Include="..\src\window.h" />
+    <ClInclude Include="..\src\world.h" />
+    <ClInclude Include="..\src\worldevent.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4D370D6D-0002-4D49-9407-CE1825227F23}</ProjectGuid>
+    <RootNamespace>diablo2</RootNamespace>
+    <ProjectName>client</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng\;$(IncludePath)</IncludePath>
+    <LibraryPath>..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libpng.lib;zlib.lib;SDL_mixer.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libpng.lib;zlib.lib;SDL_mixer.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

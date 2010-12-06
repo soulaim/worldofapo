@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 #define ANG2RAD 3.14159265358979323846/360.0 
 
@@ -206,7 +206,7 @@ int FrustumR::sphereInFrustum(const Vec3 &p, float radius) const {
 
 }
 
-
+/*
 void FrustumR::drawPoints() {
 
 
@@ -379,4 +379,4 @@ void FrustumR::printPlanes() {
 			printf("\n");
 	}
 }
-
+*/

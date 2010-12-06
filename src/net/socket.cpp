@@ -16,6 +16,47 @@ char SHARED_READ_BUFFER[READ_BUFFER_SIZE];
 
 using namespace std;
 
+#ifdef _WIN32
+namespace
+{
+class SocketInitializer
+{
+public:
+	SocketInitializer()
+	{
+		WSADATA wsaData;
+		WORD version;
+		int error;
+
+		version = MAKEWORD( 2, 0 );
+
+		error = WSAStartup( version, &wsaData );
+
+		if ( error != 0 )
+		{
+			exit(-1);
+		}
+
+		/* check for correct version */
+		if ( LOBYTE( wsaData.wVersion ) != 2 ||
+			HIBYTE( wsaData.wVersion ) != 0 )
+		{
+			/* incorrect WinSock version */
+			WSACleanup();
+			exit(-1);
+		}
+
+		cerr << "WinSock jee" << endl;
+
+		/* WinSock has been initialized */
+	}
+};
+SocketInitializer socket_initializer;
+};
+
+#endif
+
+
 MU_Socket::MU_Socket()
 {
 	alive = true;
@@ -63,6 +104,9 @@ int MU_Socket::readyToRead()
 
 int MU_Socket::setnonblocking()
 {
+#ifdef _WIN32
+	return 1;
+#else
 	if(!alive)
 		return 0;
 	
@@ -82,6 +126,7 @@ int MU_Socket::setnonblocking()
 	
 	cerr << "non blocking state change was successful." << endl;
 	return 1;
+#endif
 }
 
 int MU_Socket::conn_init(const string& host, int port)
@@ -190,7 +235,11 @@ string MU_Socket::read()
 
 void MU_Socket::closeConnection()
 {
+#ifndef _WIN32
 	close(sock);
+#else
+	closesocket(sock);
+#endif
 }
 
 

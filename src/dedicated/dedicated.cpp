@@ -4,16 +4,23 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <ctime>
 
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 using namespace std;
 
 long long time_now()
 {
+#ifdef _WIN32
+	return clock();
+#else
 	timeval t;
 	gettimeofday(&t,NULL);
 	return t.tv_sec * 1000 + t.tv_usec / 1000;
+#endif
 }
 
 

@@ -488,7 +488,7 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 				 // TODO: These coordinates are like :G
 				const int divisions = 25;
 //				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
-				TextureCoordinate tc1 = { float(x) / (height/divisions), float(z) / (width/divisions) };
+				TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
 				

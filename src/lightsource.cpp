@@ -3,12 +3,15 @@
 
 using namespace std;
 
-LightSource::LightSource(): c_diffuse_start({})
+LightSource::LightSource()
 {
 	lightActive = false; // default state of a light emitter is OFF
 	linear_attenuation    = 0.0f;
 	quadratic_attenuation = 0.0002f;
 	
+	for(int i=0; i<4; i++)
+		c_diffuse_start[i] = 0.f;
+
 	life_maximum = 0;
 	life_current = 0;
 	power_maximum = 0;

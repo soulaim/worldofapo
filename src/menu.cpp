@@ -8,10 +8,13 @@
 
 #include <vector>
 
+#ifndef _WIN32
 #include <sys/wait.h>
+#endif
 
 using namespace std;
 
+#ifndef _WIN32
 pid_t serverpid = 0;
 
 void server_killer()
@@ -25,6 +28,7 @@ void server_killer()
 	pid_t pid = wait(&status);
 	cerr << "Server process " << pid << " died: " << status << endl;
 }
+#endif
 
 Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
@@ -91,6 +95,7 @@ std::string Menu::menu_tick()
 			{
 				return "exit";
 			}
+#ifndef _WIN32
 			else if(buttons[selected].name == "host" && serverpid == 0)
 			{
 				pid_t pid = fork();
@@ -107,6 +112,7 @@ std::string Menu::menu_tick()
 				ret = "localhost";
 				dont_exit = false;
 			}
+#endif
 			else
 			{
 				cerr << "STUPID USER!!" << endl;

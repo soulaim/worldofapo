@@ -13,8 +13,10 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+	cerr << "LOL: " << argc << " " << argv << endl;
+	
 	cerr << "starting logger" << endl;
 	Logger log;
 	log.open("gamelog.log");

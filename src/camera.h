@@ -18,7 +18,7 @@ public:
 	enum FollowMode
 	{
 		STATIC, // Camera doesn't care about unit's direction.
-		RELATIVE, // Camera rotates if unit rotates.
+		THIRD_PERSON, // Camera rotates if unit rotates.
 		FIRST_PERSON // Camera moves at unit's location
 	};
 	

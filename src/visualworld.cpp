@@ -123,7 +123,7 @@ void VisualWorld::setCamera(const Camera& cam)
 
 void VisualWorld::bindCamera(Unit* unit)
 {
-	camera.bind(unit, Camera::RELATIVE);
+	camera.bind(unit, Camera::THIRD_PERSON);
 }
 
 void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)

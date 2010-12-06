@@ -76,10 +76,10 @@ TextureCoordinates Font::texture_coordinates(char c)
 
 	float edge_size = 1./16.;
 
-	coords.corner[0] = { x     * edge_size,       y * edge_size };
-	coords.corner[1] = { (x+1) * edge_size,       y * edge_size };
-	coords.corner[2] = { (x+1) * edge_size, (y + 1) * edge_size };
-	coords.corner[3] = {     x * edge_size, (y + 1) * edge_size };
+	coords.corner[0] = TextureCoordinate( x     * edge_size,       y * edge_size );
+	coords.corner[1] = TextureCoordinate( (x+1) * edge_size,       y * edge_size );
+	coords.corner[2] = TextureCoordinate( (x+1) * edge_size, (y + 1) * edge_size );
+	coords.corner[3] = TextureCoordinate(     x * edge_size, (y + 1) * edge_size );
 
 	return coords;
 }
