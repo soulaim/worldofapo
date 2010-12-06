@@ -78,6 +78,8 @@
     <ClCompile Include="..\src\particle_source.cpp" />
     <ClCompile Include="..\src\playerinfo.cpp" />
     <ClCompile Include="..\src\projectile.cpp" />
+    <ClCompile Include="..\src\random.cpp" />
+    <ClCompile Include="..\src\shader.cpp" />
     <ClCompile Include="..\src\shaders.cpp" />
     <ClCompile Include="..\src\skeletalmodel.cpp" />
     <ClCompile Include="..\src\string2rgb.cpp" />

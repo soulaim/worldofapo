@@ -9,11 +9,6 @@ using namespace std;
 // level size should be ((2^n) + 1) because binary triangle trees work best then.
 #define LEVEL_LVLSIZE 129
 
-void Level::splitBTT(const Location& position, const FrustumR& frustum)
-{
-	btt.doSplit(pointheight_info, variance_tree, position, frustum);
-}
-
 Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 {
 	unitVectorUp.x = FixedPoint(0);

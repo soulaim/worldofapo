@@ -5,7 +5,7 @@
 #include <iostream>
 #include <map>
 
-class Mix_Chunk;
+struct Mix_Chunk;
 
 class GameSound
 {

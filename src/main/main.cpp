@@ -15,6 +15,9 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+	cerr << "int:" << sizeof(int) << endl;
+	cerr << "long:" << sizeof(long) << endl;
+	cerr << "long long:" << sizeof(long long) << endl;
 	cerr << "LOL: " << argc << " " << argv << endl;
 	
 	cerr << "starting logger" << endl;

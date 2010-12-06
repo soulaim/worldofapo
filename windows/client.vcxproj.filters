@@ -250,6 +250,12 @@
     <ClCompile Include="..\src\main\main.cpp">
       <Filter>Source Files\main</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\random.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\algorithms.h">

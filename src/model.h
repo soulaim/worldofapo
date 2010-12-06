@@ -8,8 +8,9 @@
 #include "animation.h"
 #include "frustum/vec3.h"
 
-struct Model
+class Model
 {
+public:
 	std::string texture_name;
 	std::string animation_name;
 	int animation_time;

@@ -6,8 +6,8 @@
 #include <vector>
 #include <memory>
 
-struct FrustumR;
-struct Location;
+class FrustumR;
+class Location;
 
 struct BTT_Point
 {

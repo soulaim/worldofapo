@@ -10,7 +10,7 @@ Matrix4::Matrix4(float rotx, float roty, float rotz, float dx, float dy, float d
 {
 	// http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
-	const float conv = 3.14159265 / 180.0f;
+	const float conv = 3.14159265f / 180.0f;
 	float sx = sin(rotx * conv);
 	float sy = sin(roty * conv);
 	float sz = sin(rotz * conv);

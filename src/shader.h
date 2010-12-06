@@ -25,9 +25,9 @@ public:
 	GLuint get_program() const;
 
 private:
-	Shader() = delete;
-	Shader(const Shader& shader) = delete;
-	Shader& operator=(const Shader& shader) = delete;
+	Shader();
+	Shader(const Shader& shader);
+	Shader& operator=(const Shader& shader); // disabled for all of these
 	
 	static char* readFile(const char *path);
 	static void releaseFile(char* data);

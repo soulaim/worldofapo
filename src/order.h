@@ -17,7 +17,7 @@ struct Order
 	int mousey;
 	int serverCommand;
 	int mouseButtons;
-	unsigned long checksum;
+	unsigned long long checksum;
 	
 	bool operator < (const Order& a) const
 	{

@@ -17,9 +17,9 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
-unsigned long World::checksum() const
+unsigned long long World::checksum() const
 {
-	unsigned long hash = 5381;
+	unsigned long long hash = 5381;
 	
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{

@@ -240,19 +240,19 @@ struct BTT_Node
 			// TODO ALERT: ffs.. EIGHT?? should maybe somehow get the number from level.
 			// TODO ALERT: heights of points are not zero. need to fix this.
 			Vec3 points[3];
-			points[0].x = p_left.x * 8;
-			points[0].z = p_left.z * 8;
-			points[0].y = 0; // lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
+			points[0].x = p_left.x * 8.0f;
+			points[0].z = p_left.z * 8.0f;
+			points[0].y = 0.0f; // lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
 			
-			points[1].x = p_right.x * 8;
-			points[1].z = p_right.z * 8;
-			points[1].y = 0; // lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
+			points[1].x = p_right.x * 8.0f;
+			points[1].z = p_right.z * 8.0f;
+			points[1].y = 0.0f; // lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
 			
-			points[2].x = p_top.x * 8;
-			points[2].z = p_top.z * 8;
-			points[2].y = 0; // lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
+			points[2].x = p_top.x * 8.0f;
+			points[2].z = p_top.z * 8.0f;
+			points[2].y = 0.0f; // lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
 			
-			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3;
+			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3.0f;
 			float r = (semiAverage - points[0]).length();
 			
 			

@@ -163,7 +163,7 @@ void ApoModel::drawPartsRecursive(int current_node) const
 	
 	if(node.hilight)
 	{
-		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
+		glUniform4f(unit_color_location, 0.7f, 0.7f, 0.7f, 0.5f);
 	}
 	
 	// restore rotations

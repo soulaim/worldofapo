@@ -7,6 +7,7 @@
 #include "fixed_point.h"
 #include "location.h"
 #include "btt.h"
+#include "random.h"
 
 struct Level
 {
@@ -18,7 +19,10 @@ struct Level
 	
 	void generate(int);
 	
-	void splitBTT(const Location& pos, const FrustumR& frustum);
+	void splitBTT(const Location& position, const FrustumR& frustum)
+	{
+		btt.doSplit(pointheight_info, variance_tree, position, frustum);
+	}
 	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int);

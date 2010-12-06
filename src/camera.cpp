@@ -193,7 +193,7 @@ void Camera::fpsTick()
 	camTarget.y = unitPos.y.getFloat() + head_level;
 	camTarget.z = unitPos.z.getFloat();
 	
-	currentPosition += (camTarget - currentPosition) * 0.2;
+	currentPosition += (camTarget - currentPosition) * 0.2f;
 	
 	fps_direction = currentPosition;
 	fps_direction.x -= relative_position.x;
@@ -204,8 +204,8 @@ void Camera::fpsTick()
 void Camera::staticTick()
 {
 	ApoMath math;
-	double angle1 = math.getDegrees(unit->angle);
-	double angle2 = math.getDegrees(unit->upangle) + 90;
+	float angle1 = math.getDegrees(unit->angle);
+	float angle2 = math.getDegrees(unit->upangle) + 90;
 	Matrix4 rotation1(0, angle1, 0, 0,0,0);
 	Matrix4 rotation2(0, 0, angle2, 0,0,0);
 	
@@ -217,9 +217,9 @@ void Camera::staticTick()
 
 void Camera::getRelativePos(Vec3& result)
 {
-	double x = position.x;
-	double y = position.y;
-	double z = position.z;
+	float x = position.x;
+	float y = position.y;
+	float z = position.z;
 	
 	result.x = cur_cos * cur_upcos * x - cur_sin * z + cur_cos * cur_upsin * y;
 	result.z = cur_sin * cur_upcos * x + cur_cos * z + cur_sin * cur_upsin * y;
@@ -250,7 +250,7 @@ void Camera::relativeTick()
 	camTarget.y = unitPos.y.getFloat() + head_level;
 	camTarget.z = unitPos.z.getFloat();
 	
-	float multiplier = 0.04;
+	float multiplier = 0.04f;
 	
 	currentRelative += (relative_position - currentRelative) * multiplier;
 	currentPosition += (camTarget - currentPosition) * multiplier;
@@ -261,14 +261,14 @@ void Camera::zoomIn()
 {
 	if(mode_ == THIRD_PERSON || mode_ == STATIC)
 	{
-		if(position.length() > 1.0)
+		if(position.length() > 1.0f)
 		{
-			position *= 2.0/3.0;
+			position *= 2.0f/3.0f;
 		}
 	}
 	else if(mode_ == FIRST_PERSON)
 	{
-		fov /= 1.2;
+		fov /= 1.2f;
 		if(fov < min_fov)
 			fov = min_fov;
 	}
@@ -278,14 +278,14 @@ void Camera::zoomOut()
 {
 	if(mode_ == THIRD_PERSON || mode_ == STATIC)
 	{
-		if(position.length() < 100.0)
+		if(position.length() < 100.0f)
 		{
-			position *= 3.0/2.0;
+			position *= 3.0f/2.0f;
 		}
 	}
 	else if(mode_ == FIRST_PERSON)
 	{
-		fov *= 1.2;
+		fov *= 1.2f;
 		if(fov > max_fov)
 			fov = max_fov;
 	}

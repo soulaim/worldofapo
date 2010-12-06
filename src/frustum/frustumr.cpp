@@ -56,7 +56,7 @@ void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD
 
 	// compute width and height of the near and far plane sections
 	tang = tan(this->angle);
-	sphereFactorY = 1.0/cos(this->angle);//tang * sin(this->angle) + cos(this->angle);
+	sphereFactorY = 1.0f/cos(this->angle);//tang * sin(this->angle) + cos(this->angle);
 
 	float anglex = atan(tang*ratio);
 	sphereFactorX = 1.0/cos(anglex); //tang*ratio * sin(anglex) + cos(anglex);

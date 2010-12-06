@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-struct Location
+class Location
 {
-
+public:
 	Location();
 	Location(const FixedPoint& a, const FixedPoint& b, const FixedPoint& c);
 	
