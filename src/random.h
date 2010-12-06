@@ -6,24 +6,22 @@ float randf(float min, float max);
 class RandomMachine
 {
 public:
-	RandomMachine(): seed(1), i(1)
+	RandomMachine(): ans(1)
 	{
 	}
 	
-	void setSeed(int s)
+	void setSeed(unsigned s)
 	{
-		seed = s;
-		i = 1;
+		ans = s;
 	}
 	
 	int getInt()
 	{
-		++i;
-		return (6423783 * seed + 26124743 * (seed + i) + 17377287 * i) >> 4;
+		ans = (1103515245u * ans + 12345) % (1 << 24);
+		return ans;
 	}
 private:
-	int seed;
-	int i;
+	unsigned ans;
 };
 
 #endif
