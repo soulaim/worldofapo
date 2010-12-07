@@ -1348,6 +1348,9 @@ bool Editor::handle_input()
 		view.zoom_out();
 	}
 	view.updateInput(keystate);
+	int sensitivity = 1000;
+	x *= sensitivity;
+	y *= sensitivity;
 	dummy.updateInput(0, x, y, 0);
 	return true;
 }

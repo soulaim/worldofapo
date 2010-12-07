@@ -69,6 +69,8 @@ void Localplayer::init()
 {
 	cerr << "Localplayer::init()" << endl;
 
+	load("localplayer.conf");
+
 	soundsystem.init();
 	game.init();
 	userio->init();
@@ -192,6 +194,9 @@ void Localplayer::process_sent_game_input()
 	view->updateInput(keyState); // Make only "small" local changes like change camera angle.
 	hud->setShowStats(keyState & (1 << 31));
 
+	x *= intVals["sensitivity"];
+	y *= intVals["sensitivity"];
+
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
 
@@ -261,15 +266,18 @@ bool Localplayer::handleClientLocalInput()
 				int value;
 				msg_ss >> word1;
 				
-				// change world settings?
-				if(word1 == "W")
+				if(word1 == "W") // Change world settings?
 				{
 					msg_ss >> word2 >> value;
 					world.intVals[word2] = value;
 				}
-				else
+				else if(word1 == "L") // Change localplayer settings?
 				{
-					// or just send as chat message
+					msg_ss >> word2 >> value;
+					intVals[word2] = value;
+				}
+				else // Or just send as a chat message.
+				{
 					game.send_chat_message(clientCommand);
 				}
 			}

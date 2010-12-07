@@ -10,24 +10,25 @@ varying in mat4 modelview[];
 
 void emit_quad(vec4 V[4])
 {
+// GL_TRIANGLE_STRIP
+// 2      3
+//  ######
+//  ##   #
+//  # #  #
+//  #  # #
+//  #   ##
+//  ######
+// 0      1
+
 	texcoord = vec2(0, 0);
 
 	vec2 texcoords[4];
-	texcoords[0] = vec2(0.0, 1.0);
-	texcoords[1] = vec2(1.0, 1.0);
-	texcoords[2] = vec2(1.0, 0.0);
-	texcoords[3] = vec2(0.0, 0.0);
+	texcoords[0] = vec2(0.0, 0.0);
+	texcoords[1] = vec2(1.0, 0.0);
+	texcoords[2] = vec2(0.0, 1.0);
+	texcoords[3] = vec2(1.0, 1.0);
 
-	for(int i = 0; i < 3; ++i)
-	{
-		gl_Position = modelview[0] * V[i % 4];
-		texcoord = texcoords[i % 4];
-
-		EmitVertex();
-	}
-	EndPrimitive();
-
-	for(int i = 2; i < 5; ++i)
+	for(int i = 0; i < 4; ++i)
 	{
 		gl_Position = modelview[0] * V[i % 4];
 		texcoord = texcoords[i % 4];
@@ -45,36 +46,36 @@ void main()
 	float s = scale_var[0];
 
 	vec4 V[4];
-	V[0] = vec4(v.x - s, v.y + 2*s, v.z, 1);
-	V[1] = vec4(v.x + s, v.y + 2*s, v.z, 1);
-	V[2] = vec4(v.x + s, v.y, v.z, 1);
-	V[3] = vec4(v.x - s, v.y, v.z, 1);
+	V[0] = vec4(v.x - s, v.y      , v.z, 1);
+	V[1] = vec4(v.x + s, v.y      , v.z, 1);
+	V[2] = vec4(v.x - s, v.y + 2*s, v.z, 1);
+	V[3] = vec4(v.x + s, v.y + 2*s, v.z, 1);
 
-	V[0].xyz += wind_var[0];
-	V[1].xyz += wind_var[0];
+	V[2].xyz += wind_var[0];
+	V[3].xyz += wind_var[0];
 
 	emit_quad(V);
 
 	float small = 0.886f;
 	float big   = 1.0f;
 
-	V[0] = vec4(v.x - s*small, v.y + 2*s, v.z - s*big, 1);
-	V[1] = vec4(v.x + s*small, v.y + 2*s, v.z + s*big, 1);
-	V[2] = vec4(v.x + s*small, v.y, v.z + s*big, 1);
-	V[3] = vec4(v.x - s*small, v.y, v.z - s*big, 1);
+	V[0] = vec4(v.x - s*small, v.y      , v.z - s*big, 1);
+	V[1] = vec4(v.x + s*small, v.y      , v.z + s*big, 1);
+	V[2] = vec4(v.x - s*small, v.y + 2*s, v.z - s*big, 1);
+	V[3] = vec4(v.x + s*small, v.y + 2*s, v.z + s*big, 1);
 
-	V[0].xyz += wind_var[0];
-	V[1].xyz += wind_var[0];
+	V[2].xyz += wind_var[0];
+	V[3].xyz += wind_var[0];
 
 	emit_quad(V);
 
-	V[0] = vec4(v.x + s*small, v.y + 2*s, v.z - s*big, 1);
-	V[1] = vec4(v.x - s*small, v.y + 2*s, v.z + s*big, 1);
-	V[2] = vec4(v.x - s*small, v.y, v.z + s*big, 1);
-	V[3] = vec4(v.x + s*small, v.y, v.z - s*big, 1);
+	V[0] = vec4(v.x - s*small, v.y      , v.z + s*big, 1);
+	V[1] = vec4(v.x + s*small, v.y      , v.z - s*big, 1);
+	V[2] = vec4(v.x - s*small, v.y + 2*s, v.z + s*big, 1);
+	V[3] = vec4(v.x + s*small, v.y + 2*s, v.z - s*big, 1);
 
-	V[0].xyz += wind_var[0];
-	V[1].xyz += wind_var[0];
+	V[2].xyz += wind_var[0];
+	V[3].xyz += wind_var[0];
 
 	emit_quad(V);
 }
