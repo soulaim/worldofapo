@@ -8,6 +8,7 @@
 
 class FrustumR;
 class Location;
+class Level;
 
 struct BTT_Point
 {
@@ -58,7 +59,7 @@ public:
 	FixedPoint buildVarianceTree(const std::vector<std::vector<FixedPoint> >& h_diffs, std::vector<FixedPoint>& var_tree);
 	
 	void reset(int max_x, int max_z);
-	void doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum);
+	void doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum, const Level& lvl);
 	void print() const;
 	void getTriangles(std::vector<BTT_Triangle>& tris) const;
 	void draw(int x, int z);

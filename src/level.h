@@ -21,7 +21,7 @@ struct Level
 	
 	void splitBTT(const Location& position, const FrustumR& frustum)
 	{
-		btt.doSplit(pointheight_info, variance_tree, position, frustum);
+		btt.doSplit(pointheight_info, variance_tree, position, frustum, (*this));
 	}
 	
 	// random position from the map. (spawn)

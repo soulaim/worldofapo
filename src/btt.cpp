@@ -2,6 +2,7 @@
 #include "fixed_point.h"
 #include "location.h"
 #include "frustum/frustumr.h"
+#include "level.h"
 
 #include <iostream>
 #include <vector>
@@ -202,7 +203,7 @@ struct BTT_Node
 		}
 	}
 	
-	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex, const Location& position, const FrustumR& frustum)
+	void doSplitting(const std::vector<FixedPoint>& var_tree, const std::vector<std::vector<FixedPoint> >& h_diffs, unsigned myIndex, const Location& position, const FrustumR& frustum, const Level& lvl)
 	{
 		// lets just try something simple first.
 		
@@ -229,8 +230,8 @@ struct BTT_Node
 		
 		if(hasChildren())
 		{
-			left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);
-			right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum);
+			left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum, lvl);
+			right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum, lvl);
 			return;
 		}
 		else
@@ -242,15 +243,15 @@ struct BTT_Node
 			Vec3 points[3];
 			points[0].x = p_left.x * 8.0f;
 			points[0].z = p_left.z * 8.0f;
-			points[0].y = 0.0f; // lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
+			points[0].y = lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
 			
 			points[1].x = p_right.x * 8.0f;
 			points[1].z = p_right.z * 8.0f;
-			points[1].y = 0.0f; // lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
+			points[1].y = lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
 			
 			points[2].x = p_top.x * 8.0f;
 			points[2].z = p_top.z * 8.0f;
-			points[2].y = 0.0f; // lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
+			points[2].y = lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
 			
 			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3.0f;
 			float r = (semiAverage - points[0]).length();
@@ -281,8 +282,8 @@ struct BTT_Node
 			// if(error > FixedPoint(0))
 			{
 				split();
-				left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum);
-				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum);
+				left_child->doSplitting(var_tree, h_diffs, myIndex * 2, position, frustum, lvl);
+				right_child->doSplitting(var_tree, h_diffs, myIndex * 2 + 1, position, frustum, lvl);
 			}
 			
 			/*
@@ -442,7 +443,7 @@ void BinaryTriangleTree::reset(int max_x, int max_z)
 	lower_right->p_right.z = 0;
 }
 
-void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum)
+void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum, const Level& lvl)
 {
 	/*
 	upper_left->killChildren();
@@ -460,8 +461,8 @@ void BinaryTriangleTree::doSplit(const std::vector<std::vector<FixedPoint> >& h_
 	lower_right->left = 0;
 	lower_right->right = 0;
 	
-	upper_left->doSplitting(var_tree, h_diffs, 1, position, frustum);
-	lower_right->doSplitting(var_tree, h_diffs, 2, position, frustum);
+	upper_left->doSplitting(var_tree, h_diffs, 1, position, frustum, lvl);
+	lower_right->doSplitting(var_tree, h_diffs, 2, position, frustum, lvl);
 }
 
 void BinaryTriangleTree::print() const

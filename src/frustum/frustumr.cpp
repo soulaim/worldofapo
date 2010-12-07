@@ -46,7 +46,8 @@ void FrustumR::setFrustum(float *m) {
 #undef M
 
 
-void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD) {
+void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD)
+{
 
 	// store the information
 	this->ratio = ratio;
@@ -70,7 +71,8 @@ void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD
 }
 
 
-void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
+void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u)
+{
 
 	Vec3 dir,nc,fc;
 
@@ -136,8 +138,8 @@ void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
 
 
 
-int FrustumR::pointInFrustum(const Vec3 &p) const {
-
+int FrustumR::pointInFrustum(const Vec3 &p) const
+{
 	float pcz,pcx,pcy,aux;
 
 	// compute vector from camera position to p
@@ -167,9 +169,9 @@ int FrustumR::pointInFrustum(const Vec3 &p) const {
 }
 
 
-int FrustumR::sphereInFrustum(const Vec3 &p, float radius) const {
-
-
+int FrustumR::sphereInFrustum(const Vec3 &p, float radius) const
+{
+	
 	float d1,d2;
 	float az,ax,ay,zz1,zz2;
 	int result = INSIDE;
@@ -179,7 +181,7 @@ int FrustumR::sphereInFrustum(const Vec3 &p, float radius) const {
 	az = v.innerProduct(-Z);
 	if (az > farD + radius || az < nearD-radius)
 		return(OUTSIDE);
-
+	
 	ax = v.innerProduct(X);
 	zz1 = az * tang * ratio;
 	d1 = sphereFactorX * radius;
