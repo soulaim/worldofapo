@@ -26,13 +26,19 @@ void Shaders::init()
 		exit(-1);
 	}
 
+	GLint n;
+	glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES, &n);
+	cerr << "Max geometry shader output vertices: " << n << endl;
+	glGetIntegerv(GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS, &n);
+	cerr << "Max geometry shader output components: " << n << endl;
+
 	shaders["level_program"]    = shared_ptr<Shader>(new Shader("shaders/level.vertex", "shaders/level.fragment"));
 	shaders["blur_program1"]    = shared_ptr<Shader>(new Shader("shaders/blur.vertex", "shaders/blur_verticalpass.fragment"));
 	shaders["blur_program2"]    = shared_ptr<Shader>(new Shader("shaders/blur.vertex", "shaders/blur_horizontalpass.fragment"));
 	shaders["unit_program"]     = shared_ptr<Shader>(new Shader("shaders/unit.vertex", "shaders/unit.fragment"));
-	shaders["grass_program"]    = shared_ptr<Shader>(new Shader("shaders/grass.vertex", "shaders/grass.fragment", "shaders/grass.geometry", GL_POINTS, GL_TRIANGLES, 3*2*3));
+	shaders["grass_program"]    = shared_ptr<Shader>(new Shader("shaders/grass.vertex", "shaders/grass.fragment", "shaders/grass.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 3*4));
 	shaders["ssao"]             = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
-	shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLES, 2*3));
+	shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 
 
 	shaders["particle_program"]->start();

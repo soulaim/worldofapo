@@ -175,9 +175,6 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 
 		unsigned long checksum = world->checksum();
 		
-		x *= world->intVals["sensitivity"];
-		y *= world->intVals["sensitivity"];
-		
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << " " << checksum << "#";
 		msg = inputMsg.str();
 		clientSocket.write(SERVER_ID, msg);

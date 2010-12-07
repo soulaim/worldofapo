@@ -9,6 +9,7 @@
 #include "order.h"
 #include "playerinfo.h"
 #include "gamesound.h"
+#include "hasproperties.h"
 
 #include <string>
 #include <vector>
@@ -21,7 +22,7 @@ class Graphics;
 class Hud;
 class Window;
 
-class Localplayer
+class Localplayer: private HasProperties
 {
 public:
 	Localplayer(Graphics*, UserIO*, Hud*, Window* window);

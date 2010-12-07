@@ -72,6 +72,8 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	Location zero; zero.y = FixedPoint(1, 2);
 	// visualworld->addLight(nextUnitID(), pos, zero);
 	
+
+	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
 	int complexity = visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"];
 
 	stringstream ss_explosion_life; ss_explosion_life << "BOOM_" << complexity << "_LIFE";
