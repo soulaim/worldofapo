@@ -262,42 +262,27 @@ bool Localplayer::handleClientLocalInput()
 			if(clientCommand.size() > 0)
 			{
 				stringstream msg_ss(clientCommand);
-				string word1, word2;
+				string word;
 				int value;
-				msg_ss >> word1;
 				
-				if(word1 == "W") // Change world settings?
+				msg_ss >> word >> value;
+				
+				if(world.intVals.find(word) != world.intVals.end())
 				{
-					msg_ss >> word2 >> value;
-					if(world.intVals.find(word2) == view->intVals.end())
-					{
-						world.add_message("^Rvalue was not found");
-					}
-					else
-					{
-						world.add_message("^Gvalue set");
-						world.intVals[word2] = value;
-					}
+					world.add_message("^Gvalue set");
+					world.intVals[word] = value;
 				}
-				else if(word1 == "G")
+				else if(view->intVals.find(word) != view->intVals.end())
 				{
-					msg_ss >> word2 >> value;
-					if(view->intVals.find(word2) == view->intVals.end())
-					{
-						world.add_message("^Rvalue was not found");
-					}
-					else
-					{
-						world.add_message("^Gvalue set");
-						view->intVals[word2] = value;
-					}
+					world.add_message("^Gvalue set");
+					view->intVals[word] = value;
 				}
-				else if(word1 == "L") // Change localplayer settings?
+				else if(intVals.find(word) != intVals.end())
 				{
-					msg_ss >> word2 >> value;
-					intVals[word2] = value;
+					world.add_message("^Gvalue set");
+					intVals[word] = value;
 				}
-				else // Or just send as a chat message.
+				else
 				{
 					game.send_chat_message(clientCommand);
 				}

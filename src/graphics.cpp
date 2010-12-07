@@ -1449,6 +1449,7 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 {
 	glUseProgram(shaders["grass_program"]);
+	
 	if(drawDebuglines)
 	{
 		TextureHandler::getSingleton().bindTexture(0, "chessboard");
@@ -1457,7 +1458,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	{
 		TextureHandler::getSingleton().bindTexture(0, "meadow1");
 	}
-
+	
 	for(size_t i = 0; i < meadows.size(); ++i)
 	{
 		if(frustum.sphereInFrustum(meadows[i].center, meadows[i].radius) != FrustumR::OUTSIDE)

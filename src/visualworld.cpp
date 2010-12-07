@@ -26,12 +26,71 @@ void VisualWorld::decorate(const Level& lvl)
 	if(active == 0)
 		return;
 	
-	cerr << "Decorating world with some random grass" << endl;
+	cerr << "Decorating world with some random grass" << flush;
 	Vec3 wind(0, 0, 0);
-	size_t n = 10;
-	size_t k = 400;
+//	size_t n = 10;
+	size_t k = 200;
 //	winds.resize(n*k);
-	meadows.resize(n);
+//	meadows.resize(n);
+	
+	int meadow_box_size = 40;
+	
+	int x_limit = lvl.max_x().getInteger();
+	int z_limit = lvl.max_z().getInteger();
+	
+	for(int x_box = 0; x_box < x_limit; x_box += meadow_box_size)
+	{
+		cerr << "." << flush;
+		for(int z_box = 0; z_box < z_limit; z_box += meadow_box_size)
+		{
+			meadows.push_back(GrassCluster());
+			
+			size_t X = x_box + meadow_box_size / 2;
+			size_t Z = z_box + meadow_box_size / 2;
+			
+			float radius = 25.0;
+			for(size_t j = 0; j < k; ++j)
+			{
+				float x = randf(-meadow_box_size/2.f, meadow_box_size/2.f);
+				float z = randf(-meadow_box_size/2.f, meadow_box_size/2.f);
+				
+				if(X + x > x_limit)
+					continue;
+				if(Z + z > x_limit)
+					continue;
+				
+				float y = lvl.getHeight(X + x, Z + z).getFloat();
+				
+				float y_competitors[4];
+				y_competitors[0] = lvl.getHeight(X + x + 1.f, Z + z).getFloat();
+				y_competitors[1] = lvl.getHeight(X + x - 1.f, Z + z).getFloat();
+				y_competitors[2] = lvl.getHeight(X + x, Z + z + 1.f).getFloat();
+				y_competitors[3] = lvl.getHeight(X + x, Z + z - 1.f).getFloat();
+				
+				bool nono = false;
+				for(int qq = 0; qq < 4; ++qq)
+				{
+					if( (y_competitors[qq] - y) * (y_competitors[qq] - y) > 0.2f)
+					{
+						nono = true;
+					}
+				}
+				if(nono)
+				{
+					continue;
+				}
+				
+				Vec3 v(X + x, y, Z + z);
+				meadows.back().bushes.push_back(v);
+			}
+			
+			meadows.back().center = Vec3(X, lvl.getHeight(X, Z).getFloat(), Z);
+			meadows.back().radius = radius;
+			meadows.back().preload();
+		}
+	}
+	
+	/*
 	for(size_t i = 0; i < n; ++i)
 	{
 		size_t X = randf(0.0, lvl.max_x().getFloat());
@@ -71,6 +130,7 @@ void VisualWorld::decorate(const Level& lvl)
 		meadows[i].radius = radius;
 		meadows[i].preload();
 	}
+	*/
 }
 
 void VisualWorld::terminate()
