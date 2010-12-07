@@ -265,7 +265,28 @@ bool Localplayer::handleClientLocalInput()
 				if(word1 == "W")
 				{
 					msg_ss >> word2 >> value;
-					world.intVals[word2] = value;
+					if(world.intVals.find(word2) == view->intVals.end())
+					{
+						world.add_message("^Rvalue was not found");
+					}
+					else
+					{
+						world.add_message("^Gvalue set");
+						world.intVals[word2] = value;
+					}
+				}
+				else if(word1 == "G")
+				{
+					msg_ss >> word2 >> value;
+					if(view->intVals.find(word2) == view->intVals.end())
+					{
+						world.add_message("^Rvalue was not found");
+					}
+					else
+					{
+						world.add_message("^Gvalue set");
+						view->intVals[word2] = value;
+					}
 				}
 				else
 				{
