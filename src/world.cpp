@@ -19,7 +19,7 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 
 unsigned long long World::checksum() const
 {
-	unsigned long long hash = 5381;
+	unsigned long hash = 5381;
 	
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{
@@ -333,14 +333,12 @@ void World::generateInput_RabidAlien(Unit& unit)
 	}
 	
 	int keyState = 0;
-	int mousex = hypo_angle - unit.angle;
+	int mousex = (hypo_angle - unit.angle) * 1000; // * 1000 due to mouse sensitivity stuff
 	int mousey = 0;
 	unit.upangle = hypo_upangle;
-//	int mousey = -hypo_upangle + unit.upangle;
 	int mousebutton = 0;
 	
 	keyState |= Unit::MOVE_FRONT;
-// 	unit.upangle = apomath.DEGREES_90 - apomath.DEGREES_90 / 50;
 	
 	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
 	{

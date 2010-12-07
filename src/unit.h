@@ -67,7 +67,10 @@ class Unit : public HasProperties, public OctreeObject
 		
 		int keyState; // what is the unit doing right now, represented as player keyboard input
 		int mouseButtons;
-
+		
+		int mouse_x_minor; // to support mouse sensitivity
+		int mouse_y_minor; // to support mouse sensitivity
+		
 		int weapon_cooldown;
 		int leap_cooldown;
 		

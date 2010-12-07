@@ -43,8 +43,8 @@ void ApoMath::init(int size)
 		
 		while(infile >> sinval >> cosval >> degreeval)
 		{
-			sin_vals.push_back(sinval);
-			cos_vals.push_back(sinval);
+			sin_vals.push_back(FixedPoint(sinval, 1000));
+			cos_vals.push_back(FixedPoint(cosval, 1000));
 			degree_vals.push_back(degreeval);
 		}
 		assert(sin_vals.size()    == unsigned(size));

@@ -256,7 +256,22 @@ bool Localplayer::handleClientLocalInput()
 		{
 			if(clientCommand.size() > 0)
 			{
-				game.send_chat_message(clientCommand);
+				stringstream msg_ss(clientCommand);
+				string word1, word2;
+				int value;
+				msg_ss >> word1;
+				
+				// change world settings?
+				if(word1 == "W")
+				{
+					msg_ss >> word2 >> value;
+					world.intVals[word2] = value;
+				}
+				else
+				{
+					// or just send as chat message
+					game.send_chat_message(clientCommand);
+				}
 			}
 			
 			clientCommand = "";

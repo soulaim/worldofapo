@@ -11,6 +11,8 @@ Unit::Unit():
 	hitpoints(1),
 	keyState(0),
 	mouseButtons(0),
+	mouse_x_minor(0),
+	mouse_y_minor(0),
 	weapon_cooldown(0),
 	leap_cooldown(0),
 	last_damage_dealt_by(-1),
@@ -68,15 +70,32 @@ float Unit::getAngle(ApoMath& apomath)
 
 void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons_)
 {
+	static ApoMath math;
+	
+	int changey = mousey_;
+	int changex = mousex_;
+	
+	int x_major_change = changex / 1000;
+	int y_major_change = changey / 1000;
+	
+	mouse_x_minor += changex - x_major_change * 1000;
+	mouse_y_minor += changey - y_major_change * 1000;
+	
+	int xmc2 = mouse_x_minor / 1000;
+	int ymc2 = mouse_y_minor / 1000;
+	mouse_x_minor -= xmc2 * 1000;
+	mouse_y_minor -= ymc2 * 1000;
+	
+	x_major_change += xmc2;
+	y_major_change += ymc2;
+	
 	keyState = keyState_;
 	mouseButtons = mouseButtons_;
-	angle -= mousex_;
-
-	ApoMath math;
+	angle -= x_major_change;
+	
 	upangle += math.DEGREES_180; // Prevent going full circles when moving camera up or down.
-
-	upangle -= mousey_;
-
+	upangle -= y_major_change;
+	
 	if(upangle < math.DEGREES_180+5)
 		upangle = math.DEGREES_180+5;
 	if(upangle > math.DEGREES_360-6)
