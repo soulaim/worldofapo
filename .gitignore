@@ -29,3 +29,9 @@ html
 # Client's temporary files:
 bin/myKeys
 
+# Visual studio temporary files:
+windows/diablo2.suo
+windows/Debug
+windows/Release
+windows/server
+
