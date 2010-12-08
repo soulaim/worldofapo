@@ -129,10 +129,15 @@ void Localplayer::draw()
 	{
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
-		
-		// if we didn't need to tick the world right now, then there should be time to draw the scene.
+
+#ifndef __APPLE__
 		if(!need_to_tick_world)
+			// TODO: is this apple check really necessary??
+#endif
+		{
+			// if we didn't need to tick the world right now, then there should be time to draw the scene.
 			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units);
+		}
 	}
 }
 

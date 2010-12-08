@@ -1,7 +1,10 @@
 #include <cstdio>
 #include <cstdlib>
+#ifdef __APPLE__
+#include "png.h"
+#else
 #include <png.h>
-
+#endif
 
 int pngLoad(const char *file, unsigned long *pwidth, unsigned long *pheight, char **image_data_ptr, bool& alpha)
 {
