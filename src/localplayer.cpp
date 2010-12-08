@@ -282,6 +282,11 @@ bool Localplayer::handleClientLocalInput()
 					world.add_message("^Gvalue set");
 					intVals[word] = value;
 				}
+				else if(visualworld.intVals.find(word) != visualworld.intVals.end())
+				{
+					world.add_message("^Gvalue set");
+					visualworld.intVals[word] = value;
+				}
 				else
 				{
 					game.send_chat_message(clientCommand);

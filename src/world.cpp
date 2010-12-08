@@ -70,8 +70,11 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	
 	// create some effect or something
 	Location zero; zero.y = FixedPoint(1, 2);
-	// visualworld->addLight(nextUnitID(), pos, zero);
 	
+	if(intVals["EXPLOSION_LIGHTS"])
+	{
+		visualworld->addLight(nextUnitID(), pos, zero);
+	}
 
 	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
 	int complexity = visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"];
@@ -418,7 +421,7 @@ void World::terminate()
 	
 	units.clear();
 	projectiles.clear();
-
+	
 	visualworld->terminate();
 }
 
@@ -595,13 +598,20 @@ void World::tickUnit(Unit& unit, Model* model)
 	{
 		--unit.leap_cooldown;
 	}
-
+	
 	unit.weapons[unit.weapon].tick(unit);
 	
-	if(unit.getMouseAction(Unit::ATTACK_BASIC))
+	
+	if(unit.getMouseAction(Unit::MOUSE_LEFT))
 	{
-		unit.weapons[unit.weapon].onUse(*this, unit);
+		unit.weapons[unit.weapon].onActivate(*this, unit);
 	}
+	
+	if(unit.getMouseAction(Unit::MOUSE_RIGHT))
+	{
+		unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
+	}
+	
 	
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;

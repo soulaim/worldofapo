@@ -11,6 +11,48 @@ inline int min(const int a, const int b)
 }
 
 
+// from movable object
+/*
+virtual FixedPoint getGravity();
+virtual FixedPoint getFriction();
+*/
+
+// from octree object
+/*
+virtual Location bb_top() const = 0;
+virtual Location bb_bot() const = 0;
+virtual void collides(OctreeObject&) = 0;
+*/
+
+/*
+FixedPoint Weapon::getGravity()
+{
+	return FixedPoint(30, 1000);
+}
+
+FixedPoint Weapon::getFriction()
+{
+	return FixedPoint(85, 100);
+}
+
+Location Weapon::bb_top() const
+{
+	return position + Location(FixedPoint(1, 2), FixedPoint(1, 2), FixedPoint(1, 2));
+}
+
+Location Weapon::bb_bot() const
+{
+	return position + Location(FixedPoint(1, 2), FixedPoint(1, 2), FixedPoint(1, 2));
+}
+
+void Weapon::collides(OctreeObject&)
+{
+	// no need to react i guess
+	return;
+}
+*/
+
+
 void Weapon::generatePrototypeProjectile()
 {
 	// set some properties first
@@ -31,7 +73,40 @@ void Weapon::generatePrototypeProjectile()
 	proto_projectile.prototype_model = proto_projectile["MODEL_PROTOTYPE"];
 }
 
-void Weapon::onUse(World& world, Unit& user)
+void Weapon::onSecondaryActivate(World& world, Unit&)
+{
+	world.add_message("^Rweapons do not have secondary actions.");
+}
+
+// returns true if collecting succeeded, false if could not collect
+bool Weapon::onCollect(World&, Unit& unit)
+{
+	for(size_t i=0; i<unit.weapons.size(); i++)
+	{
+		if(unit.weapons[i]("NAME") == strVals["NAME"])
+		{
+			unit.intVals[unit.weapons[i]("AMMUNITION_TYPE")] += 30;
+			return true;
+		}
+	}
+	
+	unit.weapons.push_back(*this);
+	return true;
+}
+
+void Weapon::onDrop(World& world, Unit&)
+{
+	// not really sure whether this is of any use
+	world.add_message("^Rweapons can not be dropped");
+}
+
+void Weapon::onConsume(World& world, Unit&)
+{
+	world.add_message("^Rweapons can not be consumed");
+}
+
+
+void Weapon::onActivate(World& world, Unit& user)
 {
 	if(intVals["CLIP_BULLETS"] == 0)
 	{

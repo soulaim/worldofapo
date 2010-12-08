@@ -3,7 +3,6 @@
 #define H_MOVABLE_OBJECT
 
 #include "location.h"
-#include "item.h"
 
 class MovableObject
 {
@@ -21,8 +20,10 @@ public:
 	};
 	
 	MovableObject();
+	
 	virtual FixedPoint getGravity();
 	virtual FixedPoint getFriction();
+	
 	void movableEnable(int);
 	void tick(const FixedPoint& height);
 	

@@ -3,8 +3,6 @@
 
 #include <iostream>
 #include "octree_object.h"
-#include "movable_object.h"
-#include "location.h"
 
 class Medikit: public OctreeObject
 {

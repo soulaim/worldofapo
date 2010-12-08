@@ -50,7 +50,6 @@ public:
 	
 	Level lvl;
 	
-	
 	int getZombies();
 	std::vector<Location> humanPositions() const;
 	

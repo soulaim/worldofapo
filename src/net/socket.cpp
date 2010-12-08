@@ -28,7 +28,7 @@ public:
 		WORD version;
 		int error;
 
-		version = MAKEWORD( 2, 0 );
+		version = MAKEWORD( 2, 2 );
 
 		error = WSAStartup( version, &wsaData );
 
@@ -104,13 +104,16 @@ int MU_Socket::readyToRead()
 
 int MU_Socket::setnonblocking()
 {
-#ifdef _WIN32
-	return 1;
-#else
 	if(!alive)
 		return 0;
-	
 	cerr << "Setting socket to non blocking state.. " << endl;
+	
+#ifdef _WIN32
+	u_long iMode=1;
+	ioctlsocket(Socket,FIONBIO,&iMode);
+	cerr << "non blocking state change was successful." << endl;
+	return 1;
+#else
 	int opts;
 	
 	opts = fcntl(sock,F_GETFL);

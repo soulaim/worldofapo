@@ -920,8 +920,11 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glEnd();
 	
 	// blur upscaled particle texture
-	applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
-	applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
+	if(intVals["PARTICLE_BLUR"])
+	{
+		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
+		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "upscaled_particles", particlesUpScaledFBO);
+	}
 	
 	// render to screen.
 	glEnable(GL_BLEND);
@@ -1252,7 +1255,6 @@ void Graphics::draw(
 	}
 
 	drawModels(visualworld.models);
-	
 	drawGrass(visualworld.meadows);
 	
 	if(intVals["SSAO"])
