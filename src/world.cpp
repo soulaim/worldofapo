@@ -1,3 +1,4 @@
+
 #include "world.h"
 #include "modelfactory.h"
 #include "visualworld.h"
@@ -17,9 +18,9 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
-unsigned long long World::checksum() const
+World::CheckSumType World::checksum() const
 {
-	unsigned long hash = 5381;
+	CheckSumType hash = 5381;
 	
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{

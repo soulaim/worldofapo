@@ -39,7 +39,7 @@ public:
 
 		/* check for correct version */
 		if ( LOBYTE( wsaData.wVersion ) != 2 ||
-			HIBYTE( wsaData.wVersion ) != 0 )
+			HIBYTE( wsaData.wVersion ) != 2 )
 		{
 			/* incorrect WinSock version */
 			WSACleanup();
@@ -110,7 +110,7 @@ int MU_Socket::setnonblocking()
 	
 #ifdef _WIN32
 	u_long iMode=1;
-	ioctlsocket(Socket,FIONBIO,&iMode);
+	ioctlsocket(sock,FIONBIO,&iMode);
 	cerr << "non blocking state change was successful." << endl;
 	return 1;
 #else

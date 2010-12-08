@@ -19,6 +19,7 @@ class Model;
 
 class World : public HasProperties
 {
+	
 	void tickUnit(Unit&, Model*);       // world frame update
 	void tickProjectile(Projectile&, Model*); // world frame update
 	
@@ -32,7 +33,8 @@ class World : public HasProperties
 public:
 	int currentWorldFrame;
 	VisualWorld* visualworld;
-
+	typedef unsigned CheckSumType;
+	
 	enum ModelType
 	{
 		INVISIBLE_MODEL,
@@ -69,7 +71,7 @@ public:
 	
 	void terminate();
 	
-	unsigned long long checksum() const;
+	CheckSumType checksum() const;
 
 	void add_message(const std::string& message) const;
 	void add_event(const WorldEvent& event) const;

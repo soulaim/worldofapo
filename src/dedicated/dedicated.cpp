@@ -235,7 +235,7 @@ void DedicatedServer::simulateWorldFrame()
 	fps_world.insert();
 	
 	
-	static unsigned long long checksums[10] = { 0 };
+	static World::CheckSumType checksums[10] = { 0 };
 	int current = simulRules.currentFrame % 10;
 	checksums[current] = world.checksum();
 
@@ -250,7 +250,7 @@ void DedicatedServer::simulateWorldFrame()
 			break;
 		}
 
-		unsigned long long cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
+		World::CheckSumType cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
 		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
 		{
 			std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
