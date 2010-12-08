@@ -7,6 +7,7 @@
 #include "menubutton.h"
 
 #include <vector>
+#include <csignal>
 
 #ifndef _WIN32
 #include <sys/wait.h>
@@ -21,10 +22,12 @@ void server_killer()
 {
 	int status;
 	cerr << "Killing server..." << endl;
+
 	if(kill(serverpid, SIGKILL) < 0)
 	{
 		perror("killing server failed");
 	}
+
 	pid_t pid = wait(&status);
 	cerr << "Server process " << pid << " died: " << status << endl;
 }
