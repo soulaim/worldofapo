@@ -288,7 +288,7 @@ void Unit::init()
 	
 	for(size_t i=0; i<weapons.size(); i++)
 	{
-		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 50;
+		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 2000 / weapons[i].intVals["AMMO_VALUE"];
 	}
 	
 	weapon = 1;

@@ -406,7 +406,7 @@ void Localplayer::handleWorldEvents()
 			case WorldEvent::DEATH_ENEMY:
 			{
 				playSound("alien_death", event.t_position);
-
+				
 				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 
 				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
@@ -417,7 +417,16 @@ void Localplayer::handleWorldEvents()
 			}
 			case WorldEvent::DEATH_PLAYER:
 			{
-				playSound("player_death", event.t_position);
+				if(event.target_id == game.myID)
+				{
+					// we want the player who dies to always here his own screams
+					playSound("player_death", world.units[game.myID].position);
+				}
+				else
+				{
+					playSound("player_death", event.t_position);
+				}
+				
 				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 				
 				/*

@@ -107,6 +107,12 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 		
 		instantForceOutwards(explode_power, pos, properties("NAME"), properties["OWNER"]);
 	}
+	else if(properties("AT_DEATH") == "PUFF")
+	{
+		const Location& pos = object.position - object.velocity * 2;
+		Location velocity(0, FixedPoint(1, 5), 0);
+		visualworld->genParticleEmitter(pos, velocity, 4, 300, 1000, "GREY", "BLACK", "GREY", "BLACK", 200, 1, 50);
+	}
 }
 
 void World::doDeathFor(Unit& unit)
@@ -620,7 +626,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	FixedPoint y_diff = reference_y - unit.position.y;
 	
 	FixedPoint yy_val = heightDifference2Velocity(y_diff);
-
+	
 	if(mobility == 0)
 	{
 		yy_val = FixedPoint(1);
@@ -632,24 +638,47 @@ void World::tickUnit(Unit& unit, Model* model)
 		unit.velocity.y = FixedPoint(900, 1000);
 	}
 	
-	/*
-	// EISS VOIVVV :GG
-	Location xz_movement = unit.velocity;
-	xz_movement.y = 0;
-	xz_movement.normalize();
-	
-	// terrain bump on xz-plane
-	if( (unit.velocity.y + unit.position.y + FixedPoint(600, 1000) ) <= lvl.getHeight(unit.position.x + xz_movement.x, unit.position.z + xz_movement.z) )
-	{
-		unit.velocity.z = 0;
-		unit.velocity.x = 0;
-	}
-	*/
 	
 	unit.velocity.z *= yy_val;
 	unit.velocity.x *= yy_val;
+	
 	unit.position += unit.velocity;
-
+	
+	/*
+	if(unit.mobility == Unit::MOBILITY_STANDING_ON_GROUND)
+	{
+		
+		Location r1 = unit.position + Location(FixedPoint(+1, 5), 0, 0);
+		Location r2 = unit.position + Location(FixedPoint(-1, 5), 0, 0);
+		Location r3 = unit.position + Location(0, 0, FixedPoint(+1, 5));
+		Location r4 = unit.position + Location(0, 0, FixedPoint(-1, 5));
+		
+		FixedPoint ry1 = lvl.getHeight(r1.x, r1.z);
+		y_diff = ry1 - unit.position.y;
+		yy_val = heightDifference2Velocity(y_diff);
+		Location c1(+1, +1, 0); c1 *= (FixedPoint(1) - yy_val);
+		
+		FixedPoint ry2 = lvl.getHeight(r2.x, r2.z);
+		y_diff = ry2 - unit.position.y;
+		yy_val = heightDifference2Velocity(y_diff);
+		Location c2(-1, +1, 0); c2 *= (FixedPoint(1) - yy_val);
+		
+		FixedPoint ry3 = lvl.getHeight(r3.x, r3.z);
+		y_diff = ry3 - unit.position.y;
+		yy_val = heightDifference2Velocity(y_diff);
+		Location c3(0, +1, +1); c3 *= (FixedPoint(1) - yy_val);
+		
+		FixedPoint ry4 = lvl.getHeight(r4.x, r4.z);
+		y_diff = ry4 - unit.position.y;
+		yy_val = heightDifference2Velocity(y_diff);
+		Location c4(0, +1, -1); c4 *= (FixedPoint(1) - yy_val);
+		
+		unit.velocity -= c1;
+		unit.velocity -= c2;
+		unit.velocity -= c3;
+		unit.velocity -= c4;
+	}
+	*/
 	
 	if(unit.position.x < 0)
 	{

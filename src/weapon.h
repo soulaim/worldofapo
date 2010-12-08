@@ -11,6 +11,7 @@
 #include "fixed_point.h"
 #include "location.h"
 #include "projectile.h"
+#include <iostream>
 
 class World;
 class Unit;
@@ -23,6 +24,12 @@ public:
 	Weapon(const std::string& fileName)
 	{
 		load(fileName);
+		
+		if(intVals["AMMO_VALUE"] == 0)
+		{
+			std::cerr << "ERROR: " << strVals["NAME"] << ": Ammo value not defined or defined as zero! ILLEGAL!" << std::endl;
+			intVals["AMMO_VALUE"] = 1;
+		}
 		
 		if(intVals["CHILD_TPF"] == 0)
 			intVals["CHILD_TPF"] = 1;
