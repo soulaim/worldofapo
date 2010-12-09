@@ -1475,16 +1475,10 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 
 void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
+	
 	
 	// render a menu background scene! Falling particles would be awesome.
 	
@@ -1492,35 +1486,48 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 	
 	// render menu buttons on top of the scene.
 	
-	float menu_height = 0.6f;
-	float menu_y_offset  = 0.0f;
+	float menu_height = 0.3f;
+	float menu_y_offset  = 0.2f;
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	
 	for(size_t i = 0; i < buttons.size(); ++i)
 	{
+		stringstream msg;
+		stringstream info;
 		if(buttons[i].selected == 1)
-			glColor3f(1.0f, 1.0f, 1.0f);
+		{
+			msg << "^G";
+			info << "^G";
+		}
 		else
-			glColor3f(0.5f, 0.5f, 0.5f);
+		{
+			msg << "^W";
+			info << "^G";
+		}
 		
 		float minus = 2.f * (i+0.f) / buttons.size() - 1.f;
-		float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
+		// float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
 		
-		TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
+		// TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
 		
+		// void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
+		
+		msg << buttons[i].name;
+		info << buttons[i].info;
+		hud.drawString(msg.str(), -0.7f, minus * menu_height + menu_y_offset, 3.5f);
+		hud.drawString(info.str(), 0.0f, minus * menu_height + menu_y_offset, 3.5f);
+		
+		/*
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus * menu_height + menu_y_offset, -1);
 		glTexCoord2f(1.f, 0.0f); glVertex3f(+0, minus * menu_height + menu_y_offset, -1);
 		glTexCoord2f(1.f, 1.0f); glVertex3f(+0, plus  * menu_height + menu_y_offset, -1);
 		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus  * menu_height + menu_y_offset, -1);
 		glEnd();
+		*/
 	}
-	
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
 	
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);

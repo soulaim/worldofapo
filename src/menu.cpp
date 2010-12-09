@@ -45,10 +45,12 @@ std::string Menu::menu_tick()
 	vector<MenuButton> buttons;
 	
 	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
-	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	buttons.push_back(MenuButton("host", "data/menu/host.png"));
+	buttons.push_back(MenuButton("options", "data/menu/host.png"));
+	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	
-	size_t selected = 2;
+	
+	size_t selected = buttons.size() - 1;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
 
@@ -88,7 +90,7 @@ std::string Menu::menu_tick()
 			if(buttons[selected].name == "connect")
 			{
 				// ask for host name and connect.
-				ret = connectMenu();
+				ret = connectMenu(buttons);
 				if(ret != "")
 				{
 					dont_exit = false;
@@ -135,14 +137,18 @@ std::string Menu::menu_tick()
 	return ret;
 }
 
-std::string Menu::connectMenu()
+std::string Menu::connectMenu(vector<MenuButton>& buttons)
 {
 	cerr << "Type the name of the host machine: " << endl;
-	string hostName = "";
+	
+	buttons[3].info = "_";
+	string& hostName = buttons[3].info;
 	
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
+		
+		view->drawMenu(buttons);
 		
 		if(key_hostname == "")
 		{
@@ -151,7 +157,9 @@ std::string Menu::connectMenu()
 		}
 		else if(key_hostname.size() == 1)
 		{
+			hostName.resize(hostName.size() - 1);
 			hostName.append(key_hostname);
+			hostName.append("_");
 		}
 		else if(key_hostname == "escape")
 		{
@@ -160,17 +168,22 @@ std::string Menu::connectMenu()
 		}
 		else if(key_hostname == "backspace")
 		{
-			if(hostName.size() > 0)
+			if(hostName.size() > 1)
 			{
-				hostName.resize(hostName.size()-1);
+				hostName.resize(hostName.size()-2);
+				hostName.append("_");
 			}
 		}
 		else if(key_hostname == "return")
 		{
-			return hostName;
+			string copy = buttons[3].info;
+			buttons[3].info = "";
+			return copy;
 		}
 		cerr << "Current input: \"" << hostName << "\"" << endl;
 	}
+	
+	buttons[3].info = "";
 	return "";
 }
 
