@@ -660,7 +660,7 @@ void Graphics::drawSkybox()
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, "grimmnight");
+		TextureHandler::getSingleton().bindTexture(0, strVals["skybox"]);
 	}
 
 	glPushMatrix();

@@ -2,7 +2,6 @@ grass data/grass1024.png
 highground data/highground.png
 hill data/hill.png
 chessboard data/chessboard.png
-grimmnight data/grimmnight.png
 marine models/texture_marine.png
 smoke data/smoke.png
 
@@ -12,4 +11,8 @@ meadow3 data/images/meadow3.png
 meadow4 data/images/meadow4.png
 meadow5 data/images/meadow5.png
 meadow6 data/images/meadow6.png
+
+grimmnight data/grimmnight.png
+interstellar data/interstellar.png
+violentdays data/violentdays.png
 

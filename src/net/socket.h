@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <climits>
 
 #include <sys/types.h>
 
@@ -19,8 +20,6 @@
 #endif
 
 #include <errno.h>
-// #include <unistd.h>
-#include <limits.h>
 
 
 class SocketHandler;
@@ -50,7 +49,6 @@ class MU_Socket
 	private:
 
 		int sock;
-		char* read_buffer;
 		struct sockaddr_in cliAddr;
 		struct sockaddr_in servAddr;
 

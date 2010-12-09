@@ -25,35 +25,23 @@ public:
 	SocketInitializer()
 	{
 		WSADATA wsaData;
-		WORD version;
-		int error;
+		WORD version = MAKEWORD( 2, 2 );
 
-		version = MAKEWORD( 2, 2 );
+		int error = WSAStartup( version, &wsaData );
 
-		error = WSAStartup( version, &wsaData );
-
-		if ( error != 0 )
+		if(error != 0 ||  LOBYTE( wsaData.wVersion ) != 2 || HIBYTE( wsaData.wVersion ) != 2)
 		{
-			exit(-1);
-		}
-
-		/* check for correct version */
-		if ( LOBYTE( wsaData.wVersion ) != 2 ||
-			HIBYTE( wsaData.wVersion ) != 2 )
-		{
-			/* incorrect WinSock version */
+			cerr << "ERROR: winsock initialization failed" << endl;
 			WSACleanup();
 			exit(-1);
 		}
 
 		cerr << "WinSock jee" << endl;
-
-		/* WinSock has been initialized */
 	}
 };
+
 SocketInitializer socket_initializer;
 };
-
 #endif
 
 
