@@ -50,10 +50,17 @@ int main(int argc, char* argv[])
 			{
 				break;
 			}
-			else if(!choice.empty() && master.joinInternetGame(choice))
+			else if(!choice.empty())
 			{
-				in_menu = false;
-				cerr << "Menu ended, game starting" << endl;
+				if(master.joinInternetGame(choice))
+				{
+					in_menu = false;
+					cerr << "Menu ended, game starting" << endl;
+				}
+				else
+				{
+					menu.error_string = "^RConnection failed";
+				}
 			}
 		}
 
