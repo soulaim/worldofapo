@@ -15,8 +15,6 @@ struct Level
 	
 	friend class Graphics;
 	
-	std::vector<std::vector<FixedPoint> > pointheight_info;
-	
 	void generate(int);
 	
 	void splitBTT(const Location& position, const FrustumR& frustum)
@@ -50,6 +48,8 @@ struct Level
 	enum { BLOCK_SIZE = 8 };
 
 private:
+	
+	std::vector<std::vector<FixedPoint> > pointheight_info;
 	
 	BinaryTriangleTree btt;
 	std::vector<FixedPoint> variance_tree;

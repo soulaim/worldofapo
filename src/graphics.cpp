@@ -15,6 +15,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <numeric>
 #include <map>
 
 using namespace std;
@@ -605,7 +606,7 @@ else
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
 	
-	// assert(buffer == BUFFERS);
+	assert(buffer == BUFFERS);
 	
 	// Draw sent data.
 	//glEnableVertexAttribArray(shaders.uniform("lvl_activeLights"));
@@ -615,6 +616,263 @@ else
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
+	
+	glUseProgram(0);
+}
+
+struct VisualLevelPart
+{
+	Vec3 bounding_sphere_center;
+	float bounding_sphere_radius;
+	
+	static const int BUFFERS = 5;
+	GLuint locations[BUFFERS];
+	bool buffers_loaded;
+
+	vector<unsigned> indices;
+	vector<Vec3> vertices;
+	vector<Vec3> normals;
+	vector<TextureCoordinate> texture_coordinates1;
+	vector<TextureCoordinate> texture_coordinates2;
+//	vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
+
+	VisualLevelPart():
+		bounding_sphere_radius(99999999999.9f),
+		buffers_loaded(false)
+	{
+	}
+
+	void preload()
+	{
+		if(buffers_loaded)
+			return;
+
+		cerr << "PRELOADING LEVEL PART ";
+
+		buffers_loaded = true;
+		
+		glGenBuffers(BUFFERS, locations);
+
+		int buffer = 0;
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
+
+		assert(buffer == BUFFERS);
+
+		calculate_bounding_sphere();
+		cerr << "CENTER: " << bounding_sphere_center << ", RADIUS: " << bounding_sphere_radius << endl;
+	}
+
+	void calculate_bounding_sphere()
+	{
+		bounding_sphere_center = accumulate(vertices.begin(), vertices.end(), Vec3());
+		bounding_sphere_center /= vertices.size();
+
+		bounding_sphere_radius = 0.0f;
+		for(size_t i = 0; i < vertices.size(); ++i)
+		{
+			bounding_sphere_radius = max(bounding_sphere_radius, (bounding_sphere_center - vertices[i]).length());
+		}
+	}
+
+	void draw() const
+	{
+		assert(texture_coordinates1.size() == vertices.size());
+		assert(texture_coordinates2.size() == vertices.size());
+		assert(normals.size() == vertices.size());
+		assert(indices.size() % 3 == 0);
+		
+		int buffer = 0;
+		
+		// Bind static data and send dynamic data to graphics card.
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		
+		glClientActiveTexture(GL_TEXTURE1);
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		
+		glClientActiveTexture(GL_TEXTURE0);
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glNormalPointer(GL_FLOAT, 0, 0);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
+
+		assert(buffer == BUFFERS);
+
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		TRIANGLES_DRAWN_THIS_FRAME += indices.size() / 3;
+	}
+};
+
+void fill_level_part(VisualLevelPart& part, size_t part_min_x, size_t part_max_x, size_t part_min_z, size_t part_max_z, size_t max_x, size_t max_z, const Level& lvl)
+{
+	assert(part.vertices.empty());
+	assert(part.indices.empty());
+	for(size_t x = part_min_x; x < part_max_x; ++x)
+	{
+		for(size_t z = part_min_z; z < part_max_z; ++z)
+		{
+			Vec3 point(x * Level::BLOCK_SIZE, lvl.getVertexHeight(x, z).getFloat(), z * Level::BLOCK_SIZE);
+			part.vertices.push_back(point);
+			
+			Location normal = lvl.getNormal(x, z);
+			part.normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+			
+			 // TODO: These coordinates are like :G
+			const int divisions = 25;
+			TextureCoordinate tc1 = TextureCoordinate( float(x) / (max_x/divisions), float(z) / (max_z/divisions) );
+			part.texture_coordinates1.push_back(tc1);
+			part.texture_coordinates2.push_back(tc1);
+
+			const size_t row_length = part_max_z - part_min_z;
+			if(x < part_max_x - 1 && z < part_max_z - 1)
+			{
+				size_t index = part.vertices.size() - 1;
+				assert(index == (x - part_min_x) * row_length + (z - part_min_z));
+
+				if((x + z) % 2 == 1)
+				{
+					part.indices.push_back(index);
+					part.indices.push_back(index+1);
+					part.indices.push_back(index + row_length);
+
+					part.indices.push_back(index+1);
+					part.indices.push_back(index+1 + row_length);
+					part.indices.push_back(index   + row_length);
+				}
+				else
+				{
+					part.indices.push_back(index);
+					part.indices.push_back(index+1 + row_length);
+					part.indices.push_back(index   + row_length);
+
+					part.indices.push_back(index);
+					part.indices.push_back(index+1);
+					part.indices.push_back(index+1 + row_length);
+				}
+			}
+		}
+	}
+	cerr << "Filled from: " << part_min_x << " - " << part_max_x << " to " << part_min_z << " - " << part_max_z << " with " << part.indices.size()/3 << " triangles" << endl;
+}
+
+
+void Graphics::drawLevelFR_new(const Level& lvl, const map<int, LightObject>& lightsContainer)
+{
+	glUseProgram(shaders["level_program"]);
+	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
+
+	size_t max_x = lvl.max_block_x();
+	size_t max_z = lvl.max_block_z();
+	assert(max_x > 0);
+	assert(max_z > 0);
+
+	static bool level_buffers_loaded = false;
+	static vector<VisualLevelPart> parts;
+
+	// Load static buffers.
+	if(!level_buffers_loaded) // TODO: Move initialization somewhere else?
+	{
+		cerr << "CREATING LEVEL PARTS: " << max_x << " - " << max_z << endl;
+
+		level_buffers_loaded = true;
+
+		int divisions = 20;
+		for(int i = 0; i < divisions + 1; ++i)
+		{
+			for(int j = 0; j < divisions + 1; ++j)
+			{
+				size_t part_min_x = max_x * i / divisions;
+				size_t part_min_z = max_z * j / divisions;
+				size_t part_max_x = max_x * (i + 1) / divisions + 1;
+				size_t part_max_z = max_z * (j + 1) / divisions + 1;
+				part_max_x = min(part_max_x, max_x);
+				part_max_z = min(part_max_z, max_z);
+				if(part_min_x >= part_max_x || part_min_z >= part_max_z)
+				{
+					continue;
+				}
+
+				parts.push_back(VisualLevelPart());
+				fill_level_part(parts.back(), part_min_x, part_max_x, part_min_z, part_max_z, max_x, max_z, lvl);
+			}
+		}
+	}
+
+	if(pass == 0)
+	{
+		if(drawDebuglines)
+		{
+			TextureHandler::getSingleton().bindTexture(0, "chessboard");
+			TextureHandler::getSingleton().bindTexture(1, "chessboard");
+			TextureHandler::getSingleton().bindTexture(2, "chessboard");
+		}
+		else
+		{
+			TextureHandler::getSingleton().bindTexture(0, "grass");
+			TextureHandler::getSingleton().bindTexture(1, "hill");
+			TextureHandler::getSingleton().bindTexture(2, "highground");
+		}
+		
+		if(drawDebuglines)
+		{
+			glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
+		}
+		else
+		{
+			float r = intVals["AMBIENT_RED"]   / 255.0f;
+			float g = intVals["AMBIENT_GREEN"] / 255.0f;
+			float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+			glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
+		}
+		
+	}
+	else
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDepthFunc(GL_EQUAL);
+		glDepthMask(GL_FALSE);
+		
+		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
+	}
+	
+	
+	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
+
+	for(size_t i = 0; i < parts.size(); ++i)
+	{
+		if(frustum.sphereInFrustum(parts[i].bounding_sphere_center, parts[i].bounding_sphere_radius) != FrustumR::OUTSIDE)
+		{
+			parts[i].preload();
+			parts[i].draw();
+		}
+	}
 	
 	glUseProgram(0);
 }
@@ -1219,7 +1477,10 @@ void Graphics::draw(
 	
 	startDrawing();
 	
-	drawSkybox();
+	if(intVals["DRAW_SKYBOX"])
+	{
+		drawSkybox();
+	}
 	
 	if(drawDebuglines)
 	{
@@ -1231,13 +1492,20 @@ void Graphics::draw(
 	{
 		drawDebugHeightDots(lvl);
 	}
-	else
+	else if(intVals["DRAW_LEVEL"])
 	{
 		// draw terrain with forward rendering, applying lights there
 		for(size_t i = 0; i < visualworld.lights.size(); i+=4)
 		{
 			pass = int(i);
-			drawLevelFR(lvl, visualworld.lights);
+			if(intVals["DRAW_LEVEL"] == 2)
+			{
+				drawLevelFR_new(lvl, visualworld.lights);
+			}
+			else
+			{
+				drawLevelFR(lvl, visualworld.lights);
+			}
 		}
 		
 		glDepthMask(GL_TRUE);
@@ -1254,8 +1522,15 @@ void Graphics::draw(
 		drawDebugLines();
 	}
 
-	drawModels(visualworld.models);
-	drawGrass(visualworld.meadows);
+	if(intVals["DRAW_MODELS"])
+	{
+		drawModels(visualworld.models);
+	}
+
+	if(intVals["DRAW_GRASS"])
+	{
+		drawGrass(visualworld.meadows);
+	}
 	
 	if(intVals["SSAO"])
 	{
@@ -1263,15 +1538,21 @@ void Graphics::draw(
 		applySSAO(intVals["SSAO_DISTANCE"], "tmp", "tmp_depth", screenFBO);
 	}
 	
-	drawParticles(visualworld.particles);
+	if(intVals["DRAW_PARTICLES"])
+	{
+		drawParticles(visualworld.particles);
+	}
 	
 	if(drawDebuglines)
 	{
 		drawBoundingBoxes(units);
 		drawOctree(o);
 	}
-
-	drawPlayerNames(units, visualworld.models);
+	
+	if(intVals["DRAW_NAMES"])
+	{
+		drawPlayerNames(units, visualworld.models);
+	}
 	
 	drawDebugStrings();
 	

@@ -43,6 +43,7 @@ class Graphics : public HasProperties
 	
 	void startDrawing();
 	void drawLevelFR(const Level&, const std::map<int, LightObject>& lights);
+	void drawLevelFR_new(const Level&, const std::map<int, LightObject>& lights);
 	void drawSkybox();
 	
 	void drawModels(const std::map<int, Model*>& models);
