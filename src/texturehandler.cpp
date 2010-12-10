@@ -4,13 +4,10 @@
 #include <windows.h>
 #include "glew/glew.h"
 #include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-
-#ifdef __APPLE__
-#include <OpenGL/glu.h>
+#elif defined __APPLE__
+#include <OpenGL/gl.h>
 #else
-#include <GL/glu.h>
+#include <GL/gl.h>
 #endif
 
 #include <iostream>
@@ -20,11 +17,6 @@
 #include "logger.h"
 
 using namespace std;
-
-/*
-static TextureHandler* s_TexHandler;
-std::map<std::string, unsigned> textures;
-*/  
 
 TextureHandler::TextureHandler()
 {
@@ -190,21 +182,21 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // Deprecated in OpenGL >= 3.0.
+
 	log << "Loading texture '" << name << "' ";
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image, 
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
 	if(img.hasAlpha)
 	{
 		log << "with alpha channel...";
-//		glTexImage2D(GL_TEXTURE_2D, 0, 4, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img.sizeX, img.sizeY, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.sizeX, img.sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
 	}
 	else
 	{
 		log << "without alpha channel...";
-//		glTexImage2D(GL_TEXTURE_2D, 0, 3, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, img.sizeX, img.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img.data);
 //		buildDebugMipmaps(img.sizeX, img.sizeY);
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.sizeX, img.sizeY, GL_RGB, GL_UNSIGNED_BYTE, img.data);
 	}
 	log << " OK, texture loaded.\n";
 	
