@@ -49,7 +49,6 @@ std::string Menu::menu_tick()
 	buttons.push_back(MenuButton("options", "data/menu/host.png"));
 	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
 	
-	
 	size_t selected = buttons.size() - 1;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
@@ -178,6 +177,7 @@ std::string Menu::connectMenu(vector<MenuButton>& buttons)
 		{
 			string copy = buttons[3].info;
 			buttons[3].info = "";
+			copy.resize(copy.size() - 1);
 			return copy;
 		}
 		cerr << "Current input: \"" << hostName << "\"" << endl;

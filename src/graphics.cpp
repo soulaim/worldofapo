@@ -1375,6 +1375,8 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget);
 	TextureHandler::getSingleton().bindTexture(0, inputImg);
 	TextureHandler::getSingleton().bindTexture(1, depthImage);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -1405,6 +1407,9 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
 	TextureHandler::getSingleton().bindTexture(1, "");
 	glUseProgram(0);
@@ -1783,7 +1788,10 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		stringstream info;
 		if(buttons[i].selected == 1)
 		{
-			msg << "^G";
+			if(buttons[i].info.size() > 0)
+				msg << "^Y";
+			else
+				msg << "^G";
 			info << "^G";
 		}
 		else

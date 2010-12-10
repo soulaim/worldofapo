@@ -7,6 +7,7 @@
 #include "order.h"
 #include "playerinfo.h"
 #include "keymanager.h"
+#include "hasproperties.h"
 
 #include "net/socket_handler.h"
 
@@ -44,7 +45,7 @@ struct StateInfo
 };
 
 
-class Game
+class Game : public HasProperties
 {
 	World* world;
 

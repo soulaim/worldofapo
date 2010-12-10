@@ -41,14 +41,22 @@ void Game::init()
 
 void Game::readConfig()
 {
+	load("user.conf");
+	
 	//ifstream configFile("config.cfg");
 	//configFile >> localPlayer.name;
-	string name;
-	char *e = getenv("USER");
-	if(e)
-	  name.assign(e);
-	else
-	  name = "failname";
+	
+	string name = strVals["PLAYER_NAME"];
+	
+	if(name == "")
+	{
+		char *e = getenv("USER");
+		if(e)
+			name.assign(e);
+		else
+			name = "failname";
+	}
+	
 	localPlayer.name = name;
 }
 
