@@ -291,7 +291,7 @@ void Unit::init()
 		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 2000 / weapons[i].intVals["AMMO_VALUE"];
 	}
 	
-	weapon = 1;
+	weapon = 2;
 }
 
 void Unit::switchWeapon(unsigned x)

@@ -2,7 +2,7 @@
 #include "unit.h"
 #include "frustum/matrix4.h"
 
-const double head_level = 4.0;
+const double head_level = 4.5;
 
 Camera::Camera():
 	position(-30.0, 0.0, 0.0),
@@ -16,7 +16,7 @@ Camera::Camera():
 	
 	fov = 100.f;
 	aspect_ratio = 800.f / 600.f;
-	nearP = 1.f;
+	nearP = .1f;
 	farP  = 200.f;
 	
 	min_fov = 15.f;

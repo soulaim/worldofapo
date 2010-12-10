@@ -205,6 +205,65 @@ void Localplayer::process_sent_game_input()
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
 
+bool Localplayer::set_local_variable(const std::string& clientCommand)
+{
+	stringstream msg_ss(clientCommand);
+	string word1;
+	string word2;
+	msg_ss >> word1 >> word2;
+	
+	int value = -1;
+	stringstream word2_ss(word2);
+	word2_ss >> value;
+	
+	if(world.intVals.find(word1) != world.intVals.end())
+	{
+		world.intVals[word1] = value;
+	}
+	else if(view->intVals.find(word1) != view->intVals.end())
+	{
+		view->intVals[word1] = value;
+	}
+	else if(intVals.find(word1) != intVals.end())
+	{
+		intVals[word1] = value;
+	}
+	else if(visualworld.intVals.find(word1) != visualworld.intVals.end())
+	{
+		visualworld.intVals[word1] = value;
+	}
+	else if(hud->intVals.find(word1) != hud->intVals.end())
+	{
+		hud->intVals[word1] = value;
+	}
+	else if(world.strVals.find(word1) != world.strVals.end())
+	{
+		world.strVals[word1] = word2;
+	}
+	else if(view->strVals.find(word1) != view->strVals.end())
+	{
+		view->strVals[word1] = word2;
+	}
+	else if(strVals.find(word1) != strVals.end())
+	{
+		strVals[word1] = word2;
+	}
+	else if(visualworld.strVals.find(word1) != visualworld.strVals.end())
+	{
+		visualworld.strVals[word1] = word2;
+	}
+	else if(hud->strVals.find(word1) != hud->strVals.end())
+	{
+		hud->strVals[word1] = word2;
+	}
+	else
+	{
+		return false;
+	}
+	world.add_message("^Gvalue set");
+	return true;
+}
+
 bool Localplayer::handleClientLocalInput()
 {
 	camera_handling();
@@ -266,33 +325,7 @@ bool Localplayer::handleClientLocalInput()
 		{
 			if(clientCommand.size() > 0)
 			{
-				stringstream msg_ss(clientCommand);
-				string word;
-				int value;
-				
-				msg_ss >> word >> value;
-				
-				if(world.intVals.find(word) != world.intVals.end())
-				{
-					world.add_message("^Gvalue set");
-					world.intVals[word] = value;
-				}
-				else if(view->intVals.find(word) != view->intVals.end())
-				{
-					world.add_message("^Gvalue set");
-					view->intVals[word] = value;
-				}
-				else if(intVals.find(word) != intVals.end())
-				{
-					world.add_message("^Gvalue set");
-					intVals[word] = value;
-				}
-				else if(visualworld.intVals.find(word) != visualworld.intVals.end())
-				{
-					world.add_message("^Gvalue set");
-					visualworld.intVals[word] = value;
-				}
-				else
+				if(!set_local_variable(clientCommand))
 				{
 					game.send_chat_message(clientCommand);
 				}
