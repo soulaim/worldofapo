@@ -150,12 +150,9 @@ void Graphics::init(Camera& camera)
 	
 	MAX_NUM_LIGHTS = 71;
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
-
-	glUseProgram(shaders["particle_program"]);
-	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
-	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
-	glUseProgram(0);
-
+	
+	setInitialShaderValues();
+	
 	// TODO: This is completely obsolete?
 	initLight();
 	
@@ -1829,5 +1826,18 @@ void Graphics::reload_shaders()
 {
 	shaders.release();
 	shaders.init();
+	setInitialShaderValues();
 }
 
+void Graphics::setInitialShaderValues()
+{
+	glUseProgram(shaders["particle_program"]);
+	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+	glUseProgram(0);
+	
+	glUseProgram(shaders["ssao"]);
+	glUniform1f(shaders.uniform("ssao_width"), intVals["RESOLUTION_X"]);
+	glUniform1f(shaders.uniform("ssao_height"), intVals["RESOLUTION_Y"]);
+	glUseProgram(0);
+}

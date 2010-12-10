@@ -69,6 +69,8 @@ class Graphics : public HasProperties
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
 //	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 	
+	void setInitialShaderValues();
+	
 	std::vector<BTT_Triangle> level_triangles;
 	
 	Camera* camera_p;
