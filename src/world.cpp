@@ -793,9 +793,12 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				{
 					// distance test
 					Location distance_vector = projectile.position + Location(0, 2, 0) - u->position; // TODO: Point to point distance is maybe not ideal.
-					if(distance_vector.length() < FixedPoint(projectile["DISTANCE_MAX"], 1000))
+					FixedPoint real_distance = distance_vector.length();
+					FixedPoint max_distance = FixedPoint(projectile["DISTANCE_MAX"], 1000);
+					
+					if(real_distance < max_distance)
 					{
-						u->takeDamage(projectile["DISTANCE_DAMAGE"]);
+						u->takeDamage( ((max_distance - real_distance) / max_distance * projectile["DISTANCE_DAMAGE"]).getInteger() );
 						u->last_damage_dealt_by = projectile_owner;
 						(*u)("DAMAGED_BY") = projectile_name;
 					}

@@ -1498,7 +1498,10 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 		stringstream info;
 		if(buttons[i].selected == 1)
 		{
-			msg << "^G";
+			if(buttons[i].info.size() > 0)
+				msg << "^Y";
+			else
+				msg << "^G";
 			info << "^G";
 		}
 		else

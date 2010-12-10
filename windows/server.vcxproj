@@ -44,7 +44,6 @@
     <ClCompile Include="..\src\location.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\medikit.cpp" />
-    <ClCompile Include="..\src\menu.cpp" />
     <ClCompile Include="..\src\model.cpp" />
     <ClCompile Include="..\src\modelfactory.cpp" />
     <ClCompile Include="..\src\movable_object.cpp" />
