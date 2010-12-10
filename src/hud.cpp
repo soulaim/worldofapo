@@ -13,10 +13,9 @@
 #include <cmath>
 
 #include "frustum/matrix4.h"
+#include "string2rgb.h"
 
 using namespace std;
-
-#include "string2rgb.h"
 
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 extern int QUADS_DRAWN_THIS_FRAME;
@@ -290,17 +289,20 @@ void Hud::drawCrossHair() const
 	glPushMatrix();
 	glLoadIdentity();
 	
-	TextureHandler::getSingleton().bindTexture(0, "crosshair");
+	auto it = strVals.find("CROSSHAIR");
+	string texture = (it == strVals.end() ? "chessboard" : it->second);
+	TextureHandler::getSingleton().bindTexture(0, texture);
 	
-	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
+	float scale = 1.0f;
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f, -0.03f, -1);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f, -0.03f, -1);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f, +0.03f, -1);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f, +0.03f, -1);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f * scale, -0.03f * scale, -1);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+0.03f * scale, -0.03f * scale, -1);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+0.03f * scale, +0.03f * scale, -1);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f * scale, +0.03f * scale, -1);
 	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
 	
@@ -330,6 +332,22 @@ void choose_color(char code, float alpha)
 		case 'w': glColor4f(0.6f, 0.6f, 0.6f, alpha); break;
 		default: break;
 	}
+}
+
+void choose_team_color(int team)
+{
+	switch(team)
+	{
+		case 0: glColor3f(0.0f, 1.0f, 0.0f); break;
+		case 1: glColor3f(1.0f, 0.0f, 0.0f); break;
+		case 2: glColor3f(0.0f, 0.0f, 1.0f); break;
+		case 3: glColor3f(1.0f, 0.0f, 1.0f); break;
+		case 4: glColor3f(1.0f, 1.0f, 0.0f); break;
+		case 5: glColor3f(0.0f, 1.0f, 1.0f); break;
+		case 6: glColor3f(1.0f, 5.0f, 0.0f); break;
+		case 7: glColor3f(0.0f, 1.0f, 5.0f); break;
+		default: glColor3f(1.0f, 1.0f, 1.0f); break;
+	};
 }
 
 void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float y_angle, int team) const
@@ -374,36 +392,7 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	currentWidth = 0.f;
 	lastWidth    = 0.f;
 	
-	switch(team)
-	{
-		case 0:
-			glColor3f(0.0f, 1.0f, 0.0f);
-			break;
-		case 1:
-			glColor3f(1.0f, 0.0f, 0.0f);
-			break;
-		case 2:
-			glColor3f(0.0f, 0.0f, 1.0f);
-			break;
-		case 3:
-			glColor3f(1.0f, 0.0f, 1.0f);
-			break;
-		case 4:
-			glColor3f(1.0f, 1.0f, 0.0f);
-			break;
-		case 5:
-			glColor3f(0.0f, 1.0f, 1.0f);
-			break;
-		case 6:
-			glColor3f(1.0f, 5.0f, 0.0f);
-			break;
-		case 7:
-			glColor3f(0.0f, 1.0f, 5.0f);
-			break;
-		default:
-			glColor3f(1.0f, 1.0f, 1.0f);
-			break;
-	};
+	choose_team_color(team);
 	
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);

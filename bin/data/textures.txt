@@ -16,3 +16,5 @@ grimmnight data/grimmnight.png
 interstellar data/interstellar.png
 violentdays data/violentdays.png
 
+crosshair data/images/crosshair.png
+

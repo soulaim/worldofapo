@@ -48,6 +48,7 @@ private:
 	// fully 3D single channel sounds! :DD
 	void playSound(const std::string& name, const Location& position);
 	
+	bool set_local_variable(const std::string& clientCommand);
 private:
 	bool need_to_tick_world;
 	
