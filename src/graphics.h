@@ -41,7 +41,8 @@ class Graphics: public HasProperties
 	void createWindow();
 	void destroyWindow();
 	
-	void updateCamera(const Level&);
+	void setupCamera(const Camera& camera);
+	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
 	void startDrawing();
 	void finishDrawing();
 
@@ -102,6 +103,7 @@ class Graphics: public HasProperties
 	
 	void clear_errors() const;
 	void check_errors(const char* filename, int line) const;
+	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
 
 	void drawFullscreenQuad() const;
 public:
@@ -118,7 +120,8 @@ public:
 		const VisualWorld& visualworld,
 		const std::shared_ptr<Octree> o, // For debug.
 		const std::map<int, Projectile>& projectiles, // For debug.
-		const std::map<int, Unit>& units // For debug.
+		const std::map<int, Unit>& units, // For debug.
+		int blur
 		);
 	void drawMenu(const std::vector<MenuButton>&) const;
 	

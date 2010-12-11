@@ -48,12 +48,13 @@ void main()
 	float e = power / 800.0;
 	float total_occlusion = 0.0;
 	
-	for(int i=1; i<3; ++i)
+	for(int i = 1; i < 3; ++i)
 	{
-		total_occlusion += getDepth(z, depthtexcoord + vec2(+e * i, 0)) / i;
-		total_occlusion += getDepth(z, depthtexcoord + vec2(-e * i, 0)) / i;
-		total_occlusion += getDepth(z, depthtexcoord + vec2(0, +e * i)) / i;
-		total_occlusion += getDepth(z, depthtexcoord + vec2(0, -e * i)) / i;
+		float f = float(i);
+		total_occlusion += getDepth(z, depthtexcoord + vec2(+e * f, 0)) / f;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(-e * f, 0)) / f;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(0, +e * f)) / f;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(0, -e * f)) / f;
 	}
 	
 	total_occlusion /= 7.0;

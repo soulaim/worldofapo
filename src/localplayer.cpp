@@ -135,8 +135,12 @@ void Localplayer::draw()
 			// TODO: is this apple check really necessary??
 #endif
 		{
+			int blur = world.units.find(game.myID)->second["D"];
+			if(visualworld.camera.mode() == Camera::STATIC)
+				blur = 0;
+	
 			// if we didn't need to tick the world right now, then there should be time to draw the scene.
-			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units);
+			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units, blur);
 		}
 	}
 }
