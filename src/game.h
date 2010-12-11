@@ -69,20 +69,19 @@ private:
 	};
 	PausedState paused_state;
 	StateInfo simulRules; // rules for running the simulation.
-
-	void readConfig(); // TODO: maybe shouldn't be done here.
 	
 	void handleServerMessage(const Order&);
-
-
+	
 	bool getHeroes(std::map<std::string, std::string>&);
 	std::string temp_menu_which_should_be_removed(const std::map<std::string, std::string>);
 
 
 public:
 	Game(World* world);
+	
 	void init();
-
+	void readConfig(); // TODO: maybe shouldn't be done here.
+	
 	int myID; // TODO: make private and getter?
 
 	void set_current_frame_input(int keystate, int x, int y, int mousepress);

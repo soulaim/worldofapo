@@ -19,6 +19,21 @@ public:
 		zero = 0;
 	}
 	
+	void save(const std::string& file)
+	{
+		std::ofstream itemFile(file.c_str());
+		
+		for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
+		{
+			itemFile << "INT " << iter->first << " " << iter->second << std::endl;
+		}
+		
+		for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
+		{
+			itemFile << "STRING " << iter->first << " " << iter->second << std::endl;
+		}
+	}
+	
 	void load(const std::string& file)
 	{
 		std::ifstream itemFile(file.c_str());

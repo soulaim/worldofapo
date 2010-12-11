@@ -1,2 +1,3 @@
 # this conf file contains user specific variables like name and such. should not be copied from others.
 user.conf
+localplayer.conf

@@ -20,6 +20,7 @@ public:
 private:
 	
 	std::vector<HasProperties> options;
+	std::vector<std::string> options_files;
 	
 	std::string getInput(std::vector<MenuButton>&, int);
 	int changeValue(std::vector<MenuButton>&, int i);

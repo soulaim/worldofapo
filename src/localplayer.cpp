@@ -45,6 +45,18 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	need_to_tick_world = false;
 }
 
+void Localplayer::reload_confs()
+{
+	cerr << "Reloading conf files.." << endl;
+	
+	world.load("world.conf");
+	visualworld.load("visualworld.conf");
+	game.readConfig();
+	this->load("localplayer.conf");
+	hud->load("hud.conf");
+	view->load("graphics.conf");
+}
+
 // returns true on success.
 bool Localplayer::joinInternetGame(const std::string& hostname)
 {

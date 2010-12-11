@@ -26,14 +26,15 @@ class Localplayer: private HasProperties
 {
 public:
 	Localplayer(Graphics*, UserIO*, Hud*, Window* window);
-
+	
 	bool client_tick();
-
+	
 	void draw();
 	void init();
-
+	
 	bool joinInternetGame(const std::string&);
-
+	void reload_confs();
+	
 private:
 	void endGame();
 	
@@ -41,7 +42,7 @@ private:
 	
 	void handleWorldEvents();
 	void camera_handling();
-
+	
 	bool handleClientLocalInput();
 	void process_sent_game_input();
 	
@@ -49,17 +50,18 @@ private:
 	void playSound(const std::string& name, const Location& position);
 	
 	bool set_local_variable(const std::string& clientCommand);
+	
 private:
 	bool need_to_tick_world;
 	
 	int client_input_state;
 	std::string clientCommand;
-
+	
 	Hud* hud;
 	Graphics* view;
 	UserIO* userio;
 	Window* window;
-
+	
 	Game game;
 	GameSound soundsystem;
 	VisualWorld visualworld;

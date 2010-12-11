@@ -56,6 +56,8 @@ int main(int argc, char* argv[])
 				{
 					in_menu = false;
 					cerr << "Menu ended, game starting" << endl;
+					
+					master.reload_confs();
 				}
 				else
 				{

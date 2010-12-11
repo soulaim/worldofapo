@@ -37,10 +37,14 @@ Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
 	userio(u)
 {
-	options.push_back(HasProperties());
-	options.back().load("user.conf");
-	options.push_back(HasProperties());
-	options.back().load("localplayer.conf");
+	options_files.push_back("user.conf");
+	options_files.push_back("localplayer.conf");
+	
+	for(size_t i=0; i<options_files.size(); i++)
+	{
+		options.push_back(HasProperties());
+		options.back().load(options_files[i]);
+	}
 }
 
 
@@ -186,10 +190,24 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 	
 	if(menu_name == "options")
 	{
-		// TODO: Should values from options screen now.
+		for(size_t k = 0; k < buttons.size(); k++)
+		{
+			for(size_t i = 0; i < options.size(); i++)
+			{
+				if(options[i].intVals.find(buttons[k].name) != options[i].intVals.end())
+				{
+					options[i].intVals[buttons[k].name] = buttons[k].value;
+				}
+				if(options[i].strVals.find(buttons[k].name) != options[i].strVals.end())
+				{
+					options[i].strVals[buttons[k].name] = buttons[k].info;
+				}
+			}
+		}
+		
 		for(size_t i = 0; i < options.size(); i++)
 		{
-			
+			options[i].save(options_files[i]);
 		}
 	}
 	
@@ -253,6 +271,13 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 		else if(key_hostname == "return")
 		{
 			buttons[i].info.resize(buttons[i].info.size() - 1);
+			
+			// don't allow empty values;
+			if(buttons[i].info.size() == 0)
+			{
+				buttons[i].info = "0";
+			}
+			
 			stringstream ss_int(buttons[i].info);
 			ss_int >> buttons[i].value;
 			return buttons[i].value;
@@ -303,6 +328,13 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		else if(key_hostname == "return")
 		{
 			buttons[i].info.resize(buttons[i].info.size() - 1);
+			
+			// don't allow empty values
+			if(buttons[i].info.size() == 0)
+			{
+				buttons[i].info = "empty";
+			}
+			
 			return buttons[i].info;
 		}
 	}
