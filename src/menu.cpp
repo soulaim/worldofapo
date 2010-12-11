@@ -39,20 +39,61 @@ Menu::Menu(Graphics* v, UserIO* u):
 {
 }
 
-std::string Menu::menu_tick()
+
+std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 {
-	// load images & create textures
-	vector<MenuButton> buttons;
-	
-	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
-	buttons.push_back(MenuButton("host", "data/menu/host.png"));
-	buttons.push_back(MenuButton("options", "data/menu/host.png"));
-	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+	if(buttons[selected].name == "connect")
+	{
+		// ask for host name and connect.
+		return getInput(buttons, selected);
+	}
+	else if(buttons[selected].name == "exit")
+	{
+		return "exit";
+	}
+	else if(buttons[selected].name == "options")
+	{
+		// hmm.
+		vector<MenuButton> options_buttons;
+		options_buttons.push_back(MenuButton("Nick name", ""));
+		options_buttons.push_back(MenuButton("Tard", ""));
+		options_buttons.push_back(MenuButton("Crap", ""));
+		options_buttons.push_back(MenuButton("Lol", ""));
+		
+		run_menu(options_buttons, "options");
+		return "";
+	}
+	#ifndef _WIN32
+	else if(buttons[selected].name == "host" && serverpid == 0)
+	{
+		pid_t pid = fork();
+		if(pid == 0)
+		{
+			execl("./server", "./server", 0);
+			perror("Error, starting server failed");
+			return "exit";
+		}
+		serverpid = pid;
+		atexit(server_killer);
+		cerr << "Started server process with pid " << serverpid << endl;
+		sleep(2);
+		return "localhost";
+	}
+	#endif
+	else
+	{
+		buttons[selected].info = "^RDoes not work";
+		return "";
+	}
+}
+
+std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
+{
 	
 	size_t selected = buttons.size() - 1;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
-
+	
 	string ret;
 	
 	while(dont_exit)
@@ -86,45 +127,23 @@ std::string Menu::menu_tick()
 		}
 		else if(key == "return")
 		{
-			if(buttons[selected].name == "connect")
+			string ans;
+			if(menu_name == "main")
+				ans = handleMainMenu(buttons, selected);
+			else if(menu_name == "options")
 			{
-				// ask for host name and connect.
-				ret = connectMenu(buttons);
-				if(ret != "")
-				{
-					dont_exit = false;
-				}
+				cerr << "OPTIONS!" << endl;
+				ans = handleMainMenu(buttons, selected);
 			}
-			else if(buttons[selected].name == "exit")
-			{
-				return "exit";
-			}
-#ifndef _WIN32
-			else if(buttons[selected].name == "host" && serverpid == 0)
-			{
-				pid_t pid = fork();
-				if(pid == 0)
-				{
-					execl("./server", "./server", 0);
-					perror("Error, starting server failed");
-					return "exit";
-				}
-				serverpid = pid;
-				atexit(server_killer);
-				cerr << "Started server process with pid " << serverpid << endl;
-				sleep(2);
-				ret = "localhost";
-				dont_exit = false;
-			}
-#endif
-			else
-			{
-				cerr << "STUPID USER!!" << endl;
-			}
+			if(ans == "")
+				continue;
+			ret = ans;
+			dont_exit = false;
 		}
 		else if(key == "escape")
 		{
-			return "exit";
+			ret = "exit";
+			dont_exit = false;
 		}
 	}
 	
@@ -133,20 +152,32 @@ std::string Menu::menu_tick()
 		buttons[i].unloadTexture();
 	}
 	
+	cerr << "returning from menu." << endl;
 	return ret;
 }
 
-std::string Menu::connectMenu(vector<MenuButton>& buttons)
+std::string Menu::menu_tick()
 {
-	cerr << "Type the name of the host machine: " << endl;
+	// load images & create textures
+	vector<MenuButton> buttons;
 	
-	buttons[3].info = "_";
-	string& hostName = buttons[3].info;
+	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
+	buttons.push_back(MenuButton("host", "data/menu/host.png"));
+	buttons.push_back(MenuButton("options", "data/menu/host.png"));
+	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+	
+	return run_menu(buttons, "main");
+	
+}
+
+std::string Menu::getInput(vector<MenuButton>& buttons, int i)
+{
+	buttons[i].info = "_";
+	string& hostName = buttons[i].info;
 	
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
-		
 		view->drawMenu(buttons);
 		
 		if(key_hostname == "")
@@ -162,7 +193,6 @@ std::string Menu::connectMenu(vector<MenuButton>& buttons)
 		}
 		else if(key_hostname == "escape")
 		{
-			cerr << "Out from connecting" << endl;
 			break;
 		}
 		else if(key_hostname == "backspace")
@@ -175,15 +205,15 @@ std::string Menu::connectMenu(vector<MenuButton>& buttons)
 		}
 		else if(key_hostname == "return")
 		{
-			string copy = buttons[3].info;
-			buttons[3].info = "";
+			string copy = buttons[i].info;
+			buttons[i].info = "";
 			copy.resize(copy.size() - 1);
 			return copy;
 		}
-		cerr << "Current input: \"" << hostName << "\"" << endl;
 	}
 	
-	buttons[3].info = "";
+	// good idea?
+	buttons[i].info = "";
 	return "";
 }
 

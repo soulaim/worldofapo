@@ -54,7 +54,10 @@ void Game::readConfig()
 		if(e)
 			name.assign(e);
 		else
-			name = "failname";
+			name = "Player5";
+		
+		ofstream ofs("user.conf");
+		ofs << "STRING PLAYER_NAME " << name << endl;
 	}
 	
 	localPlayer.name = name;

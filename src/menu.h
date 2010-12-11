@@ -17,7 +17,11 @@ public:
 	
 	std::string error_string;
 private:
-	std::string connectMenu(std::vector<MenuButton>&);
+	std::string getInput(std::vector<MenuButton>&, int);
+	std::string run_menu(std::vector<MenuButton>& buttons, std::string menu_name);
+	
+	std::string handleMainMenu(std::vector<MenuButton>& buttons, size_t selected);
+	
 	Graphics* view;
 	UserIO* userio;
 };

@@ -216,7 +216,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 			unit.weapon--;
 		else
 		{
-			unit.strVals["DAMAGED_BY"] = "blowing his head off with the last bullet!";
+			unit.strVals["DAMAGED_BY"] = "voluntary suicide";
 			unit.hitpoints = -1;
 			unit.last_damage_dealt_by = unit.id;
 		}
