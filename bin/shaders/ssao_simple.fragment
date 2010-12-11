@@ -2,49 +2,63 @@
 uniform sampler2D imageTexture;
 uniform sampler2D depthTexture;
 
+uniform float screen_h;
+uniform float screen_w;
+
 uniform float power;
+
 varying vec2 texcoord;
 
 float LinearizeDepth(float z)
 {
-	float n = 1.0; // camera z near
+	float n = 0.1; // camera z near
 	float f = 200.0; // camera z far
 	return (2.0 * n) / (f + n - z * (f - n));
 }
 
+float getValue(float real_z, float sample_z)
+{
+	float val = max(real_z - sample_z, 0.0) * 20.0;
+	if(val > 1.0)
+		val = max((7.0 - val) / 6.0, 0.0);
+	return val;
+}
+
+float getDepth(float real_z, vec2 depthTexCoord)
+{
+	float myZ     = texture2D(depthTexture, depthTexCoord).r;
+	float linearZ = LinearizeDepth(myZ);
+	return getValue(real_z, linearZ);
+}
+
 void main()
 {
-	float e = power / 800.0;
-	
 	gl_FragColor = texture2D(imageTexture, texcoord);
-	vec2 depthtexcoord = vec2(gl_FragCoord.x / 800.0, gl_FragCoord.y / 600.0);
+	
+	vec2 depthtexcoord = vec2(gl_FragCoord.x / screen_w, gl_FragCoord.y / screen_h);
 	
 	float screen_z  = texture2D(depthTexture, depthtexcoord).r;
 	float z  = LinearizeDepth(screen_z);
-	// e /= z;
 	
-	float surround1 = texture2D(depthTexture, depthtexcoord + vec2(e, 0)).r;
-	float surround2 = texture2D(depthTexture, depthtexcoord + vec2(-e, 0)).r;
-	float surround3 = texture2D(depthTexture, depthtexcoord + vec2(0, e)).r;
-	float surround4 = texture2D(depthTexture, depthtexcoord + vec2(0, -e)).r;
+	if(z > 0.99)
+	{
+		return;
+	}
 	
-	float z1 = LinearizeDepth(surround1);
-	float z2 = LinearizeDepth(surround2);
-	float z3 = LinearizeDepth(surround3);
-	float z4 = LinearizeDepth(surround4);
+	float e = power / 800.0;
+	float total_occlusion = 0.0;
 	
-	float val1 = max(z - z1, 0.0) * 10.0;
-	float val2 = max(z - z2, 0.0) * 10.0;
-	float val3 = max(z - z3, 0.0) * 10.0;
-	float val4 = max(z - z4, 0.0) * 10.0;
+	for(int i=1; i<3; ++i)
+	{
+		total_occlusion += getDepth(z, depthtexcoord + vec2(+e * i, 0)) / i;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(-e * i, 0)) / i;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(0, +e * i)) / i;
+		total_occlusion += getDepth(z, depthtexcoord + vec2(0, -e * i)) / i;
+	}
 	
-	float epsilon = 1.0;
-	float res = val1 + val2 + val3 + val4;
-	//res = min(res, 1.0);
-	//if(res <= epsilon)
-	//	res = 1.0;
+	total_occlusion /= 7.0;
 	
-	float multiplier = max(1.0 - res, 0.2);
+	float multiplier = max(1.0 - total_occlusion, 0.1);
 	gl_FragColor *= vec4(multiplier, multiplier, multiplier, 1.0);
 }
 

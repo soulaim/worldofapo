@@ -79,6 +79,8 @@ void Shaders::init()
 	uniform_locations["ssao_power"] = shaders["ssao"]->uniform("power");
 	shaders["ssao"]->set_texture_unit(0, "imageTexture");
 	shaders["ssao"]->set_texture_unit(1, "depthTexture");
+	uniform_locations["ssao_height"] = shaders["ssao"]->uniform("screen_h");
+	uniform_locations["ssao_width"]  = shaders["ssao"]->uniform("screen_w");
 	shaders["ssao"]->stop();
 
 	shaders["level_program"]->start();

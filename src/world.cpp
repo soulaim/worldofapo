@@ -210,6 +210,18 @@ void World::generateInput_RabidAlien(Unit& unit)
 	int unitID = -1;
 	int my_team = unit["TEAM"];
 	
+	if(unit.intVals[unit.weapons[unit.weapon].strVals["AMMUNITION_TYPE"]] == 0)
+	{
+		if(unit.weapon > 1)
+			unit.weapon--;
+		else
+		{
+			unit.strVals["DAMAGED_BY"] = "blowing his head off with the last bullet!";
+			unit.hitpoints = -1;
+			unit.last_damage_dealt_by = unit.id;
+		}
+	}
+	
 	// find the nearest human controlled unit
 	if( (unit.birthTime + currentWorldFrame) % 70 == 0)
 	{
@@ -961,6 +973,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
 		units[id]["T"] = -1;
+		units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
 	}
 	else
 	{
