@@ -37,6 +37,27 @@ Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
 	userio(u)
 {
+	options.push_back(HasProperties());
+	options.back().load("user.conf");
+	options.push_back(HasProperties());
+	options.back().load("localplayer.conf");
+}
+
+
+
+std::string Menu::handleOptionsMenu(vector<MenuButton>& buttons, size_t selected)
+{
+	if(buttons[selected].valueType == 0) // string value
+	{
+		// ask for player name
+		getInput(buttons, selected);
+		return "";
+	}
+	else // int value
+	{
+		changeValue(buttons, selected);
+		return "";
+	}
 }
 
 
@@ -55,10 +76,21 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 	{
 		// hmm.
 		vector<MenuButton> options_buttons;
-		options_buttons.push_back(MenuButton("Nick name", ""));
-		options_buttons.push_back(MenuButton("Tard", ""));
-		options_buttons.push_back(MenuButton("Crap", ""));
-		options_buttons.push_back(MenuButton("Lol", ""));
+		
+		for(size_t i=0; i<options.size(); i++)
+		{
+			for(auto iter = options[i].intVals.begin(); iter != options[i].intVals.end(); iter++)
+			{
+				string dummy;
+				options_buttons.push_back(MenuButton(iter->first, dummy, iter->second));
+			}
+			
+			for(auto iter = options[i].strVals.begin(); iter != options[i].strVals.end(); iter++)
+			{
+				int dummy = -1;
+				options_buttons.push_back(MenuButton(iter->first, iter->second, dummy));
+			}
+		}
 		
 		run_menu(options_buttons, "options");
 		return "";
@@ -82,7 +114,7 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 	#endif
 	else
 	{
-		buttons[selected].info = "^RDoes not work";
+		buttons[selected].info = "^RMeaning undefined";
 		return "";
 	}
 }
@@ -129,14 +161,17 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 		{
 			string ans;
 			if(menu_name == "main")
-				ans = handleMainMenu(buttons, selected);
-			else if(menu_name == "options")
 			{
-				cerr << "OPTIONS!" << endl;
 				ans = handleMainMenu(buttons, selected);
 			}
+			else if(menu_name == "options")
+			{
+				ans = handleOptionsMenu(buttons, selected);
+			}
+			
 			if(ans == "")
 				continue;
+			
 			ret = ans;
 			dont_exit = false;
 		}
@@ -147,12 +182,17 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 		}
 	}
 	
-	for(size_t i = 0; i < buttons.size(); ++i)
+	cerr << "returning from menu." << endl;
+	
+	if(menu_name == "options")
 	{
-		buttons[i].unloadTexture();
+		// TODO: Should values from options screen now.
+		for(size_t i = 0; i < options.size(); i++)
+		{
+			
+		}
 	}
 	
-	cerr << "returning from menu." << endl;
 	return ret;
 }
 
@@ -161,18 +201,75 @@ std::string Menu::menu_tick()
 	// load images & create textures
 	vector<MenuButton> buttons;
 	
-	buttons.push_back(MenuButton("exit", "data/menu/exit.png"));
-	buttons.push_back(MenuButton("host", "data/menu/host.png"));
-	buttons.push_back(MenuButton("options", "data/menu/host.png"));
-	buttons.push_back(MenuButton("connect", "data/menu/connect.png"));
+	int dummy = -1;
+	string conTarget;
+	
+	buttons.push_back(MenuButton("exit", conTarget, dummy));
+	buttons.push_back(MenuButton("host", conTarget, dummy));
+	buttons.push_back(MenuButton("options", conTarget, dummy));
+	buttons.push_back(MenuButton("connect", conTarget, dummy));
 	
 	return run_menu(buttons, "main");
 	
 }
 
+
+int Menu::changeValue(vector<MenuButton>& buttons, int i)
+{
+	buttons[i].info.append("_");
+	string& hostName = buttons[i].info;
+	
+	while(true)
+	{
+		string key_hostname = userio->getSingleKey();
+		view->drawMenu(buttons);
+		
+		if(key_hostname == "")
+		{
+			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+			continue;
+		}
+		else if(key_hostname.size() == 1)
+		{
+			if((key_hostname[0] >= '0') && (key_hostname[0] <= '9'))
+			{
+				hostName.resize(hostName.size() - 1);
+				hostName.append(key_hostname);
+				hostName.append("_");
+			}
+		}
+		else if(key_hostname == "escape")
+		{
+			break;
+		}
+		else if(key_hostname == "backspace")
+		{
+			if(hostName.size() > 1)
+			{
+				hostName.resize(hostName.size()-2);
+				hostName.append("_");
+			}
+		}
+		else if(key_hostname == "return")
+		{
+			buttons[i].info.resize(buttons[i].info.size() - 1);
+			stringstream ss_int(buttons[i].info);
+			ss_int >> buttons[i].value;
+			return buttons[i].value;
+		}
+	}
+	
+	// good idea?
+	buttons[i].info.resize(buttons[i].info.size() - 1);
+	stringstream ss(buttons[i].info);
+	ss >> buttons[i].value;
+	return -1;
+}
+
+
 std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 {
-	buttons[i].info = "_";
+	buttons[i].info.append("_");
 	string& hostName = buttons[i].info;
 	
 	while(true)
@@ -205,15 +302,13 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		}
 		else if(key_hostname == "return")
 		{
-			string copy = buttons[i].info;
-			buttons[i].info = "";
-			copy.resize(copy.size() - 1);
-			return copy;
+			buttons[i].info.resize(buttons[i].info.size() - 1);
+			return buttons[i].info;
 		}
 	}
 	
 	// good idea?
-	buttons[i].info = "";
+	buttons[i].info.resize(buttons[i].info.size() - 1);
 	return "";
 }
 
