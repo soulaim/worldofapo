@@ -7,17 +7,13 @@ const int DIFFUSE = 1;
 
 uniform vec4 activeLights;
 
-
 varying vec4 position[MAX_ACTIVE_LIGHTS];
 varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
 
-varying vec4 ecPos;
-varying vec3 normal;
-varying float height;
+varying vec2 vTexCoord;
 
-
-
-void main()
+// Remember to draw a screen aligned quad.
+void main(void)
 {
 	int activeLight[MAX_ACTIVE_LIGHTS];
 	activeLight[0] = int(activeLights.x);
@@ -25,23 +21,16 @@ void main()
 	activeLight[2] = int(activeLights.z);
 	activeLight[3] = int(activeLights.w);
 
-	normal = normalize(gl_NormalMatrix * gl_Normal);
-	ecPos = gl_ModelViewMatrix * gl_Vertex;
-	
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
 		int lightIndex = activeLight[i];
 
-		diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
+		//diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
+		diffuse[i] = lights[lightIndex*2 + DIFFUSE];
 		position[i] = lights[lightIndex*2 + POSITION];
 	}
 
-	height = gl_Vertex.y;
-
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_TexCoord[1] = gl_MultiTexCoord1;
-	gl_TexCoord[2] = gl_MultiTexCoord1;
-	gl_TexCoord[3] = gl_MultiTexCoord1;
-	gl_Position    = ftransform();
+	gl_Position = ftransform();
+	vTexCoord = gl_Position.xy * 0.5 + 0.5;
 }
 

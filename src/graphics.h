@@ -34,28 +34,33 @@ class Hud;
 class Octree;
 class Window;
 
-class Graphics : public HasProperties
+class Graphics: public HasProperties
 {
 	void initLight();
 	
 	void createWindow();
 	void destroyWindow();
 	
+	void updateCamera(const Level&);
 	void startDrawing();
-	void drawLevelFR(const Level&, const std::map<int, LightObject>& lights);
-	void drawLevelFR_new(const Level&, const std::map<int, LightObject>& lights);
+	void finishDrawing();
+
+	void drawLevel(const Level&, size_t light_count);
+	void drawLevelFR(const Level&, int pass);
+	void drawLevelFR_new(const Level&, int pass);
+
 	void drawSkybox();
-	
+
+	void drawLevelDeferred(const Level& lvl);
+	void drawLightsDeferred(int light_count);
+
 	void drawModels(const std::map<int, Model*>& models);
 	
 	void prepareForParticleRendering();
 	void renderParticles(std::vector<Particle>&);
-	
 	void drawParticles(std::vector<Particle>&);
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
-	void updateCamera(const Level&);
-	void finishDrawing();
 	
 	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
 	void applySSAO(int power, std::string inputImg, std::string depthImage, GLuint renderTarget);
@@ -83,6 +88,7 @@ class Graphics : public HasProperties
 	
 	GLuint particlesUpScaledFBO;
 	
+	GLuint deferredFBO;
 	GLuint screenFBO;
 	GLuint screenRB;
 	
@@ -94,6 +100,10 @@ class Graphics : public HasProperties
 	Hud& hud;
 	Shaders shaders;
 	
+	void clear_errors() const;
+	void check_errors(const char* filename, int line) const;
+
+	void drawFullscreenQuad() const;
 public:
 	void init(Camera&);
 

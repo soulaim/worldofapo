@@ -1,4 +1,5 @@
 varying vec2 varTexCoord;
+varying vec4 position;
 
 attribute vec2 bone_index; // Each vertex has bones.
 attribute vec2 bone_weight; // And weight for each bone.
@@ -27,6 +28,7 @@ void main()
 		gl_Position = ftransform();
 	}
 
+	position = gl_Vertex;
 	varTexCoord = vec2(gl_MultiTexCoord0);
 }
 

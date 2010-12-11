@@ -40,6 +40,32 @@ void Shaders::init()
 	shaders["ssao"]             = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
 	shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 
+	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_lights.fragment"));
+	shaders["deferred_level_program"]    = shared_ptr<Shader>(new Shader("shaders/deferred_level.vertex", "shaders/deferred_level.fragment"));
+
+
+	shaders["deferred_lights_program"]->start();
+	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
+	shaders["deferred_lights_program"]->set_texture_unit(1, "normals");
+	shaders["deferred_lights_program"]->set_texture_unit(2, "positions");
+	uniform_locations["deferred_lights_ambientLight"] = shaders["deferred_lights_program"]->uniform("ambientLight");
+	uniform_locations["deferred_lights_activeLights"] = shaders["deferred_lights_program"]->uniform("activeLights");
+	int MAX_NUM_LIGHTS = 71;
+	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
+	{
+		stringstream ss;
+		ss << i;
+		uniform_locations["deferred_lights[" + ss.str() + "]"] = shaders["deferred_lights_program"]->uniform(("lights[" + ss.str() + "]").c_str());
+	}
+	shaders["deferred_lights_program"]->stop();
+
+	shaders["deferred_level_program"]->start();
+	shaders["deferred_level_program"]->set_texture_unit(0, "baseMap0");
+	shaders["deferred_level_program"]->set_texture_unit(1, "baseMap1");
+	shaders["deferred_level_program"]->set_texture_unit(2, "baseMap2");
+	shaders["deferred_level_program"]->set_texture_unit(3, "baseMap3");
+	shaders["deferred_level_program"]->stop();
+
 
 	shaders["particle_program"]->start();
 	uniform_locations["particle_screen_width"] = shaders["particle_program"]->uniform("width");
@@ -64,7 +90,6 @@ void Shaders::init()
 	shaders["level_program"]->set_texture_unit(3, "baseMap3");
 	uniform_locations["lvl_ambientLight"] = shaders["level_program"]->uniform("ambientLight");
 	uniform_locations["lvl_activeLights"] = shaders["level_program"]->uniform("activeLights");
-	int MAX_NUM_LIGHTS = 71;
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		stringstream ss;
@@ -130,6 +155,20 @@ GLuint Shaders::operator[](const string& program_name) const
 	else
 	{
 		return it->second->get_program();
+	}
+}
+
+Shader& Shaders::get_shader(const std::string& program_name)
+{
+	auto it = shaders.find(program_name);
+	if(it == shaders.end())
+	{
+		cerr << "WARNING: program " << program_name << " not found!" << endl;
+		throw std::string("get_shader(" + program_name + ") failed!");
+	}
+	else
+	{
+		return *it->second;
 	}
 }
 

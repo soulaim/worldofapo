@@ -156,26 +156,41 @@ void Graphics::init(Camera& camera)
 	// TODO: This is completely obsolete?
 	initLight();
 	
+	TextureHandler::getSingleton().createDepthTexture("depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	
 	// Init screen framebuffer objects
 	glGenFramebuffers(1, &screenFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
-	TextureHandler::getSingleton().createTexture("screenFBO_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-	TextureHandler::getSingleton().createDepthTexture("screenFBO_depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_texture"), 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_depth_texture"), 0);
-	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particlesFBO_texture"), 0);
+	TextureHandler::getSingleton().createTexture("screenFBO_texture0", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_texture0"), 0);
 
-//	TextureHandler::getSingleton().createTexture("screenFBO_texture2", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_texture2"), 0);
+	if(intVals["DEFERRED_RENDERING"]) // TODO: make changeable during runtime.
+	{
+		glGenFramebuffers(1, &deferredFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
+		TextureHandler::getSingleton().createTexture("deferredFBO_texture0", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+		TextureHandler::getSingleton().createTexture("deferredFBO_texture1", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+		TextureHandler::getSingleton().createFloatTexture("deferredFBO_texture2", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+		TextureHandler::getSingleton().createDepthTexture("depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture0"), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture1"), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture2"), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
 
-	cerr << "screenFBO status: " << gluErrorString(glCheckFramebufferStatus(screenFBO)) << endl;
+		cerr << "deferredFBO status: " << gluErrorString(glCheckFramebufferStatus(screenFBO)) << endl;
+	}
+	else
+	{
+		// Attaches to the screenFBO.
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
+		// TODO: make this clearer/better somehow. (separate depth_textures for screenFBO and deferredFBO?)
+	}
 
 	glGenFramebuffers(1, &postFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
 	TextureHandler::getSingleton().createTexture("postFBO_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("postFBO_texture"), 0);
-	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_depth_texture"), 0);
+	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
 	
 	glGenFramebuffers(1, &particlesFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesFBO);
@@ -307,82 +322,93 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 	glEnd();
 }
 
+void Graphics::clear_errors() const
+{
+	while(glGetError() != GL_NO_ERROR);
+}
 
+void Graphics::check_errors(const char* filename, int line) const
+{
+	GLenum error;
+	while((error = glGetError()) != GL_NO_ERROR)
+	{
+		cerr << "ERROR: " << gluErrorString(error) << " at " << filename << ":" << line << "\n";
+	}
+}
 
 void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
-	while(glGetError() != GL_NO_ERROR); // Clear error flags.
+	clear_errors();
 
-	glUseProgram(shaders["level_program"]);
-	int i=0;
-	
-	int POSITION = 0;
-	int DIFFUSE = 1;
-	
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); iter++)
+	string programs[] = { "level_program", "deferred_lights_program" };
+
+	for(int p = 0; p < 2; ++p)
 	{
-		float rgb[4]; rgb[3] = 1.0f;
-		
-		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-//		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, rgb);
-		stringstream ss1;
-		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(shaders.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-		GLenum error;
-		if((error = glGetError()) != GL_NO_ERROR)
-		{
-			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
-		}
-//		cerr << shaders.uniform(ss1.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
-//		cerr << "DIFFUSE is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+		Shader& shader = shaders.get_shader(programs[p]);
+		shader.start();
 
-		const Location& pos = iter->second.getPosition();
-		rgb[0] = pos.x.getFloat();
-		rgb[1] = pos.y.getFloat();
-		rgb[2] = pos.z.getFloat();
+		int i = 0;
 		
-//		glLightfv(GL_LIGHT0 + i, GL_POSITION, rgb);
+		int POSITION = 0;
+		int DIFFUSE = 1;
+		
+		for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter)
+		{
+			float rgb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+			
+			iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+			stringstream ss1;
+			ss1 << "lights[" << i*2 + DIFFUSE << "]";
+			glUniform4f(shader.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
+			check_errors(__FILE__, __LINE__);
+	//		cerr << shaders.uniform(ss1.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+	//		cerr << "DIFFUSE is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 
-		stringstream ss2;
-		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
-		glUniform4f(shaders.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-		if((error = glGetError()) != GL_NO_ERROR)
-		{
-			cerr << "glUniform4f failed: " << gluErrorString(error) << " at line " << __LINE__ << "\n";
+			const Location& pos = iter->second.getPosition();
+			rgb[0] = pos.x.getFloat();
+			rgb[1] = pos.y.getFloat();
+			rgb[2] = pos.z.getFloat();
+			
+	//		glLightfv(GL_LIGHT0 + i, GL_POSITION, rgb);
+
+			stringstream ss2;
+			ss2 << "lights[" << i*2 + POSITION << "]";
+			glUniform4f(shader.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
+			check_errors(__FILE__, __LINE__);
+	//		cerr << shaders.uniform(ss2.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+	//		cerr << "POSITION of light " << i << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+			
+			++i;
+			if(i >= MAX_NUM_LIGHTS)
+			{
+				// if there are too many lights, just ignore the rest of them
+				break;
+			}
 		}
-//		cerr << shaders.uniform(ss2.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
-//		cerr << "POSITION of light " << i << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 		
-		++i;
-		if(i >= MAX_NUM_LIGHTS)
+		// always write multiples of four
+		for(int k = i % 4; (k % 4) != 0; ++k)
 		{
-			// if there are too many lights, just ignore the rest of them
-			break;
+			if(i >= MAX_NUM_LIGHTS)
+			{
+				// if there are too many lights, just ignore the rest of them
+				break;
+			}
+			
+			float rgb[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			stringstream ss1;
+			ss1 << "lights[" << i*2 + DIFFUSE << "]";
+			glUniform4f(shader.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
+			
+			stringstream ss2;
+			ss2 << "lights[" << i*2 + POSITION << "]";
+			glUniform4f(shader.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
+			
+			++i;
 		}
+		
+		shader.stop();
 	}
-	
-	// always write multiples of four
-	for(int k=i % 4; (k % 4) != 0; k++)
-	{
-		if(i >= MAX_NUM_LIGHTS)
-		{
-			// if there are too many lights, just ignore the rest of them
-			break;
-		}
-		
-		float rgb[4]; rgb[0] = rgb[1] = rgb[2] = rgb[3] = 0.0f;
-		stringstream ss1;
-		ss1 << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(shaders.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-		
-		stringstream ss2;
-		ss2 << "lvl_lights[" << i*2 + POSITION << "]";
-		glUniform4f(shaders.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-		
-		++i;
-	}
-	
-	glUseProgram(0);
 }
 
 void Graphics::drawDebugLevelNormals(const Level& lvl)
@@ -438,7 +464,7 @@ void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, con
 	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
 	glVertexAttrib4f(shaders.uniform("lvl_activeLights"), distances[0].index, distances[1].index, distances[2].index, distances[3].index);
 }
-*/
+
 
 struct ActiveLights
 {
@@ -447,13 +473,23 @@ struct ActiveLights
 	float active_light2;
 	float active_light3;
 };
+*/
 
-int pass;
-
-void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lightsContainer)
+void Graphics::drawLevelFR(const Level& lvl, int pass)
 {
+	if(pass == -1)
+	{
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+		glDepthFunc(GL_LESS);
+		
+		TextureHandler::getSingleton().bindTexture(2, "");
+		TextureHandler::getSingleton().bindTexture(1, "");
+		TextureHandler::getSingleton().bindTexture(0, "");
+		return;
+	}
+
 	glUseProgram(shaders["level_program"]);
-	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
 
 	static vector<Vec3> vertices;
 	static vector<Vec3> normals;
@@ -519,60 +555,63 @@ void Graphics::drawLevelFR(const Level& lvl, const map<int, LightObject>& lights
 	// Load dynamic indices.
 	static vector<unsigned> indices;
 
-if(pass == 0)
-{
-	indices.clear();
-	for(size_t k=0; k<level_triangles.size(); k++)
+	if(pass == 0)
 	{
-		Vec3 points[3];
-		BTT_Triangle& tri = level_triangles[k];
-		for(size_t i = 0; i < 3; ++i)
+		indices.clear();
+		for(size_t k=0; k<level_triangles.size(); k++)
 		{
-			points[2-i].x = tri.points[i].x * Level::BLOCK_SIZE;
-			points[2-i].z = tri.points[i].z * Level::BLOCK_SIZE;
-			points[2-i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+			Vec3 points[3];
+			BTT_Triangle& tri = level_triangles[k];
+			for(size_t i = 0; i < 3; ++i)
+			{
+				points[2-i].x = tri.points[i].x * Level::BLOCK_SIZE;
+				points[2-i].z = tri.points[i].z * Level::BLOCK_SIZE;
+				points[2-i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
 
-			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
+				indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
+			}
 		}
-	}
-	
-	if(drawDebuglines)
-	{
-		TextureHandler::getSingleton().bindTexture(0, "chessboard");
-		TextureHandler::getSingleton().bindTexture(1, "chessboard");
-		TextureHandler::getSingleton().bindTexture(2, "chessboard");
+		
+		if(drawDebuglines)
+		{
+			TextureHandler::getSingleton().bindTexture(0, "chessboard");
+			TextureHandler::getSingleton().bindTexture(1, "chessboard");
+			TextureHandler::getSingleton().bindTexture(2, "chessboard");
+		}
+		else
+		{
+			TextureHandler::getSingleton().bindTexture(0, "grass");
+			TextureHandler::getSingleton().bindTexture(1, "hill");
+			TextureHandler::getSingleton().bindTexture(2, "highground");
+		}
+		
+		if(drawDebuglines)
+		{
+			glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
+		}
+		else
+		{
+			float r = intVals["AMBIENT_RED"]   / 255.0f;
+			float g = intVals["AMBIENT_GREEN"] / 255.0f;
+			float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+			glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
+		}
+
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);
+		glDisable(GL_BLEND);
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, "grass");
-		TextureHandler::getSingleton().bindTexture(1, "hill");
-		TextureHandler::getSingleton().bindTexture(2, "highground");
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDepthFunc(GL_EQUAL);
+		glDepthMask(GL_FALSE);
+		
+		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
 	}
 	
-	if(drawDebuglines)
-	{
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
-	}
-	else
-	{
-		float r = intVals["AMBIENT_RED"]   / 255.0f;
-		float g = intVals["AMBIENT_GREEN"] / 255.0f;
-		float b = intVals["AMBIENT_BLUE"]  / 255.0f;
-		glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
-	}
-	
-}
-else
-{
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-	glDepthFunc(GL_EQUAL);
-	glDepthMask(GL_FALSE);
-	
-	glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
-}
-	
-	
+	// TODO: check what happens when the number of lights is not 0 mod 4.
 	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
 	
 	assert(texture_coordinates1.size() == vertices.size());
@@ -783,10 +822,21 @@ void fill_level_part(VisualLevelPart& part, size_t part_min_x, size_t part_max_x
 }
 
 
-void Graphics::drawLevelFR_new(const Level& lvl, const map<int, LightObject>& lightsContainer)
+void Graphics::drawLevelFR_new(const Level& lvl, int pass)
 {
+	if(pass == -1)
+	{
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+		glDepthFunc(GL_LESS);
+		
+		TextureHandler::getSingleton().bindTexture(2, "");
+		TextureHandler::getSingleton().bindTexture(1, "");
+		TextureHandler::getSingleton().bindTexture(0, "");
+		return;
+	}
+
 	glUseProgram(shaders["level_program"]);
-	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
 
 	size_t max_x = lvl.max_block_x();
 	size_t max_z = lvl.max_block_z();
@@ -852,6 +902,9 @@ void Graphics::drawLevelFR_new(const Level& lvl, const map<int, LightObject>& li
 			glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
 		}
 		
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);
+		glDisable(GL_BLEND);
 	}
 	else
 	{
@@ -1022,7 +1075,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
-	TextureHandler::getSingleton().bindTexture(1, "screenFBO_depth_texture");
+	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 //	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
@@ -1101,10 +1154,8 @@ void Graphics::prepareForParticleRendering()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	
-	TextureHandler::getSingleton().bindTexture(1, "screenFBO_depth_texture");
+	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
-	
-	glUseProgram(shaders["particle_program"]);
 	
 	// Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	// depthSortParticles(direction_vector, viewParticles);
@@ -1117,6 +1168,8 @@ void Graphics::prepareForParticleRendering()
 
 void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 {
+	glUseProgram(shaders["particle_program"]);
+	
 	GLint scale_location = shaders.uniform("particle_particleScale");
 	
 	// The geometry shader transforms the points into quads.
@@ -1145,6 +1198,18 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().bindTexture(1, "");
+
+	glUseProgram(0);
+}
+
+void Graphics::drawFullscreenQuad() const
+{
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
+	glEnd();
 }
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles)
@@ -1157,10 +1222,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	renderParticles(viewParticles);
 	
 	// upscale particle rendering result
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	
@@ -1168,15 +1233,9 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesUpScaledFBO);
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	TextureHandler::getSingleton().bindTexture(0, "particlesFBO_texture");
-	glUseProgram(0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
 	
 	// blur upscaled particle texture
 	if(intVals["PARTICLE_BLUR"])
@@ -1190,21 +1249,15 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
 	
-	glUseProgram(0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
-	glEnd();
+
+	drawFullscreenQuad();
 	
-	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 	
-	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
 	
 	glDepthMask(GL_TRUE);
@@ -1224,7 +1277,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	
-	//TextureHandler::getSingleton().bindTexture(1, "screenFBO_depth_texture");
+	//TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
 	// glUseProgram(shaders["particle_program"]);
@@ -1279,7 +1332,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().bindTexture(1, "");
 	
-	// /*
 	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	
@@ -1291,27 +1343,21 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	//glBlendFunc(GL_ONE, GL_ONE);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 	
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
 	
-	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	// */
+	glMatrixMode(GL_MODELVIEW);
 	
 	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
@@ -1335,7 +1381,20 @@ void Graphics::updateCamera(const Level& lvl)
 
 void Graphics::startDrawing()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
+	clear_errors();
+
+	if(intVals["DEFERRED_RENDERING"])
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
+		GLenum targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(3, targets);
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	}
+	check_errors(__FILE__, __LINE__);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1375,11 +1434,11 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
-	glMatrixMode(GL_PROJECTION);
+
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	
@@ -1388,19 +1447,15 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	
 	glColor3f(1.0, 1.0, 1.0);
 	
-	//	TextureHandler::getSingleton().bindTexture(1, "screenFBO_depth_texture");
+	//	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	//	glUseProgram(shaders["debug_program"]);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
 	
 	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 	
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -1416,16 +1471,16 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 {
 	glDisable(GL_DEPTH_TEST);
-	//glDepthMask(GL_FALSE);
+	glDepthMask(GL_FALSE);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
 	TextureHandler::getSingleton().bindTexture(0, inputImg);
 	
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
-	glMatrixMode(GL_PROJECTION);
+
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	
@@ -1434,15 +1489,11 @@ void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 	
 	glColor3f(1.0, 1.0, 1.0);
 	
-	//	TextureHandler::getSingleton().bindTexture(1, "screenFBO_depth_texture");
+	//	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	//	glUseProgram(shaders["debug_program"]);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
+	glUseProgram(0);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget);
 	TextureHandler::getSingleton().bindTexture(0, "postFBO_texture");
@@ -1452,24 +1503,261 @@ void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 	
 	glColor3f(1.0, 1.0, 1.0);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
 	
 	glEnable(GL_DEPTH_TEST);
-	//glDepthMask(GL_TRUE);
+	glDepthMask(GL_TRUE);
 	
 	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 	
 	glUseProgram(0);
 	// TextureHandler::getSingleton().bindTexture(0, "");
 }
 
+void Graphics::drawLevel(const Level& lvl, size_t light_count)
+{
+	// Draw terrain with forward rendering, apply lights right away.
+	for(size_t i = 0; i < light_count; i += 4)
+	{
+		int pass = int(i);
+		if(intVals["DRAW_LEVEL"] == 2)
+		{
+			drawLevelFR_new(lvl, pass);
+		}
+		else
+		{
+			drawLevelFR(lvl, pass);
+		}
+	}
+	if(intVals["DRAW_LEVEL"] == 2)
+	{
+		drawLevelFR_new(lvl, -1);
+	}
+	else
+	{
+		drawLevelFR(lvl, -1);
+	}
+}
+
+void Graphics::drawLightsDeferred(int light_count)
+{
+	glUseProgram(shaders["deferred_lights_program"]);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	
+	glClear(GL_COLOR_BUFFER_BIT); // TODO: this isnt necessary if draws are ordered correctly.
+
+	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
+	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
+	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glDepthMask(GL_FALSE);
+
+	for(int pass = 0; pass < light_count; pass += 4)
+	{
+		if(pass == 0)
+		{
+			float r = intVals["AMBIENT_RED"]   / 255.0f;
+			float g = intVals["AMBIENT_GREEN"] / 255.0f;
+			float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), r, g, b, 1.0f);
+		}
+		else
+		{
+			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), 0.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		if(pass == 1)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
+
+		// TODO: check what happens when the number of lights is not 0 mod 4.
+		glUniform4f(shaders.uniform("deferred_lights_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
+		
+		drawFullscreenQuad();
+	}
+	
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+
+	TextureHandler::getSingleton().bindTexture(2, "");
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	glUseProgram(0);
+}
+
+void Graphics::drawLevelDeferred(const Level& lvl)
+{
+	// Draw terrain with deferred rendering, apply lights later.
+
+	glUseProgram(shaders["deferred_level_program"]);
+
+	static vector<Vec3> vertices;
+	static vector<Vec3> normals;
+	static vector<TextureCoordinate> texture_coordinates1;
+	static vector<TextureCoordinate> texture_coordinates2;
+//	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
+
+	size_t height = lvl.pointheight_info.size();
+	size_t width = lvl.pointheight_info[0].size();
+	const int BUFFERS = 6;
+	static GLuint locations[BUFFERS];
+	int buffer = 0;
+	static bool level_buffers_loaded = false;
+
+	// Load static buffers.
+	if(!level_buffers_loaded) // TODO: Move initialization somewhere else?
+	{
+		level_buffers_loaded = true;
+		assert(height*width > 0);
+		
+		vertices.reserve(height * width);
+		normals.reserve(height * width);
+		for(size_t x = 0; x < height; ++x)
+		{
+			for(size_t z = 0; z < width; ++z)
+			{
+				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
+				vertices.push_back(point);
+				
+				Location normal = lvl.getNormal(x, z);
+				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+				
+				 // TODO: These coordinates are like :G
+				const int divisions = 25;
+//				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
+				TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
+				texture_coordinates1.push_back(tc1);
+				texture_coordinates2.push_back(tc1);
+			}
+		}
+
+		glGenBuffers(BUFFERS, locations);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+
+		assert(buffer <= BUFFERS);
+	}
+
+	// Load dynamic indices.
+	static vector<unsigned> indices;
+
+	indices.clear();
+	for(size_t k=0; k<level_triangles.size(); k++)
+	{
+		Vec3 points[3];
+		BTT_Triangle& tri = level_triangles[k];
+		for(size_t i = 0; i < 3; ++i)
+		{
+			points[2-i].x = tri.points[i].x * Level::BLOCK_SIZE;
+			points[2-i].z = tri.points[i].z * Level::BLOCK_SIZE;
+			points[2-i].y = lvl.getVertexHeight(tri.points[i].x, tri.points[i].z).getFloat();
+
+			indices.push_back( tri.points[2-i].x * width + tri.points[2-i].z  );
+		}
+	}
+	
+	if(drawDebuglines)
+	{
+		TextureHandler::getSingleton().bindTexture(0, "chessboard");
+		TextureHandler::getSingleton().bindTexture(1, "chessboard");
+		TextureHandler::getSingleton().bindTexture(2, "chessboard");
+	}
+	else
+	{
+		TextureHandler::getSingleton().bindTexture(0, "grass");
+		TextureHandler::getSingleton().bindTexture(1, "hill");
+		TextureHandler::getSingleton().bindTexture(2, "highground");
+	}
+	
+	if(drawDebuglines)
+	{
+		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
+	}
+	else
+	{
+		float r = intVals["AMBIENT_RED"]   / 255.0f;
+		float g = intVals["AMBIENT_GREEN"] / 255.0f;
+		float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+		glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
+	}
+	
+	assert(texture_coordinates1.size() == vertices.size());
+	assert(texture_coordinates2.size() == vertices.size());
+	assert(normals.size() == vertices.size());
+	
+	buffer = 0;
+	
+	// Bind static data and send dynamic data to graphics card.
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	glClientActiveTexture(GL_TEXTURE1);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	glClientActiveTexture(GL_TEXTURE0);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glNormalPointer(GL_FLOAT, 0, 0);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	
+	buffer++;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
+	
+	assert(buffer == BUFFERS);
+	
+	// Draw sent data.
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
+	
+	glUseProgram(0);
+
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glDepthFunc(GL_LESS);
+	
+	TextureHandler::getSingleton().bindTexture(2, "");
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+}
 
 void Graphics::draw(
 	const Level& lvl,
@@ -1482,12 +1770,12 @@ void Graphics::draw(
 	updateCamera(lvl);
 	
 	startDrawing();
-	
+
 	if(intVals["DRAW_SKYBOX"])
 	{
 		drawSkybox();
 	}
-	
+
 	if(drawDebuglines)
 	{
 		drawDebugLevelNormals(lvl);
@@ -1500,29 +1788,16 @@ void Graphics::draw(
 	}
 	else if(intVals["DRAW_LEVEL"])
 	{
-		// draw terrain with forward rendering, applying lights there
-		for(size_t i = 0; i < visualworld.lights.size(); i += 4)
+		if(intVals["DEFERRED_RENDERING"])
 		{
-			pass = int(i);
-			if(intVals["DRAW_LEVEL"] == 2)
-			{
-				drawLevelFR_new(lvl, visualworld.lights);
-			}
-			else
-			{
-				drawLevelFR(lvl, visualworld.lights);
-			}
+			drawLevelDeferred(lvl);
 		}
-		
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
-		glDepthFunc(GL_LESS);
-		
-		TextureHandler::getSingleton().bindTexture(2, "");
-		TextureHandler::getSingleton().bindTexture(1, "");
-		TextureHandler::getSingleton().bindTexture(0, "");
+		else
+		{
+			drawLevel(lvl, visualworld.lights.size());
+		}
 	}
-	
+
 	if(drawDebuglines)
 	{
 		drawDebugLines();
@@ -1537,24 +1812,32 @@ void Graphics::draw(
 	{
 		drawGrass(visualworld.meadows);
 	}
-	
+
+	if(intVals["DEFERRED_RENDERING"])
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		drawLightsDeferred(visualworld.lights.size());
+	}
+
 	if(intVals["SSAO"])
 	{
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture", "screenFBO_depth_texture", screenFBO);
+		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", "depth_texture", screenFBO);
 	}
-	
+
 	if(intVals["DRAW_PARTICLES"])
 	{
 		drawParticles(visualworld.particles);
 	}
-	
+
 	if(drawDebuglines)
 	{
 		drawBoundingBoxes(units);
 		drawOctree(o);
 	}
-	
+
 	if(intVals["DRAW_NAMES"])
 	{
 		drawPlayerNames(units, visualworld.models);
@@ -1569,8 +1852,10 @@ void Graphics::draw(
 		blur = 13;
 	
 	if(intVals["DAMAGE_BLUR"])
-		applyBlur(blur, "screenFBO_texture", screenFBO);
-	
+	{
+		applyBlur(blur, "screenFBO_texture0", screenFBO);
+	}
+
 	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 	
 	finishDrawing();
@@ -1602,7 +1887,7 @@ void Graphics::finishDrawing()
 	
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	TextureHandler::getSingleton().bindTexture(0, "screenFBO_texture");
+	TextureHandler::getSingleton().bindTexture(0, "screenFBO_texture0");
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -1614,12 +1899,8 @@ void Graphics::finishDrawing()
 	
 	glColor3f(1.0, 1.0, 1.0);
 	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.f, +1.f, -1.0f);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.f, -1.f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.f, +1.f, -1.0f);
-	glEnd();
+	drawFullscreenQuad();
+
 	glEnable(GL_DEPTH_TEST);
 	
 //	TextureHandler::getSingleton().bindTexture(1, "");
