@@ -23,10 +23,12 @@ Camera::Camera():
 	max_fov = 100.f;
 }
 
-Vec3& Camera::getTarget()
+const Vec3& Camera::getTarget() const
 {
 	if(mode_ == FIRST_PERSON)
+	{
 		return fps_direction;
+	}
 	return currentTarget;
 }
 
@@ -63,21 +65,16 @@ const Location& Camera::getUnitLocation() const
 
 Vec3 Camera::getPosition() const
 {
-	//if(unit)
-	//{
-		if(mode_ == THIRD_PERSON)
-		{
-			return currentPosition + currentRelative;
-		}
-		else if(mode_ == FIRST_PERSON)
-		{
-			return currentPosition;
-		}
-		
+	if(mode_ == THIRD_PERSON)
+	{
+		return currentPosition + currentRelative;
+	}
+	else if(mode_ == FIRST_PERSON)
+	{
 		return currentPosition;
-	//}
+	}
 	
-	//return position;
+	return currentPosition;
 }
 
 void Camera::tick()
@@ -215,7 +212,7 @@ void Camera::staticTick()
 	currentTarget = currentPosition + rotation1 * rotation2 * position;
 }
 
-void Camera::getRelativePos(Vec3& result)
+void Camera::getRelativePos(Vec3& result) const
 {
 	float x = position.x;
 	float y = position.y;
@@ -270,7 +267,9 @@ void Camera::zoomIn()
 	{
 		fov /= 1.2f;
 		if(fov < min_fov)
+		{
 			fov = min_fov;
+		}
 	}
 }
 
@@ -287,11 +286,13 @@ void Camera::zoomOut()
 	{
 		fov *= 1.2f;
 		if(fov > max_fov)
+		{
 			fov = max_fov;
+		}
 	}
 }
 
-float Camera::getXrot()
+float Camera::getXrot() const
 {
 	if(mode_ == STATIC)
 	{
@@ -305,11 +306,13 @@ float Camera::getXrot()
 
 	static float x_rot = 0.f;
 	if(unit)
+	{
 		x_rot = ApoMath().getDegrees(unit->angle);
+	}
 	return x_rot;
 }
 
-float Camera::getYrot()
+float Camera::getYrot() const
 {
 	if(mode_ == STATIC)
 	{
@@ -321,7 +324,9 @@ float Camera::getYrot()
 
 	static float y_rot = 0.f;
 	if(unit)
+	{
 		y_rot = ApoMath().getDegrees(unit->upangle);
+	}
 	return y_rot;
 }
 

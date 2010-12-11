@@ -71,9 +71,6 @@ void Graphics::initLight()
 	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
 	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
 	
-	glClearColor(0.0f,0.0f,0.0f,0.5f);
-	glClearDepth(1.0f);
-	
 	for(int i=0; i<3; i++)
 	{
 		glLightf(GL_LIGHT0+i , GL_LINEAR_ATTENUATION, 0.f);
@@ -1234,7 +1231,9 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	TextureHandler::getSingleton().bindTexture(0, "particlesFBO_texture");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	
+
+	// TODO: Could this perhaps be done (faster?) by directly copying from one framebuffer to another?
+	// Perhaps with with glBindFramebuffer(GL_READ_FRAMEBUFFER,...); glBindFramebuffer(GL_DRAW_FRAMEBUFFER,...); glBlitFramebuffer(...);??
 	drawFullscreenQuad();
 	
 	// blur upscaled particle texture
@@ -1269,7 +1268,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
 void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 {
-	
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	// depthSortParticles(direction_vector, viewParticles);
 	
@@ -1379,43 +1377,31 @@ void Graphics::updateCamera(const Level& lvl)
 	camera_p->setAboveGround(cam_min_y);
 }
 
-void Graphics::startDrawing()
+void Graphics::setupCamera(const Camera& camera)
 {
-	clear_errors();
-
-	if(intVals["DEFERRED_RENDERING"])
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
-		GLenum targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		glDrawBuffers(3, targets);
-	}
-	else
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	}
-	check_errors(__FILE__, __LINE__);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
-	glMatrixMode(GL_MODELVIEW);
-	
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
-	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear color buffer, since we're going to rewrite the color everywhere anyway.
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	
-	Vec3 camPos = camera_p->getPosition();
-	Vec3 camTarget = camera_p->getTarget();
+	Vec3 camPos = camera.getPosition();
+	Vec3 camTarget = camera.getTarget();
 	Vec3 upVector(0.0, 1.0, 0.0);
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
+
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);
 			  
 	frustum.setCamDef(camPos, camTarget, upVector);
+}
+
+void Graphics::startDrawing()
+{
+	setupCamera(*this->camera_p);
+
+	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear color buffer, since we're going to rewrite the color everywhere anyway.
+//	glClear(GL_COLOR_BUFFER_BIT);
 
 	TRIANGLES_DRAWN_THIS_FRAME = 0;
 	QUADS_DRAWN_THIS_FRAME = 0;
@@ -1434,28 +1420,15 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	
 	glUseProgram(shaders["ssao"]);
 	glUniform1f(shaders.uniform("ssao_power"), float(power));
 	
-	glColor3f(1.0, 1.0, 1.0);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	//	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
 	//	glUseProgram(shaders["debug_program"]);
 	
 	drawFullscreenQuad();
-	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
 	
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -1470,19 +1443,13 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 
 void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 {
+	blur = min(blur, intVals["MAXIMUM_BLUR"]);
+
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
 	TextureHandler::getSingleton().bindTexture(0, inputImg);
-	
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
 	
 	glUseProgram(shaders["blur_program1"]);
 	glUniform1f(shaders.uniform("blur_amount1"), float(blur));
@@ -1507,11 +1474,6 @@ void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
 	
 	glUseProgram(0);
 	// TextureHandler::getSingleton().bindTexture(0, "");
@@ -1545,14 +1507,6 @@ void Graphics::drawLevel(const Level& lvl, size_t light_count)
 void Graphics::drawLightsDeferred(int light_count)
 {
 	glUseProgram(shaders["deferred_lights_program"]);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
 	
 	glClear(GL_COLOR_BUFFER_BIT); // TODO: this isnt necessary if draws are ordered correctly.
 
@@ -1595,11 +1549,6 @@ void Graphics::drawLightsDeferred(int light_count)
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
-
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
 
 	glUseProgram(0);
 }
@@ -1759,16 +1708,44 @@ void Graphics::drawLevelDeferred(const Level& lvl)
 	TextureHandler::getSingleton().bindTexture(0, "");
 }
 
+void Graphics::bind_framebuffer(GLuint framebuffer, int output_buffers) const
+{
+	assert(output_buffers >= 0);
+	assert(output_buffers <= 3);
+	clear_errors();
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	if(!output_buffers)
+	{
+		glDrawBuffer(GL_NONE);
+	}
+	else
+	{
+		GLenum targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(output_buffers, targets);
+	}
+	check_errors(__FILE__, __LINE__);
+}
+
 void Graphics::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
 	const std::shared_ptr<Octree> o, // For debug.
 	const std::map<int, Projectile>& projectiles, // For debug.
-	const std::map<int, Unit>& units // For debug and names.
+	const std::map<int, Unit>& units, // For debug and names.
+	int blur
 	)
 {
 	updateCamera(lvl);
 	
+	if(intVals["DEFERRED_RENDERING"])
+	{
+		bind_framebuffer(deferredFBO, 3);
+	}
+	else
+	{
+		bind_framebuffer(screenFBO, 1);
+	}
+
 	startDrawing();
 
 	if(intVals["DRAW_SKYBOX"])
@@ -1815,15 +1792,13 @@ void Graphics::draw(
 
 	if(intVals["DEFERRED_RENDERING"])
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		bind_framebuffer(screenFBO, 1);
 
 		drawLightsDeferred(visualworld.lights.size());
 	}
 
 	if(intVals["SSAO"])
 	{
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", "depth_texture", screenFBO);
 	}
 
@@ -1844,12 +1819,6 @@ void Graphics::draw(
 	}
 	
 	drawDebugStrings();
-	
-	int blur = units.find(hud.myID)->second["D"];
-	if(camera_p->mode() == Camera::STATIC)
-		blur = 0;
-	else if( blur > 13 )
-		blur = 13;
 	
 	if(intVals["DAMAGE_BLUR"])
 	{
@@ -1895,7 +1864,6 @@ void Graphics::finishDrawing()
 	glLoadIdentity();
 	
 	glMatrixMode(GL_MODELVIEW);
-	glUseProgram(0);
 	
 	glColor3f(1.0, 1.0, 1.0);
 	

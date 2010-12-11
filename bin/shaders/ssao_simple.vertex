@@ -5,6 +5,7 @@ varying vec2 texcoord;
 // remember that you should draw a screen aligned quad
 void main(void)
 {
-	gl_Position = ftransform();
+	gl_Position = gl_Vertex;
 	texcoord = gl_Position.xy * 0.5 + 0.5;
 }
+

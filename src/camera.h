@@ -23,7 +23,7 @@ public:
 	};
 	
 	Camera();
-	Vec3& getTarget();
+	const Vec3& getTarget() const;
 	Vec3 getPosition() const;
 	const Location& getUnitLocation() const;
 	
@@ -31,8 +31,8 @@ public:
 	
 	void tick();
 
-	float getXrot();
-	float getYrot();
+	float getXrot() const;
+	float getYrot() const;
 	
 	void bind(Unit* unit, FollowMode mode);
 	void setMode(FollowMode mode);
@@ -53,7 +53,7 @@ public:
 	
 private:
 	
-	void getRelativePos(Vec3&);
+	void getRelativePos(Vec3&) const;
 	
 	Vec3 position;
 	Vec3 fps_direction;
