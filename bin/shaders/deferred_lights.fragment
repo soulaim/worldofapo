@@ -1,0 +1,42 @@
+const int MAX_ACTIVE_LIGHTS = 4;
+
+varying vec4 position[MAX_ACTIVE_LIGHTS];
+varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
+
+uniform vec4 ambientLight;
+
+varying vec2 vTexCoord;
+
+uniform sampler2D texture_colors;
+uniform sampler2D normals;
+uniform sampler2D positions;
+
+void main()
+{
+	vec4 light_color = ambientLight;
+	vec4 texture_color = texture2D(texture_colors, vTexCoord);
+	vec3 n = normalize(texture2D(normals, vTexCoord).rgb);
+	vec4 ecPos = texture2D(positions, vTexCoord);
+
+	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
+	{
+		float dist = length(position[i] - ecPos);
+/*
+		vec3 aux = vec3(gl_ModelViewMatrix * position[i] - ecPos);
+		vec3 lightDir = normalize(aux);
+		float dist = length(aux);
+		
+		float NdotL = dot(n, normalize(lightDir));
+*/
+		float NdotL = 1.0;
+		
+		if(NdotL > 0.0)
+		{
+			float att = 1.0 / (0.0001 + 0.0006 * dist * dist);
+			light_color += att * (diffuse[i] * NdotL);
+		}
+	}
+	
+	gl_FragColor = texture_color * light_color;
+}
+

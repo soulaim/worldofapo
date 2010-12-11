@@ -1,12 +1,13 @@
 const int MAX_ACTIVE_LIGHTS = 4;
 
+varying vec4 position[MAX_ACTIVE_LIGHTS];
 varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
-varying vec3 lightDir[MAX_ACTIVE_LIGHTS];
-//varying vec3 halfVector[MAX_ACTIVE_LIGHTS];
-varying float dist[MAX_ACTIVE_LIGHTS];
-varying vec4 ambientGlobal;
+varying vec4 ecPos;
+
 varying vec3 normal;
 varying float height;
+
+uniform vec4 ambientLight;
 
 uniform sampler2D baseMap0;
 uniform sampler2D baseMap1;
@@ -15,51 +16,37 @@ uniform sampler2D baseMap3;
 
 void main()
 {
-	//vec3 halfV;
-	vec3 n;
-	float NdotL; // lambert term, i think
-	vec4 color = ambientGlobal;
-	float att;
-	
-	n = normalize(normal);
+	vec4 light_color = ambientLight;
+	vec3 n = normalize(normal);
 	
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
-		NdotL = dot(n, normalize(lightDir[i]));
+		vec3 aux = vec3(gl_ModelViewMatrix * position[i] - ecPos);
+		vec3 lightDir = normalize(aux);
+		float dist = length(aux);
+		
+		float NdotL = dot(n, normalize(lightDir));
 		
 		if(NdotL > 0.0)
 		{
-			att = 1.0 / (0.0001 + 0.0006 * dist[i] * dist[i]);
-			color += att * (diffuse[i] * NdotL);
-			
-			//halfV = normalize(halfVector[i]);
-			//float shininess = pow(max(dot(n, halfV), 0.0), 10);
-			//color += vec4(1, 1, 1, 1) * shininess;
+			float att = 1.0 / (0.0001 + 0.0006 * dist * dist);
+			light_color += att * (diffuse[i] * NdotL);
 		}
 	}
 	
-/*
-	float weigth0 = 3.0 + 1.0 * abs(sin(height));
-	float weigth1 = max(min(height,2.0), 0.0) + 1.0 * abs(sin(height+1.0));
-	float weigth2 = max(height/2.0, 0.0);
-	float weigth3 = 0.0;
-*/
-
 	float weigth0 = 80.0 / (abs(height +  3.0) + 0.01);
 	float weigth2 = 80.0 / (abs(height -  6.0) + 0.01);
 	float weigth1 = 80.0 / (abs(height - 20.0) + 0.01);
 	float weigth3 = 0.0;
 
-	vec4 output_color;
-
-	output_color = vec4(0,0,0,0);
+	vec4 output_color = vec4(0,0,0,0);
 //	output_color += texture2D(baseMap0, gl_TexCoord[0].st);
 	output_color += weigth0 * texture2D(baseMap0, gl_TexCoord[0].st);
 	output_color += weigth1 * texture2D(baseMap1, gl_TexCoord[1].st);
 	output_color += weigth2 * texture2D(baseMap2, gl_TexCoord[2].st);
 	output_color += weigth3 * texture2D(baseMap3, gl_TexCoord[3].st);
 	output_color /= (weigth0 + weigth1 + weigth2 + weigth3);
-	output_color *= color;
+	output_color *= light_color;
 
 	//gl_FragColor = output_color;
 	gl_FragData[0] = output_color;

@@ -31,7 +31,8 @@ public:
 
 	GLint uniform(const std::string& name) const;
 	GLuint operator[](const std::string& program_name) const;
-
+	
+	Shader& get_shader(const std::string& program_name);
 private:
 	std::map<std::string, std::shared_ptr<Shader>> shaders;
 	std::map<std::string, GLint> uniform_locations;
