@@ -10,6 +10,7 @@
 
 #include "camera.h"
 #include "hasproperties.h"
+#include "idgenerator.h"
 
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld : public HasProperties
@@ -54,6 +55,8 @@ public:
 	Camera camera;
 	void setCamera(const Camera& camera);
 	void bindCamera(Unit* unit);
+private:
+	IDGenerator lightIDgenerator;
 };
 
 #endif

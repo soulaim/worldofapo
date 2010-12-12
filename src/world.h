@@ -13,6 +13,7 @@
 #include "octree.h"
 #include "movable_object.h"
 #include "worldevent.h"
+#include "idgenerator.h"
 
 class VisualWorld;
 class Model;
@@ -82,9 +83,8 @@ private:
 	std::vector<int> deadUnits;
 	ApoMath apomath;
 	
-	int _unitID_next_unit;
-	int _playerID_next_player;
-	
+	IDGenerator unitIDgenerator;
+	IDGenerator playerIDgenerator;
 };
 
 #endif

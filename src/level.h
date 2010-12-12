@@ -23,7 +23,7 @@ struct Level
 	}
 	
 	// random position from the map. (spawn)
-	Location getRandomLocation(int);
+	Location getRandomLocation(int) const;
 	
 	// wtf physics ffs this is bullshit..
 	FixedPoint getJumpPower(FixedPoint& x, FixedPoint& z);

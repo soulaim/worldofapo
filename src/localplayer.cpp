@@ -161,10 +161,7 @@ void Localplayer::draw()
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
 
-#ifndef __APPLE__
 		if(!need_to_tick_world)
-			// TODO: is this apple check really necessary??
-#endif
 		{
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
