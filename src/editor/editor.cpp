@@ -50,7 +50,9 @@ Editor::Editor():
 	userio.init();
 	visualworld.init();
 
+	view.intVals["DEFERRED_RENDERING"] = 0; // TODO: Deferred rendering doesn't work with editor.
 	view.init(visualworld.camera);
+
 	visualworld.bindCamera(&dummy);
 //	view.toggleLightingStatus();
 
@@ -198,6 +200,8 @@ bool Editor::do_tick()
 	}
 	*/
 	view.drawGrass(vector<GrassCluster>(1, meadows));
+
+//	view.geometryDrawn(0);
 
 	hud.drawFPS();
 	hud.drawMessages();

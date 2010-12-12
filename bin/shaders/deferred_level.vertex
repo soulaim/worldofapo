@@ -4,9 +4,6 @@ varying vec4 vertex_position;
 
 void main()
 {
-	vec4 ecPos;
-	vec3 aux;
-	
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 	vertex_position = gl_Vertex;
 	

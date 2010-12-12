@@ -16,6 +16,7 @@
 
 #include "shader.h"
 
+// TODO: get rid of these.
 extern GLint unit_color_location;
 extern GLint color_index_location;
 extern GLint bones_location;
