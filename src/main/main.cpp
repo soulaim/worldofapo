@@ -32,7 +32,13 @@ int main(int argc, char* argv[])
 	Localplayer master(&view, &userio, &hud, &window);
 	master.init();
 	Menu menu(&view, &userio);
-
+	
+	HasProperties menuOptions;
+	menuOptions.load("menu.conf");
+	
+	// start music in menu
+	master.startMusic(menuOptions.strVals["MUSIC"]);
+	
 	bool in_menu = true;
 	while(true)
 	{
@@ -41,6 +47,7 @@ int main(int argc, char* argv[])
 			if(master.client_tick())
 			{
 				in_menu = true;
+				master.startMusic(menuOptions.strVals["MUSIC"]);
 			}
 		}
 		else
@@ -52,6 +59,8 @@ int main(int argc, char* argv[])
 			}
 			else if(!choice.empty())
 			{
+				master.endMusic();
+				
 				if(master.joinInternetGame(choice))
 				{
 					in_menu = false;

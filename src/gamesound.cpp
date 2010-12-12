@@ -17,19 +17,27 @@ using namespace std;
 
 Mix_Music *game_sound_music;
 
+void MusicTrackFinished()
+{
+	if(game_sound_music)
+		Mix_FreeMusic(game_sound_music);
+	game_sound_music = 0;
+}
+
 /*
 // check music progress
-if( game_sound_music == 0  && !game_over)
+if( game_sound_music == 0)
 {
 	game_sound_music = Mix_LoadMUS( "music/smb.mp3" );
 	Mix_PlayMusic(game_sound_music, 0);
-	Mix_HookMusicFinished(musicDone);
+	Mix_HookMusicFinished(MusicTrackFinished);
 	
 	Mix_VolumeMusic( static_cast<int> (MIX_MAX_VOLUME * 0.5) );
 	}
 */
 
-
+// 
+// Mix_PlayingMusic();
 
 GameSound::GameSound()
 {
@@ -44,12 +52,7 @@ GameSound::~GameSound()
 
 int GameSound::end_music()
 {
-	Mix_HaltMusic();
-	if(game_sound_music)
-		Mix_FreeMusic(game_sound_music);
-	game_sound_music = 0;
-	game_over = true;
-
+	Mix_FadeOutMusic(3000);
 	return 1;
 }
 
@@ -102,17 +105,6 @@ int GameSound::init()
 	return 1;
 }
 
-/* This is the function that we told SDL_Mixer to call when the music
-was finished. In our case, we're going to simply unload the music
-as though the player wanted it stopped.  In other applications, a
-different music file might be loaded and played. */
-void musicDone()
-{
-	Mix_HaltMusic();
-	Mix_FreeMusic(game_sound_music);
-	game_sound_music = 0;
-}
-
 
 void GameSound::playEffect(const string& lol, float distance, float magnitude)
 {
@@ -153,16 +145,22 @@ void GameSound::playEffect(const string& lol, float distance, float magnitude)
 }
 
 
-void GameSound::levelStart()
+void GameSound::startMusic(string name)
 {
 	if(!soundsystem_ok)
+		return;
+	
+	if(name == "NONE")
 		return;
 	
 	Mix_HaltMusic();
 	if(game_sound_music)
 		Mix_FreeMusic(game_sound_music);
 	game_sound_music = 0;
-	game_over = false;
+	
+	game_sound_music = Mix_LoadMUS(name.c_str());
+	Mix_FadeInMusic(game_sound_music, 1, 3000);
+	Mix_HookMusicFinished(MusicTrackFinished);
 }
 
 

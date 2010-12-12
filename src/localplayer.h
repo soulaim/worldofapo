@@ -35,6 +35,10 @@ public:
 	bool joinInternetGame(const std::string&);
 	void reload_confs();
 	
+	void startMusic(std::string name);
+	void endMusic();
+	void setMusicVolume();
+	
 private:
 	void endGame();
 	

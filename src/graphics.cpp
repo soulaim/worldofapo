@@ -2021,19 +2021,26 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 	{
 		stringstream menuparticle;
 		float scale;
-		if(menuParticles[i].front)
-		{
-			menuparticle << "^R" << menuParticles[i].val;
-			scale = 2.0f;
-		}
-		else
+		if(menuParticles[i].front == 0)
 		{
 			menuparticle << "^r" << menuParticles[i].val;
 			scale = 1.2f;
+			hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
 		}
-		
-		hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
 	}
+	
+	for(size_t i=0; i<menuParticles.size(); i++)
+	{
+		stringstream menuparticle;
+		float scale;
+		if(menuParticles[i].front == 1)
+		{
+			menuparticle << "^R" << menuParticles[i].val;
+			scale = 2.0f;
+			hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
+		}
+	}
+	
 	
 	// blur the effect?
 	

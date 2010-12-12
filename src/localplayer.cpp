@@ -57,6 +57,25 @@ void Localplayer::reload_confs()
 	view->load("graphics.conf");
 }
 
+
+void Localplayer::startMusic(string name)
+{
+	// TODO: some more control over this
+	soundsystem.startMusic(name);
+}
+
+void Localplayer::endMusic()
+{
+	soundsystem.end_music();
+}
+
+void Localplayer::setMusicVolume()
+{
+	// TODO: Implement this
+	return;
+}
+
+
 // returns true on success.
 bool Localplayer::joinInternetGame(const std::string& hostname)
 {
