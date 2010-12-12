@@ -45,13 +45,13 @@ struct MenuParticle
 		{
 			// front
 			front = 1;
-			vy = -0.02f;
+			vy = -0.005f;
 		}
 		else
 		{
 			// back
 			front = 0;
-			vy = -0.01f;
+			vy = -0.003f;
 		}
 	}
 	

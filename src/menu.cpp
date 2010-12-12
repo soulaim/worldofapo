@@ -37,7 +37,7 @@ void server_killer()
 void Menu::tick_menu_effects()
 {
 	
-	for(int i=0; i < 2; i++)
+	for(int i=0; i < 1; i++)
 	{
 		menu_particles.push_back(MenuParticle());
 		menu_particles.back().reset();
@@ -170,7 +170,7 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 		
 		if(key == "")
 		{
-			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
 			continue;
 		}
 		else if(key == "down")
@@ -276,7 +276,7 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 		
 		if(key_hostname == "")
 		{
-			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
 			continue;
 		}
 		else if(key_hostname.size() == 1)
@@ -337,7 +337,7 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		
 		if(key_hostname == "")
 		{
-			SDL_Delay(50); // sleep a bit. don't need anything intensive done anyway.
+			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
 			continue;
 		}
 		else if(key_hostname.size() == 1)
