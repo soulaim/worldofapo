@@ -441,37 +441,6 @@ void Graphics::drawDebugLevelNormals(const Level& lvl)
 	glEnd();
 }
 
-/*
-void Graphics::setActiveLights(const map<int, LightObject>& lightsContainer, const Location& pos)
-{
-	static vector<LightDistance> distances;
-	distances.resize( max(lightsContainer.size(), distances.size()) );
-	assert(lightsContainer.size() >= size_t(MAX_NUM_ACTIVE_LIGHTS));
-
-	int i = 0;
-	for(auto iter = lightsContainer.begin(); iter != lightsContainer.end(); ++iter, ++i)
-	{
-		FixedPoint lightDistance = (iter->second.position - pos).lengthSquared();
-		distances[i].index = i;
-		distances[i].squaredDistance = lightDistance;
-	}
-//	sort(distances.begin(), distances.end());
-	size_t k = min(size_t(MAX_NUM_ACTIVE_LIGHTS), distances.size());
-	nth_element(distances.begin(), distances.begin() + k, distances.begin() + lightsContainer.size());
-	assert(MAX_NUM_ACTIVE_LIGHTS == 4);
-	glVertexAttrib4f(shaders.uniform("lvl_activeLights"), distances[0].index, distances[1].index, distances[2].index, distances[3].index);
-}
-
-
-struct ActiveLights
-{
-	float active_light0;
-	float active_light1;
-	float active_light2;
-	float active_light3;
-};
-*/
-
 void Graphics::drawLevelFR(const Level& lvl, int pass)
 {
 	if(pass == -1)
@@ -493,7 +462,6 @@ void Graphics::drawLevelFR(const Level& lvl, int pass)
 	static vector<TextureCoordinate> texture_coordinates1;
 	static vector<TextureCoordinate> texture_coordinates2;
 //	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
-//	static vector<ActiveLights> active_lights;
 
 	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
@@ -526,9 +494,6 @@ void Graphics::drawLevelFR(const Level& lvl, int pass)
 				TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
 				texture_coordinates1.push_back(tc1);
 				texture_coordinates2.push_back(tc1);
-				
-				//ActiveLights ac = {0, 0, 0, 0};
-				//active_lights.push_back(ac);
 			}
 		}
 
@@ -636,9 +601,6 @@ void Graphics::drawLevelFR(const Level& lvl, int pass)
 	glNormalPointer(GL_FLOAT, 0, 0);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	
-	//glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(ActiveLights) * active_lights.size(), &active_lights[0], GL_STREAM_DRAW);
-	//glVertexAttribPointer(shaders.uniform("lvl_activeLights"), 4, GL_FLOAT, GL_FALSE, sizeof(ActiveLights), 0);
 	buffer++;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
@@ -646,9 +608,7 @@ void Graphics::drawLevelFR(const Level& lvl, int pass)
 	assert(buffer == BUFFERS);
 	
 	// Draw sent data.
-	//glEnableVertexAttribArray(shaders.uniform("lvl_activeLights"));
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	//glDisableVertexAttribArray(shaders.uniform("lvl_activeLights"));
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);

@@ -398,33 +398,9 @@ void World::init()
 	
 	load("world.conf");
 	
-	_unitID_next_unit = 10000;
-	_playerID_next_player = 0;
+	unitIDgenerator.setNextID(10000);
 
 	// lvl.generate(50);
-	
-	// TODO: maybe move light initialization things to visualworld::init(lvl).
-
-	// find the highest point in lvl and add a strong light there.
-	LightObject tmp_light;
-	tmp_light.unitBind = -1;
-	tmp_light.lifeType = LightSource::IMMORTAL;
-	tmp_light.behaviour = LightSource::RISE_AND_DIE;
-	tmp_light.setDiffuse(8.0, 2.0, 2.0);
-	tmp_light.setLife(150);
-	tmp_light.activateLight();
-	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
-	visualworld->lights[nextUnitID()] = tmp_light;
-
-	/*
-	// Make sure there is atleast MAX_NUM_ACTIVE_LIGHTS.
-	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(500));
-	visualworld->lights[nextUnitID()] = tmp_light;
-	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(100));
-	visualworld->lights[nextUnitID()] = tmp_light;
-	tmp_light.position = Location(FixedPoint(100), FixedPoint(80), FixedPoint(100));
-	visualworld->lights[nextUnitID()] = tmp_light;
-	*/
 	
 	visualworld->init();
 
@@ -435,8 +411,8 @@ void World::terminate()
 {
 	cerr << "World::terminate()" << endl;
 
-	_unitID_next_unit = 10000;
-	_playerID_next_player = 0;
+	unitIDgenerator.setNextID(10000);
+	playerIDgenerator.setNextID(0);
 	
 	units.clear();
 	projectiles.clear();
@@ -1002,21 +978,17 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 
 int World::nextPlayerID()
 {
-	int id = _playerID_next_player;
-	_playerID_next_player++;
-	return id;
+	return playerIDgenerator.nextID();
 }
 
 int World::nextUnitID()
 {
-	int id = _unitID_next_unit;
-	_unitID_next_unit++;
-	return id;
+	return unitIDgenerator.nextID();
 }
 
 int World::currentUnitID() const
 {
-	return _unitID_next_unit;
+	return unitIDgenerator.currentID();
 }
 
 void World::removeUnit(int id)
@@ -1052,7 +1024,7 @@ std::vector<Location> World::humanPositions() const
 
 void World::setNextUnitID(int id)
 {
-	_unitID_next_unit = id;
+	unitIDgenerator.setNextID(id);
 }
 
 void World::add_message(const std::string& message) const

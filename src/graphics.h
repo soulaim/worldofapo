@@ -75,7 +75,6 @@ class Graphics: public HasProperties
 	void drawDebugQuad();
 	
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
-//	void setActiveLights(const std::map<int, LightObject>&, const Location&);
 	
 	void setInitialShaderValues();
 	

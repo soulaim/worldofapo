@@ -25,7 +25,36 @@ void VisualWorld::decorate(const Level& lvl)
 {
 	if(active == 0)
 		return;
-	
+
+	cerr << "Decorating world with some lights" << endl;
+
+	// Find the highest point in lvl and add a strong light there.
+	LightObject tmp_light;
+	tmp_light.unitBind = -1;
+	tmp_light.lifeType = LightSource::IMMORTAL;
+	tmp_light.behaviour = LightSource::RISE_AND_DIE;
+	tmp_light.setDiffuse(8.0, 2.0, 2.0);
+	tmp_light.setLife(150);
+	tmp_light.activateLight();
+	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+	lights[lightIDgenerator.nextID()] = tmp_light;
+	/*
+	// Add some random lights.
+	for(int i = 0; i < 10; ++i)
+	{
+		LightObject tmp_light;
+		tmp_light.unitBind = -1;
+		tmp_light.lifeType = LightSource::IMMORTAL;
+		tmp_light.behaviour = LightSource::RISE_AND_DIE;
+		tmp_light.setDiffuse(8.0, 2.0, 2.0);
+		tmp_light.setLife(150);
+		tmp_light.activateLight();
+		tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+		lights[lightIDgenerator.nextID()] = tmp_light;
+	}
+*/
+
+
 	cerr << "Decorating world with some random grass" << flush;
 	Vec3 wind(0, 0, 0);
 //	size_t n = 10;
@@ -148,6 +177,8 @@ void VisualWorld::terminate()
 	particles.clear();
 
 	meadows.clear();
+
+	lightIDgenerator.setNextID(0);
 }
 
 
