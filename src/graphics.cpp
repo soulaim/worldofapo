@@ -2009,7 +2009,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 
 }
 
-void Graphics::drawMenu(const vector<MenuButton>& buttons) const
+void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<MenuParticle>& menuParticles) const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
@@ -2017,7 +2017,25 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons) const
 	
 	
 	// render a menu background scene! Falling particles would be awesome.
+	for(size_t i=0; i<menuParticles.size(); i++)
+	{
+		stringstream menuparticle;
+		float scale;
+		if(menuParticles[i].front)
+		{
+			menuparticle << "^R" << menuParticles[i].val;
+			scale = 2.0f;
+		}
+		else
+		{
+			menuparticle << "^r" << menuParticles[i].val;
+			scale = 1.2f;
+		}
+		
+		hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
+	}
 	
+	// blur the effect?
 	
 	
 	// render menu buttons on top of the scene.

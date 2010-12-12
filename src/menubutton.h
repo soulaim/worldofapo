@@ -8,6 +8,63 @@
 #include <iostream>
 #include <sstream>
 
+struct MenuParticle
+{
+	MenuParticle()
+	{
+		reset();
+	}
+	
+	float x;
+	float y;
+	
+	float vx;
+	float vy;
+	
+	int val;
+	int front;
+	
+	void tick()
+	{
+		x += vx;
+		y += vy;
+	}
+	
+	void reset()
+	{
+		x = randf(-1.0f, 1.0f);
+		y = 1.2f;
+		vx = 0.0f;
+		
+		val = 0;
+		
+		if(randf(0.0f, 1.0f) > 0.5f)
+			val = 1;
+		
+		if(randf(0.0f, 1.0f) > 0.5f)
+		{
+			// front
+			front = 1;
+			vy = -0.02f;
+		}
+		else
+		{
+			// back
+			front = 0;
+			vy = -0.01f;
+		}
+	}
+	
+	bool alive()
+	{
+		if(x < -1.5f || x > 1.5f)
+			return false;
+		if(y < -1.5f || y > 1.5f)
+			return false;
+		return true;
+	}
+};
+
 struct MenuButton
 {
 	

@@ -33,6 +33,31 @@ void server_killer()
 }
 #endif
 
+
+void Menu::tick_menu_effects()
+{
+	
+	for(int i=0; i < 2; i++)
+	{
+		menu_particles.push_back(MenuParticle());
+		menu_particles.back().reset();
+	}
+	
+	for(size_t i=0; i<menu_particles.size(); i++)
+	{
+		if(!menu_particles[i].alive())
+		{
+			menu_particles[i] = menu_particles.back();
+			menu_particles.pop_back();
+			i--;
+			
+			continue;
+		}
+		
+		menu_particles[i].tick();
+	}
+}
+
 Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
 	userio(u)
@@ -45,6 +70,10 @@ Menu::Menu(Graphics* v, UserIO* u):
 		options.push_back(HasProperties());
 		options.back().load(options_files[i]);
 	}
+	
+	menu_particles.resize(1);
+	for(size_t i=0; i<menu_particles.size(); i++)
+		menu_particles[i].reset();
 }
 
 
@@ -134,7 +163,8 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 	
 	while(dont_exit)
 	{
-		view->drawMenu(buttons);
+		tick_menu_effects();
+		view->drawMenu(buttons, menu_particles);
 		
 		string key = userio->getSingleKey();
 		
@@ -240,7 +270,9 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
-		view->drawMenu(buttons);
+		
+		tick_menu_effects();
+		view->drawMenu(buttons, menu_particles);
 		
 		if(key_hostname == "")
 		{
@@ -300,7 +332,8 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
-		view->drawMenu(buttons);
+		tick_menu_effects();
+		view->drawMenu(buttons, menu_particles);
 		
 		if(key_hostname == "")
 		{

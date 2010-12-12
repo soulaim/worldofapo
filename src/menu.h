@@ -5,10 +5,15 @@
 #include <vector>
 
 #include "hasproperties.h"
+#include "random.h"
+#include "menubutton.h"
 
-class MenuButton;
+// class MenuButton;
+// class MenuParticle;
 class Graphics;
 class UserIO;
+
+
 
 class Menu
 {
@@ -22,6 +27,10 @@ private:
 	std::vector<HasProperties> options;
 	std::vector<std::string> options_files;
 	
+	// for a background effect on menu screen
+	std::vector<MenuParticle> menu_particles;
+	
+	void tick_menu_effects();
 	std::string getInput(std::vector<MenuButton>&, int);
 	int changeValue(std::vector<MenuButton>&, int i);
 	

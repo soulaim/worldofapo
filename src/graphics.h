@@ -30,6 +30,8 @@
 
 struct Level;
 struct MenuButton;
+struct MenuParticle;
+
 class Hud;
 class Octree;
 class Window;
@@ -123,7 +125,7 @@ public:
 		const std::map<int, Unit>& units, // For debug.
 		int blur
 		);
-	void drawMenu(const std::vector<MenuButton>&) const;
+	void drawMenu(const std::vector<MenuButton>&, const std::vector<MenuParticle>&) const;
 	
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
