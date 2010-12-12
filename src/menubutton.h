@@ -53,6 +53,8 @@ struct MenuParticle
 			front = 0;
 			vy = -0.003f;
 		}
+		
+		vy *= randf(0.9f, 1.1f);
 	}
 	
 	bool alive()
