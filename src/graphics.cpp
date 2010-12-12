@@ -969,7 +969,7 @@ void Graphics::drawSkybox()
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, strVals["skybox"]);
+		TextureHandler::getSingleton().bindTexture(0, strVals["SKYBOX"]);
 	}
 
 	glPushMatrix();
@@ -1045,21 +1045,26 @@ void Graphics::drawModels(const map<int, Model*>& models)
 	{
 		glDisable(GL_LIGHTING);
 	}
-	glUseProgram(shaders["unit_program"]);
+	Shader& shader = shaders.get_shader("unit_program");
+	shader.start();
+	GLint unit_color_location = shader.uniform("unit_color");
+	GLint unit_location_location = shader.uniform("unit_location");
+	glMatrixMode(GL_MODELVIEW);
 	for(map<int, Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		const Model& model = *iter->second;
 
-		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
-		
 		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
+			glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
+			glUniform3f(unit_location_location, model.currentModelPos.x, model.currentModelPos.y, model.currentModelPos.z);
+
 			glTranslatef(model.currentModelPos.x, model.currentModelPos.y, model.currentModelPos.z);
 			model.draw();
 			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y, -model.currentModelPos.z);
 		}
 	}
-	glUseProgram(0);
+	shader.stop();
 }
 
 // TODO: make this function faster than the current implementation by having the data already in the VBO format.
@@ -1400,6 +1405,15 @@ void Graphics::startDrawing()
 {
 	setupCamera(*this->camera_p);
 
+	if(intVals["DEFERRED_RENDERING"])
+	{
+		bind_framebuffer(deferredFBO, 3);
+	}
+	else
+	{
+		bind_framebuffer(screenFBO, 1);
+	}
+
 	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear color buffer, since we're going to rewrite the color everywhere anyway.
 //	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1726,6 +1740,17 @@ void Graphics::bind_framebuffer(GLuint framebuffer, int output_buffers) const
 	check_errors(__FILE__, __LINE__);
 }
 
+// TODO: this interface for deferred rendering is ugly and unintuitive to use...
+void Graphics::geometryDrawn(int lights)
+{
+	if(intVals["DEFERRED_RENDERING"])
+	{
+		bind_framebuffer(screenFBO, 1);
+
+		drawLightsDeferred(lights);
+	}
+}
+
 void Graphics::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
@@ -1737,15 +1762,6 @@ void Graphics::draw(
 {
 	updateCamera(lvl);
 	
-	if(intVals["DEFERRED_RENDERING"])
-	{
-		bind_framebuffer(deferredFBO, 3);
-	}
-	else
-	{
-		bind_framebuffer(screenFBO, 1);
-	}
-
 	startDrawing();
 
 	if(intVals["DRAW_SKYBOX"])
@@ -1790,12 +1806,7 @@ void Graphics::draw(
 		drawGrass(visualworld.meadows);
 	}
 
-	if(intVals["DEFERRED_RENDERING"])
-	{
-		bind_framebuffer(screenFBO, 1);
-
-		drawLightsDeferred(visualworld.lights.size());
-	}
+	geometryDrawn(visualworld.lights.size());
 
 	if(intVals["SSAO"])
 	{
@@ -1825,8 +1836,10 @@ void Graphics::draw(
 		applyBlur(blur, "screenFBO_texture0", screenFBO);
 	}
 
+	drawDebugQuad();
+
 	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
-	
+
 	finishDrawing();
 }
 
@@ -1848,11 +1861,28 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 	}
 }
 
+void Graphics::drawDebugQuad()
+{
+	string s = strVals["DEBUG_QUAD"];
+	if(s == "NULL")
+	{
+		return;
+	}
+
+	glPushMatrix();
+	glLoadIdentity();
+	TextureHandler::getSingleton().bindTexture(0, s);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glTranslatef(-2.15f, -1.3f, -1.0f);
+	drawFullscreenQuad();
+	TextureHandler::getSingleton().bindTexture(0, "");
+	glPopMatrix();
+}
+
 void Graphics::finishDrawing()
 {
 	STRINGS.clear();
-	
-	glUseProgram(0);
 	
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -2094,3 +2124,4 @@ void Graphics::setInitialShaderValues()
 	glUniform1f(shaders.uniform("ssao_height"), intVals["RESOLUTION_Y"]);
 	glUseProgram(0);
 }
+

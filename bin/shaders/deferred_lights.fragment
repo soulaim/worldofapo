@@ -20,15 +20,12 @@ void main()
 
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
-		float dist = length(position[i] - ecPos);
-/*
-		vec3 aux = vec3(gl_ModelViewMatrix * position[i] - ecPos);
-		vec3 lightDir = normalize(aux);
+		vec3 aux = vec3(gl_ModelViewMatrix * (position[i] - ecPos));
+
 		float dist = length(aux);
-		
+		vec3 lightDir = normalize(aux);
+
 		float NdotL = dot(n, normalize(lightDir));
-*/
-		float NdotL = 1.0;
 		
 		if(NdotL > 0.0)
 		{

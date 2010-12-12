@@ -44,6 +44,7 @@ class Graphics: public HasProperties
 	void setupCamera(const Camera& camera);
 	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
 	void startDrawing();
+	void geometryDrawn(int lights);
 	void finishDrawing();
 
 	void drawLevel(const Level&, size_t light_count);
@@ -71,6 +72,7 @@ class Graphics: public HasProperties
 	void drawDebugStrings();
 	void drawDebugLevelNormals(const Level& lvl);
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
+	void drawDebugQuad();
 	
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
 //	void setActiveLights(const std::map<int, LightObject>&, const Location&);

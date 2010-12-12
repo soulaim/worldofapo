@@ -1,11 +1,12 @@
 varying vec2 varTexCoord;
-varying vec4 position;
+varying vec4 vertex_position;
 
 attribute vec2 bone_index; // Each vertex has bones.
 attribute vec2 bone_weight; // And weight for each bone.
 
 uniform mat4 bones[10];  // Array of bones that are computed (animated) on the CPU and given to the shader
 uniform bool active;
+uniform vec3 unit_location;
 
 void main()
 {
@@ -21,14 +22,17 @@ void main()
 		newVertex += (bones[index] * gl_Vertex) * bone_weight.y;
 
 		// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
+		vertex_position = vec4(newVertex.xyz, 1.0);
+		vertex_position.xyz += unit_location;
 		gl_Position = gl_ModelViewProjectionMatrix * vec4(newVertex.xyz, 1.0);
 	}
 	else
 	{
+		vertex_position = gl_Vertex;
+		vertex_position.xyz += unit_location;
 		gl_Position = ftransform();
 	}
 
-	position = gl_Vertex;
 	varTexCoord = vec2(gl_MultiTexCoord0);
 }
 
