@@ -1490,6 +1490,7 @@ void Graphics::drawLightsDeferred(int light_count)
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 
 	for(int pass = 0; pass < light_count; pass += 4)
 	{
@@ -1505,7 +1506,7 @@ void Graphics::drawLightsDeferred(int light_count)
 			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), 0.0f, 0.0f, 0.0f, 1.0f);
 		}
 
-		if(pass == 1)
+		if(pass > 0)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
@@ -1518,6 +1519,7 @@ void Graphics::drawLightsDeferred(int light_count)
 	}
 	
 	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 
 	TextureHandler::getSingleton().bindTexture(2, "");

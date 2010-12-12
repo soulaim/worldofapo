@@ -52,7 +52,7 @@ void Level::buildVarianceTree()
 
 
 
-Location Level::getRandomLocation(int seed)
+Location Level::getRandomLocation(int seed) const
 {
 	Location result;
 	result.x = ((173  * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;

@@ -38,22 +38,20 @@ void VisualWorld::decorate(const Level& lvl)
 	tmp_light.activateLight();
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
 	lights[lightIDgenerator.nextID()] = tmp_light;
-	/*
+	
 	// Add some random lights.
-	for(int i = 0; i < 10; ++i)
+	for(int i = 0; i < intVals["RANDOM_LIGHTS"]; ++i)
 	{
 		LightObject tmp_light;
 		tmp_light.unitBind = -1;
 		tmp_light.lifeType = LightSource::IMMORTAL;
 		tmp_light.behaviour = LightSource::RISE_AND_DIE;
-		tmp_light.setDiffuse(8.0, 2.0, 2.0);
+		tmp_light.setDiffuse(randf(1.0f, 8.0f), randf(1.0f, 8.0f), randf(1.0, 8.0f));
 		tmp_light.setLife(150);
 		tmp_light.activateLight();
-		tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+		tmp_light.position = lvl.getRandomLocation(56710 + i);
 		lights[lightIDgenerator.nextID()] = tmp_light;
 	}
-*/
-
 
 	cerr << "Decorating world with some random grass" << flush;
 	Vec3 wind(0, 0, 0);
