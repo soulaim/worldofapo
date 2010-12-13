@@ -10,6 +10,8 @@
 #include <sys/time.h>
 #endif
 
+#define SLEEP_IF_POSSIBLE
+
 using namespace std;
 
 long long time_now()
@@ -193,6 +195,10 @@ void DedicatedServer::host_tick()
 		}
 		else
 		{
+			#ifdef SLEEP_IF_POSSIBLE
+			usleep(1000);
+			#endif
+			
 			return;
 		}
 	}
@@ -219,11 +225,19 @@ void DedicatedServer::host_tick()
 	long long milliseconds = time_now();
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
+		if((simulRules.currentFrame % 150) == 0)
+		{
+			serverSendMonsterSpawn(); // spawn a monster every now and then.
+		}
+		
 		simulateWorldFrame();
 	}
 	else
 	{
-//		cerr << "No need to simulate yet!\n";
+		// this might not be a good idea in the end, but should show us how much it really uses processing power.
+		#ifdef SLEEP_IF_POSSIBLE
+		usleep(1000);
+		#endif
 	}
 }
 

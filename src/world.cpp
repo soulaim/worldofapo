@@ -206,7 +206,7 @@ void World::doDeathFor(Unit& unit)
 
 void World::generateInput_RabidAlien(Unit& unit)
 {
-	FixedPoint bestSquaredDistance = FixedPoint(1000000);
+	FixedPoint bestSquaredDistance = FixedPoint(200 * 200);
 	int unitID = -1;
 	int my_team = unit["TEAM"];
 	
@@ -403,7 +403,6 @@ void World::init()
 	// lvl.generate(50);
 	
 	visualworld->init();
-
 	show_errors = 0;
 }
 
