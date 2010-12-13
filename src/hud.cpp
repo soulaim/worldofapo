@@ -117,6 +117,9 @@ void Hud::drawBanner() const
 
 void Hud::drawAmmo() const
 {
+	if(units->find(myID) == units->end())
+		return;
+	
 	Unit& myUnit = units->find(myID)->second;
 	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
 	float reloading = myUnit.weapons[myUnit.weapon].isReloading().getFloat();
