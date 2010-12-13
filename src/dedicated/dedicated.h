@@ -11,6 +11,8 @@
 #include "../net/socket.h"
 #include "../net/socket_handler.h"
 
+#include "../hasproperties.h"
+
 #include <string>
 #include <vector>
 #include <queue>
@@ -46,7 +48,7 @@ struct StateInfo
 };
 
 
-class DedicatedServer
+class DedicatedServer : public HasProperties
 {
 	enum { SERVER_ID = -1 };
 

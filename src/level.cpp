@@ -316,7 +316,7 @@ void Level::generate(int seed)
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(15);
+		FixedPoint height = FixedPoint(35);
 		
 		for(int k=0; k<15; k++)
 		{
@@ -345,7 +345,7 @@ void Level::generate(int seed)
 	{
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(-2);
+		FixedPoint height = FixedPoint(-15);
 		
 		for(int k=0; k<20; k++)
 		{
@@ -377,7 +377,7 @@ void Level::generate(int seed)
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(2);
+		FixedPoint height = FixedPoint(0);
 		
 		for(int k=0; k<20; k++)
 		{
@@ -402,9 +402,71 @@ void Level::generate(int seed)
 		}
 	}
 	
-	// create a suicide hill.
-	updateHeight(50, 50, FixedPoint(60));
 	
+	// post process the ground to get rid of some discontinuities
+	cout << "post-processing terrain" << flush;
+	size_t x_size = pointheight_info.size();
+	for(int loops = 0; loops < 8; loops++)
+	{
+		for(size_t i = 0; i < x_size; ++i)
+		{
+			size_t y_size = pointheight_info[i].size();
+			
+			cout << "." << flush;
+			for(size_t k = 0; k < y_size; ++k)
+			{
+				FixedPoint currentHeight;
+				FixedPoint divisor;
+				
+				/*
+				for(int x = int(i) - 5; x < int(i)+5; x++)
+				{
+					for(int y = int(k) - 5; y < int(k)+5; y++)
+					{
+						if(x < 0 || x >= int(x_size))
+							continue;
+						if(y < 0 || y >= int(y_size))
+							continue;
+						
+						currentHeight += pointheight_info[x][y];
+						divisor += FixedPoint(100, 1 + (x-i)*(x-i) + (y-k)*(y-k));
+					}
+				}
+				*/
+				
+				
+				for(int x = int(i) - 4; x < int(i)+5; x++)
+				{
+					if(x < 0 || x >= int(x_size))
+						continue;
+					if(x == int(i))
+						continue;
+					
+					FixedPoint multiplier = FixedPoint(1, (x-int(i) > 0)?x-int(i):-x+int(i));
+					
+					currentHeight +=  multiplier * pointheight_info[x][k];
+					divisor += multiplier;
+				}
+				
+				for(int y = int(k) - 4; y < int(k)+5; y++)
+				{
+					if(y < 0 || y >= int(y_size))
+						continue;
+					if(y == int(k))
+						continue;
+					
+					FixedPoint multiplier = FixedPoint(1, (y-int(k) > 0)?y-int(k):-y+int(k));
+					
+					currentHeight +=  multiplier * pointheight_info[i][y];
+					divisor += multiplier;
+				}
+				
+				FixedPoint newHeight = pointheight_info[i][k] + (currentHeight / divisor - pointheight_info[i][k]) * FixedPoint(1, 8);
+				updateHeight(i, k, newHeight);
+			}
+		}
+	}
+	cout << endl;
 	
 	// after level has been fully defined, build the corresponding variance tree.
 	buildVarianceTree();

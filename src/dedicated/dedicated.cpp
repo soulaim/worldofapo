@@ -36,6 +36,8 @@ DedicatedServer::DedicatedServer():
 	serverAllow = 0;
 	init();
 	
+	load("server.conf");
+	
 	world.buildTerrain(1);
 }
 
@@ -225,9 +227,12 @@ void DedicatedServer::host_tick()
 	long long milliseconds = time_now();
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
-		if((simulRules.currentFrame % 150) == 0)
+		if(intVals["AUTO_SPAWN"])
 		{
-			serverSendMonsterSpawn(); // spawn a monster every now and then.
+			if((simulRules.currentFrame % intVals["AUTO_SPAWN_RATE"]) == 0)
+			{
+				serverSendMonsterSpawn(); // spawn a monster every now and then.
+			}
 		}
 		
 		simulateWorldFrame();
@@ -372,6 +377,26 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			stringstream team_change;
 			team_change << "-1 " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
 			serverMsgs.push_back(team_change.str());
+			return;
+		}
+		else if(cmd == "AUTO_SPAWN")
+		{
+			intVals["AUTO_SPAWN"] ^= 1;
+			
+			if(intVals["AUTO_SPAWN"])
+			{
+				stringstream autospawn;
+				autospawn << "3 -1 ^YAutospawn toggled ^GON#";
+				serverMsgs.push_back(autospawn.str());
+			}
+			else
+			{
+				stringstream autospawn;
+				autospawn << "3 -1 ^YAutospawn toggled ^ROFF#";
+				serverMsgs.push_back(autospawn.str());
+			}
+			
+			return;
 		}
 	}
 	else if(orderWord == "-1")
