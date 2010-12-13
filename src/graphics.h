@@ -66,6 +66,7 @@ class Graphics: public HasProperties
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
 	
+	void applyLights(const std::map<int, LightObject>&);
 	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
 	void applySSAO(int power, std::string inputImg, std::string depthImage, GLuint renderTarget);
 	

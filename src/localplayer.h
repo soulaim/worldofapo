@@ -32,7 +32,9 @@ public:
 	void draw();
 	void init();
 	
-	bool joinInternetGame(const std::string&);
+	bool internetGameGetHeroes(const std::string&, std::map<std::string, std::string>&);
+	void internetGameSelectHero(const std::string&);
+	
 	void reload_confs();
 	
 	void startMusic(std::string name);

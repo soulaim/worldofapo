@@ -77,12 +77,18 @@ void Localplayer::setMusicVolume()
 
 
 // returns true on success.
-bool Localplayer::joinInternetGame(const std::string& hostname)
+bool Localplayer::internetGameGetHeroes(const std::string& hostname, map<string, string>& heroes)
 {
 	world.buildTerrain(1); // TODO: Parameters should be obtained from server.
 	visualworld.decorate(world.lvl);
 	
-	return game.joinInternetGame(hostname);
+	return game.internetGameGetHeroes(hostname, heroes);
+}
+
+// this operation can't fail, if value is selected from "heroes" map
+void Localplayer::internetGameSelectHero(const std::string& hero)
+{
+	game.internetGameSelectHero(hero);
 }
 
 void Localplayer::endGame()
@@ -369,6 +375,7 @@ bool Localplayer::handleClientLocalInput()
 		else if(key == "escape")
 		{
 			game.endGame();
+			world.terminate();
 			
 			// then proceed with local shutdown.
 			std::cerr << "User pressed ESC, shutting down." << std::endl;

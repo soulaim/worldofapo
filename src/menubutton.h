@@ -85,12 +85,28 @@ struct MenuButton
 			info = ss.str();
 		}
 		
+		reserved = 0;
 		selected = 0;
 	}
 	
 	void unloadTexture()
 	{
 		std::cerr << "WARNING: Calling MenuButton::unloadTexture(), which is deprecated" << std::endl;
+	}
+	
+	bool editing() const
+	{
+		return (reserved > 0);
+	}
+	
+	void reserve()
+	{
+		reserved = 1;
+	}
+	
+	void release()
+	{
+		reserved = 0;
 	}
 	
 	~MenuButton()
@@ -103,6 +119,7 @@ struct MenuButton
 	std::string name;
 	int valueType;
 	int selected;
+	int reserved;
 };
 
 #endif

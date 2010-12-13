@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 #include <fstream>
 
@@ -37,7 +38,7 @@ int main(int argc, char* argv[])
 	menuOptions.load("menu.conf");
 	
 	// start music in menu
-	master.startMusic(menuOptions.strVals["MUSIC"]);
+	master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 	
 	bool in_menu = true;
 	while(true)
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 			if(master.client_tick())
 			{
 				in_menu = true;
-				master.startMusic(menuOptions.strVals["MUSIC"]);
+				master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 			}
 		}
 		else
@@ -60,12 +61,48 @@ int main(int argc, char* argv[])
 			else if(!choice.empty())
 			{
 				master.endMusic();
+				master.startMusic(menuOptions.strVals["GAME_MUSIC"]);
 				
-				if(master.joinInternetGame(choice))
+				map<string, string> heroes;
+				if(master.internetGameGetHeroes(choice, heroes))
 				{
 					in_menu = false;
-					cerr << "Menu ended, game starting" << endl;
+					cerr << "Obtained heroes list.. should have a menu here" << endl;
 					
+					// TODO: Move this stuff to a separate function. It's getting ugly.
+					vector<MenuButton> menuButtons;
+					
+					int dummy_val = -1;
+					string dummy_str;
+					for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
+						menuButtons.push_back(MenuButton(iter->second, dummy_str, dummy_val));
+					
+					string selected_character = menu.run_menu(menuButtons, "Character selection");
+					string key = "NEW";
+					bool character_found = false;
+					
+					for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
+					{
+						if(iter->second == selected_character)
+						{
+							character_found = true;
+							key = iter->first;
+							break;
+						}
+					}
+					
+					if(character_found)
+					{
+						cerr << "Selected hero OK" << endl;
+					}
+					else
+					{
+						cerr << "Selected hero NOT OK" << endl;
+					}
+					
+					// without an actual menu, just select the first option
+					cerr << "Selecting hero: " << selected_character << " with key " << key << endl;
+					master.internetGameSelectHero(key);
 					master.reload_confs();
 				}
 				else
@@ -74,7 +111,7 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-
+		
 		master.draw(); // draws if possible
 	}
 	

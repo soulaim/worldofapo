@@ -416,6 +416,8 @@ void World::terminate()
 	
 	units.clear();
 	projectiles.clear();
+	deadUnits.clear(); // redundant?
+	currentWorldFrame = -1;
 	
 	visualworld->terminate();
 }

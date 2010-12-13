@@ -77,6 +77,10 @@ Menu::Menu(Graphics* v, UserIO* u):
 }
 
 
+std::string Menu::handleCharacterSelection(vector<MenuButton>& buttons, size_t selected)
+{
+	return buttons[selected].name;
+}
 
 std::string Menu::handleOptionsMenu(vector<MenuButton>& buttons, size_t selected)
 {
@@ -154,8 +158,7 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 
 std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 {
-	
-	size_t selected = buttons.size() - 1;
+	size_t selected = 0;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
 	
@@ -176,19 +179,19 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 		else if(key == "down")
 		{
 			buttons[selected].selected = 0;
-			if(selected == 0)
-				selected = buttons.size() - 1;
+			if(selected == (buttons.size()-1))
+				selected = 0;
 			else
-				selected--;
+				selected++;
 			buttons[selected].selected = 1;
 		}
 		else if(key == "up")
 		{
 			buttons[selected].selected = 0;
-			if(selected == (buttons.size()-1))
-				selected = 0;
+			if(selected == 0)
+				selected = buttons.size() - 1;
 			else
-				selected++;
+				selected--;
 			buttons[selected].selected = 1;
 		}
 		else if(key == "return")
@@ -201,6 +204,18 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 			else if(menu_name == "options")
 			{
 				ans = handleOptionsMenu(buttons, selected);
+			}
+			else if(menu_name == "Character selection")
+			{
+				ans = handleCharacterSelection(buttons, selected);
+				return ans;
+			}
+			else
+			{
+				// scream! menu was not recognized?
+				// use some kind of default menu handling? or maybe it's just impossible..
+				error_string = "unrecognized menu: ";
+				error_string.append(menu_name);
 			}
 			
 			if(ans == "")
@@ -252,10 +267,13 @@ std::string Menu::menu_tick()
 	int dummy = -1;
 	string conTarget;
 	
-	buttons.push_back(MenuButton("exit", conTarget, dummy));
+	// hosting functionality not available on windows
+	#ifndef _WIN32
 	buttons.push_back(MenuButton("host", conTarget, dummy));
-	buttons.push_back(MenuButton("options", conTarget, dummy));
+	#endif
 	buttons.push_back(MenuButton("connect", conTarget, dummy));
+	buttons.push_back(MenuButton("options", conTarget, dummy));
+	buttons.push_back(MenuButton("exit", conTarget, dummy));
 	
 	return run_menu(buttons, "main");
 	
@@ -264,6 +282,7 @@ std::string Menu::menu_tick()
 
 int Menu::changeValue(vector<MenuButton>& buttons, int i)
 {
+	buttons[i].reserve();
 	buttons[i].info.append("_");
 	string& hostName = buttons[i].info;
 	
@@ -310,11 +329,14 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 				buttons[i].info = "0";
 			}
 			
+			buttons[i].release();
 			stringstream ss_int(buttons[i].info);
 			ss_int >> buttons[i].value;
 			return buttons[i].value;
 		}
 	}
+	
+	buttons[i].release();
 	
 	// good idea?
 	buttons[i].info.resize(buttons[i].info.size() - 1);
@@ -326,6 +348,8 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 
 std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 {
+	buttons[i].reserve();
+	
 	buttons[i].info.append("_");
 	string& hostName = buttons[i].info;
 	
@@ -348,7 +372,17 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		}
 		else if(key_hostname == "escape")
 		{
-			break;
+			// good idea?
+			buttons[i].info.resize(buttons[i].info.size() - 1);
+			
+			// don't allow empty values
+			if(buttons[i].info.size() == 0)
+			{
+				buttons[i].info = "empty";
+			}
+			
+			buttons[i].release();
+			return "";
 		}
 		else if(key_hostname == "backspace")
 		{
@@ -360,20 +394,21 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		}
 		else if(key_hostname == "return")
 		{
-			buttons[i].info.resize(buttons[i].info.size() - 1);
-			
-			// don't allow empty values
-			if(buttons[i].info.size() == 0)
-			{
-				buttons[i].info = "empty";
-			}
-			
-			return buttons[i].info;
+			break;
 		}
 	}
 	
 	// good idea?
 	buttons[i].info.resize(buttons[i].info.size() - 1);
-	return "";
+	
+	// don't allow empty values
+	if(buttons[i].info.size() == 0)
+	{
+		buttons[i].info = "empty";
+	}
+	
+	buttons[i].release();
+	
+	return buttons[i].info;
 }
 

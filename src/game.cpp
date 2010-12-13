@@ -46,7 +46,7 @@ void Game::readConfig()
 	//ifstream configFile("config.cfg");
 	//configFile >> localPlayer.name;
 	
-	string name = strVals["PLAYER_NAME"];
+	string name = strVals["player\\sname"];
 	
 	if(name == "")
 	{
@@ -57,13 +57,13 @@ void Game::readConfig()
 			name = "Player5";
 		
 		ofstream ofs("user.conf");
-		ofs << "STRING PLAYER_NAME " << name << endl;
+		ofs << "STRING player\\sname " << name << endl;
 	}
 	
 	localPlayer.name = name;
 }
 
-bool Game::joinInternetGame(const string& hostname)
+bool Game::internetGameGetHeroes(const string& hostname, map<string, string>& heroes)
 {
 	myID = NO_ID;
 	int port = 12345;
@@ -78,19 +78,20 @@ bool Game::joinInternetGame(const string& hostname)
 		}
 	}
 	
-
-	map<string, string> heroes;
-	if (!getHeroes(heroes))
+	if(!getHeroes(heroes))
 		return false;
-
-	// menu
-	string hero = temp_menu_which_should_be_removed(heroes);
 	
+	// need to enter a menu at this point, showing the user which options he has
+	// Game does not have access to graphics, so we must return now, and let others handle it.
+	return true;
+}
+
+void Game::internetGameSelectHero(const string& hero)
+{
 	stringstream herocommand;
 	herocommand << "START " << hero << "#";
 	clientSocket.write(SERVER_ID, herocommand.str());
-	cerr << "Starting with " << hero << "." << endl;
-	return true;
+	return;
 }
 
 bool Game::getHeroes(map<string, string>& heroes)
@@ -153,6 +154,7 @@ string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
 	{
 		cerr << "Hero code '" << iter->first << "': " << iter->second << endl;
 	}
+	
 	string code;
 	while (1)
 	{
@@ -163,7 +165,9 @@ string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
 			return code;
 		}
 		else
+		{
 			cerr << "Not valid hero code" << endl;
+		}
 	}
 }
 

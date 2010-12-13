@@ -95,8 +95,10 @@ public:
 	void TICK();
 	void reset();
 
-	bool joinInternetGame(const std::string&);
-
+	// TODO: this function might need a different name. it only gets the starting options, saved characters.
+	bool internetGameGetHeroes(const std::string&, std::map<std::string, std::string>&);
+	void internetGameSelectHero(const std::string&);
+	
 	bool paused() const;
 	void process_received_game_input(); // TODO: No private :((
 };

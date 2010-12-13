@@ -531,6 +531,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
+		char next_char;
 		if(msg[i] == '^')
 		{
 			++i;
@@ -538,15 +539,27 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 			
 			continue;
 		}
+		else if(msg[i] == '\\')
+		{
+			if(msg[i+1] == 's') // space symbol
+				next_char = ' ';
+			else
+				next_char = msg[i+1];
+			++i;
+		}
+		else
+		{
+			next_char = msg[i];
+		}
 		
-		currentWidth = 0.05 * Font::width(msg[i]);
+		currentWidth = 0.05 * Font::width(next_char);
 		
 		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now + 0.05f * scale;
 		
 		lastWidth = currentWidth;
 		
-		TextureCoordinates coords = Font::texture_coordinates(msg[i]);
+		TextureCoordinates coords = Font::texture_coordinates(next_char);
 		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(x_now , y_bot, -1);
 		glTexCoord2f(coords.corner[1].x, coords.corner[1].y); glVertex3f(x_next, y_bot, -1);
 		glTexCoord2f(coords.corner[2].x, coords.corner[2].y); glVertex3f(x_next, y_top, -1);

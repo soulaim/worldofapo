@@ -94,22 +94,8 @@ void Graphics::toggleWireframeStatus()
 
 void Graphics::toggleLightingStatus()
 {
-	if(lightsActive)
-	{
-		GLfloat global_ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-		drawDebuglines = false;
-	}
-	else
-	{
-		GLfloat global_ambient[ 4 ] = {0.6f, 0.6f,  0.6f, 1.0f};
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-		drawDebuglines = true;
-	}
-
-	lightsActive = !lightsActive;
-
-	cerr << "Lightsactive: " << lightsActive << endl;
+	lightsActive   = !lightsActive;
+	drawDebuglines = lightsActive;
 }
 
 Graphics::Graphics(Window& w, Hud& h):
@@ -1483,15 +1469,15 @@ void Graphics::drawLightsDeferred(int light_count)
 	glUseProgram(shaders["deferred_lights_program"]);
 	
 	glClear(GL_COLOR_BUFFER_BIT); // TODO: this isnt necessary if draws are ordered correctly.
-
+	
 	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
 	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
 	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
+	
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
-
+	
 	for(int pass = 0; pass < light_count; pass += 4)
 	{
 		if(pass == 0)
@@ -1505,13 +1491,13 @@ void Graphics::drawLightsDeferred(int light_count)
 		{
 			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), 0.0f, 0.0f, 0.0f, 1.0f);
 		}
-
+		
 		if(pass > 0)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
 		}
-
+		
 		// TODO: check what happens when the number of lights is not 0 mod 4.
 		glUniform4f(shaders.uniform("deferred_lights_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
 		
@@ -1521,11 +1507,11 @@ void Graphics::drawLightsDeferred(int light_count)
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-
+	
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
-
+	
 	glUseProgram(0);
 }
 
@@ -1713,6 +1699,56 @@ void Graphics::geometryDrawn(int lights)
 	}
 }
 
+
+
+void applyLights(const std::map<int, LightObject>& lights)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	
+	for(auto iter = lights.begin(); iter != lights.end(); iter++)
+	{
+		// get light color
+		float rgb[4];
+		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
+		
+		// get light effect area
+		float power = iter->second.getIntensity().getFloat();
+		
+		// set light color..
+		glColor4f(rgb[0], rgb[1], rgb[2], 1.0f);
+		
+		// get light position
+		const Location& pos = iter->second.getPosition();
+		float x = pos.x.getFloat();
+		float y = pos.y.getFloat();
+		float z = pos.z.getFloat();
+		
+		
+		// give color position to shader
+		// ??
+		
+		float s = power * 10.0f;
+		
+		// draw billboarded "bounding box" (single quad) of effect area
+		glBegin(GL_QUADS);
+		glVertex3f(x+s, y+s, z+s);
+		glVertex3f(x+s, y+s, z-s);
+		glVertex3f(x+s, y-s, z-s);
+		glVertex3f(x+s, y-s, z+s);
+		glEnd();
+		// ??
+	}
+	
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+
 void Graphics::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
@@ -1757,35 +1793,45 @@ void Graphics::draw(
 	{
 		drawDebugLines();
 	}
-
+	
 	if(intVals["DRAW_MODELS"])
 	{
 		drawModels(visualworld.models);
 	}
-
+	
 	if(intVals["DRAW_GRASS"])
 	{
 		drawGrass(visualworld.meadows);
 	}
-
+	
 	geometryDrawn(visualworld.lights.size());
-
+	
+	/*
+	// nothing done about this yet.
+	applyAmbient();
+	*/
+	
 	if(intVals["SSAO"])
 	{
 		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", "depth_texture", screenFBO);
 	}
-
+	
+	/*
+	// not finished
+	applyLights(visualworld.lights);
+	*/
+	
 	if(intVals["DRAW_PARTICLES"])
 	{
 		drawParticles(visualworld.particles);
 	}
-
+	
 	if(drawDebuglines)
 	{
 		drawBoundingBoxes(units);
 		drawOctree(o);
 	}
-
+	
 	if(intVals["DRAW_NAMES"])
 	{
 		drawPlayerNames(units, visualworld.models);
@@ -1797,11 +1843,11 @@ void Graphics::draw(
 	{
 		applyBlur(blur, "screenFBO_texture0", screenFBO);
 	}
-
+	
 	drawDebugQuad();
-
+	
 	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
-
+	
 	finishDrawing();
 }
 
@@ -2039,7 +2085,7 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 	
 	// render menu buttons on top of the scene.
 	
-	float menu_height = 0.3f;
+	float button_height = -0.10f;
 	float menu_y_offset  = 0.2f;
 	
 	glEnable(GL_BLEND);
@@ -2051,29 +2097,34 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 		stringstream info;
 		if(buttons[i].selected == 1)
 		{
-			if(buttons[i].info.size() > 0)
+			if(buttons[i].editing())
+			{
 				msg << "^Y";
+				info << "^G";
+			}
 			else
+			{
 				msg << "^G";
-			info << "^G";
+				info << "^Y";
+			}
 		}
 		else
 		{
-			msg << "^W";
-			info << "^G";
+			msg  << "^W";
+			info << "^W";
 		}
 		
-		float minus = 2.f * (i+0.f) / buttons.size() - 1.f;
-		// float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
+		float minus = i * button_height;
 		
+		// float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
 		// TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
 		
 		// void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
 		
 		msg << buttons[i].name;
 		info << buttons[i].info;
-		hud.drawString(msg.str(), -0.7f, minus * menu_height + menu_y_offset, 3.5f);
-		hud.drawString(info.str(), 0.0f, minus * menu_height + menu_y_offset, 3.5f);
+		hud.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
+		hud.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
 		
 		/*
 		glBegin(GL_QUADS);
