@@ -768,6 +768,10 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			
 			Unit* u = static_cast<Unit*>(*it);
 			
+			// Is this actually a good thing?
+			if(u->hitpoints < 1)
+				continue; // don't hit dead units
+			
 			// if the target unit is already dead, just continue.
 			if(u->hitpoints <= 0)
 				continue;
