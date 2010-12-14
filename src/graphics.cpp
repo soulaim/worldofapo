@@ -323,9 +323,9 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
 	clear_errors();
 
-	string programs[] = { "level_program", "deferred_lights_program" };
+	vector<string> programs = { "level_program", "deferred_lights_program", "partitioned_deferred_lights_program" };
 
-	for(int p = 0; p < 2; ++p)
+	for(size_t p = 0; p < programs.size(); ++p)
 	{
 		Shader& shader = shaders.get_shader(programs[p]);
 		shader.start();
@@ -1464,9 +1464,10 @@ void Graphics::drawLevel(const Level& lvl, size_t light_count)
 	}
 }
 
-void Graphics::drawLightsDeferred(int light_count)
+void Graphics::drawLightsDeferred_single_pass(int light_count)
 {
-	glUseProgram(shaders["deferred_lights_program"]);
+	Shader& shader = shaders.get_shader("deferred_lights_program");
+	shader.start();
 	
 	glClear(GL_COLOR_BUFFER_BIT); // TODO: this isnt necessary if draws are ordered correctly.
 	
@@ -1477,42 +1478,98 @@ void Graphics::drawLightsDeferred(int light_count)
 	
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
-	
-	for(int pass = 0; pass < light_count; pass += 4)
-	{
-		if(pass == 0)
-		{
-			float r = intVals["AMBIENT_RED"]   / 255.0f;
-			float g = intVals["AMBIENT_GREEN"] / 255.0f;
-			float b = intVals["AMBIENT_BLUE"]  / 255.0f;
-			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), r, g, b, 1.0f);
-		}
-		else
-		{
-			glUniform4f(shaders.uniform("deferred_lights_ambientLight"), 0.0f, 0.0f, 0.0f, 1.0f);
-		}
-		
-		if(pass > 0)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
-		}
-		
-		// TODO: check what happens when the number of lights is not 0 mod 4.
-		glUniform4f(shaders.uniform("deferred_lights_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
-		
-		drawFullscreenQuad();
-	}
-	
+
+	// Draw all lights in a single pass.
+	light_count = 0;
+	float r = intVals["AMBIENT_RED"]   / 255.0f;
+	float g = intVals["AMBIENT_GREEN"] / 255.0f;
+	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+	glUniform4f(shaders.uniform("deferred_lights_ambientLight"), r, g, b, 1.0f);
+	drawFullscreenQuad();
+
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
 	
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
 	
-	glUseProgram(0);
+	shader.stop();
+}
+
+void Graphics::applyAmbientLight()
+{
+	Shader& shader = shaders.get_shader("deferred_ambientlight_program");
+	shader.start();
+
+	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
+	float r = intVals["AMBIENT_RED"]   / 255.0f;
+	float g = intVals["AMBIENT_GREEN"] / 255.0f;
+	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+	glUniform4f(shader.uniform("ambientLight"), r, g, b, 1.0f);
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+	drawFullscreenQuad();
+
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+
+	shader.stop();
+}
+
+void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObject>& lights)
+{
+	clear_errors();
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
+	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
+	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
+	shader.start();
+
+	// TODO: THIS DOESN'T WORK, if a) the light is behind the camera, or
+	// b) the light is just behind the far plane.
+
+	// Draw one light per pass and blend the results together.
+	int pass = 0;
+	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
+	{
+		const LightObject& light = it->second;
+		glUniform1f(shader.uniform("activeLight"), float(pass));
+		float power = light.getIntensity().getFloat();
+		glUniform1f(shader.uniform("power"), power);
+
+		check_errors(__FILE__, __LINE__);
+
+		Location loc = light.getPosition();
+		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+//		float r, g, b;
+//		light.getDiffuse(r, g, b);
+//		glColor3f(r, g, b);
+		glBegin(GL_POINTS);
+		glVertex3f(v.x, v.y, v.z);
+		glEnd();
+	}
+	shader.stop();
+
+	glDisable(GL_BLEND);
+	
+	TextureHandler::getSingleton().bindTexture(2, "");
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Graphics::drawLevelDeferred(const Level& lvl)
@@ -1689,65 +1746,18 @@ void Graphics::bind_framebuffer(GLuint framebuffer, int output_buffers) const
 }
 
 // TODO: this interface for deferred rendering is ugly and unintuitive to use...
-void Graphics::geometryDrawn(int lights)
+void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 {
 	if(intVals["DEFERRED_RENDERING"])
 	{
 		bind_framebuffer(screenFBO, 1);
 
-		drawLightsDeferred(lights);
+		applyAmbientLight();
+
+//		drawLightsDeferred_single_pass(lights.size());
+		drawLightsDeferred_multiple_passes(lights);
 	}
 }
-
-
-
-void applyLights(const std::map<int, LightObject>& lights)
-{
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-	
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-	
-	for(auto iter = lights.begin(); iter != lights.end(); iter++)
-	{
-		// get light color
-		float rgb[4];
-		iter->second.getDiffuse(rgb[0], rgb[1], rgb[2]);
-		
-		// get light effect area
-		float power = iter->second.getIntensity().getFloat();
-		
-		// set light color..
-		glColor4f(rgb[0], rgb[1], rgb[2], 1.0f);
-		
-		// get light position
-		const Location& pos = iter->second.getPosition();
-		float x = pos.x.getFloat();
-		float y = pos.y.getFloat();
-		float z = pos.z.getFloat();
-		
-		
-		// give color position to shader
-		// ??
-		
-		float s = power * 10.0f;
-		
-		// draw billboarded "bounding box" (single quad) of effect area
-		glBegin(GL_QUADS);
-		glVertex3f(x+s, y+s, z+s);
-		glVertex3f(x+s, y+s, z-s);
-		glVertex3f(x+s, y-s, z-s);
-		glVertex3f(x+s, y-s, z+s);
-		glEnd();
-		// ??
-	}
-	
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-}
-
 
 void Graphics::draw(
 	const Level& lvl,
@@ -1803,23 +1813,13 @@ void Graphics::draw(
 	{
 		drawGrass(visualworld.meadows);
 	}
-	
-	geometryDrawn(visualworld.lights.size());
-	
-	/*
-	// nothing done about this yet.
-	applyAmbient();
-	*/
+
+	geometryDrawn(visualworld.lights);
 	
 	if(intVals["SSAO"])
 	{
 		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", "depth_texture", screenFBO);
 	}
-	
-	/*
-	// not finished
-	applyLights(visualworld.lights);
-	*/
 	
 	if(intVals["DRAW_PARTICLES"])
 	{
@@ -2161,5 +2161,11 @@ void Graphics::setInitialShaderValues()
 	glUniform1f(shaders.uniform("ssao_width"), intVals["RESOLUTION_X"]);
 	glUniform1f(shaders.uniform("ssao_height"), intVals["RESOLUTION_Y"]);
 	glUseProgram(0);
+
+	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
+	shader.start();
+	glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
+	glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
+	shader.stop();
 }
 

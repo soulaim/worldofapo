@@ -3,27 +3,27 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
 int Shader::shaders_in_use = 0;
 
-char* Shader::readFile(const char *path)
+char* Shader::readFile(const std::string& path)
 {
 	FILE *fd;
 	long len, r;
 	char *str;
 	
-	if(!(fd = fopen(path, "r")))
+	if(!(fd = fopen(path.c_str(), "r")))
 	{
-		fprintf(stderr, "Can't open file '%s' for reading\n", path);
-		return 0;
+		throw runtime_error("Can't open file '" + path + "' for reading");
 	}
 	
 	fseek(fd, 0, SEEK_END);
 	len = ftell(fd);
 	
-	printf("File '%s' is %ld long\n", path, len);
+	cerr << "File '" << path << "' is " << len << " long" << endl;
 	
 	fseek(fd, 0, SEEK_SET);
 	
@@ -43,7 +43,7 @@ void Shader::releaseFile(char* file)
 
 GLuint Shader::loadVertexShader(const string& filename)
 {
-	char* data = readFile(filename.c_str());
+	char* data = readFile(filename);
 	
 	const char* code = data;
 	GLuint ret = glCreateShader(GL_VERTEX_SHADER);
@@ -57,7 +57,7 @@ GLuint Shader::loadVertexShader(const string& filename)
 
 GLuint Shader::loadFragmentShader(const string& filename)
 {
-	char* data = readFile(filename.c_str());
+	char* data = readFile(filename);
 
 	const char* code = data;
 	GLuint ret = glCreateShader(GL_FRAGMENT_SHADER);
@@ -71,7 +71,7 @@ GLuint Shader::loadFragmentShader(const string& filename)
 
 GLuint Shader::loadGeometryShader(const string& filename)
 {
-	char* data = readFile(filename.c_str());
+	char* data = readFile(filename);
 
 	const char* code = data;
 	GLuint ret = glCreateShader(GL_GEOMETRY_SHADER);

@@ -1,0 +1,10 @@
+varying float scale_var;
+
+uniform float power;
+
+void main(void)
+{
+	gl_Position = ftransform();
+	scale_var = power / 2.0;
+}
+

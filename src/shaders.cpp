@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <stdexcept>
 
 using namespace std;
 
@@ -43,6 +44,18 @@ void Shaders::init()
 	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_lights.fragment"));
 	shaders["deferred_level_program"]    = shared_ptr<Shader>(new Shader("shaders/deferred_level.vertex", "shaders/deferred_level.fragment"));
 
+	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
+	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_ambientlight.fragment"));
+
+	shaders["deferred_ambientlight_program"]->start();
+	shaders["deferred_ambientlight_program"]->set_texture_unit(0, "texture_colors");
+	shaders["deferred_ambientlight_program"]->stop();
+
+	shaders["partitioned_deferred_lights_program"]->start();
+	shaders["partitioned_deferred_lights_program"]->set_texture_unit(0, "texture_colors");
+	shaders["partitioned_deferred_lights_program"]->set_texture_unit(1, "normals");
+	shaders["partitioned_deferred_lights_program"]->set_texture_unit(2, "positions");
+	shaders["partitioned_deferred_lights_program"]->stop();
 
 	shaders["deferred_lights_program"]->start();
 	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
@@ -68,8 +81,8 @@ void Shaders::init()
 
 
 	shaders["particle_program"]->start();
-	uniform_locations["particle_screen_width"] = shaders["particle_program"]->uniform("width");
-	uniform_locations["particle_screen_height"] = shaders["particle_program"]->uniform("height");
+	uniform_locations["particle_screen_width"] = shaders["particle_program"]->uniform("screen_width");
+	uniform_locations["particle_screen_height"] = shaders["particle_program"]->uniform("screen_height");
 	uniform_locations["particle_particleScale"] = shaders["particle_program"]->attribute("particleScale");
 	shaders["particle_program"]->set_texture_unit(0, "particleTexture");
 	shaders["particle_program"]->set_texture_unit(1, "depthTexture");
@@ -79,8 +92,8 @@ void Shaders::init()
 	uniform_locations["ssao_power"] = shaders["ssao"]->uniform("power");
 	shaders["ssao"]->set_texture_unit(0, "imageTexture");
 	shaders["ssao"]->set_texture_unit(1, "depthTexture");
-	uniform_locations["ssao_height"] = shaders["ssao"]->uniform("screen_h");
-	uniform_locations["ssao_width"]  = shaders["ssao"]->uniform("screen_w");
+	uniform_locations["ssao_height"] = shaders["ssao"]->uniform("screen_height");
+	uniform_locations["ssao_width"]  = shaders["ssao"]->uniform("screen_width");
 	shaders["ssao"]->stop();
 
 	shaders["level_program"]->start();
@@ -164,7 +177,7 @@ Shader& Shaders::get_shader(const std::string& program_name)
 	if(it == shaders.end())
 	{
 		cerr << "WARNING: program " << program_name << " not found!" << endl;
-		throw std::string("get_shader(" + program_name + ") failed!");
+		throw std::logic_error("get_shader(" + program_name + ") failed!");
 	}
 	else
 	{

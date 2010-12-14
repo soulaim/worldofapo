@@ -1,36 +1,9 @@
-const int MAX_LIGHTS = 71;
-const int MAX_ACTIVE_LIGHTS = 4;
-
-uniform vec4 lights[MAX_LIGHTS * 2];
-const int POSITION = 0;
-const int DIFFUSE = 1;
-
-uniform vec4 activeLights;
-
-varying vec4 position[MAX_ACTIVE_LIGHTS];
-varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
-
-varying vec2 vTexCoord;
+varying vec2 texcoord;
 
 // Remember to draw a screen aligned quad.
 void main(void)
 {
-	int activeLight[MAX_ACTIVE_LIGHTS];
-	activeLight[0] = int(activeLights.x);
-	activeLight[1] = int(activeLights.y);
-	activeLight[2] = int(activeLights.z);
-	activeLight[3] = int(activeLights.w);
-
-	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
-	{
-		int lightIndex = activeLight[i];
-
-		//diffuse[i] = gl_FrontMaterial.diffuse * lights[lightIndex*2 + DIFFUSE];
-		diffuse[i] = lights[lightIndex*2 + DIFFUSE];
-		position[i] = lights[lightIndex*2 + POSITION];
-	}
-
 	gl_Position = gl_Vertex;
-	vTexCoord = gl_Position.xy * 0.5 + 0.5;
+	texcoord = gl_Position.xy * 0.5 + 0.5;
 }
 

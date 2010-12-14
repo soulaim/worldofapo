@@ -14,7 +14,7 @@ void MovableObject::movableEnable(int enable_flags)
 	flags |= enable_flags;
 }
 
-const Location& MovableObject::getPosition()
+const Location& MovableObject::getPosition() const
 {
 	return position;
 }
@@ -37,13 +37,13 @@ const Location& MovableObject::getLookDirection()
 }
 
 // TODO ALERT: Gravity is not a member of object, it is a member of world.
-FixedPoint MovableObject::getGravity()
+FixedPoint MovableObject::getGravity() const
 {
 	return -FixedPoint(35,1000);
 }
 
 // Friction IS defined by the object. BUT: TODO: Friction is not constant over all objects.
-FixedPoint MovableObject::getFriction()
+FixedPoint MovableObject::getFriction() const
 {
 	return FixedPoint(88,100);
 }

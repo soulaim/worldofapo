@@ -21,14 +21,14 @@ public:
 	
 	MovableObject();
 	
-	virtual FixedPoint getGravity();
-	virtual FixedPoint getFriction();
+	virtual FixedPoint getGravity() const;
+	virtual FixedPoint getFriction() const;
 	
 	void movableEnable(int);
 	void tick(const FixedPoint& height);
 	
 	const Location& getLookDirection();
-	const Location& getPosition();
+	const Location& getPosition() const;
 	
 	int flags;
 	int dead;

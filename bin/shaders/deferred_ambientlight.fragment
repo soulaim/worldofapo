@@ -1,0 +1,13 @@
+uniform vec4 ambientLight;
+uniform sampler2D texture_colors;
+
+varying vec2 texcoord;
+
+void main()
+{
+	vec4 light_color = ambientLight;
+	vec4 texture_color = texture2D(texture_colors, texcoord);
+
+	gl_FragColor = texture_color * light_color;
+}
+

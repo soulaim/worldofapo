@@ -37,8 +37,6 @@ public:
 	void setPower(int pow);
 	void setLife(int max_life);
 	
-	FixedPoint getPower();
-	
 	void activateLight();
 	void deactivateLight();
 	

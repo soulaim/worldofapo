@@ -34,7 +34,7 @@ private:
 	Shader(const Shader& shader);
 	Shader& operator=(const Shader& shader); // disabled for all of these
 	
-	static char* readFile(const char *path);
+	static char* readFile(const std::string&);
 	static void releaseFile(char* data);
 
 	static void printLog(GLuint obj);

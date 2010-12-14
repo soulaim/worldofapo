@@ -10,12 +10,11 @@ class LightObject : public LightSource, public MovableObject
 public:
 	LightObject()
 	{
-		
 	}
-	
+
 	const Location& getPosition() const
 	{
-		return position;
+		return MovableObject::getPosition();
 	}
 	
 	void childTick()

@@ -28,6 +28,9 @@ void VisualWorld::decorate(const Level& lvl)
 
 	cerr << "Decorating world with some lights" << endl;
 
+	RandomMachine random;
+	random.setSeed(14);
+
 	// Find the highest point in lvl and add a strong light there.
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
@@ -38,7 +41,7 @@ void VisualWorld::decorate(const Level& lvl)
 	tmp_light.activateLight();
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
 	lights[lightIDgenerator.nextID()] = tmp_light;
-	
+
 	// Add some random lights.
 	for(int i = 0; i < intVals["RANDOM_LIGHTS"]; ++i)
 	{
@@ -46,7 +49,7 @@ void VisualWorld::decorate(const Level& lvl)
 		tmp_light.unitBind = -1;
 		tmp_light.lifeType = LightSource::IMMORTAL;
 		tmp_light.behaviour = LightSource::RISE_AND_DIE;
-		tmp_light.setDiffuse(randf(1.0f, 8.0f), randf(1.0f, 8.0f), randf(1.0, 8.0f));
+		tmp_light.setDiffuse(random.getFloat(1.0f, 8.0f), random.getFloat(1.0f, 8.0f), random.getFloat(1.0, 8.0f));
 		tmp_light.setLife(150);
 		tmp_light.activateLight();
 		tmp_light.position = lvl.getRandomLocation(56710 + i);
@@ -78,8 +81,8 @@ void VisualWorld::decorate(const Level& lvl)
 			float radius = 25.0;
 			for(size_t j = 0; j < k; ++j)
 			{
-				float x = randf(-meadow_box_size/2.f, meadow_box_size/2.f);
-				float z = randf(-meadow_box_size/2.f, meadow_box_size/2.f);
+				float x = random.getFloat(-meadow_box_size/2.f, meadow_box_size/2.f);
+				float z = random.getFloat(-meadow_box_size/2.f, meadow_box_size/2.f);
 				
 				if(X + x > x_limit)
 					continue;
@@ -120,14 +123,14 @@ void VisualWorld::decorate(const Level& lvl)
 	/*
 	for(size_t i = 0; i < n; ++i)
 	{
-		size_t X = randf(0.0, lvl.max_x().getFloat());
-		size_t Z = randf(0.0, lvl.max_z().getFloat());
+		size_t X = random.getFloat(0.0, lvl.max_x().getFloat());
+		size_t Z = random.getFloat(0.0, lvl.max_z().getFloat());
 
 		float radius = 30.0;
 		for(size_t j = 0; j < k; ++j)
 		{
-			float x = randf(-radius, radius);
-			float z = randf(-radius, radius);
+			float x = random.getFloat(-radius, radius);
+			float z = random.getFloat(-radius, radius);
 			if(x*x + z*z > radius*radius)
 			{
 				--j;

@@ -46,7 +46,7 @@ class Graphics: public HasProperties
 	void setupCamera(const Camera& camera);
 	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
 	void startDrawing();
-	void geometryDrawn(int lights);
+	void geometryDrawn(const std::map<int, LightObject>& lights);
 	void finishDrawing();
 
 	void drawLevel(const Level&, size_t light_count);
@@ -56,7 +56,8 @@ class Graphics: public HasProperties
 	void drawSkybox();
 
 	void drawLevelDeferred(const Level& lvl);
-	void drawLightsDeferred(int light_count);
+	void drawLightsDeferred_single_pass(int light_count);
+	void drawLightsDeferred_multiple_passes(const std::map<int, LightObject>& lights);
 
 	void drawModels(const std::map<int, Model*>& models);
 	
@@ -66,7 +67,7 @@ class Graphics: public HasProperties
 	void drawParticles_old(std::vector<Particle>&);
 	void drawParticles_vbo(std::vector<Particle>&);
 	
-	void applyLights(const std::map<int, LightObject>&);
+	void applyAmbientLight();
 	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
 	void applySSAO(int power, std::string inputImg, std::string depthImage, GLuint renderTarget);
 	

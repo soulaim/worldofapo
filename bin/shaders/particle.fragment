@@ -2,8 +2,8 @@
 uniform sampler2D particleTexture;
 uniform sampler2D depthTexture;
 
-uniform float width;
-uniform float height;
+uniform float screen_width;
+uniform float screen_height;
 
 varying vec2 texcoord;
 
@@ -22,7 +22,7 @@ void main()
 	
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
 	
-	vec2 depthtexcoord = vec2(gl_FragCoord.x / width, gl_FragCoord.y / height);
+	vec2 depthtexcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 	float screen_z = texture2D(depthTexture, depthtexcoord).r;
 	float particle_z = gl_FragCoord.z;
 	

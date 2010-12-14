@@ -2,18 +2,18 @@
 #extension GL_EXT_gpu_shader4 : enable
 #extension GL_EXT_geometry_shader4 : enable
 
+uniform float screen_width;
+uniform float screen_height;
+
 varying out vec2 texcoord;
 varying in float scale_var[];
 
-
 void main()
 {
-
-//	gl_PrimitiveIDIn
 	gl_FrontColor = gl_FrontColorIn[0];
 	
 	float scale = scale_var[0];
-	float aspect_ratio = 800.0 / 600.0;
+	float aspect_ratio = screen_width / screen_height;
 
 // GL_TRIANGLE_STRIP
 // 2      3
