@@ -422,6 +422,16 @@ void World::terminate()
 }
 
 
+// TODO: Put this somewhere where it makes sense
+FixedPoint getSlideAcceleration(const FixedPoint& unit_y, const FixedPoint& reference_y)
+{
+	FixedPoint threshold = FixedPoint(1, 16);
+	FixedPoint tmp_val = (unit_y - reference_y + threshold);
+	if(tmp_val > FixedPoint(0))
+		return FixedPoint (0);
+	return tmp_val;
+}
+
 
 void World::tickUnit(Unit& unit, Model* model)
 {
@@ -637,35 +647,27 @@ void World::tickUnit(Unit& unit, Model* model)
 	if(unit.mobility == Unit::MOBILITY_STANDING_ON_GROUND)
 	{
 		
-		Location r1 = unit.position + Location(FixedPoint(+1, 5), 0, 0);
-		Location r2 = unit.position + Location(FixedPoint(-1, 5), 0, 0);
-		Location r3 = unit.position + Location(0, 0, FixedPoint(+1, 5));
-		Location r4 = unit.position + Location(0, 0, FixedPoint(-1, 5));
+		Location r1 = unit.position + Location(FixedPoint(+1, 20), 0, 0);
+		Location r2 = unit.position + Location(FixedPoint(-1, 20), 0, 0);
+		Location r3 = unit.position + Location(0, 0, FixedPoint(+1, 20));
+		Location r4 = unit.position + Location(0, 0, FixedPoint(-1, 20));
 		
 		FixedPoint ry1 = lvl.getHeight(r1.x, r1.z);
-		y_diff = ry1 - unit.position.y;
-		yy_val = heightDifference2Velocity(y_diff);
-		Location c1(+1, +1, 0); c1 *= (FixedPoint(1) - yy_val);
+		Location c1(+1, 0, 0); c1 *= getSlideAcceleration(unit.position.y, ry1);
 		
 		FixedPoint ry2 = lvl.getHeight(r2.x, r2.z);
-		y_diff = ry2 - unit.position.y;
-		yy_val = heightDifference2Velocity(y_diff);
-		Location c2(-1, +1, 0); c2 *= (FixedPoint(1) - yy_val);
+		Location c2(-1, 0, 0); c2 *= getSlideAcceleration(unit.position.y, ry2);
 		
 		FixedPoint ry3 = lvl.getHeight(r3.x, r3.z);
-		y_diff = ry3 - unit.position.y;
-		yy_val = heightDifference2Velocity(y_diff);
-		Location c3(0, +1, +1); c3 *= (FixedPoint(1) - yy_val);
+		Location c3(0, 0, +1); c3 *= getSlideAcceleration(unit.position.y, ry3);
 		
 		FixedPoint ry4 = lvl.getHeight(r4.x, r4.z);
-		y_diff = ry4 - unit.position.y;
-		yy_val = heightDifference2Velocity(y_diff);
-		Location c4(0, +1, -1); c4 *= (FixedPoint(1) - yy_val);
+		Location c4(0, 0, -1); c4 *= getSlideAcceleration(unit.position.y, ry4);
 		
-		unit.velocity -= c1;
-		unit.velocity -= c2;
-		unit.velocity -= c3;
-		unit.velocity -= c4;
+		unit.velocity += c1;
+		unit.velocity += c2;
+		unit.velocity += c3;
+		unit.velocity += c4;
 	}
 	*/
 	
