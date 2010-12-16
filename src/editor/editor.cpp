@@ -161,6 +161,10 @@ bool Editor::do_tick()
 	{
 		view.drawSkybox();
 	}
+	else
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	if(skele)
 	{
