@@ -9,6 +9,7 @@
 #include "texturecoordinate.h"
 #include "window.h"
 #include "menubutton.h"
+#include "algorithms.h"
 
 #include <iostream>
 #include <iomanip>
@@ -310,13 +311,16 @@ void Graphics::clear_errors() const
 	while(glGetError() != GL_NO_ERROR);
 }
 
-void Graphics::check_errors(const char* filename, int line) const
+bool Graphics::check_errors(const char* filename, int line) const
 {
+	bool ret = false;
 	GLenum error;
 	while((error = glGetError()) != GL_NO_ERROR)
 	{
 		cerr << "ERROR: " << gluErrorString(error) << " at " << filename << ":" << line << "\n";
+		ret = true;
 	}
+	return ret;
 }
 
 void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
@@ -1537,29 +1541,80 @@ void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObjec
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 	shader.start();
 
-	// TODO: THIS DOESN'T WORK, if a) the light is behind the camera, or
-	// b) the light is just behind the far plane.
+	int screen_width = intVals["RESOLUTION_X"];
+	int screen_height = intVals["RESOLUTION_Y"];
 
+	unsigned saved = 0;
+	unsigned total = 0;
+	glEnable(GL_SCISSOR_TEST);
 	// Draw one light per pass and blend the results together.
 	int pass = 0;
 	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
 	{
 		const LightObject& light = it->second;
 		glUniform1f(shader.uniform("activeLight"), float(pass));
+		if(check_errors(__FILE__, __LINE__))
+		{
+			cerr << "activeLight: " << pass << endl;
+		}
 		float power = light.getIntensity().getFloat();
 		glUniform1f(shader.uniform("power"), power);
+		if(check_errors(__FILE__, __LINE__))
+		{
+			cerr << "power: " << power << endl;
+		}
 
-		check_errors(__FILE__, __LINE__);
 
 		Location loc = light.getPosition();
 		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+
+		// TODO: if this thing will someday work really well, then lights could be passed here
+		// instead of updated through uniforms. Not sure which is faster though.
 //		float r, g, b;
 //		light.getDiffuse(r, g, b);
 //		glColor3f(r, g, b);
+
+
+		Matrix4 m; // TODO: get modelview matrix directly from camera!
+		glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, m.T);
+
+		total += screen_width*screen_height;
+		array<int,4> rect;
+
+		// TODO: light_scissor function does not work if
+		// a) the light is behind the camera, or
+		// b) the light is just behind the far plane (??)
+		// c) ever(?)
+		int n = light_scissor(m*v, power/2.0f, screen_width, screen_height, rect);
+		if(n == 0)
+		{
+			saved += screen_width*screen_height;
+			continue;
+		}
+		if(n >= screen_width * screen_height)
+		{
+			glDisable(GL_SCISSOR_TEST);
+		}
+		else
+		{
+			glScissor(rect[0], rect[1], rect[2], rect[3]);
+			if(check_errors(__FILE__, __LINE__))
+			{
+				cout << "pass: " << pass << m*v << " [" << rect[0] << "," << rect[1] << "] x [" << rect[2] << "," << rect[3] << "]" << endl;
+			}
+			saved += (rect[2]-rect[0])*(rect[3]-rect[1]);
+		}
+
+		drawFullscreenQuad();
+		/*
 		glBegin(GL_POINTS);
 		glVertex3f(v.x, v.y, v.z);
 		glEnd();
+		*/
 	}
+	glDisable(GL_SCISSOR_TEST);
+
+//	cout << double(saved)/double(total) * 100.0 << "%" << endl;
 	shader.stop();
 
 	glDisable(GL_BLEND);
