@@ -473,7 +473,6 @@ void World::tickUnit(Unit& unit, Model* model)
 			unit.soundInfo = "jump_land";
 		if(unit.velocity.y < FixedPoint(-12, 10))
 		{
-			unit.last_damage_dealt_by = unit.id;
 			unit("DAMAGED_BY") = "falling";
 			
 			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
@@ -489,6 +488,13 @@ void World::tickUnit(Unit& unit, Model* model)
 				unit.velocity.x *= FixedPoint(10, 100);
 				unit.velocity.z *= FixedPoint(10, 100);
 				unit.takeDamage(damage_int * damage_int / 500);
+			}
+			
+			// allow deny only after surviving the first hit with ground.
+			if(unit.hitpoints > 0)
+			{
+				// no deny by jumping down a cliff!
+				unit.last_damage_dealt_by = unit.id;
 			}
 		}
 		
@@ -883,14 +889,6 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
-	for(auto iter = units.begin(); iter != units.end(); ++iter)
-	{
-		if(iter->second.hitpoints < 1)
-		{
-			doDeathFor(iter->second);
-		}
-	}
-	
 	for(auto iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		Projectile& projectile = iter->second;
@@ -900,6 +898,15 @@ void World::worldTick(int tickCount)
 			deadUnits.push_back(iter->first);
 		}
 	}
+	
+	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	{
+		if(iter->second.hitpoints < 1)
+		{
+			doDeathFor(iter->second);
+		}
+	}
+	
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
