@@ -360,8 +360,6 @@ void VisualWorld::addLight(int id, const Location& location, Location direction)
 
 void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
 {
-	return;
-	
 	
 	if(active == 0)
 		return;

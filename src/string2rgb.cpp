@@ -51,7 +51,7 @@ void getColor(const string& a, int& r, int& g, int& b)
 	}
 	else
 	{
-		std::cerr << "UNKOWN COLOR: " << a << std::endl;
+		std::cerr << "UNKNOWN COLOR: " << a << std::endl;
 		r = 0;
 		g = 255;
 		b = 255;

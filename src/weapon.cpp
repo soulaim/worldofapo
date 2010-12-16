@@ -181,9 +181,9 @@ void Weapon::fire(World& world, Unit& user)
 	Location weapon_position = user.getPosition();
 	Location projectile_direction = user.getLookDirection();
 	
-	weapon_position.y += 4;
-	// projectile_direction.y += 4;
-
+	weapon_position.y += FixedPoint(4) + FixedPoint(intVals["Y_OFFSET"], 1000);
+	user.velocity -= projectile_direction * FixedPoint(intVals["FIRE_KICK"], 1000);
+	
 	size_t model_prototype = proto_projectile.prototype_model;
 	
 	if(intVals["FIRE_LIGHT_LIFE"] > 0)

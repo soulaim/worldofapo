@@ -1901,7 +1901,10 @@ void Graphics::draw(
 	
 	drawDebugQuad();
 	
-	hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
+	if(intVals["DRAW_HUD"])
+	{
+		hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
+	}
 	
 	finishDrawing();
 }
