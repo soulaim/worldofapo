@@ -123,14 +123,22 @@ void Unit::handleCopyOrder(stringstream& ss)
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
 		id >> weapon >> collision_rule;
-
+	
+	cerr << "1" << endl;
+		
 	HasProperties::handleCopyOrder(ss);
-
+	
+	cerr << "2" << endl;
+	
+	assert(weapons.size() == 5);
+	
 	for(size_t i = 0; i < weapons.size(); ++i)
 	{
 		weapons[i].handleCopyOrder(ss);
 	}
-
+	
+	cerr << "3" << endl;
+	
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);
 }
@@ -144,16 +152,16 @@ string Unit::copyOrder(int ID) const
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
 		<< id << " " << weapon << " " << collision_rule << " ";
-
+	
 	hero_msg << HasProperties::copyOrder();
-
+	
 	for(size_t i = 0; i < weapons.size(); ++i)
 	{
 		hero_msg << weapons[i].copyOrder();
 	}
-
+	
 	// name must be the last element.
-	hero_msg << name << "#";
+	hero_msg << " " << name << "#";
 	
 	return hero_msg.str();
 }
@@ -280,6 +288,7 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init()
 {
+	weapons.clear();
 	weapons.push_back(Weapon("data/items/weapon_shotgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_flame.dat"));

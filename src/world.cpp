@@ -99,6 +99,12 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 
 void World::atDeath(MovableObject& object, HasProperties& properties)
 {
+	if(properties.strVals.find("AT_DEATH") == properties.strVals.end())
+		return;
+	
+	if(properties.strVals["AT_DEATH"] == "")
+		properties.strVals["AT_DEATH"] = "NOTHING";
+	
 	// this way can only store one event to be executed at death :( should maybe reconcider that.
 	if(properties("AT_DEATH") == "EXPLODE")
 	{
