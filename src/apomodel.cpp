@@ -145,11 +145,11 @@ void ApoModel::drawPartsRecursive(int current_node) const
 		++TRIANGLES_DRAWN_THIS_FRAME;
 		// how to choose textures??
 		ObjectTri& tri = obj_part.triangles[i];
-		glVertex3f(tri.x[0], tri.y[0], tri.z[0]);
+		glVertex3f(tri.x[0] * myScale, tri.y[0] * myScale, tri.z[0] * myScale);
 
-		glVertex3f(tri.x[1], tri.y[1], tri.z[1]);
+		glVertex3f(tri.x[1] * myScale, tri.y[1] * myScale, tri.z[1] * myScale);
 
-		glVertex3f(tri.x[2], tri.y[2], tri.z[2]);
+		glVertex3f(tri.x[2] * myScale, tri.y[2] * myScale, tri.z[2] * myScale);
 //		cerr << current_node << "\n";
 	}
 	glEnd();

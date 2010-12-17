@@ -92,7 +92,7 @@ struct SkeletalModel: public Model
 	virtual bool save(const std::string& filename) const;
 	virtual void draw() const;
 	virtual void rotate_y(float angle);
-
+	
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1) const;
@@ -106,7 +106,7 @@ private:
 	GLuint locations[BUFFERS];
 	bool buffers_loaded;
 	size_t triangles_size;
-
+	
 	// These stay constant over different model instances.
 	std::vector<Vec3> vertices;
 	std::vector<TextureCoordinate> texture_coordinates;

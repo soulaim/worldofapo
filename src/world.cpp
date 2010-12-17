@@ -421,7 +421,7 @@ void World::terminate()
 	visualworld->terminate();
 }
 
-
+// TODO: Make this more senseful so it works
 // TODO: Put this somewhere where it makes sense
 FixedPoint getSlideAcceleration(const FixedPoint& unit_y, const FixedPoint& reference_y)
 {
@@ -432,6 +432,48 @@ FixedPoint getSlideAcceleration(const FixedPoint& unit_y, const FixedPoint& refe
 	return tmp_val;
 }
 
+void World::tickItem(WorldItem& item, Model* model)
+{
+	// wut
+	// model->rotate_y(item.getAngle(apomath));
+	model->updatePosition(item.position.x.getFloat(), item.position.y.getFloat(), item.position.z.getFloat());
+	
+	// some physics & game world information
+	if( (item.velocity.y + item.position.y - FixedPoint(1, 20)) <= lvl.getHeight(item.position.x, item.position.z) )
+	{
+		// colliding with terrain right now
+		FixedPoint friction = FixedPoint(88, 100);
+		
+		item.position.y = lvl.getHeight(item.position.x, item.position.z);
+		
+		item.velocity.y += FixedPoint(50, 1000); // no clue if this makes any sense
+		item.velocity.x *= friction;
+		item.velocity.z *= friction;
+	}
+	
+	auto& potColl = octree->nearObjects(item.position);
+	
+	for(auto iter = potColl.begin(); iter != potColl.end(); ++iter)
+	{
+		// handle only unit collisions
+		if ((*iter)->type != OctreeObject::UNIT)
+			continue;
+		
+		Unit* u = static_cast<Unit*>(*iter);
+		
+		// now did they collide or not?
+		if( (item.position - u->position).lengthSquared() < FixedPoint(16) )
+		{
+			item.collides(*u);
+		}
+	}
+	
+	// gravity
+	item.velocity.y -= FixedPoint(35,1000);
+	
+	// apply motion
+	item.position += item.velocity;
+}
 
 void World::tickUnit(Unit& unit, Model* model)
 {
@@ -852,6 +894,7 @@ void World::worldTick(int tickCount)
 	
 	friendly_fire = (intVals["FRIENDLY_FIRE"] == 1);
 	
+	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Build octree + do collisions    \
 	*     \_/""""""""""""""""""""""""""""""""""/
@@ -883,6 +926,11 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, visualworld->models[iter->first]);
 	}
 	
+	for(auto iter = items.begin(); iter != items.end(); ++iter)
+	{
+		tickItem(iter->second, visualworld->models[iter->first]);
+	}
+	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \
@@ -901,12 +949,38 @@ void World::worldTick(int tickCount)
 	
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
-		if(iter->second.hitpoints < 1)
+		Unit& unit = iter->second;
+		if(unit.hitpoints < 1)
 		{
-			doDeathFor(iter->second);
+			// every time a unit dies, spawn some replenishment stuff
+			Location gear_pos = unit.position + Location(0, 1, 0);
+			Location gear_vel = unit.velocity + Location(0, 1, 0);
+			
+			if(gear_vel.lengthSquared() > FixedPoint(1))
+			{
+				gear_vel.normalize();
+			}
+			
+			addItem(gear_pos, gear_vel, unitIDgenerator.nextID());
+			
+			// then do the more important death processing
+			doDeathFor(unit);
+			atDeath(unit, unit);
 		}
 	}
 	
+	for(auto iter = items.begin(); iter != items.end(); ++iter)
+	{
+		WorldItem& item = iter->second;
+		if(item.dead)
+		{
+			deadUnits.push_back(iter->first);
+			
+			/*
+			atDeath(item, item); // hmm? collection is not the same as death though.
+			*/
+		}
+	}
 	
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
@@ -990,6 +1064,24 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 	projectiles[id].prototype_model = model_prototype;
 }
 
+void World::addItem(Location& location, Location& velocity, int id)
+{
+	Vec3 position;
+	position.x = location.x.getFloat();
+	position.y = location.y.getFloat();
+	position.z = location.z.getFloat();
+	
+	// ModelFactory::create(World::PLAYER_MODEL); // TODO: Models for items
+	visualworld->models[id] = ModelFactory::create(World::BULLET_MODEL);
+	visualworld->models[id]->realUnitPos = position;
+	visualworld->models[id]->currentModelPos = position;
+	
+	visualworld->models[id]->setScale(25.0f); // big balls!
+	
+	items[id].position = location;
+	items[id].velocity = velocity;
+}
+
 int World::nextPlayerID()
 {
 	return playerIDgenerator.nextID();
@@ -1008,9 +1100,9 @@ int World::currentUnitID() const
 void World::removeUnit(int id)
 {
 	// Note that same id might be removed twice on the same frame!
-	
 	units.erase(id);
 	projectiles.erase(id);
+	items.erase(id);
 	visualworld->removeUnit(id);
 }
 

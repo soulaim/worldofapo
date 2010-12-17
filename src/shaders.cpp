@@ -14,6 +14,7 @@ GLint bones_location = -1;
 GLint bone_index_location = -1;
 GLint bone_weight_location = -1;
 GLint active_location = -1;
+GLint model_scale_location = -1;
 
 void Shaders::init()
 {
@@ -116,6 +117,7 @@ void Shaders::init()
 	unit_color_location = shaders["unit_program"]->uniform("unit_color");
 	bones_location = shaders["unit_program"]->uniform("bones");
 	active_location = shaders["unit_program"]->uniform("active");
+	model_scale_location = shaders["unit_program"]->uniform("scale");
 	color_index_location = shaders["unit_program"]->attribute("color_index");
 	bone_weight_location = shaders["unit_program"]->attribute("bone_weight");
 	bone_index_location = shaders["unit_program"]->attribute("bone_index");

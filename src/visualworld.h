@@ -15,7 +15,7 @@
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld : public HasProperties
 {
-	void updateModel(Model*, const Unit&, int currentWorldFrame); // view frame update
+	void updateModel(Model*, const Unit&); // view frame update
 	int active;
 	
 public:
