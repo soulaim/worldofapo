@@ -140,46 +140,35 @@ void Graphics::init(Camera& camera)
 	// TODO: This is completely obsolete?
 	initLight();
 	
-	TextureHandler::getSingleton().createDepthTexture("depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-	
 	// Init screen framebuffer objects
 	glGenFramebuffers(1, &screenFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
 	TextureHandler::getSingleton().createTexture("screenFBO_texture0", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	TextureHandler::getSingleton().createDepthTexture("screenFBO_depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_texture0"), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_depth_texture"), 0);
 
-	if(intVals["DEFERRED_RENDERING"]) // TODO: make changeable during runtime.
-	{
-		glGenFramebuffers(1, &deferredFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
-		TextureHandler::getSingleton().createTexture("deferredFBO_texture0", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-		TextureHandler::getSingleton().createTexture("deferredFBO_texture1", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-		TextureHandler::getSingleton().createFloatTexture("deferredFBO_texture2", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-		TextureHandler::getSingleton().createDepthTexture("depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture0"), 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture1"), 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture2"), 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
-
-		cerr << "deferredFBO status: " << gluErrorString(glCheckFramebufferStatus(screenFBO)) << endl;
-	}
-	else
-	{
-		// Attaches to the screenFBO.
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
-		// TODO: make this clearer/better somehow. (separate depth_textures for screenFBO and deferredFBO?)
-	}
+	glGenFramebuffers(1, &deferredFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
+	TextureHandler::getSingleton().createTexture("deferredFBO_texture0", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	TextureHandler::getSingleton().createTexture("deferredFBO_texture1", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	TextureHandler::getSingleton().createFloatTexture("deferredFBO_texture2", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	TextureHandler::getSingleton().createDepthTexture("deferredFBO_depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture0"), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture1"), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture2"), 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_depth_texture"), 0);
 
 	glGenFramebuffers(1, &postFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
 	TextureHandler::getSingleton().createTexture("postFBO_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("postFBO_texture"), 0);
-	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("depth_texture"), 0);
+	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("postFBO_depth_texture"), 0);
 	
-	glGenFramebuffers(1, &particlesFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, particlesFBO);
-	TextureHandler::getSingleton().createTexture("particlesFBO_texture", intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particlesFBO_texture"), 0);
+	glGenFramebuffers(1, &particlesDownScaledFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, particlesDownScaledFBO);
+	TextureHandler::getSingleton().createTexture("particlesDownScaledFBO_texture", intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particlesDownScaledFBO_texture"), 0);
 	
 	glGenFramebuffers(1, &particlesUpScaledFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesUpScaledFBO);
@@ -193,6 +182,13 @@ void Graphics::init(Camera& camera)
 	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, screenRB);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	*/
+
+	cerr << "screenFBO status: " << gluErrorString(glCheckFramebufferStatus(screenFBO)) << endl;
+	cerr << "deferredFBO status: " << gluErrorString(glCheckFramebufferStatus(deferredFBO)) << endl;
+	cerr << "postFBO status: " << gluErrorString(glCheckFramebufferStatus(postFBO)) << endl;
+	cerr << "particlesDownScaledFBO status: " << gluErrorString(glCheckFramebufferStatus(particlesDownScaledFBO)) << endl;
+	cerr << "particlesUpScaledFBO status: " << gluErrorString(glCheckFramebufferStatus(particlesUpScaledFBO)) << endl;
+
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	// ------------------------------
@@ -1017,9 +1013,21 @@ void Graphics::drawModels(const map<int, Model*>& models)
 	shader.stop();
 }
 
+void Graphics::drawParticles(std::vector<Particle>& viewParticles)
+{
+	string depth_texture = (intVals["DEFERRED_RENDERING"] ? "deferredFBO_depth_texture" : "screenFBO_depth_texture");
+
+	switch(intVals["DRAW_PARTICLES"])
+	{
+		case 2: drawParticles_vbo(viewParticles, depth_texture); break;
+		case 3: drawParticles_old(viewParticles); break;
+		default: drawParticles(viewParticles, depth_texture);
+	}
+}
+
 // TODO: make this function faster than the current implementation by having the data already in the VBO format.
 // TODO: Now it has to do extra copying.
-void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
+void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
 	glUseProgram(shaders["particle_program"]);
 	GLint scale_location = shaders.uniform("particle_particleScale");
@@ -1027,7 +1035,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
-	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
+	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 //	TextureHandler::getSingleton().bindTexture(0, "smoke");
 
@@ -1100,13 +1108,13 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles)
 	glUseProgram(0);
 }
 
-void Graphics::prepareForParticleRendering()
+void Graphics::prepareForParticleRendering(const std::string& depth_texture)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, particlesFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, particlesDownScaledFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	
-	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
+	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
 	// Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
@@ -1164,10 +1172,9 @@ void Graphics::drawFullscreenQuad() const
 	glEnd();
 }
 
-void Graphics::drawParticles(std::vector<Particle>& viewParticles)
+void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
-	
-	prepareForParticleRendering();
+	prepareForParticleRendering(depth_texture);
 	
 	// create a downscaled depth texture for particle rendering
 	
@@ -1184,28 +1191,36 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 	glDisable(GL_BLEND);
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesUpScaledFBO);
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
-	TextureHandler::getSingleton().bindTexture(0, "particlesFBO_texture");
+	TextureHandler::getSingleton().bindTexture(0, "particlesDownScaledFBO_texture");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// TODO: Could this perhaps be done (faster?) by directly copying from one framebuffer to another?
 	// Perhaps with with glBindFramebuffer(GL_READ_FRAMEBUFFER,...); glBindFramebuffer(GL_DRAW_FRAMEBUFFER,...); glBlitFramebuffer(...);??
-	drawFullscreenQuad();
+	drawFullscreenQuad(); // Draw particlesDownScaledFBO_texture to particlesUpScaledFBO_texture (i.e. upscale).
 	
 	// blur upscaled particle texture
 	if(intVals["PARTICLE_BLUR"])
 	{
+		clear_errors();
+		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "particlesUpScaledFBO_texture", particlesUpScaledFBO);
+		check_errors(__FILE__, __LINE__);
+		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], "particlesUpScaledFBO_texture", particlesUpScaledFBO);
+		check_errors(__FILE__, __LINE__);
 	}
 	
-	// render to screen.
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindFramebuffer(GL_FRAMEBUFFER, screenFBO);
+
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
 	
+	TextureHandler::getSingleton().bindTexture(0, "particlesUpScaledFBO_texture");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	drawFullscreenQuad();
+	drawFullscreenQuad(); // Draw particlesUpScaledFBO_texture to screenFBO_texture (copy directly).
 	
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -1226,11 +1241,11 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	// depthSortParticles(direction_vector, viewParticles);
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, particlesFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, particlesDownScaledFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	
-	//TextureHandler::getSingleton().bindTexture(1, "depth_texture");
+	//TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
 	// glUseProgram(shaders["particle_program"]);
@@ -1289,7 +1304,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glViewport(0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	
 	
-	TextureHandler::getSingleton().bindTexture(0, "particlesFBO_texture");
+	TextureHandler::getSingleton().bindTexture(0, "particlesDownScaledFBO_texture");
 	
 	glUseProgram(0);
 	
@@ -1373,14 +1388,14 @@ void Graphics::startDrawing()
 
 
 
-void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint renderTarget)
+void Graphics::applySSAO(int power, const string& input_texture, const string& depth_texture, GLuint renderTarget)
 {
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget);
-	TextureHandler::getSingleton().bindTexture(0, inputImg);
-	TextureHandler::getSingleton().bindTexture(1, depthImage);
+	TextureHandler::getSingleton().bindTexture(0, input_texture);
+	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
@@ -1389,7 +1404,7 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 	
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	//	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
+	//	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	//	glUseProgram(shaders["debug_program"]);
 	
 	drawFullscreenQuad();
@@ -1405,7 +1420,7 @@ void Graphics::applySSAO(int power, string inputImg, string depthImage, GLuint r
 }
 
 
-void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
+void Graphics::applyBlur(int blur, const string& input_image, GLuint renderTarget)
 {
 	blur = min(blur, intVals["MAXIMUM_BLUR"]);
 
@@ -1413,16 +1428,11 @@ void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 	glDepthMask(GL_FALSE);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
-	TextureHandler::getSingleton().bindTexture(0, inputImg);
+	TextureHandler::getSingleton().bindTexture(0, input_image);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	
 	glUseProgram(shaders["blur_program1"]);
 	glUniform1f(shaders.uniform("blur_amount1"), float(blur));
-	
-	glColor3f(1.0, 1.0, 1.0);
-	
-	//	TextureHandler::getSingleton().bindTexture(1, "depth_texture");
-	//	glUseProgram(shaders["debug_program"]);
-	
 	drawFullscreenQuad();
 	glUseProgram(0);
 	
@@ -1431,16 +1441,11 @@ void Graphics::applyBlur(int blur, string inputImg, GLuint renderTarget)
 	
 	glUseProgram(shaders["blur_program2"]);
 	glUniform1f(shaders.uniform("blur_amount2"), float(blur));
-	
-	glColor3f(1.0, 1.0, 1.0);
-	
 	drawFullscreenQuad();
+	glUseProgram(0);
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	
-	glUseProgram(0);
-	// TextureHandler::getSingleton().bindTexture(0, "");
 }
 
 void Graphics::drawLevel(const Level& lvl, size_t light_count)
@@ -1809,8 +1814,8 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 		applyAmbientLight();
 
-//		drawLightsDeferred_single_pass(lights.size());
-		drawLightsDeferred_multiple_passes(lights);
+		drawLightsDeferred_single_pass(lights.size());
+//		drawLightsDeferred_multiple_passes(lights);
 	}
 }
 
@@ -1823,6 +1828,8 @@ void Graphics::draw(
 	int blur
 	)
 {
+	bool deferred_rendering = intVals["DEFERRED_RENDERING"];
+
 	updateCamera(lvl);
 	
 	startDrawing();
@@ -1844,7 +1851,7 @@ void Graphics::draw(
 	}
 	else if(intVals["DRAW_LEVEL"])
 	{
-		if(intVals["DEFERRED_RENDERING"])
+		if(deferred_rendering)
 		{
 			drawLevelDeferred(lvl);
 		}
@@ -1871,9 +1878,11 @@ void Graphics::draw(
 
 	geometryDrawn(visualworld.lights);
 	
+	string depth_texture = (deferred_rendering ? "deferredFBO_depth_texture" : "screenFBO_depth_texture");
+
 	if(intVals["SSAO"])
 	{
-		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", "depth_texture", screenFBO);
+		applySSAO(intVals["SSAO_DISTANCE"], "screenFBO_texture0", depth_texture, screenFBO);
 	}
 	
 	if(intVals["DRAW_PARTICLES"])
@@ -1899,13 +1908,11 @@ void Graphics::draw(
 		applyBlur(blur, "screenFBO_texture0", screenFBO);
 	}
 	
-	drawDebugQuad();
-	
 	if(intVals["DRAW_HUD"])
 	{
 		hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 	}
-	
+
 	finishDrawing();
 }
 
@@ -1935,21 +1942,33 @@ void Graphics::drawDebugQuad()
 		return;
 	}
 
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	TextureHandler::getSingleton().bindTexture(0, s);
-
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glTranslatef(-2.15f, -1.3f, -1.0f);
-	drawFullscreenQuad();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -0.7f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertex3f(-0.2f, -0.7f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertex3f(-0.2f, +0.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +0.0f, -1.0f);
+	glEnd();
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 }
 
-void Graphics::finishDrawing()
+void Graphics::renderToBackbuffer()
 {
-	STRINGS.clear();
-	
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	TextureHandler::getSingleton().bindTexture(0, "screenFBO_texture0");
@@ -1958,7 +1977,6 @@ void Graphics::finishDrawing()
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
 	glMatrixMode(GL_MODELVIEW);
 	
 	glColor3f(1.0, 1.0, 1.0);
@@ -1966,17 +1984,17 @@ void Graphics::finishDrawing()
 	drawFullscreenQuad();
 
 	glEnable(GL_DEPTH_TEST);
-	
-//	TextureHandler::getSingleton().bindTexture(1, "");
-//	TextureHandler::getSingleton().bindTexture(0, "");
-	
-	window.swap_buffers();
 }
 
-// TODO: This could be in visualworld
-void Graphics::updateInput(int keystate)
+void Graphics::finishDrawing()
 {
-	camera_p->updateInput(keystate);
+	STRINGS.clear();
+
+	renderToBackbuffer();
+
+	drawDebugQuad();
+
+	window.swap_buffers();
 }
 
 void Graphics::world_tick(Level& lvl, const std::map<int, LightObject>& lights)

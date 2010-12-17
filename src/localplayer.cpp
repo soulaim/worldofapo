@@ -235,7 +235,7 @@ void Localplayer::process_sent_game_input()
 	userio->getMouseChange(x, y);
 	int mousepress = userio->getMousePress();
 
-	view->updateInput(keyState); // Make only "small" local changes like change camera angle.
+	visualworld.camera.updateInput(keyState); // Make only "small" local changes like change the camera angle.
 	hud->setShowStats(keyState & (1 << 31));
 
 	x *= intVals["sensitivity"];

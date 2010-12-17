@@ -61,15 +61,17 @@ class Graphics: public HasProperties
 
 	void drawModels(const std::map<int, Model*>& models);
 	
-	void prepareForParticleRendering();
+	void prepareForParticleRendering(const std::string& depth_texture);
 	void renderParticles(std::vector<Particle>&);
 	void drawParticles(std::vector<Particle>&);
+	void drawParticles(std::vector<Particle>&, const std::string& depth_texture);
 	void drawParticles_old(std::vector<Particle>&);
-	void drawParticles_vbo(std::vector<Particle>&);
+	void drawParticles_vbo(std::vector<Particle>&, const std::string& depth_texture);
+	void renderToBackbuffer();
 	
 	void applyAmbientLight();
-	void applyBlur(int blur, std::string inputImg, GLuint renderTarget);
-	void applySSAO(int power, std::string inputImg, std::string depthImage, GLuint renderTarget);
+	void applyBlur(int blur, const std::string& input_texture, GLuint renderTarget);
+	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, GLuint renderTarget);
 	
 	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
@@ -90,8 +92,7 @@ class Graphics: public HasProperties
 	GLint MAX_NUM_ACTIVE_LIGHTS;
 	
 	GLuint postFBO;
-	GLuint particlesFBO;
-	
+	GLuint particlesDownScaledFBO;
 	GLuint particlesUpScaledFBO;
 	
 	GLuint deferredFBO;
@@ -117,8 +118,6 @@ public:
 	void reload_shaders();
 	
 	friend class Editor;
-	
-	void updateInput(int keystate);
 	
 	void draw(
 		const Level& lvl,
