@@ -66,6 +66,7 @@ class Editor
 	void swarm_particles(int X, int Y, int Z);
 	void release_particles();
 	void swarm_meadows(int X, int Z, int y);
+	void reorder_triangles();
 
 	Unit dummy;
 
