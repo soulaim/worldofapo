@@ -51,6 +51,7 @@ void DedicatedServer::init()
 	// TODO: This should definetly not be necessary to do in the server :D
 	ModelFactory::load(World::BULLET_MODEL, "", "");
 	ModelFactory::load(World::PLAYER_MODEL, "", ""); // TODO: (pre)loading any skeletalmodel in server fails because OpenGL is not initialized.
+	ModelFactory::load(World::ZOMBIE_MODEL, "", "");
 	ModelFactory::load(World::INVISIBLE_MODEL, "", "");
 }
 
@@ -74,7 +75,7 @@ bool DedicatedServer::start(int port)
 void DedicatedServer::disconnect(int leaver)
 {
 	stringstream discCommand;
-	discCommand << -1 << " " << (Players[leaver].last_order + 1) << " 100 " << leaver << "#";
+	discCommand << -1 << " " << (serverAllow + 1) << " 100 " << leaver << "#";
 	serverMsgs.push_back( discCommand.str() );
 	
 	cerr << "Saving disconnecting character with key: " << Players[leaver].key << endl;
@@ -179,10 +180,12 @@ void DedicatedServer::host_tick()
 	{
 		// give msg to local handling and send to others.
 		clientOrders.insert(serverMsgs[k]);
-		
 		send_to_all(serverMsgs[k]);
 	}
 	serverMsgs.clear();
+	
+	// prepare to update game world.
+	processClientMsgs();
 	
 	
 	if(pause_state != RUNNING)
@@ -204,9 +207,6 @@ void DedicatedServer::host_tick()
 			return;
 		}
 	}
-	
-	// prepare to update game world.
-	processClientMsgs();
 	
 	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
@@ -285,12 +285,17 @@ void DedicatedServer::simulateWorldFrame()
 			pause_state = PAUSED;
 		}
 		
+		
+		if(world.units.find(tmp.plr_id) == world.units.end())
+			continue;
+		
 		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 	if(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
 	{
 		cerr << "Server has somehow skipped an order :(" << endl;
+		UnitInput.pop_back();
 	}
 	
 	world.worldTick(simulRules.currentFrame);

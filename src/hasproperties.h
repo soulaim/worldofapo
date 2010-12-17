@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 
+#include <iostream> // for debug. remember to delete this later.
+
 class HasProperties
 {
 public:
@@ -85,7 +87,18 @@ public:
 	{
 		std::string key;
 		ss >> key;
-		assert(key == "INT_VALS");
+		
+		if(key != "INT_VALS")
+		{
+			std::cerr << " " << key;
+			ss >> key;
+			std::cerr << " " << key << std::endl;
+			
+			assert(0 && "HasProperties copyOrder FAIL");
+		}
+		
+		// assert(key == "INT_VALS");
+		
 		while(ss >> key && key != "STR_VALS")
 		{
 			ss >> intVals[key];

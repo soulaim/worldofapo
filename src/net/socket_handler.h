@@ -20,7 +20,7 @@ public:
 	std::vector<std::string>& read(int id);
 
 	void tick();
-
+	int size();
 private:
 	int select(fd_set& read_socks, fd_set& write_socks);
 	void read_and_write(const fd_set& read_socks, const fd_set& write_socks);

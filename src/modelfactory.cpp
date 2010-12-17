@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <cassert>
+#include <stdexcept>
 
 using namespace std;
 
@@ -72,7 +73,7 @@ Model* ModelFactory::create(size_t prototype)
 	if(prototypes.size() <= prototype || !prototypes[prototype])
 	{
 		cerr << "ERROR: model with prototype " << prototype << " not loaded!\n";
-		throw std::string("Error creating model");
+		throw std::logic_error("Error creating model");
 	}
 	assert(types.size() == prototypes.size());
 	Model* model = prototypes[prototype].get();

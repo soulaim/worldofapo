@@ -495,6 +495,9 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
+				
+				cerr << "Copy unit: " << clientOrders.orders[i] << endl;
+				
 				int unitID;
 				ss >> unitID;
 				
@@ -505,6 +508,18 @@ void Game::processClientMsgs()
 				world->units.find(unitID)->second.handleCopyOrder(ss);
 				
 				cerr << "COPY OF A UNIT: " << unitID << " / " << world->units.find(unitID)->second.id << endl;
+			}
+			else if(cmd == "ITEM")
+			{
+				int itemID;
+				ss >> itemID;
+				
+				Logger log;
+				log << "ORDER: create item " << itemID << "\n";
+				
+				Location dummy;
+				world->addItem(dummy, dummy, itemID);
+				world->items.find(itemID)->second.handleCopyOrder(ss);
 			}
 			else if(cmd == "PROJECTILE")
 			{

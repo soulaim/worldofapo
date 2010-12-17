@@ -1,6 +1,9 @@
 #include "world_item.h"
 #include "unit.h"
 
+using std::stringstream;
+using std::string;
+
 WorldItem::WorldItem()
 {
 	type = OctreeObject::WORLD_ITEM;
@@ -42,5 +45,26 @@ void WorldItem::collides(OctreeObject& o)
 	{
 		// collision handling between items
 	}
+}
+
+
+string WorldItem::copyOrder(int ID) const
+{
+	stringstream item_msg;
+	item_msg << "-2 ITEM " << ID << " " 
+	<< position.x << " " << position.z << " " << position.y << " "
+	<< velocity.x << " " << velocity.z << " " << velocity.y << " ";
+	
+	item_msg << HasProperties::copyOrder();
+	return item_msg.str();
+}
+
+
+void WorldItem::handleCopyOrder(stringstream& ss)
+{
+	ss >> position.x >> position.z >> position.y >>
+	velocity.x >> velocity.z >> velocity.y;
+	
+	HasProperties::handleCopyOrder(ss);
 }
 

@@ -10,11 +10,18 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 	// send new player the current state of the world: units
 	for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
-		sockets.write(plr_ID, iter->second.copyOrder(iter->first));
+		string unitcopy = iter->second.copyOrder(iter->first);
+		cerr << "Copy unit: " << unitcopy << endl;
+		sockets.write(plr_ID, unitcopy);
 	}
 	
 	// send new player the current state of the world: projectiles
 	for(map<int, Projectile>::iterator iter = world.projectiles.begin(); iter != world.projectiles.end(); iter++)
+	{
+		sockets.write(plr_ID, iter->second.copyOrder(iter->first));
+	}
+	
+	for(map<int, WorldItem>::iterator iter = world.items.begin(); iter != world.items.end(); ++iter)
 	{
 		sockets.write(plr_ID, iter->second.copyOrder(iter->first));
 	}
