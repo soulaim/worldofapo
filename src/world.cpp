@@ -1034,10 +1034,11 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
-	visualworld->models[id] = ModelFactory::create(World::PLAYER_MODEL);
 	
 	if(!playerCharacter)
 	{
+		visualworld->models[id] = ModelFactory::create(World::ZOMBIE_MODEL);
+
 		units[id].name = "Alien monster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 500;
@@ -1047,6 +1048,8 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	}
 	else
 	{
+		visualworld->models[id] = ModelFactory::create(World::PLAYER_MODEL);
+
 		units[id].name = "Unknown Player";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;

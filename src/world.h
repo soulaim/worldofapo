@@ -42,7 +42,8 @@ public:
 	{
 		INVISIBLE_MODEL,
 		PLAYER_MODEL,
-		BULLET_MODEL
+		BULLET_MODEL,
+		ZOMBIE_MODEL
 	};
 	
 	World(VisualWorld*);

@@ -856,14 +856,45 @@ void Editor::record_step(size_t time)
 	}
 }
 
+void Editor::reorder_triangles()
+{
+	if(!skele)
+	{
+		hud.pushMessage(red("Scale works only when editing skeletal models."));
+		return;
+	}
+
+	for(size_t i = 0; i < skeletal_model.triangles.size(); ++i)
+	{
+		Triangle& triangle = skeletal_model.triangles[i];
+		swap(triangle.vertices[0], triangle.vertices[2]);
+	}
+
+	hud.pushMessage(green("Reordered triangles"));
+}
+
 void Editor::scale(float scalar)
 {
-	if(!editing_single_part)
+	if(!editing_single_part && !skele)
 	{
-		hud.pushMessage(red("Scale works only when editing part types."));
+		hud.pushMessage(red("Scale works only when editing part types or skeletal models."));
 		return;
 	}
 	
+	if(skele)
+	{
+		for(size_t i = 0; i < skeletal_model.vertices.size(); ++i)
+		{
+			Vec3& v = skeletal_model.vertices[i];
+			v *= scalar;
+		}
+
+		stringstream ss;
+		ss << scalar;
+		hud.pushMessage(green("Scaled to " + ss.str()));
+		return;
+	}
+
 	for(size_t i = 0; i < edited_type->triangles.size(); ++i)
 	{
 		ObjectTri& triangle = edited_type->triangles[i];
@@ -1059,6 +1090,10 @@ void Editor::handle_command(const string& command)
 	else if(word1 == "bones")
 	{
 		calculate_nearest_bones();
+	}
+	else if(word1 == "reorder")
+	{
+		reorder_triangles();
 	}
 	else if(word1 == "swarm")
 	{
