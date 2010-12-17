@@ -17,10 +17,16 @@ public:
 
 	Vec3 realUnitPos;
 	Vec3 currentModelPos;
-
+	
+	float myScale;
+	
 	Model();
 	virtual ~Model();
 
+	// access to model scale
+	void setScale(float);
+	void changeScale(float delta);
+	
 	void updatePosition(float x, float y, float z);
 	void tick(int current_frame);
 	void setAction(const std::string&);

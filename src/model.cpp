@@ -23,6 +23,16 @@ void Model::tick(int current_frame)
 	animation_time = current_frame;
 }
 
+void Model::setScale(float newScale)
+{
+	myScale = newScale;
+}
+
+void Model::changeScale(float delta)
+{
+	myScale *= delta;
+}
+
 void Model::updatePosition(float x, float y, float z)
 {
 	realUnitPos.x = x;

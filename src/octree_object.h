@@ -13,7 +13,7 @@ class OctreeObject : public MovableObject
 		{
 			UNDEFINED = 1,
 			UNIT = 2,
-			MEDIKIT = 4
+			WORLD_ITEM = 4
 		};
 		
 		enum CollisionRule

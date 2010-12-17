@@ -197,14 +197,19 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 	
 	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
-		updateModel(models[iter->first], iter->second, currentWorldFrame);
+		updateModel(models[iter->first], iter->second);
 	}
 	
 	for(map<int, Projectile>::const_iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		Model* model = models[iter->first];
 		model->setAction("idle");
-		model->tick(currentWorldFrame);
+	}
+	
+	// update all models, which ever type they might be.
+	for(auto iter = models.begin(); iter != models.end(); ++iter)
+	{
+		iter->second->tick(currentWorldFrame);
 	}
 }
 
@@ -218,12 +223,10 @@ void VisualWorld::bindCamera(Unit* unit)
 	camera.bind(unit, Camera::THIRD_PERSON);
 }
 
-void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFrame)
+void VisualWorld::updateModel(Model* model, const Unit& unit)
 {
-	
 	if(active == 0)
 		return;
-	
 	
 	assert(model != 0);
 	
@@ -252,9 +255,6 @@ void VisualWorld::updateModel(Model* model, const Unit& unit, int currentWorldFr
 	{
 		model->setAction("idle2");
 	}
-	
-	// update state of model
-	model->tick(currentWorldFrame);
 }
 
 void VisualWorld::tickParticles()

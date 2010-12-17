@@ -23,6 +23,8 @@ SkeletalModel::SkeletalModel():
 	{
 		locations[i] = -1;
 	}
+	
+	myScale = 1.0f; // default size
 }
 
 SkeletalModel::SkeletalModel(const SkeletalModel& model):
@@ -364,7 +366,8 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 
 	// does this need to be set each time before rendering a model?
 	glUniform1i(active_location, true);
-
+	glUniform1f(model_scale_location, myScale);
+	
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	calcMatrices(0, rotations, Matrix4(), animation_name, animation_time);
@@ -387,7 +390,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 //	return;
 
 	assert(buffers_loaded);
-
+	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 

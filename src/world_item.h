@@ -4,11 +4,11 @@
 #include <iostream>
 #include "octree_object.h"
 
-class Medikit: public OctreeObject
+// item that is not being carried by anyone
+class WorldItem: public OctreeObject
 {
-	friend class World; // hohhoijaa
 public:
-	Medikit();
+	WorldItem();
 	Location bb_top() const;
 	Location bb_bot() const;
 	void collides(OctreeObject&);

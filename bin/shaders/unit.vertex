@@ -7,6 +7,7 @@ attribute vec2 bone_weight; // And weight for each bone.
 uniform mat4 bones[10];  // Array of bones that are computed (animated) on the CPU and given to the shader
 uniform bool active;
 uniform vec3 unit_location;
+uniform float scale;
 
 void main()
 {
@@ -20,7 +21,8 @@ void main()
 
 		index = int(bone_index.y);
 		newVertex += (bones[index] * gl_Vertex) * bone_weight.y;
-
+		newVertex *= scale;
+		
 		// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
 		vertex_position = vec4(newVertex.xyz, 1.0);
 		vertex_position.xyz += unit_location;

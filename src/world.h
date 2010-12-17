@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 
+#include "world_item.h"
 #include "unit.h"
 #include "projectile.h"
 #include "level.h"
@@ -21,8 +22,9 @@ class Model;
 class World : public HasProperties
 {
 	
-	void tickUnit(Unit&, Model*);       // world frame update
-	void tickProjectile(Projectile&, Model*); // world frame update
+	void tickUnit(Unit&, Model*);                 // world frame update
+	void tickProjectile(Projectile&, Model*);     // world frame update
+	void tickItem(WorldItem& item, Model* model); // world frame update
 	
 	static FixedPoint heightDifference2Velocity(const FixedPoint& h_diff);
 	void generateInput_RabidAlien(Unit& unit);
@@ -50,6 +52,7 @@ public:
 	
 	std::map<int, Unit> units;
 	std::map<int, Projectile> projectiles;
+	std::map<int, WorldItem> items;
 	
 	Level lvl;
 	
@@ -60,6 +63,8 @@ public:
 	
 	void addUnit(int id, bool player = true, int team = -1);
 	void addProjectile(Location& location, int id, size_t model_prototype);
+	void addItem(Location& location, Location& velocity, int id); // TODO: more control over what is spawned
+	
 	void removeUnit(int id);
 	
 	void setNextUnitID(int id);
