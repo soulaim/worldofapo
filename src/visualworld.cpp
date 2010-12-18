@@ -35,7 +35,7 @@ void VisualWorld::decorate(const Level& lvl)
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
 	tmp_light.lifeType = LightSource::IMMORTAL;
-	tmp_light.behaviour = LightSource::RISE_AND_DIE;
+	tmp_light.behaviour = LightSource::CONSTANT;
 	tmp_light.setDiffuse(8.0, 2.0, 2.0);
 	tmp_light.setLife(150);
 	tmp_light.activateLight();
