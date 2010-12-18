@@ -123,6 +123,14 @@ unsigned TextureHandler::createFloatTexture(const std::string& name, int width, 
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smalled than texture
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	int value;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
+	stringstream ss;
+	ss << hex << uppercase << value;
+	Logger log;
+	log << "Created float texture '" << name << "' with internal format: " << ss.str() << "\n";
+
 	return textures[name];
 }
 
@@ -138,6 +146,14 @@ unsigned TextureHandler::createTexture(const std::string& name, int width, int h
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	int value;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
+	stringstream ss;
+	ss << hex << uppercase << value;
+	Logger log;
+	log << "Created texture '" << name << "' with internal format: " << ss.str() << "\n";
+
 	return textures[name];
 }
 
@@ -154,6 +170,14 @@ unsigned TextureHandler::createDepthTexture(const std::string& name, int width, 
 #endif
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+
+	int value;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
+	stringstream ss;
+	ss << hex << uppercase << value;
+	Logger log;
+	log << "Created depth texture '" << name << "' with internal format: " << ss.str() << "\n";
+
 	return textures[name];
 }
 

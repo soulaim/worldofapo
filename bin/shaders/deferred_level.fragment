@@ -24,6 +24,7 @@ void main()
 	texture_color += weigth3 * texture2D(baseMap3, gl_TexCoord[3].st);
 	texture_color /= (weigth0 + weigth1 + weigth2 + weigth3);
 
+	n = n * 0.5 + 0.5;
 	gl_FragData[0] = texture_color;
 	gl_FragData[1] = vec4(n, 1.0);
 	gl_FragData[2] = vertex_position;

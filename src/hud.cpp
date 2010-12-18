@@ -229,18 +229,21 @@ void Hud::drawFPS()
 	}
 
 
+	stringstream ss0;
+	ss0 << "FPS: " << fixed << setprecision(2) << fps;
+	drawString(ss0.str(), 0.6, 0.9, 1.5, true);
 	stringstream ss1;
-	ss1 << "FPS: " << fixed << setprecision(2) << fps;
-	drawString(ss1.str(), 0.6, 0.9, 1.5, true);
+	ss1 << "SPF: " << fixed << setprecision(3) << 1.0/fps;
+	drawString(ss1.str(), 0.6, 0.8, 1.5, true);
 	stringstream ss2;
 	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
-	drawString(ss2.str(), 0.6, 0.8, 1.5, true);
+	drawString(ss2.str(), 0.6, 0.7, 1.5, true);
 	stringstream ss3;
 	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
-	drawString(ss3.str(), 0.6, 0.7, 1.5, true);
+	drawString(ss3.str(), 0.6, 0.6, 1.5, true);
 	stringstream ss4;
 	ss4 << "QUADS: " << fixed << setprecision(2) << QUADS_DRAWN_THIS_FRAME;
-	drawString(ss4.str(), 0.6, 0.6, 1.5, true);
+	drawString(ss4.str(), 0.6, 0.5, 1.5, true);
 }
 
 void Hud::draw(bool firstPerson)

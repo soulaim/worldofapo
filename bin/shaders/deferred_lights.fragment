@@ -5,8 +5,6 @@ const int DIFFUSE = 1;
 
 uniform vec4 activeLights;
 
-uniform vec4 ambientLight;
-
 varying vec2 texcoord;
 
 uniform sampler2D texture_colors;
@@ -19,9 +17,11 @@ const int MAX_ACTIVE_LIGHTS = 4;
 
 void main()
 {
-	vec4 light_color = ambientLight;
+	vec4 light_color = vec4(0,0,0,1);
 	vec4 texture_color = texture2D(texture_colors, texcoord);
-	vec3 n = normalize(texture2D(normals, texcoord).rgb);
+	vec3 n = texture2D(normals, texcoord).rgb;
+	n = 2.0 * n - 1.0;
+//	gl_FragColor = vec4(n*0.5 + 0.5,1); return;
 	vec4 ecPos = texture2D(positions, texcoord);
 
 #ifdef OLD_LIGHTS
@@ -42,14 +42,13 @@ void main()
 		vec4 dif = lights[lightIndex*2 + DIFFUSE];
 		vec4 pos = lights[lightIndex*2 + POSITION];
 
-
 		vec3 aux = vec3(gl_ModelViewMatrix * (pos - ecPos));
 
 		float dist = length(aux);
 		vec3 lightDir = normalize(aux);
 
 		float NdotL = dot(n, normalize(lightDir));
-		
+
 		if(NdotL > 0.0)
 		{
 			float att = 1.0 / (0.0001 + 0.0006 * dist * dist);

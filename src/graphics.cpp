@@ -1450,6 +1450,7 @@ void Graphics::applyBlur(int blur, const string& input_image, GLuint renderTarge
 
 void Graphics::drawLevel(const Level& lvl, size_t light_count)
 {
+
 	// Draw terrain with forward rendering, apply lights right away.
 	for(size_t i = 0; i < light_count; i += 4)
 	{
@@ -1473,12 +1474,12 @@ void Graphics::drawLevel(const Level& lvl, size_t light_count)
 	}
 }
 
-void Graphics::drawLightsDeferred_single_pass(int light_count)
+// TODO: this isn't very useful function unless we can somehow choose how many lights to draw in the shader.
+// One possibility is to have different shaders for different amounts of lights.
+void Graphics::drawLightsDeferred_single_pass()
 {
 	Shader& shader = shaders.get_shader("deferred_lights_program");
 	shader.start();
-	
-	glClear(GL_COLOR_BUFFER_BIT); // TODO: this isnt necessary if draws are ordered correctly.
 	
 	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
 	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
@@ -1487,15 +1488,12 @@ void Graphics::drawLightsDeferred_single_pass(int light_count)
 	
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
 
-	// Draw all lights in a single pass.
-	light_count = 0;
-	float r = intVals["AMBIENT_RED"]   / 255.0f;
-	float g = intVals["AMBIENT_GREEN"] / 255.0f;
-	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
-	glUniform4f(shaders.uniform("deferred_lights_ambientLight"), r, g, b, 1.0f);
 	drawFullscreenQuad();
 
+	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	
@@ -1814,8 +1812,8 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 		applyAmbientLight();
 
-		drawLightsDeferred_single_pass(lights.size());
-//		drawLightsDeferred_multiple_passes(lights);
+//		drawLightsDeferred_single_pass();
+		drawLightsDeferred_multiple_passes(lights);
 	}
 }
 

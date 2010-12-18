@@ -22,7 +22,9 @@ void main()
 
 	vec4 light_color = vec4(0,0,0,1);
 	vec4 texture_color = texture2D(texture_colors, real_texcoord);
-	vec3 n = normalize(texture2D(normals, real_texcoord).rgb);
+	vec3 n = texture2D(normals, real_texcoord).rgb;
+	n = 2.0 * n - 1.0;
+//	gl_FragColor = vec4(n*0.5 + 0.5,1); return;
 	vec4 fragment_position = texture2D(positions, real_texcoord);
 
 	int lightIndex = int(activeLight);
@@ -30,10 +32,10 @@ void main()
 	vec4 light_diffuse = lights[lightIndex*2 + DIFFUSE];
 	vec4 light_position = lights[lightIndex*2 + POSITION];
 
-	vec3 aux = vec3(gl_ModelViewMatrix * (light_position - fragment_position));
+	vec3 light_direction = vec3(gl_ModelViewMatrix * (light_position - fragment_position));
 
-	float dist = length(aux);
-	vec3 lightDir = normalize(aux);
+	float dist = length(light_direction);
+	vec3 lightDir = normalize(light_direction);
 
 	float NdotL = dot(n, normalize(lightDir));
 	

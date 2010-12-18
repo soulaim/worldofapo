@@ -56,7 +56,7 @@ class Graphics: public HasProperties
 	void drawSkybox();
 
 	void drawLevelDeferred(const Level& lvl);
-	void drawLightsDeferred_single_pass(int light_count);
+	void drawLightsDeferred_single_pass();
 	void drawLightsDeferred_multiple_passes(const std::map<int, LightObject>& lights);
 
 	void drawModels(const std::map<int, Model*>& models);
