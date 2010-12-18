@@ -257,7 +257,15 @@ void Game::process_received_game_input()
 			break;
 		}
 		
-		world->units.find(tmp.plr_id)->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+		auto it = world->units.find(tmp.plr_id);
+		
+		if(it == world->units.end())
+		{
+			cerr << "CLIENT WARNING: PROCESSING A MESSAGE INTENDED FOR A UNIT THAT DOESNT EXIST" << endl;
+			continue;
+		}
+		
+		it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 //	log.print("\n");
