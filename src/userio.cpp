@@ -9,6 +9,7 @@ UserIO::UserIO()
 	mouse = Coord(-1, -1);
 	wheel_has_been_scrolled_up = false;
 	wheel_has_been_scrolled_down = false;
+	capslock_is_down = false;
 	keystate = 0;
 	numKeys = 0;
 }
@@ -134,12 +135,12 @@ UserIO::MouseScrollStatus UserIO::getMouseWheelScrolled()
 {
 	if(wheel_has_been_scrolled_up)
 	{
-		wheel_has_been_scrolled_up = 0;
+		wheel_has_been_scrolled_up = false;
 		return SCROLL_UP;
 	}
 	else if(wheel_has_been_scrolled_down)
 	{
-		wheel_has_been_scrolled_down = 0;
+		wheel_has_been_scrolled_down = false;
 		return SCROLL_DOWN;
 	}
 	return NO_SCROLL;
@@ -159,31 +160,36 @@ string UserIO::getSingleKey()
 			
 			if(keyNames[i] == "left ctrl") return "^";
 			
-			if(!shift_pressed || special_key )
+			if(special_key || (!shift_pressed && !capslock_is_down))
 			{
 				return keyNames[i];
 			}
 
-			string key = keyNames[i];
-			if(key[0] >= 'a' && key[0] <= 'z')
+			char key = keyNames[i][0];
+			if(key >= 'a' && key <= 'z')
 			{
-				key[0] -= 32;
+				key -= 32;
+			}
+
+			if(!shift_pressed)
+			{
+				return string(1, key);
 			}
 			
-			if(key[0] == '+') key[0] = '?';
-			if(key[0] == '-') key[0] = '_';
-			if(key[0] == '9') key[0] = ')';
-			if(key[0] == '8') key[0] = '(';
-			if(key[0] == '7') key[0] = '/';
-			if(key[0] == '6') key[0] = '&';
-			if(key[0] == '5') key[0] = '%';
-//			if(key[0] == '4') key[0] = '¤';
-			if(key[0] == '3') key[0] = '#';
-			if(key[0] == '2') key[0] = '"';
-			if(key[0] == '1') key[0] = '!';
-			if(key[0] == '0') key[0] = '=';
+			if(key == '+') key = '?';
+			if(key == '-') key = '_';
+			if(key == '9') key = ')';
+			if(key == '8') key = '(';
+			if(key == '7') key = '/';
+			if(key == '6') key = '&';
+			if(key == '5') key = '%';
+//			if(key == '4') key = '¤';
+			if(key == '3') key = '#';
+			if(key == '2') key = '"';
+			if(key == '1') key = '!';
+			if(key == '0') key = '=';
 			
-			return key;
+			return string(1, key);
 		}
 	}
 	return emptyString;
@@ -198,6 +204,7 @@ int UserIO::checkEvents()
 		if(event.type == SDL_KEYDOWN)
 		{
 			keyStates[event.key.keysym.sym] = 1;
+			capslock_is_down = bool(event.key.keysym.mod & KMOD_CAPS);
 		}
 		
 		if( event.type == SDL_MOUSEMOTION )
@@ -224,12 +231,12 @@ int UserIO::checkEvents()
 
 			if( event.button.button == SDL_BUTTON_WHEELUP )
 			{
-				wheel_has_been_scrolled_up = 1;
+				wheel_has_been_scrolled_up = true;
 			}
 
 			if( event.button.button == SDL_BUTTON_WHEELDOWN )
 			{
-				wheel_has_been_scrolled_down = 1;
+				wheel_has_been_scrolled_down = true;
 			}
 			
 		}

@@ -24,8 +24,9 @@ class UserIO
 	Coord mouseMove;
 	Coord mouse;
 	int mouseButtons;
-	int wheel_has_been_scrolled_up;
-	int wheel_has_been_scrolled_down;
+	bool wheel_has_been_scrolled_up;
+	bool wheel_has_been_scrolled_down;
+	bool capslock_is_down;
 	
 	std::vector<int> keyStates;
 	std::vector<std::string> keyNames;
