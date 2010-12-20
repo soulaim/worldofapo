@@ -1883,9 +1883,12 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 		applyAmbientLight();
 
-//		drawLightsDeferred_single_pass();
-		drawLightsDeferred_multiple_passes(lights);
-//		drawLightsDeferred_multiple_passes_with_scissors(lights);
+		if(intVals["DRAW_DEFERRED_LIGHTS"])
+		{
+//			drawLightsDeferred_single_pass();
+			drawLightsDeferred_multiple_passes(lights);
+//			drawLightsDeferred_multiple_passes_with_scissors(lights);
+		}
 	}
 }
 

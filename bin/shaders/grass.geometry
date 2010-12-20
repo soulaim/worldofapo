@@ -3,6 +3,7 @@
 #extension GL_EXT_geometry_shader4 : enable
 
 varying out vec2 texcoord;
+varying out vec4 vertex_position;
 
 varying in vec3 wind_var[];
 varying in float scale_var[];
@@ -32,6 +33,7 @@ void emit_quad(vec4 V[4])
 	{
 		gl_Position = modelview[0] * V[i % 4];
 		texcoord = texcoords[i % 4];
+		vertex_position = gl_PositionIn[0];
 
 		EmitVertex();
 	}
