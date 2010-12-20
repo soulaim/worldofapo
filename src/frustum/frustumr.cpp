@@ -1,16 +1,16 @@
 #include "frustumr.h"
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
-//#include <GL/glut.h>
+#define ANG2RAD 3.14159265358979323846/360.0
 
-#define ANG2RAD 3.14159265358979323846/360.0 
+FrustumR::FrustumR()
+{
+}
 
-
-
-FrustumR::FrustumR() {}
-
-FrustumR::~FrustumR() {}
+FrustumR::~FrustumR()
+{
+}
 
 #define m(col,row)  m[row*4+col]
 
@@ -67,13 +67,11 @@ void FrustumR::setCamInternals(float angle, float ratio, float nearD, float farD
 
 	fh = farD * tang;
 	fw = fh * ratio;
-
 }
 
 
 void FrustumR::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u)
 {
-
 	Vec3 dir,nc,fc;
 
 	camPos = p;
@@ -164,8 +162,6 @@ int FrustumR::pointInFrustum(const Vec3 &p) const
 
 
 	return(INSIDE);
-
-	
 }
 
 
@@ -382,3 +378,4 @@ void FrustumR::printPlanes() {
 	}
 }
 */
+

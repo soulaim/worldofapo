@@ -31,7 +31,7 @@ void main()
 
 		if(NdotL > 0.0)
 		{
-			float att = 1.0 / (0.0001 + 0.0006 * dist * dist);
+			float att = 1.0 / (0.0001 + 0.0020 * dist * dist);
 			light_color += att * (diffuse[i] * NdotL);
 		}
 	}

@@ -45,8 +45,8 @@ void Shaders::init()
 	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_lights.fragment"));
 	shaders["deferred_level_program"]    = shared_ptr<Shader>(new Shader("shaders/deferred_level.vertex", "shaders/deferred_level.fragment"));
 
-//	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
-	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
+	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
+	shaders["partitioned_deferred_lights_program_with_scissors"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
 	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_ambientlight.fragment"));
 
 	shaders["deferred_ambientlight_program"]->start();

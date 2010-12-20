@@ -18,6 +18,12 @@ varying vec2 texcoord;
 
 void main()
 {
+	vec2 texcoord2 = texcoord * 2.0 - 1.0;
+	if(texcoord2.x * texcoord2.x + texcoord2.y * texcoord2.y > 1.0)
+	{
+		discard;
+	}
+
 	vec2 real_texcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 
 	vec4 light_color = vec4(0,0,0,1);
@@ -41,10 +47,11 @@ void main()
 	
 	if(NdotL > 0.0)
 	{
-		float att = 1.0 / (0.0001 + 0.0006 * dist * dist);
+		float att = 1.0 / (0.0001 + 0.0020 * dist * dist);
 		light_color += light_diffuse * NdotL * att;
 	}
 
 	gl_FragColor = texture_color * light_color;
+//	gl_FragColor = vec4(1,0,0,1);
 }
 

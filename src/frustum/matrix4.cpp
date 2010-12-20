@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <iomanip>
 
 using namespace std;
 
@@ -86,5 +87,20 @@ Vec3 Matrix4::operator*(const Vec3& v) const
 		tmp[i] = sum;
 	}
 	return Vec3(tmp[0], tmp[1], tmp[2]);
+}
+
+std::ostream& operator<<(std::ostream& out, const Matrix4& m)
+{
+	out << "[ ";
+	for(int i = 0; i < 4; ++i)
+	{
+		for(int j = 0; j < 4; ++j)
+		{
+			out << fixed << setprecision(2) << setw(5) << m.T[i * 4 + j] << " ";
+		}
+		out << "\n  ";
+	}
+	out << "]";
+	return out;
 }
 

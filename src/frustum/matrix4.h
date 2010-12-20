@@ -12,13 +12,15 @@ public:
 
 
 	Matrix4();
-	Matrix4(float rotx, float roty, float rotz, float dx, float dy, float dz);
+	Matrix4(float rotx_degrees, float roty_degrees, float rotz_degrees, float dx, float dy, float dz);
 
 	Matrix4& operator*=(const Matrix4& v);
 	Matrix4 operator *(const Matrix4& v) const;
 
 	Vec3 operator *(const Vec3& v) const;
 };
+
+std::ostream& operator<<(std::ostream& out, const Matrix4& m);
 
 #endif
 

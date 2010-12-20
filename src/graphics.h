@@ -58,6 +58,7 @@ class Graphics: public HasProperties
 	void drawLevelDeferred(const Level& lvl);
 	void drawLightsDeferred_single_pass();
 	void drawLightsDeferred_multiple_passes(const std::map<int, LightObject>& lights);
+	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
 
 	void drawModels(const std::map<int, Model*>& models);
 	

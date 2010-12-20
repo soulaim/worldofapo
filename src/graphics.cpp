@@ -918,6 +918,7 @@ void Graphics::drawSkybox()
 		TextureHandler::getSingleton().bindTexture(0, strVals["SKYBOX"]);
 	}
 
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
@@ -1355,10 +1356,12 @@ void Graphics::setupCamera(const Camera& camera)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);
@@ -1544,6 +1547,78 @@ void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObjec
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 	shader.start();
 
+	// Draw one light per pass and blend the results together.
+	int pass = 0;
+	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
+	{
+		const LightObject& light = it->second;
+		glUniform1f(shader.uniform("activeLight"), float(pass));
+		if(check_errors(__FILE__, __LINE__))
+		{
+			cerr << "activeLight: " << pass << endl;
+		}
+		float power = light.getIntensity().getFloat(); // TODO: intensity doesn't actually have anything to do with how far the light is see.
+		glUniform1f(shader.uniform("power"), power);
+		if(check_errors(__FILE__, __LINE__))
+		{
+			cerr << "power: " << power << endl;
+		}
+
+
+		Location loc = light.getPosition();
+		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+
+		// TODO: if this thing will someday work really well, then lights could be passed here
+		// instead of updated through uniforms. Not sure which is faster though.
+//		float r, g, b;
+//		light.getDiffuse(r, g, b);
+//		glColor3f(r, g, b);
+
+		// TODO: This doesn't work if
+		// a) the light is behind the camera, or
+		// b) the light is just behind the far plane (??)
+
+		glBegin(GL_POINTS);
+		glVertex3f(v.x, v.y, v.z);
+		glEnd();
+	}
+
+	shader.stop();
+
+	glDisable(GL_BLEND);
+	
+	TextureHandler::getSingleton().bindTexture(2, "");
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
+
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+}
+
+
+// TODO: This doesn't work.
+void Graphics::drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights)
+{
+	clear_errors();
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
+	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
+	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program_with_scissors");
+	shader.start();
+
+
+	Matrix4 m; // TODO: get modelview matrix directly from camera.
+	glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, m.T);
+
 	int screen_width = intVals["RESOLUTION_X"];
 	int screen_height = intVals["RESOLUTION_Y"];
 
@@ -1576,10 +1651,6 @@ void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObjec
 //		float r, g, b;
 //		light.getDiffuse(r, g, b);
 //		glColor3f(r, g, b);
-
-
-		Matrix4 m; // TODO: get modelview matrix directly from camera!
-		glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, m.T);
 
 		total += screen_width*screen_height;
 		array<int,4> rect;
@@ -1814,6 +1885,7 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 //		drawLightsDeferred_single_pass();
 		drawLightsDeferred_multiple_passes(lights);
+//		drawLightsDeferred_multiple_passes_with_scissors(lights);
 	}
 }
 
