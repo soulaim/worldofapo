@@ -67,6 +67,12 @@ void LightSource::getDiffuse(float& r, float& g, float& b) const
 		g = c_diffuse_start[1] * mul;
 		b = c_diffuse_start[2] * mul;
 	}
+	else if(behaviour == CONSTANT)
+	{
+		r = c_diffuse_start[0];
+		g = c_diffuse_start[1];
+		b = c_diffuse_start[2];
+	}
 }
 
 void LightSource::getSpecular(float& r, float& g, float& b) const

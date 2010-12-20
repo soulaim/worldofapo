@@ -13,11 +13,14 @@ class LightSource
 public:
 	LightSource();
 	
-	enum
+	enum Behaviour
 	{
 		RISE_AND_DIE = 0,
 		ONLY_DIE = 1,
-		
+		CONSTANT
+	};
+	enum LifeType
+	{
 		IMMORTAL = 1,
 		MORTAL   = 0
 	};
@@ -43,8 +46,8 @@ public:
 	bool tickLight();
 	
 	int unitBind;
-	int lifeType;
-	int behaviour;
+	LifeType lifeType;
+	Behaviour behaviour;
 	
 	Vec3 drawPos;
 	
