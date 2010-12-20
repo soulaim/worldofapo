@@ -282,14 +282,20 @@ void DedicatedServer::simulateWorldFrame()
 				const Location& pos = it->second.getPosition();
 				cerr << id << ": " << pos << std::endl;
 			}
+			
 			pause_state = PAUSED;
 		}
 		
 		
-		if(world.units.find(tmp.plr_id) == world.units.end())
-			continue;
+		auto it = world.units.find(tmp.plr_id);
 		
-		world.units[tmp.plr_id].updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+		if(it == world.units.end())
+		{
+			cerr << "SERVER WARNING: PROCESSING A MESSAGE INTENDED FOR A UNIT THAT DOESNT EXIST" << endl;
+			continue;
+		}
+		
+		it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 	if(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
