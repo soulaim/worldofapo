@@ -909,6 +909,9 @@ void Graphics::drawDebugStrings()
 
 void Graphics::drawSkybox()
 {
+	Shader& shader = shaders.get_shader("skybox_program");
+	shader.start();
+
 	if(drawDebuglines)
 	{
 		TextureHandler::getSingleton().bindTexture(0, "chessboard");
@@ -930,7 +933,10 @@ void Graphics::drawSkybox()
 	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_FALSE);
 	glDisable(GL_BLEND);
+	glDisable(GL_NORMALIZE);
+	glDisable(GL_RESCALE_NORMAL);
 	glColor3f(1.0f, 1.0f, 1.0f);
+	glNormal3f(0.0f, 0.0f, 0.0f);
 
 	double minus = -20.0;
 	double plus  =  20.0;
@@ -980,6 +986,8 @@ void Graphics::drawSkybox()
 
 	glPopAttrib();
 	glPopMatrix();
+
+	shader.stop();
 }
 
 void Graphics::drawModels(const map<int, Model*>& models)
@@ -1513,6 +1521,7 @@ void Graphics::applyAmbientLight()
 	shader.start();
 
 	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
+	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
 	float r = intVals["AMBIENT_RED"]   / 255.0f;
 	float g = intVals["AMBIENT_GREEN"] / 255.0f;
 	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
@@ -1525,6 +1534,9 @@ void Graphics::applyAmbientLight()
 
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
+
+	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().bindTexture(0, "");
 
 	shader.stop();
 }

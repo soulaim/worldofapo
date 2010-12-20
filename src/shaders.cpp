@@ -48,9 +48,11 @@ void Shaders::init()
 	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 	shaders["partitioned_deferred_lights_program_with_scissors"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
 	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_ambientlight.fragment"));
+	shaders["skybox_program"] = shared_ptr<Shader>(new Shader("shaders/skybox.vertex", "shaders/skybox.fragment"));
 
 	shaders["deferred_ambientlight_program"]->start();
 	shaders["deferred_ambientlight_program"]->set_texture_unit(0, "texture_colors");
+	shaders["deferred_ambientlight_program"]->set_texture_unit(1, "normals");
 	shaders["deferred_ambientlight_program"]->stop();
 
 	shaders["partitioned_deferred_lights_program"]->start();

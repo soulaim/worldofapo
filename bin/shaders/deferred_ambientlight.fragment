@@ -1,5 +1,6 @@
 uniform vec4 ambientLight;
 uniform sampler2D texture_colors;
+uniform sampler2D normals;
 
 varying vec2 texcoord;
 
@@ -7,6 +8,14 @@ void main()
 {
 	vec4 light_color = ambientLight;
 	vec4 texture_color = texture2D(texture_colors, texcoord);
+	vec3 normal = texture2D(normals, texcoord).rgb;
+	normal = 2.0 * normal - 1.0;
+	if(length(normal) < 0.5)
+	{
+		// Skybox is always fully lit.
+		gl_FragColor = texture_color;
+		return;
+	}
 
 	gl_FragColor = texture_color * light_color;
 }

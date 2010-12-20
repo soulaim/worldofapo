@@ -26,11 +26,19 @@ void main()
 
 	vec2 real_texcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 
+	vec3 normal = texture2D(normals, real_texcoord).rgb;
+	normal = 2.0 * normal - 1.0;
+//	gl_FragColor = vec4(normal*0.5 + 0.5,1); return;
+	if(length(normal) < 0.5)
+	{
+//		gl_FragColor = vec4(1,0,0,1); return;
+		// Lights don't affect skybox.
+		discard;
+	}
+
 	vec4 light_color = vec4(0,0,0,1);
 	vec4 texture_color = texture2D(texture_colors, real_texcoord);
-	vec3 n = texture2D(normals, real_texcoord).rgb;
-	n = 2.0 * n - 1.0;
-//	gl_FragColor = vec4(n*0.5 + 0.5,1); return;
+
 	vec4 fragment_position = texture2D(positions, real_texcoord);
 
 	int lightIndex = int(activeLight);
@@ -43,7 +51,11 @@ void main()
 	float dist = length(light_direction);
 	vec3 lightDir = normalize(light_direction);
 
-	float NdotL = dot(n, normalize(lightDir));
+	float NdotL = 1.0;
+	if(dist > 0.0)
+	{
+		NdotL = dot(normal, normalize(lightDir));
+	}
 	
 	if(NdotL > 0.0)
 	{
