@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 				master.endMusic();
 				master.startMusic(menuOptions.strVals["GAME_MUSIC"]);
 				
-				map<string, string> heroes;
+				map<string, CharacterInfo> heroes;
 				if(master.internetGameGetHeroes(choice, heroes))
 				{
 					in_menu = false;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 					int dummy_val = -1;
 					string dummy_str;
 					for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
-						menuButtons.push_back(MenuButton(iter->second, dummy_str, dummy_val));
+						menuButtons.push_back(MenuButton(iter->second.playerInfo.name, dummy_str, dummy_val));
 					
 					string selected_character = menu.run_menu(menuButtons, "Character selection");
 					string key = "NEW";
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 					
 					for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
 					{
-						if(iter->second == selected_character)
+						if(iter->second.playerInfo.name == selected_character)
 						{
 							character_found = true;
 							key = iter->first;

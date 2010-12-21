@@ -79,9 +79,14 @@ void DedicatedServer::disconnect(int leaver)
 	serverMsgs.push_back( discCommand.str() );
 	
 	cerr << "Saving disconnecting character with key: " << Players[leaver].key << endl;
-	dormantPlayers[Players[leaver].key] = Players[leaver];
-	Players.erase(leaver);
 	
+	CharacterInfo& c = dormantPlayers[Players[leaver].key];
+	c.playerInfo = Players[leaver];
+	
+	// TODO: Better to save character right when character is removed, not when disconnect is detected?
+	c.unit = world.units[leaver];
+	
+	Players.erase(leaver);
 	sockets.close(leaver);
 }
 

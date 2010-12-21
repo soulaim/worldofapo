@@ -32,7 +32,7 @@ public:
 	void draw();
 	void init();
 	
-	bool internetGameGetHeroes(const std::string&, std::map<std::string, std::string>&);
+	bool internetGameGetHeroes(const std::string&, std::map<std::string, CharacterInfo>&);
 	void internetGameSelectHero(const std::string&);
 	
 	void reload_confs();

@@ -10,6 +10,7 @@
 #include "hasproperties.h"
 
 #include "net/socket_handler.h"
+#include "game_data/character_info.h"
 
 #include <string>
 #include <vector>
@@ -72,10 +73,8 @@ private:
 	
 	void handleServerMessage(const Order&);
 	
-	bool getHeroes(std::map<std::string, std::string>&);
-	std::string temp_menu_which_should_be_removed(const std::map<std::string, std::string>);
-
-
+	bool getHeroes(std::map<std::string, CharacterInfo>&);
+	
 public:
 	Game(World* world);
 	
@@ -96,7 +95,7 @@ public:
 	void reset();
 
 	// TODO: this function might need a different name. it only gets the starting options, saved characters.
-	bool internetGameGetHeroes(const std::string&, std::map<std::string, std::string>&);
+	bool internetGameGetHeroes(const std::string&, std::map<std::string, CharacterInfo>&);
 	void internetGameSelectHero(const std::string&);
 	
 	bool paused() const;

@@ -77,7 +77,7 @@ void Localplayer::setMusicVolume()
 
 
 // returns true on success.
-bool Localplayer::internetGameGetHeroes(const std::string& hostname, map<string, string>& heroes)
+bool Localplayer::internetGameGetHeroes(const std::string& hostname, map<string, CharacterInfo>& heroes)
 {
 	// TODO: Should also obtain level generation parameters and possibility for other variables as well.
 	return game.internetGameGetHeroes(hostname, heroes);

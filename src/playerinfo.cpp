@@ -10,3 +10,8 @@ std::string PlayerInfo::getDescription()
 	return desc.str();
 }
 
+void PlayerInfo::readDescription(std::stringstream& input)
+{
+	input >> kills >> deaths >> name;
+}
+
