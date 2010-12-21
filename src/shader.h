@@ -47,6 +47,7 @@ private:
 	GLuint vertex;
 	GLuint geometry;
 	GLuint fragment;
+	std::map<std::string, GLint> uniform_locations;
 
 	bool started;
 	static int shaders_in_use;

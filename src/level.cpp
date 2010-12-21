@@ -404,7 +404,7 @@ void Level::generate(int seed)
 	
 	
 	// post process the ground to get rid of some discontinuities
-	cout << "post-processing terrain" << flush;
+	cerr << "post-processing terrain" << flush;
 	size_t x_size = pointheight_info.size();
 	for(int loops = 0; loops < 8; loops++)
 	{
@@ -412,7 +412,7 @@ void Level::generate(int seed)
 		{
 			size_t y_size = pointheight_info[i].size();
 			
-			cout << "." << flush;
+			cerr << "." << flush;
 			for(size_t k = 0; k < y_size; ++k)
 			{
 				FixedPoint currentHeight;
@@ -466,7 +466,7 @@ void Level::generate(int seed)
 			}
 		}
 	}
-	cout << endl;
+	cerr << endl;
 	
 	// after level has been fully defined, build the corresponding variance tree.
 	buildVarianceTree();
