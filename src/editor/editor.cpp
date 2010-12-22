@@ -1141,6 +1141,15 @@ void Editor::handle_command(const string& command)
 		ss1 >> word1;
 		ss1 >> r >> g >> b;
 	}
+	else if(word1 == "MEADOW")
+	{
+		view.strVals["MEADOW"] = word2;
+		hud.pushMessage("MEADOW set to " + word2);
+	}
+	else
+	{
+		hud.pushMessage(red("command " + word1 + " not understood"));
+	}
 
 	commands.push_back(command);
 	current_command = commands.size();

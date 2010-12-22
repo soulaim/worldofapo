@@ -2203,7 +2203,8 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, "meadow1");
+		string texture = strVals["MEADOW"];
+		TextureHandler::getSingleton().bindTexture(0, texture);
 	}
 	
 	for(size_t i = 0; i < meadows.size(); ++i)

@@ -6,6 +6,7 @@ marine models/texture_marine.png
 smoke data/smoke.png
 
 meadow1 data/images/meadow1.png
+meadow1small data/images/meadow1small.png
 meadow2 data/images/meadow2.png
 meadow3 data/images/meadow3.png
 meadow4 data/images/meadow4.png

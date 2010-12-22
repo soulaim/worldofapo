@@ -51,10 +51,17 @@ void TextureHandler::createTextures(const std::string& filename)
 {
 	ifstream in(filename.c_str());
 
-	string name;
-	string file;
-	while(in >> name >> file)
+	string line;
+	while(getline(in, line))
 	{
+		if(line.empty() || line[0] == '#')
+		{
+			continue;
+		}
+		stringstream ss(line);
+		string name;
+		string file;
+		ss >> name >> file;
 		createTexture(name, file);
 	}
 }
@@ -64,7 +71,7 @@ unsigned TextureHandler::createTexture(const string& name, const string& filenam
 	Image img;
 	img.loadImage(filename);
 
-	cerr << "Loading texture '" << name << "' from file '" << filename << "'" << endl;
+	cerr << "Loading " << img.sizeX << "x" << img.sizeY << " texture '" << name << "' from file '" << filename << "'" << endl;
 	return createTexture(name, img);
 }
 
