@@ -38,8 +38,6 @@ class Window;
 
 class Graphics: public HasProperties
 {
-	void initLight();
-	
 	void createWindow();
 	void destroyWindow();
 	
