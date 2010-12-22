@@ -381,7 +381,25 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 			continue;
 		}
 		
-		currentWidth = 0.05 * Font::width(msg[i]);
+		char current_symbol = 'Q';
+		if(msg[i] == '\\')
+		{
+			++i;
+			if(msg[i] == 's')
+			{
+				current_symbol = ' ';
+			}
+			else
+			{
+				cerr << "WARNING: Unrecognized escape sequence in draw3Dstring!" << endl;
+			}
+		}
+		else
+		{
+			current_symbol = msg[i];
+		}
+		
+		currentWidth = 0.05 * Font::width(current_symbol);
 		totalWidth = aux_width - scale * (currentWidth + lastWidth - 0.05f);
 		aux_width = totalWidth - 0.05f * scale;
 		lastWidth = currentWidth;
@@ -406,14 +424,28 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
+		char next_char;
 		if(msg[i] == '^')
 		{
 			++i;
 			choose_color(msg[i], 1.0f);
+			
 			continue;
 		}
+		else if(msg[i] == '\\')
+		{
+			if(msg[i+1] == 's') // space symbol
+				next_char = ' ';
+			else
+				next_char = msg[i+1];
+			++i;
+		}
+		else
+		{
+			next_char = msg[i];
+		}
 		
-		currentWidth = 0.05 * Font::width(msg[i]);
+		currentWidth = 0.05 * Font::width(next_char);
 		x_now = x_next - scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now - 0.05f * scale;
 		
@@ -424,7 +456,7 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 		Vec3 p3 = m * Vec3(x_next, y_top, 0);
 		Vec3 p4 = m * Vec3(x_now , y_top, 0);
 
-		TextureCoordinates coords = Font::texture_coordinates(msg[i]);
+		TextureCoordinates coords = Font::texture_coordinates(next_char);
 		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(p1.x, p1.y, p1.z);
 		glTexCoord2f(coords.corner[1].x, coords.corner[1].y); glVertex3f(p2.x, p2.y, p2.z);
 		glTexCoord2f(coords.corner[2].x, coords.corner[2].y); glVertex3f(p3.x, p3.y, p3.z);

@@ -2,6 +2,7 @@
 #define PLAYERINFO_H
 
 #include <string>
+#include <sstream>
 
 class PlayerInfo {
 
@@ -28,6 +29,7 @@ public:
 	std::string key;
 	
 	std::string getDescription();
+	void readDescription(std::stringstream&);
 };
 
 #endif

@@ -63,7 +63,7 @@ void Game::readConfig()
 	localPlayer.name = name;
 }
 
-bool Game::internetGameGetHeroes(const string& hostname, map<string, string>& heroes)
+bool Game::internetGameGetHeroes(const string& hostname, map<string, CharacterInfo>& heroes)
 {
 	myID = NO_ID;
 	int port = 12345;
@@ -94,7 +94,7 @@ void Game::internetGameSelectHero(const string& hero)
 	return;
 }
 
-bool Game::getHeroes(map<string, string>& heroes)
+bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 {
 	set<string> keys = KeyManager::readKeys();
 	for(auto i = keys.begin(); i!=keys.end(); i++)
@@ -110,67 +110,44 @@ bool Game::getHeroes(map<string, string>& heroes)
 			if(check_messages_from_server())
 			{
 				cerr << "Client connection has died during sign-in process. :(" << endl;
-
 				clientOrders.orders.clear();
 				return false;
 			}
-
+			
 			for(size_t k=0; k<clientOrders.orders.size(); k++)
 			{
 //				Logger log;
 //				log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
-
+				
 				not_finished = false;
 				string cmd;
 				stringstream ss(clientOrders.orders[k]);
 				ss >> cmd;
-
+				
 				if(cmd == "YES")
 				{
-
 					getline(ss, cmd);
-					heroes[*i] = cmd;
-					clientOrders.orders.clear();
+					
+					// build a character info out of string cmd
+					heroes[*i] = CharacterInfo();
+					heroes[*i].readDescription(cmd);
 				}
 				else if(cmd == "NO")
-					clientOrders.orders.clear();
+				{
+					// no reaction.
+				}
 			}
+			
+			clientOrders.orders.clear();
 		}
-	}
-
-	heroes["NEW"] = "New Character";
-
-	clientOrders.orders.clear();
-
-	return true;
-}
-
-string Game::temp_menu_which_should_be_removed(const map<string, string> heroes)
-{
-	if (heroes.size() == 1)
-		return heroes.begin()->first;
-	cerr << "Your heroes" << endl;
-	for(map<string, string>::const_iterator iter = heroes.begin(); iter != heroes.end(); iter++)
-	{
-		cerr << "Hero code '" << iter->first << "': " << iter->second << endl;
 	}
 	
-	string code;
-	while (1)
-	{
-		cerr << "Enter hero code" << endl;
-		cin >> code;
-		if (heroes.find(code) != heroes.end())
-		{
-			return code;
-		}
-		else
-		{
-			cerr << "Not valid hero code" << endl;
-		}
-	}
+	CharacterInfo& ci = heroes["NEW"];
+	ci.playerInfo.name = "New\\sCharacter";
+	
+	clientOrders.orders.clear();
+	return true;
 }
-
 
 void Game::endGame()
 {
@@ -315,10 +292,22 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		world->addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
+		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
 		
-		// just to make sure.
-		world->units.find(server_msg.keyState)->second.name = Players[server_msg.keyState].name;
+		// the new way
+		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+		{
+			SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
+			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
+		}
+		
+		SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
+		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
+		world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+		SpawningHeroes.erase(server_msg.keyState);
+		
 		world->add_message("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
@@ -346,7 +335,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		if(localPlayer.name == "")
 		{
-			localPlayer.name = "Unknown player";
+			localPlayer.name = "nameless";
 		}
 		
 		ss << "2 " << myID << " " << localPlayer.name << "#";
@@ -555,6 +544,19 @@ void Game::processClientMsgs()
 				int nopause = 0;
 				ss >> nopause;
 				paused_state = (nopause ? GO : PAUSED);
+			}
+			else if(cmd == "CHAR_INFO")
+			{
+				int future_player_id;
+				ss >> future_player_id;
+				
+				string line;
+				getline(ss, line);
+				
+				CharacterInfo ci;
+				ci.readDescription(line);
+				
+				SpawningHeroes[future_player_id] = ci;
 			}
 			else
 			{

@@ -24,8 +24,6 @@ std::string generateKey()
 	return key;
 }
 
-
-
 void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 {
 	std::stringstream ss(order);
@@ -40,15 +38,15 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 		ss >> cmd;
 		if(dormantPlayers.find(cmd) == dormantPlayers.end())
 		{
-			std::cerr << "Could not find the player" << std::endl;
-			
+			// could not find the player
 			sockets.write(playerID_val, "NO#");
 		}
 		else
 		{
-			std::cerr << "FOUND THE PLAYER :OO" << std::endl;
-			
+			// found player
 			std::string ans = "YES ";
+			
+			// put player info into the message
 			ans.append( dormantPlayers[cmd].getDescription() );
 			ans.append("#");
 			
@@ -61,7 +59,6 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 		playerStartingChoice(playerID_val, cmd);
 	}
 }
-
 
 void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 {
@@ -82,8 +79,8 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	}
 	else
 	{
-		std::cerr << "resurrecting a previous profile with key: " << choice << " by name: " << dormantPlayers[choice].name << std::endl;
-		Players[playerID_val] = dormantPlayers[choice];
+		std::cerr << "resurrecting a previous profile with key: " << choice << " by name: " << dormantPlayers[choice].playerInfo.name << std::endl;
+		Players[playerID_val] = dormantPlayers[choice].playerInfo;
 	}
 	
 	std::cerr << "Sending a copy of the world" << std::endl;
@@ -105,14 +102,35 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		std::stringstream playerInfo_msg;
 		std::string clientName = iter->second.name;
 		if(clientName == "")
-			clientName = "Unknown Player";
+			clientName = "nameless";
 		playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << clientName << "#";
 		sockets.write(playerID_val, playerInfo_msg.str());
 	}
 	
-	std::cerr << "SENDING ADDHERO" << std::endl;
+	
+	// send to everyone the character info of the spawning unit / player.
+	if(dormantPlayers[choice].unit.name == "")
+	{
+		dormantPlayers[choice].unit.init();
+		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
+		
+		dormantPlayers[choice].playerInfo.connectionState = 1; // active.
+		dormantPlayers[choice].playerInfo.key = Players[playerID_val].key;
+	}
+	
+	Players[playerID_val] = dormantPlayers[choice].playerInfo;
+	std::cerr << "TROLOLOL: " << Players[playerID_val].kills << " " << Players[playerID_val].deaths << std::endl;
+	
+	std::string character_info_str = dormantPlayers[choice].getDescription();
+	std::stringstream character_info_msg;
+	
+	character_info_msg << "-2 CHAR_INFO " << playerID_val << " " << character_info_str; // ALERT: sending the character key to everyone!
+	serverMsgs.push_back(character_info_msg.str());
+	
+	
 	// send to everyone the ADDHERO msg
-	int birth_time = simulRules.currentFrame + simulRules.windowSize;
+	std::cerr << "SENDING ADDHERO" << std::endl;
+	int birth_time = simulRules.currentFrame + simulRules.windowSize; // this could be just currentFrame + 1 ..
 	
 	std::stringstream createHero_msg;
 	Players[playerID_val].last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
@@ -121,10 +139,10 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	serverMsgs.push_back(createHero_msg.str());
 	std::cerr << "Hero for player " << playerID_val << " is scheduled for birth at frame " << birth_time << std::endl;
 	
+	// send id generator state
 	std::stringstream nextUnit_msg;
 	nextUnit_msg << "-2 NEXT_UNIT_ID " << world.currentUnitID() << "#";
 	sockets.write(playerID_val, nextUnit_msg.str());
-	
 	
 	
 	// Now that all game info has been sent, can send messages to allow the client to start his own simulation.

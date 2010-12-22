@@ -79,9 +79,16 @@ void DedicatedServer::disconnect(int leaver)
 	serverMsgs.push_back( discCommand.str() );
 	
 	cerr << "Saving disconnecting character with key: " << Players[leaver].key << endl;
-	dormantPlayers[Players[leaver].key] = Players[leaver];
-	Players.erase(leaver);
 	
+	CharacterInfo& c = dormantPlayers[Players[leaver].key];
+	c.playerInfo = Players[leaver];
+	
+	cerr << "DISCONNECT: " << Players[leaver].name << " " << Players[leaver].kills << " " << Players[leaver].deaths << endl;
+	
+	// TODO: Better to save character right when character is removed, not when disconnect is detected?
+	c.unit = world.units[leaver];
+	
+	Players.erase(leaver);
 	sockets.close(leaver);
 }
 
@@ -339,7 +346,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			// everything checks out.
 			stringstream new_message_ss;
 			
-			if(player.name == "")
+			if(player.name == "" || player.name == "nameless")
 				player.name = introductionName;
 			
 			// create a better message and distribute that to players.
@@ -482,8 +489,20 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	{
 		world.addUnit(server_msg.keyState);
 		
-		// just to be sure.
-		world.units[server_msg.keyState].name = Players[server_msg.keyState].name;
+		// the new way
+		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+		{
+			SpawningHeroes[server_msg.keyState].unit.name = Players[server_msg.keyState].name;
+			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
+		}
+		
+		SpawningHeroes[server_msg.keyState].unit.birthTime = world.units[server_msg.keyState].birthTime;
+		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
+		
+		world.units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+		
+		SpawningHeroes.erase(server_msg.keyState);
 		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << endl;
 		cerr << "Creating dummy input for new hero." << endl;
@@ -652,6 +671,19 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 			long long milliseconds = time_now();
 			fps_world.reset(milliseconds);
 		}
+		else if(cmd == "CHAR_INFO")
+		{
+			int future_player_id;
+			ss >> future_player_id;
+			
+			string line;
+			getline(ss, line);
+			
+			CharacterInfo ci;
+			ci.readDescription(line);
+			
+			SpawningHeroes[future_player_id] = ci;
+		}
 		else
 		{
 			cerr << "INSTANT ORDER FUCK!" << endl;
@@ -675,7 +707,6 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 
 void DedicatedServer::handleWorldEvents()
 {
-	/*
 	// output events to show the server is still in sync.
 	for(size_t i = 0; i < visualworld.events.size(); ++i)
 	{
@@ -692,6 +723,7 @@ void DedicatedServer::handleWorldEvents()
 		
 		if(event.type == WorldEvent::DEATH_PLAYER)
 		{
+			cerr << "player death" << endl;
 			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
 			{
 				Players[event.actor_id].kills++;
@@ -705,7 +737,6 @@ void DedicatedServer::handleWorldEvents()
 			}
 		}
 	}
-	*/
 	
 	visualworld.events.clear();
 }

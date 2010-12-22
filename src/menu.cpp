@@ -370,6 +370,11 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 			hostName.append(key_hostname);
 			hostName.append("_");
 		}
+		else if(key_hostname == "space")
+		{
+			hostName.resize(hostName.size() - 1);
+			hostName.append("\\s_");
+		}
 		else if(key_hostname == "escape")
 		{
 			// good idea?
@@ -386,7 +391,20 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		}
 		else if(key_hostname == "backspace")
 		{
-			if(hostName.size() > 1)
+			if(hostName.size() > 2)
+			{
+				if(hostName[hostName.size()-3] == '\\')
+				{
+					hostName.resize(hostName.size()-3);
+					hostName.append("_");
+				}
+				else
+				{
+					hostName.resize(hostName.size()-2);
+					hostName.append("_");
+				}
+			}
+			else if(hostName.size() > 1)
 			{
 				hostName.resize(hostName.size()-2);
 				hostName.append("_");

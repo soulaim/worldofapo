@@ -20,6 +20,7 @@
 #include <set>
 #include <sstream>
 
+#include "../game_data/character_info.h"
 
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,
@@ -60,10 +61,11 @@ class DedicatedServer : public HasProperties
 	
 	OrderContainer clientOrders;
 	
+	std::map<int, CharacterInfo> SpawningHeroes;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
 	std::vector<Order> UnitInput;
 	
-	std::map<std::string, PlayerInfo> dormantPlayers;
+	std::map<std::string, CharacterInfo> dormantPlayers;
 	std::map<int        , PlayerInfo> Players;
 	
 	enum PauseState
