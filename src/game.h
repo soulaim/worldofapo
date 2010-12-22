@@ -55,8 +55,9 @@ class Game : public HasProperties
 
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
-	
 	std::vector<Order> UnitInput;
+	
+	std::map<int, CharacterInfo> SpawningHeroes;
 	
 public:
 	std::map<int, PlayerInfo> Players; // TODO: make private?

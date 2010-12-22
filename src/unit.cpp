@@ -8,7 +8,7 @@ using namespace std;
 
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
-	hitpoints(1),
+	hitpoints(500),
 	keyState(0),
 	mouseButtons(0),
 	mouse_x_minor(0),
@@ -18,7 +18,6 @@ Unit::Unit():
 	last_damage_dealt_by(-1),
 	birthTime(0),
 	mobility(0)
-	
 {
 	type = OctreeObject::UNIT;
 }
@@ -124,11 +123,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		controllerTypeID >> hitpoints >> birthTime >>
 		id >> weapon >> collision_rule;
 	
-	cerr << "1" << endl;
-		
 	HasProperties::handleCopyOrder(ss);
-	
-	cerr << "2" << endl;
 	
 	assert(weapons.size() == 5);
 	
@@ -136,8 +131,6 @@ void Unit::handleCopyOrder(stringstream& ss)
 	{
 		weapons[i].handleCopyOrder(ss);
 	}
-	
-	cerr << "3" << endl;
 	
 	// name must be the last element. it is read until the end of the message.
 	getline(ss, name);

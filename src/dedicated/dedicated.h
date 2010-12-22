@@ -61,6 +61,7 @@ class DedicatedServer : public HasProperties
 	
 	OrderContainer clientOrders;
 	
+	std::map<int, CharacterInfo> SpawningHeroes;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
 	std::vector<Order> UnitInput;
 	

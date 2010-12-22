@@ -292,10 +292,22 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		world->addUnit(server_msg.keyState);
 		simulRules.numPlayers++;
+		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
 		
-		// just to make sure.
-		world->units.find(server_msg.keyState)->second.name = Players[server_msg.keyState].name;
+		// the new way
+		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+		{
+			SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
+			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
+		}
+		
+		SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
+		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
+		world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+		SpawningHeroes.erase(server_msg.keyState);
+		
 		world->add_message("^GHero created!");
 		
 		cerr << "Creating dummy input for new hero." << endl;
@@ -323,7 +335,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		if(localPlayer.name == "")
 		{
-			localPlayer.name = "Unknown player";
+			localPlayer.name = "nameless";
 		}
 		
 		ss << "2 " << myID << " " << localPlayer.name << "#";
@@ -532,6 +544,19 @@ void Game::processClientMsgs()
 				int nopause = 0;
 				ss >> nopause;
 				paused_state = (nopause ? GO : PAUSED);
+			}
+			else if(cmd == "CHAR_INFO")
+			{
+				int future_player_id;
+				ss >> future_player_id;
+				
+				string line;
+				getline(ss, line);
+				
+				CharacterInfo ci;
+				ci.readDescription(line);
+				
+				SpawningHeroes[future_player_id] = ci;
 			}
 			else
 			{

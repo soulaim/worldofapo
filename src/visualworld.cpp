@@ -434,9 +434,10 @@ void VisualWorld::removeUnit(int id)
 
 void VisualWorld::add_event(const WorldEvent& event)
 {
-	
+	/*
 	if(active == 0)
 		return;
+	*/
 	
 	events.push_back(event);
 }
