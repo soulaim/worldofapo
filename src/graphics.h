@@ -110,6 +110,7 @@ class Graphics: public HasProperties
 	
 	void clear_errors() const;
 	bool check_errors(const char* filename, int line) const;
+	void check_framebuffer_status(const std::string& fbo_name);
 	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
 
 	void drawFullscreenQuad() const;

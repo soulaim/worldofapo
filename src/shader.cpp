@@ -207,13 +207,33 @@ void Shader::set_texture_unit(size_t unit, const std::string& name)
 GLint Shader::uniform(const std::string& name)
 {
 	assert(started);
-	return glGetUniformLocation(program, name.c_str());
+	auto it = uniform_locations.find(name);
+	if(it == uniform_locations.end())
+	{
+		GLint location = glGetUniformLocation(program, name.c_str());
+		uniform_locations.insert(it, {name, location});
+		return location;
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 GLint Shader::attribute(const std::string& name)
 {
 	assert(started);
-	return glGetAttribLocation(program, name.c_str());
+	auto it = uniform_locations.find(name);
+	if(it == uniform_locations.end())
+	{
+		GLint location = glGetAttribLocation(program, name.c_str());
+		uniform_locations.insert(it, {name, location});
+		return location;
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 void Shader::start()

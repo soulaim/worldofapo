@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <numeric>
 #include <map>
+#include <stdexcept>
 
 using namespace std;
 
@@ -113,6 +114,15 @@ Graphics::~Graphics()
 {
 }
 
+void Graphics::check_framebuffer_status(const std::string& fbo_name)
+{
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if(status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		throw std::runtime_error("Failed to create FBO: " + fbo_name);
+	}
+}
+
 void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;
@@ -147,6 +157,7 @@ void Graphics::init(Camera& camera)
 	TextureHandler::getSingleton().createDepthTexture("screenFBO_depth_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_texture0"), 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("screenFBO_depth_texture"), 0);
+	check_framebuffer_status("screenFBO");
 
 	glGenFramebuffers(1, &deferredFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, deferredFBO);
@@ -158,22 +169,26 @@ void Graphics::init(Camera& camera)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture1"), 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_texture2"), 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("deferredFBO_depth_texture"), 0);
+	check_framebuffer_status("deferredFBO");
 
 	glGenFramebuffers(1, &postFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, postFBO);
 	TextureHandler::getSingleton().createTexture("postFBO_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("postFBO_texture"), 0);
 	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,  GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("postFBO_depth_texture"), 0);
+	check_framebuffer_status("postFBO");
 	
 	glGenFramebuffers(1, &particlesDownScaledFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesDownScaledFBO);
 	TextureHandler::getSingleton().createTexture("particlesDownScaledFBO_texture", intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"], intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particlesDownScaledFBO_texture"), 0);
+	check_framebuffer_status("particlesDownScaledFBO");
 	
 	glGenFramebuffers(1, &particlesUpScaledFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, particlesUpScaledFBO);
 	TextureHandler::getSingleton().createTexture("particlesUpScaledFBO_texture", intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID("particlesUpScaledFBO_texture"), 0);
+	check_framebuffer_status("particlesUpScaledFBO");
 	
 	/*
 	glGenRenderbuffers(1, &screenRB);
@@ -182,12 +197,6 @@ void Graphics::init(Camera& camera)
 	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, screenRB);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	*/
-
-	cerr << "screenFBO status: " << gluErrorString(glCheckFramebufferStatus(screenFBO)) << endl;
-	cerr << "deferredFBO status: " << gluErrorString(glCheckFramebufferStatus(deferredFBO)) << endl;
-	cerr << "postFBO status: " << gluErrorString(glCheckFramebufferStatus(postFBO)) << endl;
-	cerr << "particlesDownScaledFBO status: " << gluErrorString(glCheckFramebufferStatus(particlesDownScaledFBO)) << endl;
-	cerr << "particlesUpScaledFBO status: " << gluErrorString(glCheckFramebufferStatus(particlesUpScaledFBO)) << endl;
 
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1173,12 +1182,43 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 
 void Graphics::drawFullscreenQuad() const
 {
+/*
+	// TODO: this doesn't work??
+
+	static GLfloat vertices[] =
+	{
+		-1.0f, -1.0f, -1.0f,
+		+1.0f, -1.0f, -1.0f,
+		-1.0f, +1.0f, -1.0f,
+		+1.0f, +1.0f, -1.0f
+	};
+	static GLfloat texcoords[] =
+	{
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 1.0f
+	};
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+
+//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+*/
+
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
 	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
 	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
 	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
 	glEnd();
+
 }
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
