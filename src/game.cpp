@@ -152,8 +152,7 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 void Game::endGame()
 {
 	clientSocket.close(SERVER_ID);
-	
-	// TODO: release local game resources?
+	reset();
 }
 
 void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)

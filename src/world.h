@@ -71,7 +71,6 @@ public:
 	void setNextUnitID(int id);
 	int currentUnitID() const;
 	int nextUnitID();
-	int nextPlayerID();
 	
 	int show_errors;
 	bool friendly_fire; // not to be sent over network.
@@ -90,7 +89,6 @@ private:
 	ApoMath apomath;
 	
 	IDGenerator unitIDgenerator;
-	IDGenerator playerIDgenerator;
 };
 
 #endif

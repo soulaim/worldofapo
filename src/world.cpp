@@ -417,7 +417,6 @@ void World::terminate()
 	cerr << "World::terminate()" << endl;
 
 	unitIDgenerator.setNextID(10000);
-	playerIDgenerator.setNextID(0);
 	
 	units.clear();
 	projectiles.clear();
@@ -1089,11 +1088,6 @@ void World::addItem(Location& location, Location& velocity, int id)
 	
 	items[id].position = location;
 	items[id].velocity = velocity;
-}
-
-int World::nextPlayerID()
-{
-	return playerIDgenerator.nextID();
 }
 
 int World::nextUnitID()

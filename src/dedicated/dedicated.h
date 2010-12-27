@@ -12,6 +12,7 @@
 #include "../net/socket_handler.h"
 
 #include "../hasproperties.h"
+#include "../idgenerator.h"
 
 #include <string>
 #include <vector>
@@ -54,10 +55,11 @@ class DedicatedServer : public HasProperties
 	enum { SERVER_ID = -1 };
 
 	FPS_Manager fps_world;
-	VisualWorld visualworld;
-	World world;
+	VisualWorld visualworld; // one common visualworld
+	std::map<std::string, World> areas;
 	
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
+	IDGenerator playerIDGenerator;
 	
 	OrderContainer clientOrders;
 	
@@ -75,6 +77,9 @@ class DedicatedServer : public HasProperties
 		RUNNING
 	};
 	PauseState pause_state;
+	
+	// player id handling
+	int nextPlayerID();
 	
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
@@ -105,6 +110,7 @@ class DedicatedServer : public HasProperties
 	
 	void send_to_all(const std::string& msg);
 	void acceptConnections();
+
 public:
 	DedicatedServer();
 	

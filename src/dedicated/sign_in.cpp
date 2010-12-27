@@ -83,9 +83,11 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		Players[playerID_val] = dormantPlayers[choice].playerInfo;
 	}
 	
-	std::cerr << "Sending a copy of the world" << std::endl;
-	sendWorldCopy("test_area", playerID_val);
+	// TODO!! must remember unit's area when resuming game
+	std::string areaName = "default_area";
 	
+	std::cerr << "Sending a copy of the world" << std::endl;
+	sendWorldCopy(areaName, playerID_val);
 	
 	std::cerr << "Sending PLAYER ID" << std::endl;
 	// tell the new player what his player ID is.
@@ -111,6 +113,8 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	// send to everyone the character info of the spawning unit / player.
 	if(dormantPlayers[choice].unit.name == "")
 	{
+		World& world = areas.find(areaName)->second;
+		
 		dormantPlayers[choice].unit.init();
 		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
 		
@@ -141,7 +145,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	
 	// send id generator state
 	std::stringstream nextUnit_msg;
-	nextUnit_msg << "-2 NEXT_UNIT_ID " << world.currentUnitID() << "#";
+	nextUnit_msg << "-2 NEXT_UNIT_ID " << areas.find(areaName)->second.currentUnitID() << "#";
 	sockets.write(playerID_val, nextUnit_msg.str());
 	
 	

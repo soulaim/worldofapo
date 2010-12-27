@@ -5,13 +5,12 @@ using namespace std;
 
 void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 {
-	areaName.empty(); // FUUU.
+	World& world = areas.find(areaName)->second;
 	
 	// send new player the current state of the world: units
 	for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
 		string unitcopy = iter->second.copyOrder(iter->first);
-		cerr << "Copy unit: " << unitcopy << endl;
 		sockets.write(plr_ID, unitcopy);
 	}
 	
