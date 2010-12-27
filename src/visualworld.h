@@ -35,6 +35,7 @@ public:
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
 	
+	bool isActive();
 	void disable();
 	void enable();
 

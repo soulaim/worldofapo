@@ -402,7 +402,7 @@ void World::buildTerrain(int n)
 string World::generatorMessage()
 {
 	stringstream ss;
-	ss << "-2 WORLD_GEN_PARAM " << intVals["GENERATOR"] << "#";
+	ss << "-2 WORLD_GEN_PARAM " << intVals["GENERATOR"] << " " << strVals["AREA_NAME"] << "#";
 	return ss.str();
 }
 
@@ -510,10 +510,15 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	unit.soundInfo = "";
-	assert(model && "this should never happen");
-
-	model->rotate_y(unit.getAngle(apomath));
-	model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
+	
+	// for server it's ok that there are no models sometimes :G
+	if(visualworld->isActive())
+	{
+		assert(model && "this should never happen");
+		
+		model->rotate_y(unit.getAngle(apomath));
+		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
+	}
 	
 	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
 	

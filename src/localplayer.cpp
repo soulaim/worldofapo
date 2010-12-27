@@ -171,7 +171,10 @@ void Localplayer::draw()
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
 				blur = 0;
-	
+			
+			// TODO: kinda silly to call this every frame, but what the hell..
+			hud->setAreaName(world.strVals["AREA_NAME"]);
+			
 			// if we didn't need to tick the world right now, then there should be time to draw the scene.
 			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units, blur);
 		}

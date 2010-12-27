@@ -33,7 +33,6 @@ int DedicatedServer::nextPlayerID()
 DedicatedServer::DedicatedServer():
 	fps_world(0)
 {
-	visualworld.disable(); // server doesnt need visual information
 	playerIDGenerator.setNextID(0);
 	
 	pause_state = WAITING_PLAYERS;
@@ -43,14 +42,20 @@ DedicatedServer::DedicatedServer():
 	load("server.conf");
 	
 	areas.insert(make_pair("default_area", World(&visualworld)));
-	areas.find("default_area")->second.buildTerrain(1);
+	areas.find("default_area")->second.buildTerrain(15);
+	areas.find("default_area")->second.strVals["AREA_NAME"] = "default_area";
 	
 	areas.insert(make_pair("other_area", World(&visualworld)));
 	areas.find("other_area")->second.buildTerrain(5);
+	areas.find("other_area")->second.strVals["AREA_NAME"] = "other_area";
+	
+	visualworld.disable(); // server doesnt need visual information
 }
 
 void DedicatedServer::init()
 {
+	visualworld.disable();
+	
 	long long milliseconds = time_now();
 	fps_world.reset(milliseconds);
 	
@@ -227,7 +232,7 @@ void DedicatedServer::host_tick()
 		}
 	}
 	
-	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
+	// TODO: THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
 	{
@@ -442,7 +447,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		new_message = "";
 		
 		// disconnect the fucker
-		sockets.close(player_id);
+		disconnect(player_id);
 		
 		stringstream chatmsg;
 		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
@@ -525,7 +530,8 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
-		World& world = areas.find("default_area")->second;
+		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
+		World& world = areas.find(areaName)->second;
 		
 		world.addUnit(server_msg.keyState);
 		
@@ -545,19 +551,6 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		SpawningHeroes.erase(server_msg.keyState);
 		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << endl;
-		cerr << "Creating dummy input for new hero." << endl;
-		
-		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-		for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
-		{
-			Order dummy_order;
-			dummy_order.plr_id = server_msg.keyState;
-			dummy_order.checksum = 0;
-			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
-			
-			dummy_order.frameID = frame + simulRules.currentFrame;
-			UnitInput.push_back(dummy_order);
-		}
 		
 		sort(UnitInput.begin(), UnitInput.end());
 		serverSendRequestPlayerNameMessage(server_msg.keyState);

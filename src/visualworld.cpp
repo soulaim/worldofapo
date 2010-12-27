@@ -172,6 +172,11 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 	}
 }
 
+bool VisualWorld::isActive()
+{
+	return active;
+}
+
 void VisualWorld::setCamera(const Camera& cam)
 {
 	camera = cam;

@@ -70,6 +70,8 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	{
 		// Set the new character's "password"
 		Players[playerID_val].key = generateKey();
+		choice = Players[playerID_val].key;
+		
 		std::cerr << "Starting a new new player profile with key: " << Players[playerID_val].key << std::endl;
 		
 		// transmit player key to client
@@ -83,8 +85,33 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		Players[playerID_val] = dormantPlayers[choice].playerInfo;
 	}
 	
-	// TODO!! must remember unit's area when resuming game
-	std::string areaName = "default_area";
+	static int playerCounter = 0;
+	
+	if(dormantPlayers[choice].unit.name == "")
+	{
+		std::string areaName;
+		
+		if( (playerCounter++ % 2) == 0 )
+		{
+			areaName = "default_area";
+		}
+		else
+		{
+			areaName = "other_area";
+		}
+		
+		World& world = areas.find(areaName)->second;
+		
+		dormantPlayers[choice].unit.init();
+		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
+		dormantPlayers[choice].unit.strVals["AREA"] = areaName;
+		
+		dormantPlayers[choice].playerInfo.connectionState = 1; // active.
+		dormantPlayers[choice].playerInfo.key = Players[playerID_val].key;
+	}
+	
+	
+	std::string areaName = dormantPlayers[choice].unit.strVals["AREA"];
 	
 	std::cerr << "Sending a copy of the world" << std::endl;
 	sendWorldCopy(areaName, playerID_val);
@@ -111,19 +138,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	
 	
 	// send to everyone the character info of the spawning unit / player.
-	if(dormantPlayers[choice].unit.name == "")
-	{
-		World& world = areas.find(areaName)->second;
-		
-		dormantPlayers[choice].unit.init();
-		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
-		
-		dormantPlayers[choice].playerInfo.connectionState = 1; // active.
-		dormantPlayers[choice].playerInfo.key = Players[playerID_val].key;
-	}
-	
 	Players[playerID_val] = dormantPlayers[choice].playerInfo;
-	std::cerr << "TROLOLOL: " << Players[playerID_val].kills << " " << Players[playerID_val].deaths << std::endl;
 	
 	std::string character_info_str = dormantPlayers[choice].getDescription();
 	std::stringstream character_info_msg;

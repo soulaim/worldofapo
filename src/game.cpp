@@ -236,13 +236,10 @@ void Game::process_received_game_input()
 		
 		auto it = world->units.find(tmp.plr_id);
 		
-		if(it == world->units.end())
+		if(it != world->units.end())
 		{
-			cerr << "CLIENT WARNING: PROCESSING A MESSAGE INTENDED FOR A UNIT THAT DOESNT EXIST" << endl;
-			continue;
+			it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 		}
-		
-		it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 //	log.print("\n");
@@ -290,40 +287,49 @@ void Game::handleServerMessage(const Order& server_msg)
 	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
-		world->addUnit(server_msg.keyState);
-		simulRules.numPlayers++;
+		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
 		
-		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
-		
-		// the new way
-		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+		if(world->strVals["AREA_NAME"] == areaName)
 		{
-			SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
-			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
-		}
-		
-		SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
-		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
-		world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
-		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
-		SpawningHeroes.erase(server_msg.keyState);
-		
-		world->add_message("^GHero created!");
-		
-		cerr << "Creating dummy input for new hero." << endl;
-		
-		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-		for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
-		{
-			Order dummy_order;
-			dummy_order.plr_id = server_msg.keyState;
-			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
+			world->addUnit(server_msg.keyState);
+			simulRules.numPlayers++;
 			
-			dummy_order.frameID = frame + simulRules.currentFrame;
-			UnitInput.push_back(dummy_order);
+			cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
+			
+			// the new way
+			if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+			{
+				SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
+				SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
+			}
+			
+			SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
+			SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
+			world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+			Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+			SpawningHeroes.erase(server_msg.keyState);
+			
+			world->add_message("^GHero created!");
+			
+			cerr << "Creating dummy input for new hero." << endl;
+			
+			// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
+			for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
+			{
+				Order dummy_order;
+				dummy_order.plr_id = server_msg.keyState;
+				cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
+				
+				dummy_order.frameID = frame + simulRules.currentFrame;
+				UnitInput.push_back(dummy_order);
+			}
+			
+			sort(UnitInput.begin(), UnitInput.end());
 		}
-		
-		sort(UnitInput.begin(), UnitInput.end());
+		else
+		{
+			cerr << "a hero was created into another area!" << endl;
+		}
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
@@ -561,11 +567,13 @@ void Game::processClientMsgs()
 			else if(cmd == "WORLD_GEN_PARAM")
 			{
 				int param;
+				string area_name;
 				cerr << "got world creation parameters! creating world.." << endl;
 				
-				ss >> param;
+				ss >> param >> area_name;
 				world->buildTerrain(param);
 				world->visualworld->decorate(world->lvl);
+				world->strVals["AREA_NAME"] = area_name;
 			}
 			else
 			{
