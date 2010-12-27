@@ -64,31 +64,6 @@ void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 	sort(viewParticles.begin(), viewParticles.end());
 }
 
-
-void Graphics::initLight()
-{
-	glDisable(GL_LIGHTING);
-
-	GLfloat light0ambient[ 4 ] = {0.f, 0.f,  0.f, 1.0f};
-	GLfloat light0specular[ 4 ] = {1.0f, .4f,  .4f, 1.0f};
-	GLfloat light0diffuse[ 4 ] = {0.8f, .3f,  .3f, 1.0f};
-	
-	for(int i=0; i<3; i++)
-	{
-		glLightf(GL_LIGHT0+i , GL_LINEAR_ATTENUATION, 0.f);
-		glLightf(GL_LIGHT0+i , GL_QUADRATIC_ATTENUATION, 0.0006f);
-		glLightfv(GL_LIGHT0+i, GL_AMBIENT, light0ambient);
-		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, light0diffuse);
-		glLightfv(GL_LIGHT0+i, GL_SPECULAR, light0specular);
-
-//		int POSITION = 0;
-		int DIFFUSE = 1;
-		stringstream ss;
-		ss << "lvl_lights[" << i*2 + DIFFUSE << "]";
-		glUniform4f(shaders.uniform(ss.str()), light0diffuse[0], light0diffuse[1], light0diffuse[2], light0diffuse[3]);
-	}
-}
-
 void Graphics::toggleWireframeStatus()
 {
 	drawDebugWireframe = !drawDebugWireframe;
@@ -146,9 +121,6 @@ void Graphics::init(Camera& camera)
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
 	
 	setInitialShaderValues();
-	
-	// TODO: This is completely obsolete?
-	initLight();
 	
 	// Init screen framebuffer objects
 	glGenFramebuffers(1, &screenFBO);
@@ -1180,45 +1152,41 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	glUseProgram(0);
 }
 
+
 void Graphics::drawFullscreenQuad() const
 {
-/*
-	// TODO: this doesn't work??
-
-	static GLfloat vertices[] =
+	float vertices[4*3] =
 	{
 		-1.0f, -1.0f, -1.0f,
 		+1.0f, -1.0f, -1.0f,
 		-1.0f, +1.0f, -1.0f,
 		+1.0f, +1.0f, -1.0f
 	};
-	static GLfloat texcoords[] =
+	float texcoords[4*2] =
 	{
 		0.0f, 0.0f,
 		1.0f, 0.0f,
 		0.0f, 1.0f,
 		1.0f, 1.0f
 	};
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-
-//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-//	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDrawArrays(GL_QUADS, 0, 4);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
-*/
-
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+/*
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
 	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
 	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
 	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
 	glEnd();
-
+*/
 }
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
@@ -2077,12 +2045,14 @@ void Graphics::drawDebugQuad()
 	glLoadIdentity();
 	TextureHandler::getSingleton().bindTexture(0, s);
 	glColor3f(1.0f, 1.0f, 1.0f);
+
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -0.7f, -1.0f);
 	glTexCoord2f(1.f, 0.f); glVertex3f(-0.2f, -0.7f, -1.0f);
 	glTexCoord2f(1.f, 1.f); glVertex3f(-0.2f, +0.0f, -1.0f);
 	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +0.0f, -1.0f);
 	glEnd();
+
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -2233,7 +2203,8 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, "meadow1");
+		string texture = strVals["MEADOW"];
+		TextureHandler::getSingleton().bindTexture(0, texture);
 	}
 	
 	for(size_t i = 0; i < meadows.size(); ++i)
