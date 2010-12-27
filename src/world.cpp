@@ -396,6 +396,14 @@ World::World(VisualWorld* vw)
 void World::buildTerrain(int n)
 {
 	lvl.generate(n);
+	intVals["GENERATOR"] = n;
+}
+
+string World::generatorMessage()
+{
+	stringstream ss;
+	ss << "-2 WORLD_GEN_PARAM " << intVals["GENERATOR"] << "#";
+	return ss.str();
 }
 
 void World::init()

@@ -86,9 +86,6 @@ bool Localplayer::internetGameGetHeroes(const std::string& hostname, map<string,
 // this operation can't fail, if value is selected from "heroes" map
 void Localplayer::internetGameSelectHero(const std::string& hero)
 {
-	world.buildTerrain(1);
-	visualworld.decorate(world.lvl);
-	
 	game.internetGameSelectHero(hero);
 }
 

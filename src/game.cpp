@@ -1,6 +1,7 @@
 #include "game.h"
 #include "logger.h"
 #include "worldevent.h"
+#include "visualworld.h"
 
 #include <iostream>
 #include <sstream>
@@ -556,6 +557,15 @@ void Game::processClientMsgs()
 				ci.readDescription(line);
 				
 				SpawningHeroes[future_player_id] = ci;
+			}
+			else if(cmd == "WORLD_GEN_PARAM")
+			{
+				int param;
+				cerr << "got world creation parameters! creating world.." << endl;
+				
+				ss >> param;
+				world->buildTerrain(param);
+				world->visualworld->decorate(world->lvl);
 			}
 			else
 			{

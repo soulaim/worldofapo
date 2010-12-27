@@ -7,6 +7,10 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 {
 	World& world = areas.find(areaName)->second;
 	
+	// send world generating parameters
+	string world_parameters = world.generatorMessage();
+	sockets.write(plr_ID, world_parameters);
+	
 	// send new player the current state of the world: units
 	for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 	{

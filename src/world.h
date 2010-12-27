@@ -83,6 +83,7 @@ public:
 	void add_event(const WorldEvent& event) const;
 	
 	void buildTerrain(int n);
+	std::string generatorMessage();
 	
 private:
 	std::vector<int> deadUnits;
