@@ -238,19 +238,18 @@ struct BTT_Node
 		{
 			// ok, so when do I need to split?
 			
-			// TODO ALERT: ffs.. EIGHT?? should maybe somehow get the number from level.
 			// TODO ALERT: heights of points are not zero. need to fix this.
 			Vec3 points[3];
-			points[0].x = p_left.x * 8.0f;
-			points[0].z = p_left.z * 8.0f;
+			points[0].x = p_left.x * Level::BLOCK_SIZE;
+			points[0].z = p_left.z * Level::BLOCK_SIZE;
 			points[0].y = lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
 			
-			points[1].x = p_right.x * 8.0f;
-			points[1].z = p_right.z * 8.0f;
+			points[1].x = p_right.x * Level::BLOCK_SIZE;
+			points[1].z = p_right.z * Level::BLOCK_SIZE;
 			points[1].y = lvl.getVertexHeight(p_right.x, p_right.z).getFloat();
 			
-			points[2].x = p_top.x * 8.0f;
-			points[2].z = p_top.z * 8.0f;
+			points[2].x = p_top.x * Level::BLOCK_SIZE;
+			points[2].z = p_top.z * Level::BLOCK_SIZE;
 			points[2].y = lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
 			
 			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3.0f;
