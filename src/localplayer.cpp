@@ -169,7 +169,7 @@ void Localplayer::draw()
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
 
-		if(!need_to_tick_world)
+		if(!need_to_tick_world || intVals["SYNC_FPS_AND_TPS"])
 		{
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
