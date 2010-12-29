@@ -3,15 +3,23 @@
 
 using namespace std;
 
+void DedicatedServer::sendAreaParameters(const string& areaName, int plr_ID)
+{
+	World& world = areas.find(areaName)->second;
+	
+	// send world generating parameters
+	string world_parameters = world.generatorMessage();
+	sockets.write(plr_ID, world_parameters);
+}
+
 void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 {
-	areaName.empty(); // FUUU.
+	World& world = areas.find(areaName)->second;
 	
 	// send new player the current state of the world: units
 	for(map<int, Unit>::iterator iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
 		string unitcopy = iter->second.copyOrder(iter->first);
-		cerr << "Copy unit: " << unitcopy << endl;
 		sockets.write(plr_ID, unitcopy);
 	}
 	
@@ -31,6 +39,10 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 	{
 		sockets.write(plr_ID, UnitInput[i].copyOrder());
 	}
+	
+	stringstream welcome_message;
+	welcome_message << "3 -1 You have appeared in ^G" << areaName << "#";
+	sockets.write(plr_ID, welcome_message.str());
 }
 
 void DedicatedServer::serverSendMonsterSpawn()

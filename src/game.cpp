@@ -1,6 +1,7 @@
 #include "game.h"
 #include "logger.h"
 #include "worldevent.h"
+#include "visualworld.h"
 
 #include <iostream>
 #include <sstream>
@@ -152,8 +153,7 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 void Game::endGame()
 {
 	clientSocket.close(SERVER_ID);
-	
-	// TODO: release local game resources?
+	reset();
 }
 
 void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
@@ -166,6 +166,7 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 		string msg;
 
 		World::CheckSumType checksum = world->checksum();
+		
 		
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << " " << checksum << "#";
 		msg = inputMsg.str();
@@ -196,6 +197,8 @@ bool Game::client_tick_local()
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
 	
+	
+	
 	// handle any server commands intended for this frame
 	while((UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
@@ -219,6 +222,13 @@ void Game::process_received_game_input()
 {
 //	Logger log;
 	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
+	
+	while(UnitInput.back().frameID < simulRules.currentFrame)
+	{
+		cerr << "WARNING: Client skipped an order for frame " << UnitInput.back().frameID << ", current frame = " << simulRules.currentFrame << endl;
+		UnitInput.pop_back();
+	}
+	
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
 	{
@@ -230,19 +240,16 @@ void Game::process_received_game_input()
 		
 		if(tmp.plr_id == SERVER_ID)
 		{
-			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
+			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
 			break;
 		}
 		
 		auto it = world->units.find(tmp.plr_id);
 		
-		if(it == world->units.end())
+		if(it != world->units.end())
 		{
-			cerr << "CLIENT WARNING: PROCESSING A MESSAGE INTENDED FOR A UNIT THAT DOESNT EXIST" << endl;
-			continue;
+			it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 		}
-		
-		it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
 //	log.print("\n");
@@ -290,40 +297,49 @@ void Game::handleServerMessage(const Order& server_msg)
 	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
-		world->addUnit(server_msg.keyState);
-		simulRules.numPlayers++;
+		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
 		
-		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
-		
-		// the new way
-		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+		if(world->strVals["AREA_NAME"] == areaName)
 		{
-			SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
-			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
-		}
-		
-		SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
-		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
-		world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
-		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
-		SpawningHeroes.erase(server_msg.keyState);
-		
-		world->add_message("^GHero created!");
-		
-		cerr << "Creating dummy input for new hero." << endl;
-		
-		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-		for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
-		{
-			Order dummy_order;
-			dummy_order.plr_id = server_msg.keyState;
-			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
+			world->addUnit(server_msg.keyState);
+			simulRules.numPlayers++;
 			
-			dummy_order.frameID = frame + simulRules.currentFrame;
-			UnitInput.push_back(dummy_order);
+			cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
+			
+			// the new way
+			if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
+			{
+				SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
+				SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
+			}
+			
+			SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
+			SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
+			world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+			Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+			SpawningHeroes.erase(server_msg.keyState);
+			
+			world->add_message("^GHero created!");
+			
+			cerr << "Creating dummy input for new hero." << endl;
+			
+			// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
+			for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
+			{
+				Order dummy_order;
+				dummy_order.plr_id = server_msg.keyState;
+				cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
+				
+				dummy_order.frameID = frame + simulRules.currentFrame;
+				UnitInput.push_back(dummy_order);
+			}
+			
+			sort(UnitInput.begin(), UnitInput.end());
 		}
-		
-		sort(UnitInput.begin(), UnitInput.end());
+		else
+		{
+			cerr << "a hero was created into another area!" << endl;
+		}
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
@@ -357,6 +373,14 @@ void Game::handleServerMessage(const Order& server_msg)
 		{
 			cerr << "Failed to bind camera! :(" << endl;
 		}
+	}
+	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
+	{
+		int destroy_ID = server_msg.keyState;
+		world->removeUnit(destroy_ID);
+		
+		if(destroy_ID == myID)
+			paused_state = PAUSED;
 	}
 	else
 	{
@@ -557,6 +581,28 @@ void Game::processClientMsgs()
 				ci.readDescription(line);
 				
 				SpawningHeroes[future_player_id] = ci;
+			}
+			else if(cmd == "WORLD_GEN_PARAM")
+			{
+				// ALERT: This SHOULD be safe! But might not be.. Fix it if its not.
+				world->terminate();
+				
+				int param;
+				string area_name;
+				cerr << "got world creation parameters! creating world.." << endl;
+				
+				ss >> param >> area_name;
+				world->buildTerrain(param);
+				world->visualworld->decorate(world->lvl);
+				world->strVals["AREA_NAME"] = area_name;
+				
+				// send WORLD_GEN_READY message!
+				stringstream ss_world_gen_ready;
+				ss_world_gen_ready << "-2 WORLD_GEN_READY #";
+				clientSocket.write(SERVER_ID, ss_world_gen_ready.str());
+				
+				// wait until game starts for me..
+				cerr << "world gen finished, waiting for game content.." << endl;
 			}
 			else
 			{

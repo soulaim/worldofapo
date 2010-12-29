@@ -71,7 +71,6 @@ public:
 	void setNextUnitID(int id);
 	int currentUnitID() const;
 	int nextUnitID();
-	int nextPlayerID();
 	
 	int show_errors;
 	bool friendly_fire; // not to be sent over network.
@@ -79,18 +78,18 @@ public:
 	void terminate();
 	
 	CheckSumType checksum() const;
-
+	
 	void add_message(const std::string& message) const;
 	void add_event(const WorldEvent& event) const;
 	
 	void buildTerrain(int n);
+	std::string generatorMessage();
 	
 private:
 	std::vector<int> deadUnits;
 	ApoMath apomath;
 	
 	IDGenerator unitIDgenerator;
-	IDGenerator playerIDgenerator;
 };
 
 #endif

@@ -43,6 +43,8 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 	need_to_tick_world = false;
+	
+	visualworld.levelDesc.setLevel(&world.lvl);
 }
 
 void Localplayer::reload_confs()
@@ -86,9 +88,6 @@ bool Localplayer::internetGameGetHeroes(const std::string& hostname, map<string,
 // this operation can't fail, if value is selected from "heroes" map
 void Localplayer::internetGameSelectHero(const std::string& hero)
 {
-	world.buildTerrain(1);
-	visualworld.decorate(world.lvl);
-	
 	game.internetGameSelectHero(hero);
 }
 
@@ -151,7 +150,10 @@ bool Localplayer::client_tick()
 			handleWorldEvents();
 			
 			hud->world_tick();
-			view->world_tick(world.lvl, visualworld.lights);
+			view->world_tick(visualworld.lights);
+			
+			visualworld.levelDesc.world_tick(view->frustum);
+			
 		}
 		else
 		{
@@ -174,7 +176,10 @@ void Localplayer::draw()
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
 				blur = 0;
-	
+			
+			// TODO: kinda silly to call this every frame, but what the hell..
+			hud->setAreaName(world.strVals["AREA_NAME"]);
+			
 			// if we didn't need to tick the world right now, then there should be time to draw the scene.
 			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units, blur);
 		}

@@ -47,13 +47,8 @@ class Graphics: public HasProperties
 	void geometryDrawn(const std::map<int, LightObject>& lights);
 	void finishDrawing();
 
-	void drawLevel(const Level&, size_t light_count);
-	void drawLevelFR(const Level&, int pass);
-	void drawLevelFR_new(const Level&, int pass);
-
 	void drawSkybox();
 
-	void drawLevelDeferred(const Level& lvl);
 	void drawLightsDeferred_single_pass();
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
 	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
@@ -72,18 +67,14 @@ class Graphics: public HasProperties
 	void applyBlur(int blur, const std::string& input_texture, GLuint renderTarget);
 	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, GLuint renderTarget);
 	
-	void drawDebugHeightDots(const Level& lvl);
 	void drawDebugLines();
 	void drawDebugStrings();
-	void drawDebugLevelNormals(const Level& lvl);
 	void drawDebugProjectiles(const std::map<int, Projectile>& projectiles);
 	void drawDebugQuad();
 	
 	void updateLights(const std::map<int, LightObject>&); // once per world frame
 	
 	void setInitialShaderValues();
-	
-	std::vector<BTT_Triangle> level_triangles;
 	
 	Camera* camera_p;
 	
@@ -143,7 +134,7 @@ public:
 	void zoom_in();
 	void zoom_out();
 	void tick();
-	void world_tick(Level& lvl, const std::map<int, LightObject>&);
+	void world_tick(const std::map<int, LightObject>&);
 	
 	void depthSortParticles(Vec3&, std::vector<Particle>&);
 	

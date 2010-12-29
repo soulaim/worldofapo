@@ -13,9 +13,14 @@ struct Level
 {
 	Level();
 	
-	friend class Graphics;
+	friend class LevelDescriptor;
 	
 	void generate(int);
+	
+	void getLevelTriangles(std::vector<BTT_Triangle>& level_triangles) const
+	{
+		btt.getTriangles(level_triangles);
+	}
 	
 	void splitBTT(const Location& position, const FrustumR& frustum)
 	{

@@ -56,7 +56,7 @@ void VisualWorld::decorate(const Level& lvl)
 		lights[lightIDgenerator.nextID()] = tmp_light;
 	}
 
-	cerr << "Decorating world with some random grass" << flush;
+	cerr << "Decorating world with some grass" << flush;
 	Vec3 wind(0, 0, 0);
 //	size_t n = 10;
 	size_t k = 200;
@@ -120,47 +120,6 @@ void VisualWorld::decorate(const Level& lvl)
 		}
 	}
 	
-	/*
-	for(size_t i = 0; i < n; ++i)
-	{
-		size_t X = random.getFloat(0.0, lvl.max_x().getFloat());
-		size_t Z = random.getFloat(0.0, lvl.max_z().getFloat());
-
-		float radius = 30.0;
-		for(size_t j = 0; j < k; ++j)
-		{
-			float x = random.getFloat(-radius, radius);
-			float z = random.getFloat(-radius, radius);
-			if(x*x + z*z > radius*radius)
-			{
-				--j;
-				continue;
-			}
-
-			float y = lvl.getHeight(X + x, Z + z).getFloat();
-			
-			float y_competitors[4];
-			y_competitors[0] = lvl.getHeight(X + x + 1.f, Z + z).getFloat();
-			y_competitors[1] = lvl.getHeight(X + x - 1.f, Z + z).getFloat();
-			y_competitors[2] = lvl.getHeight(X + x, Z + z + 1.f).getFloat();
-			y_competitors[3] = lvl.getHeight(X + x, Z + z - 1.f).getFloat();
-			
-			bool nono = false;
-			for(int qq = 0; qq < 4; ++qq)
-				if( (y_competitors[qq] - y) * (y_competitors[qq] - y) > 0.2f)
-					nono = true;
-			if(nono)
-				continue;
-			
-			Vec3 v(X + x, y, Z + z);
-			
-			meadows[i].bushes.push_back(v);
-		}
-		meadows[i].center = Vec3(X, 0.0, Z);
-		meadows[i].radius = radius;
-		meadows[i].preload();
-	}
-	*/
 }
 
 void VisualWorld::terminate()
@@ -211,6 +170,11 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 	{
 		iter->second->tick(currentWorldFrame);
 	}
+}
+
+bool VisualWorld::isActive()
+{
+	return active;
 }
 
 void VisualWorld::setCamera(const Camera& cam)

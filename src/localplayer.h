@@ -43,7 +43,6 @@ public:
 	
 private:
 	void endGame();
-	
 	void reset();
 	
 	void handleWorldEvents();

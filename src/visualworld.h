@@ -7,6 +7,7 @@
 #include "worldevent.h"
 #include "level.h"
 #include "grasscluster.h"
+#include "leveldescriptor.h"
 
 #include "camera.h"
 #include "hasproperties.h"
@@ -35,6 +36,7 @@ public:
 	void add_message(const std::string& message);
 	void add_event(const WorldEvent& event);
 	
+	bool isActive();
 	void disable();
 	void enable();
 
@@ -43,9 +45,10 @@ public:
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
-	
 	std::vector<std::string> worldMessages;
-	std::vector<WorldEvent> events;
+	LevelDescriptor levelDesc;
+	
+	std::vector<WorldEvent> events; // TODO: why is this here
 	
 	std::vector<ParticleSource> psources;
 	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.

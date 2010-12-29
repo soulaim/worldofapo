@@ -20,6 +20,7 @@ class Hud : public HasProperties
 public:
 	Hud();
 
+	void setAreaName(const std::string&);
 	void setLocalPlayerName(const std::string&);
 	void setLocalPlayerHP(const int);
 	void setPlayerInfo(std::map<int,PlayerInfo>* pInfo);
@@ -60,6 +61,7 @@ private:
 	std::string deaths;
 	std::string health;
 	std::string plr_name;
+	std::string area_name;
 	bool showStats;
 	int zombieCount;
 	int plr_ID;

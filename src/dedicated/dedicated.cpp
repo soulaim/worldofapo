@@ -25,12 +25,15 @@ long long time_now()
 #endif
 }
 
+int DedicatedServer::nextPlayerID()
+{
+	return playerIDGenerator.nextID();
+}
 
 DedicatedServer::DedicatedServer():
-	fps_world(0),
-	world(&visualworld)
+	fps_world(0)
 {
-	visualworld.disable(); // server doesnt need visual information
+	playerIDGenerator.setNextID(0);
 	
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
@@ -38,11 +41,21 @@ DedicatedServer::DedicatedServer():
 	
 	load("server.conf");
 	
-	world.buildTerrain(1);
+	areas.insert(make_pair("default_area", World(&visualworld)));
+	areas.find("default_area")->second.buildTerrain(15);
+	areas.find("default_area")->second.strVals["AREA_NAME"] = "default_area";
+	
+	areas.insert(make_pair("other_area", World(&visualworld)));
+	areas.find("other_area")->second.buildTerrain(5);
+	areas.find("other_area")->second.strVals["AREA_NAME"] = "other_area";
+	
+	visualworld.disable(); // server doesnt need visual information
 }
 
 void DedicatedServer::init()
 {
+	visualworld.disable();
+	
 	long long milliseconds = time_now();
 	fps_world.reset(milliseconds);
 	
@@ -85,8 +98,12 @@ void DedicatedServer::disconnect(int leaver)
 	
 	cerr << "DISCONNECT: " << Players[leaver].name << " " << Players[leaver].kills << " " << Players[leaver].deaths << endl;
 	
-	// TODO: Better to save character right when character is removed, not when disconnect is detected?
-	c.unit = world.units[leaver];
+	for(auto iter = areas.begin(); iter != areas.end(); iter++)
+	{
+		auto unit = iter->second.units.find(leaver);
+		if(unit != iter->second.units.end())
+			c.unit = unit->second;
+	}
 	
 	Players.erase(leaver);
 	sockets.close(leaver);
@@ -119,6 +136,15 @@ void DedicatedServer::check_messages_from_clients()
 		}
 		else if(conn_state == 1)
 		{
+			for(size_t k=0; k < msgs.size(); k++)
+			{
+				parseClientMsg(msgs[k], i->first, i->second);
+			}
+			msgs.clear();
+		}
+		else if(conn_state == 2)
+		{
+			// NOTE: duplicate for now, not sure if it will be later though.
 			for(size_t k=0; k < msgs.size(); k++)
 			{
 				parseClientMsg(msgs[k], i->first, i->second);
@@ -160,26 +186,28 @@ void DedicatedServer::host_tick()
 	unsigned minAllowed = UINT_MAX;
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
-		if(it->second.connectionState == 1 && it->second.last_order < minAllowed)
+		if(it->second.connectionState == 1 && (it->second.last_order < minAllowed))
 			minAllowed = it->second.last_order;
 	}
 	
 	if(minAllowed < simulRules.windowSize)
 		minAllowed = simulRules.windowSize;
 	
-	if( (minAllowed != UINT_MAX) )
-		simulRules.allowedFrame = minAllowed;
-	
-	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
-		minAllowed = simulRules.currentFrame;
-	
-	if( pause_state == RUNNING && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
+	if(minAllowed != UINT_MAX)
 	{
-		stringstream allowSimulation_msg;
-		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
+		simulRules.allowedFrame = minAllowed;
 		
-		serverAllow = minAllowed;
-		serverMsgs.push_back(allowSimulation_msg.str());
+		if(minAllowed > simulRules.currentFrame)
+			minAllowed = simulRules.currentFrame;
+		
+		if( pause_state == RUNNING && (minAllowed > serverAllow) )
+		{
+			stringstream allowSimulation_msg;
+			allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
+			
+			serverAllow = minAllowed;
+			serverMsgs.push_back(allowSimulation_msg.str());
+		}
 	}
 	
 	// transmit serverMsgs to players
@@ -215,7 +243,7 @@ void DedicatedServer::host_tick()
 		}
 	}
 	
-	// THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
+	// TODO: THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
 	{
@@ -232,6 +260,7 @@ void DedicatedServer::host_tick()
 	processServerMsgs();
 	
 	long long milliseconds = time_now();
+	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
 		if(intVals["AUTO_SPAWN"])
@@ -260,11 +289,32 @@ void DedicatedServer::simulateWorldFrame()
 	
 	fps_world.insert();
 	
+	static bool checkSumsInitialized = false;
+	static map<string, vector<World::CheckSumType> > checkSums;
 	
-	static World::CheckSumType checksums[10] = { 0 };
+	if(!checkSumsInitialized)
+	{
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			checkSums[area_it->first].resize(10, 0);
+		}
+	}
+	
 	int current = simulRules.currentFrame % 10;
-	checksums[current] = world.checksum();
-
+	
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		checkSums[area_it->first][current] = area_it->second.checksum();
+	}
+	
+	sort(UnitInput.begin(), UnitInput.end());
+	
+	while(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
+	{
+		cerr << "Server has somehow skipped an order for frame: " << UnitInput.back().frameID << ", current frame = " << simulRules.currentFrame << ", source = " << Players[UnitInput.back().plr_id].name << endl;
+		UnitInput.pop_back();
+	}
+	
 	while(!UnitInput.empty() && UnitInput.back().frameID == simulRules.currentFrame)
 	{
 		Order tmp = UnitInput.back();
@@ -275,46 +325,66 @@ void DedicatedServer::simulateWorldFrame()
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
 		}
-
-		World::CheckSumType cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
-		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
+		
+		// check the checksums
+		int id = tmp.plr_id;
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
-			std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
-			std::cerr << "client checksum: " << tmp.checksum << std::endl;
-			std::cerr << "server checksum: " << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
-			cerr << "server unit locations:" << std::endl;
-			for (auto it = world.units.begin(); it != world.units.end(); ++it)
+			if(area_it->second.units.find(id) != area_it->second.units.end())
 			{
-				int id = it->first;
-				const Location& pos = it->second.getPosition();
-				cerr << id << ": " << pos << std::endl;
+				World::CheckSumType cs_tmp = checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10];
+				if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
+				{
+					std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
+					std::cerr << "client checksum: " << tmp.checksum << std::endl;
+					std::cerr << "server checksum: " << checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10] << std::endl;
+					cerr << "server unit locations:" << std::endl;
+					
+					for (auto it = area_it->second.units.begin(); it != area_it->second.units.end(); ++it)
+					{
+						int id = it->first;
+						const Location& pos = it->second.getPosition();
+						cerr << id << ": " << pos << std::endl;
+					}
+					
+					// this is one way to handle it
+					/*
+					pause_state = PAUSED;
+					*/
+					
+					// this is another way to handle it
+					
+					stringstream chat_msg;
+					chat_msg << "3 -1 ^G" << Players[id].name << " ^Wwas ^Rout of sync ^Wand got ^Rdisconnected!" << "#";
+					serverMsgs.push_back(chat_msg.str());
+					
+					cerr << chat_msg.str() << endl;
+					
+					disconnect(id);
+				}
 			}
-			
-			pause_state = PAUSED;
 		}
 		
-		
-		auto it = world.units.find(tmp.plr_id);
-		
-		if(it == world.units.end())
+		// the actual update code
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
-			cerr << "SERVER WARNING: PROCESSING A MESSAGE INTENDED FOR A UNIT THAT DOESNT EXIST" << endl;
-			continue;
+			World& world = area_it->second;
+			auto it = world.units.find(tmp.plr_id);
+			
+			if(it != world.units.end())
+			{
+				it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+			}
 		}
-		
-		it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 	}
 	
-	if(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 	{
-		cerr << "Server has somehow skipped an order :(" << endl;
-		UnitInput.pop_back();
+		World& world = area_it->second;
+		world.worldTick(simulRules.currentFrame);
 	}
 	
-	world.worldTick(simulRules.currentFrame);
 	simulRules.currentFrame++;
-	
-	
 	handleWorldEvents();
 }
 
@@ -364,13 +434,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		
 		cerr << "Chat <" << id << "> " << cmd << endl;
 		
-		if(cmd == "CRTZOMB#")
-		{
-			cerr << "SPAWNING MONSTER" << endl;
-			serverSendMonsterSpawn();
-			return;
-		}
-		else if(cmd == "SWARM")
+		if(cmd == "SWARM")
 		{
 			int n = 70;
 			int team = -1;
@@ -416,6 +480,50 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			
 			return;
 		}
+		else if(cmd == "AREA")
+		{
+			string next_area;
+			ss >> next_area;
+			
+			if(next_area[next_area.size() - 1] == '#')
+				next_area.resize(next_area.size() - 1);
+			
+			if(areas.find(next_area) == areas.end())
+			{
+				stringstream chat_msg;
+				chat_msg << "3 -1 ^RUnable to change area, area \"^G" << next_area << "^R\" does not exist.#";
+				serverMsgs.push_back(chat_msg.str());
+				return;
+			}
+			
+			for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+			{
+				auto unit_it = area_it->second.units.find(player_id);
+				if(unit_it != area_it->second.units.end())
+				{
+					
+					stringstream chat_msg;
+					chat_msg << "3 -1 ^GFound unit and target area! Sending area change kill message.#";
+					serverMsgs.push_back(chat_msg.str());
+					
+					
+					unit_it->second.strVals["NEXT_AREA"] = next_area;
+					
+					// send area change kill message
+					stringstream area_change_msg;
+					area_change_msg << "-1 " << (serverAllow + 10) << " 7 " << player_id << "#";
+					serverMsgs.push_back(area_change_msg.str());
+					return;
+				}
+			}
+			
+			// send an error message to players.
+			stringstream chat_msg;
+			chat_msg << "3 -1 ^RDid not find unit for area change! This should never happen!#";
+			serverMsgs.push_back(chat_msg.str());
+			return;
+		}
+		
 	}
 	else if(orderWord == "-1")
 	{
@@ -424,11 +532,29 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		new_message = "";
 		
 		// disconnect the fucker
-		sockets.close(player_id);
+		disconnect(player_id);
 		
 		stringstream chatmsg;
 		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
+	}
+	else if(orderWord == "-2") // instant reaction message from client
+	{
+		string cmd;
+		ss >> cmd;
+		
+		if(cmd == "WORLD_GEN_READY")
+		{
+			cerr << "Client claims to be finished with world gen! Sending world content.." << endl;
+			sendWorldContent(player_id);
+			cerr << "Done" << endl;
+			return;
+		}
+		else
+		{
+			cerr << "Unknown instant order from client: " << ss.str() << endl;
+			return;
+		}
 	}
 	else
 	{
@@ -443,12 +569,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 
 void DedicatedServer::acceptConnections()
 {
-	static int id = world.nextPlayerID();
+	static int id = nextPlayerID();
 	if(sockets.accept(id))
 	{
 		cerr << "looks like someone is connecting :O" << endl;
 		Players[id].connectionState = 0;
-		id = world.nextPlayerID();
+		id = nextPlayerID();
 	}
 }
 
@@ -461,32 +587,60 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		cerr << "SERVER: Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
 	
-	else if(server_msg.serverCommand == 10)
+	else if(server_msg.serverCommand == 10) // spawn monster to team -1
 	{
-		world.addUnit(world.nextUnitID(), false);
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			world.addUnit(world.nextUnitID(), false);
+		}
 	}
 	else if(server_msg.serverCommand == 11) // change team message
 	{
 		int unitID     = server_msg.keyState;
 		int new_teamID = server_msg.mousex;
 		
-		Unit& u = world.units.find(unitID)->second;
-		u["TEAM"] = new_teamID;
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			
+			auto unit_it = world.units.find(unitID);
+			if(unit_it != world.units.end())
+			{
+				Unit& u = unit_it->second;
+				u["TEAM"] = new_teamID;
+			}
+		}
 	}
-	else if(server_msg.serverCommand == 15)
+	else if(server_msg.serverCommand == 15) // spawn monster to a specific team
 	{
-		world.addUnit(world.nextUnitID(), false, server_msg.keyState);
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			world.addUnit(world.nextUnitID(), false, server_msg.keyState);
+		}
 	}
 	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
 	{
-		cerr << "THIS IS WHAT SERVER SHOULD DO WHEN DISCONNECT HAPPENS" << endl;
-		world.removeUnit(server_msg.keyState);
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			world.removeUnit(server_msg.keyState);
+		}
+		
+		// TODO: IF THE PLAYER DID NOT START ACTUALLY PLAYING (DISCONNECT AT HERO SELECTION)
+		// THIS WILL FUCK THINGS UP
+		// NUM PLAYERS SHOULD BE DETERMINABLE FROM Players
+		// (loop through and see how many are at connectionState 1)
+		
 		simulRules.numPlayers--;
-		// BWAHAHAHA...
 	}
 	
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
+		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
+		World& world = areas.find(areaName)->second;
+		
 		world.addUnit(server_msg.keyState);
 		
 		// the new way
@@ -501,23 +655,11 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		
 		world.units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
 		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+		Players[server_msg.keyState].last_order = simulRules.currentFrame + simulRules.windowSize;
 		
 		SpawningHeroes.erase(server_msg.keyState);
 		
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << endl;
-		cerr << "Creating dummy input for new hero." << endl;
-		
-		// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-		for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
-		{
-			Order dummy_order;
-			dummy_order.plr_id = server_msg.keyState;
-			dummy_order.checksum = 0;
-			cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
-			
-			dummy_order.frameID = frame + simulRules.currentFrame;
-			UnitInput.push_back(dummy_order);
-		}
 		
 		sort(UnitInput.begin(), UnitInput.end());
 		serverSendRequestPlayerNameMessage(server_msg.keyState);
@@ -525,6 +667,32 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		cerr << "SERVER HAS NO ID, CAN NOT CHANGE IT" << endl;
+	}
+	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
+	{
+		// so what we actually want to do, is save the hero into dormantPlayers, then removeUnit,
+		// (by now the unit's NEXT_AREA strVal should have been set to it's new value, move this to AREA)
+		// then send area change message to the target.
+		
+		int destroy_ID = server_msg.keyState;
+		
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			auto unit_it = world.units.find(destroy_ID);
+			if(unit_it != world.units.end())
+			{
+				// found it!
+				unit_it->second.strVals["AREA"] = unit_it->second.strVals["NEXT_AREA"];
+				dormantPlayers[Players[destroy_ID].key].unit = unit_it->second;
+				
+				world.removeUnit(destroy_ID);
+				break;
+			}
+		}
+		
+		// this should be enough
+		changeArea(destroy_ID);
 	}
 	else
 	{
@@ -543,7 +711,7 @@ void DedicatedServer::processClientMsgs()
 			continue;
 		}
 
-		processClientMsg(clientOrders.orders[i]);
+		processClientMsg(clientOrders.orders[i]); // TODO: the ID is implicit! should give it as parameter here!
 		
 	}
 	
@@ -585,13 +753,15 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		
 		cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
 		
-		// set unit's name to match the players
-		if(world.units.find(plrID) == world.units.end())
-			cerr << "GOT playerInfo MESSAGE TOO SOON :G WHAT HAPPENS NOW??" << endl;
-		else
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
-			cerr << "Assigning player identity (name) to corresponding unit." << endl;
-			world.units[plrID].name = Players[plrID].name;
+			World& world = area_it->second;
+		
+			// set unit's name to match the players
+			if(world.units.find(plrID) != world.units.end())
+			{
+				world.units[plrID].name = Players[plrID].name;
+			}
 		}
 	}
 	
@@ -634,33 +804,48 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		else if(cmd == "UNIT") // unit copy message
 		{
+			cerr << "server received a unit copy message. makes no sense?" << endl;
+			
+			/*
 			cerr << "Creating a new unit as per instructions" << endl;
 			int unitID;
 			ss >> unitID;
 			world.addUnit(unitID);
 			world.units[unitID].handleCopyOrder(ss);
+			*/
 		}
 		else if(cmd == "PROJECTILE")
 		{
+			cerr << "server received a projectile copy message. makes no sense?" << endl;
+			
+			/*
 			int id;
 			size_t prototype_model;
 			ss >> id >> prototype_model;
 			Location dummy;
 			world.addProjectile(dummy, id, prototype_model);
 			world.projectiles[id].handleCopyOrder(ss);
+			*/
 		}
 		else if(cmd == "NEXT_UNIT_ID")
 		{
+			cerr << "server received next unit id message. makes no sense?" << endl;
+			
+			/*
 			int id = -1;
 			ss >> id;
 			world.setNextUnitID(id);
+			*/
 		}
 		else if(cmd == "SIMUL")
 		{
-			cerr << "WTF? Something asked the server to SET the SIMULRULES. NOT DOING IT." << endl;
-			//cerr << "Set simulRules to instructed state" << endl;
-			//ss >> simulRules.currentFrame >> simulRules.windowSize >> simulRules.frameSkip >> simulRules.numPlayers >> simulRules.allowedFrame;
-			//cerr << simulRules.currentFrame << " " << simulRules.windowSize << " " << simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << endl;
+			cerr << "server received an order to set simulation rules according to client wishes. ignoring order." << endl;
+			
+			/*
+			cerr << "Set simulRules to instructed state" << endl;
+			ss >> simulRules.currentFrame >> simulRules.windowSize >> simulRules.frameSkip >> simulRules.numPlayers >> simulRules.allowedFrame;
+			cerr << simulRules.currentFrame << " " << simulRules.windowSize << " " << simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << endl;
+			*/
 		}
 		else if(cmd == "CLIENT_STATE")
 		{
@@ -692,7 +877,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 	else if(order_type == -4) // copy of an existing order
 	{
-		cerr << "Server got a copy of an old message??" << endl;
+		cerr << "Server got a copy of an old message?? makes no sense." << endl;
 		
 		//Order tmp_order;
 		//ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButtons;
@@ -700,7 +885,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 	else
 	{
-		cerr << "HOLY FUCK! I DONT UNDERSTAND SHIT :G" << endl;
+		cerr << "WARNING: Server was unable to handle a received order of type " << order_type << endl;
 	}
 }
 
@@ -714,7 +899,7 @@ void DedicatedServer::handleWorldEvents()
 		
 		if(event.type == WorldEvent::DEATH_ENEMY)
 		{
-			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+			if( (Players.find(event.actor_id) != Players.end()) )
 			{
 				Players[event.actor_id].kills++;
 				cerr << Players[event.actor_id].name << " has killed" << endl;
@@ -723,14 +908,13 @@ void DedicatedServer::handleWorldEvents()
 		
 		if(event.type == WorldEvent::DEATH_PLAYER)
 		{
-			cerr << "player death" << endl;
-			if( (world.units.find(event.actor_id) != world.units.end()) && world.units[event.actor_id].human())
+			if( (Players.find(event.actor_id) != Players.end()) )
 			{
 				Players[event.actor_id].kills++;
 				cerr << Players[event.actor_id].name << " has killed" << endl;
 			}
 			
-			if( (world.units.find(event.target_id) != world.units.end()) && world.units[event.target_id].human())
+			if( (Players.find(event.target_id) != Players.end()) )
 			{
 				Players[event.target_id].deaths++;
 				cerr << Players[event.target_id].name << " has died" << endl;

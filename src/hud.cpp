@@ -28,6 +28,13 @@ Hud::Hud():
 {
 	cerr << "Loading config file for HUD.." << endl;
 	load("hud.conf");
+	
+	area_name = "World of Apo";
+}
+
+void Hud::setAreaName(const string& areaName)
+{
+	area_name = areaName;
 }
 
 void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)
@@ -112,7 +119,7 @@ void Hud::drawStatusBar() const
 
 void Hud::drawBanner() const
 {
-	drawString("World of Apo");
+	drawString(area_name);
 }
 
 void Hud::drawAmmo() const
