@@ -94,20 +94,11 @@ void GrassCluster::draw_old(const Shaders* shaders) const
 
 void GrassCluster::draw(const Shaders* shaders) const
 {
-//	glColor3f(1.0, 1.0, 1.0);
-//	glPointSize(5.0f);
-
 	glDisable(GL_CULL_FACE);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glAlphaFunc( GL_GREATER, 0.5 ) ;
-	glEnable( GL_ALPHA_TEST ) ;
 
 	draw_fbo(shaders);
 //	draw_old(shaders);
 
-	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_CULL_FACE);
 }
 

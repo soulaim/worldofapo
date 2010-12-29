@@ -9,6 +9,11 @@ void main()
 //	texture_color = vec4(1,0,0,1);
 	vec3 normal = vec3(0, 1, 0);
 
+	if(texture_color.w < 0.5)
+	{
+		discard;
+	}
+
 	normal = normal * 0.5 + 0.5;
 	gl_FragData[0] = texture_color;
 	gl_FragData[1] = vec4(normal, 1.0);

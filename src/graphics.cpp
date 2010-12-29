@@ -34,7 +34,7 @@ bool near(const Camera* camera, const Vec3& position)
 	float dist = 100.0;
 	return (camera->getPosition() - position).lengthSquared() < dist * dist;
 }
-
+/*
 struct LightDistance
 {
 	int index;
@@ -53,7 +53,7 @@ float isLightUsed(LightDistance& light)
 	else
 		return light.index;
 }
-
+*/
 void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 {
 	return;
@@ -194,7 +194,7 @@ void Graphics::init(Camera& camera)
 	drawDebuglines = false;
 	drawDebugWireframe = false;
 }
-
+/*
 void drawNormal(const Level& lvl, int x, int z)
 {
 	Location n = lvl.getNormal(x, z) * 10;
@@ -212,7 +212,7 @@ void drawNormal(const Level& lvl, int x, int z)
 	
 	glColor3f(1.0, 1.0, 1.0);
 }
-
+*/
 
 void Graphics::drawDebugHeightDots(const Level& lvl)
 {
@@ -1813,18 +1813,6 @@ void Graphics::drawLevelDeferred(const Level& lvl)
 		TextureHandler::getSingleton().bindTexture(0, "grass");
 		TextureHandler::getSingleton().bindTexture(1, "hill");
 		TextureHandler::getSingleton().bindTexture(2, "highground");
-	}
-	
-	if(drawDebuglines)
-	{
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
-	}
-	else
-	{
-		float r = intVals["AMBIENT_RED"]   / 255.0f;
-		float g = intVals["AMBIENT_GREEN"] / 255.0f;
-		float b = intVals["AMBIENT_BLUE"]  / 255.0f;
-		glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
 	}
 	
 	assert(texture_coordinates1.size() == vertices.size());

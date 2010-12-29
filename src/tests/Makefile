@@ -5,9 +5,10 @@ targets= \
 	apomath_test \
 	fixedpointtest \
 	squareroot_and_crossproduct \
-	interpolationtest \
 	point_in_line \
-	lightshapetest
+	lightshapetest \
+	interpolationtest \
+	datatype_test
 # socket_test
 # btt_test
 
@@ -22,6 +23,7 @@ socket_test: socket_test.cpp ../net/socket.cpp ../net/socket_handler.cpp
 btt_test: btt_test.cpp
 interpolationtest: interpolationtest.cpp ../frustum/vec3.cpp ../location.cpp ../fixed_point.cpp test.h ../algorithms.cpp ../frustum/vec3.cpp
 lightshapetest: lightshapetest.cpp ../algorithms.cpp ../frustum/vec3.cpp test.h ../location.cpp
+datatype_test: datatype_test.cpp
 
 
 clean:
