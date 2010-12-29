@@ -167,6 +167,7 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 
 		World::CheckSumType checksum = world->checksum();
 		
+		
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << " " << checksum << "#";
 		msg = inputMsg.str();
 		clientSocket.write(SERVER_ID, msg);
@@ -196,6 +197,8 @@ bool Game::client_tick_local()
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
 	
+	
+	
 	// handle any server commands intended for this frame
 	while((UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
@@ -219,6 +222,13 @@ void Game::process_received_game_input()
 {
 //	Logger log;
 	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
+	
+	while(UnitInput.back().frameID < simulRules.currentFrame)
+	{
+		cerr << "WARNING: Client skipped an order for frame " << UnitInput.back().frameID << ", current frame = " << simulRules.currentFrame << endl;
+		UnitInput.pop_back();
+	}
+	
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
 	{
@@ -230,7 +240,7 @@ void Game::process_received_game_input()
 		
 		if(tmp.plr_id == SERVER_ID)
 		{
-			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
+			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
 			break;
 		}
 		
@@ -368,6 +378,9 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		int destroy_ID = server_msg.keyState;
 		world->removeUnit(destroy_ID);
+		
+		if(destroy_ID == myID)
+			paused_state = PAUSED;
 	}
 	else
 	{

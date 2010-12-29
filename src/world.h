@@ -78,7 +78,7 @@ public:
 	void terminate();
 	
 	CheckSumType checksum() const;
-
+	
 	void add_message(const std::string& message) const;
 	void add_event(const WorldEvent& event) const;
 	

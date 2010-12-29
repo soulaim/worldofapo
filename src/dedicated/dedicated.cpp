@@ -186,26 +186,28 @@ void DedicatedServer::host_tick()
 	unsigned minAllowed = UINT_MAX;
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
-		if(it->second.connectionState == 1 && it->second.last_order < minAllowed)
+		if(it->second.connectionState == 1 && (it->second.last_order < minAllowed))
 			minAllowed = it->second.last_order;
 	}
 	
 	if(minAllowed < simulRules.windowSize)
 		minAllowed = simulRules.windowSize;
 	
-	if( (minAllowed != UINT_MAX) )
-		simulRules.allowedFrame = minAllowed;
-	
-	if( (minAllowed != UINT_MAX) && (minAllowed > simulRules.currentFrame) )
-		minAllowed = simulRules.currentFrame;
-	
-	if( pause_state == RUNNING && (minAllowed != UINT_MAX) && (minAllowed > serverAllow) )
+	if(minAllowed != UINT_MAX)
 	{
-		stringstream allowSimulation_msg;
-		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
+		simulRules.allowedFrame = minAllowed;
 		
-		serverAllow = minAllowed;
-		serverMsgs.push_back(allowSimulation_msg.str());
+		if(minAllowed > simulRules.currentFrame)
+			minAllowed = simulRules.currentFrame;
+		
+		if( pause_state == RUNNING && (minAllowed > serverAllow) )
+		{
+			stringstream allowSimulation_msg;
+			allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
+			
+			serverAllow = minAllowed;
+			serverMsgs.push_back(allowSimulation_msg.str());
+		}
 	}
 	
 	// transmit serverMsgs to players
@@ -258,6 +260,7 @@ void DedicatedServer::host_tick()
 	processServerMsgs();
 	
 	long long milliseconds = time_now();
+	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
 		if(intVals["AUTO_SPAWN"])
@@ -286,11 +289,31 @@ void DedicatedServer::simulateWorldFrame()
 	
 	fps_world.insert();
 	
-	/*
-	static World::CheckSumType checksums[10] = { 0 };
+	static bool checkSumsInitialized = false;
+	static map<string, vector<World::CheckSumType> > checkSums;
+	
+	if(!checkSumsInitialized)
+	{
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			checkSums[area_it->first].resize(10, 0);
+		}
+	}
+	
 	int current = simulRules.currentFrame % 10;
-	checksums[current] = world.checksum();
-	*/
+	
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		checkSums[area_it->first][current] = area_it->second.checksum();
+	}
+	
+	sort(UnitInput.begin(), UnitInput.end());
+	
+	while(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
+	{
+		cerr << "Server has somehow skipped an order for frame: " << UnitInput.back().frameID << ", current frame = " << simulRules.currentFrame << ", source = " << Players[UnitInput.back().plr_id].name << endl;
+		UnitInput.pop_back();
+	}
 	
 	while(!UnitInput.empty() && UnitInput.back().frameID == simulRules.currentFrame)
 	{
@@ -302,26 +325,47 @@ void DedicatedServer::simulateWorldFrame()
 			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
 			break;
 		}
-
-		/*
-		World::CheckSumType cs_tmp = checksums[(tmp.frameID + 10 - 5) % 10];
-		if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
-		{
-			std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
-			std::cerr << "client checksum: " << tmp.checksum << std::endl;
-			std::cerr << "server checksum: " << checksums[(tmp.frameID + 10 - 5) % 10] << std::endl;
-			cerr << "server unit locations:" << std::endl;
-			for (auto it = world.units.begin(); it != world.units.end(); ++it)
-			{
-				int id = it->first;
-				const Location& pos = it->second.getPosition();
-				cerr << id << ": " << pos << std::endl;
-			}
-			
-			pause_state = PAUSED;
-		}
-		*/
 		
+		// check the checksums
+		int id = tmp.plr_id;
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			if(area_it->second.units.find(id) != area_it->second.units.end())
+			{
+				World::CheckSumType cs_tmp = checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10];
+				if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
+				{
+					std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
+					std::cerr << "client checksum: " << tmp.checksum << std::endl;
+					std::cerr << "server checksum: " << checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10] << std::endl;
+					cerr << "server unit locations:" << std::endl;
+					
+					for (auto it = area_it->second.units.begin(); it != area_it->second.units.end(); ++it)
+					{
+						int id = it->first;
+						const Location& pos = it->second.getPosition();
+						cerr << id << ": " << pos << std::endl;
+					}
+					
+					// this is one way to handle it
+					/*
+					pause_state = PAUSED;
+					*/
+					
+					// this is another way to handle it
+					
+					stringstream chat_msg;
+					chat_msg << "3 -1 ^G" << Players[id].name << " ^Wwas ^Rout of sync ^Wand got ^Rdisconnected!" << "#";
+					serverMsgs.push_back(chat_msg.str());
+					
+					cerr << chat_msg.str() << endl;
+					
+					disconnect(id);
+				}
+			}
+		}
+		
+		// the actual update code
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
 			World& world = area_it->second;
@@ -332,12 +376,6 @@ void DedicatedServer::simulateWorldFrame()
 				it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 			}
 		}
-	}
-	
-	if(!UnitInput.empty() && UnitInput.back().frameID < simulRules.currentFrame)
-	{
-		cerr << "Server has somehow skipped an order :(" << endl;
-		UnitInput.pop_back();
 	}
 	
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -617,6 +655,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		
 		world.units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
 		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
+		Players[server_msg.keyState].last_order = simulRules.currentFrame + simulRules.windowSize;
 		
 		SpawningHeroes.erase(server_msg.keyState);
 		

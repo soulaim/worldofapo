@@ -35,7 +35,7 @@ struct CharacterInfo
 	
 	void readDescription(std::string& str)
 	{
-		std::cerr << "INTERPRETING CHARACTERINFOMSG\n" << str << std::endl;
+		// std::cerr << "INTERPRETING CHARACTERINFOMSG\n" << str << std::endl;
 		
 		std::stringstream ss(str);
 		playerInfo.readDescription(ss);
@@ -46,7 +46,7 @@ struct CharacterInfo
 		unit.init();
 		unit.handleCopyOrder(ss);
 		
-		std::cerr << unit.name << ": " << unit.hitpoints << std::endl;
+		// std::cerr << unit.name << ": " << unit.hitpoints << std::endl;
 	}
 };
 
