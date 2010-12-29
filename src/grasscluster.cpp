@@ -24,6 +24,10 @@ GrassCluster::GrassCluster():
 	}
 }
 
+GrassCluster::~GrassCluster()
+{
+}
+
 void GrassCluster::preload()
 {
 //	std::cerr << "Preloading grasscluster buffers." << std::endl;
@@ -42,10 +46,10 @@ void GrassCluster::preload()
 
 void GrassCluster::unload()
 {
-	std::cerr << "Unloading grasscluster buffers." << std::endl;
-
 	if(buffers_loaded)
 	{
+//		std::cerr << "Unloading grasscluster buffers." << std::endl;
+
 		glDeleteBuffers(BUFFERS, locations);
 	}
 	buffers_loaded = false;

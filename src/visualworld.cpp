@@ -120,10 +120,18 @@ void VisualWorld::decorate(const Level& lvl)
 		}
 	}
 	
+	levelDesc.preload();
 }
 
 void VisualWorld::terminate()
 {
+	for(auto it = meadows.begin(); it != meadows.end(); ++it)
+	{
+		it->unload();
+	}
+
+	levelDesc.unload();
+
 	for(auto it = models.begin(); it != models.end(); ++it)
 	{
 		ModelFactory::destroy(it->second);

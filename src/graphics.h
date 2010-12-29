@@ -6,16 +6,8 @@
 #include <string>
 #include <memory>
 
-#include "glew/glew.h"
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
+#include "opengl.h"
 
-#include "btt.h"
 #include "model.h"
 #include "frustum/frustumr.h"
 #include "camera.h"

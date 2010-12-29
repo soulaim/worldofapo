@@ -1,14 +1,6 @@
 #include "texturehandler.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include "glew/glew.h"
-#include <GL/gl.h>
-#elif defined __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "opengl.h"
 
 #include <iostream>
 #include <cassert>

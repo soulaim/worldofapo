@@ -21,6 +21,8 @@ Camera::Camera():
 	
 	min_fov = 15.f;
 	max_fov = 100.f;
+
+	unit_id = -2;
 }
 
 const Vec3& Camera::getTarget() const

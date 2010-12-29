@@ -6,16 +6,7 @@
 #include <map>
 #include <cassert>
 
-#include "glew/glew.h"
-
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-
+#include "opengl.h"
 #include "frustum/vec3.h"
 #include "frustum/matrix4.h"
 
@@ -24,6 +15,7 @@ class Shaders;
 struct GrassCluster
 {
 	GrassCluster();
+	~GrassCluster();
 	
 	void draw(const Shaders* shaders) const;
 	void preload();

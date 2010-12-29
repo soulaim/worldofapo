@@ -6,24 +6,6 @@
 #include "level.h"
 #include "frustum/frustumr.h"
 
-/*
-#include "level.h"
-#include "shaders.h"
-#include "hud.h"
-#include "frustum/matrix4.h"
-#include "octree.h"
-#include "window.h"
-#include "menubutton.h"
-#include "algorithms.h"
-
-#include <iomanip>
-#include <vector>
-#include <utility>
-#include <algorithm>
-#include <map>
-#include <stdexcept>
-*/
-
 #include <numeric>
 #include <iostream>
 
@@ -36,6 +18,12 @@ LevelDescriptor::LevelDescriptor()
 {
 	debugMode = false;
 	level = 0;
+	buffers_loaded = false;
+
+	for(size_t i = 0; i < BUFFERS; ++i)
+	{
+		locations[i] = -1;
+	}
 }
 
 void LevelDescriptor::setLevel(Level* lvl)
@@ -55,7 +43,6 @@ void LevelDescriptor::drawDeferred(Shaders& shaders) const
 
 void LevelDescriptor::drawLevel(const Level& lvl, size_t light_count, Shaders& shaders) const
 {
-	
 	// Draw terrain with forward rendering, apply lights right away.
 	for(size_t i = 0; i < light_count; i += 4)
 	{
@@ -92,8 +79,10 @@ void LevelDescriptor::world_tick(FrustumR& frustum)
 	level->getLevelTriangles(level_triangles);
 }
 
-void LevelDescriptor::drawDebugLevelNormals(const Level& lvl) const
+void LevelDescriptor::drawDebugLevelNormals() const
 {
+	const Level& lvl = *level;
+
 	Vec3 points[3];
 	
 	glBegin(GL_LINES);
@@ -126,8 +115,10 @@ void LevelDescriptor::drawDebugLevelNormals(const Level& lvl) const
 }
 
 
-void LevelDescriptor::drawDebugHeightDots(const Level& lvl) const
+void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 {
+	const Level& lvl = *level;
+
 	TextureHandler::getSingleton().bindTexture(0, "");
 	
 	Vec3 points[3];
@@ -166,7 +157,10 @@ void LevelDescriptor::drawDebugHeightDots(const Level& lvl) const
 		{
 			Vec3 v(x.getFloat(), 0, z.getFloat());
 			v.y = lvl.getHeight(x,z).getFloat();
-			glVertex3f(v.x, v.y, v.z);
+			if((location - v).lengthSquared() < 100.0f * 100.0f)
+			{
+				glVertex3f(v.x, v.y, v.z);
+			}
 		}
 	}
 	glEnd();
@@ -180,11 +174,85 @@ void LevelDescriptor::drawDebugHeightDots(const Level& lvl) const
 		{
 			Vec3 v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
 			v.y = lvl.getVertexHeight(x,z).getFloat();
-			glVertex3f(v.x, v.y, v.z);
+			if((location - v).lengthSquared() < 200.0f * 200.0f)
+			{
+				glVertex3f(v.x, v.y, v.z);
+			}
 		}
 	}
 	
 	glEnd();
+}
+
+void LevelDescriptor::unload()
+{
+	if(buffers_loaded)
+	{
+		vertices.clear();
+		normals.clear();
+		texture_coordinates1.clear();
+		texture_coordinates2.clear();
+//		texture_coordinates3.clear();
+		indices.clear();
+
+		glDeleteBuffers(BUFFERS, locations);
+		for(size_t i = 0; i < BUFFERS; ++i)
+		{
+			locations[i] = -1;
+		}
+		buffers_loaded = false;
+	}
+}
+
+void LevelDescriptor::preload()
+{
+	assert(!buffers_loaded);
+
+	const Level& lvl = *level;
+
+	size_t height = lvl.pointheight_info.size();
+	size_t width = lvl.pointheight_info[0].size();
+	assert(height*width > 0);
+	
+	vertices.reserve(height * width);
+	normals.reserve(height * width);
+	for(size_t x = 0; x < height; ++x)
+	{
+		for(size_t z = 0; z < width; ++z)
+		{
+			Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
+			vertices.push_back(point);
+			
+			Location normal = lvl.getNormal(x, z);
+			normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+			
+			 // TODO: These coordinates are like :G
+			const int divisions = 25;
+//				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
+			TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
+			texture_coordinates1.push_back(tc1);
+			texture_coordinates2.push_back(tc1);
+		}
+	}
+
+	int buffer = 0;
+	glGenBuffers(BUFFERS, locations);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+	
+	assert(buffer <= BUFFERS);
+
+	buffers_loaded = true;
 }
 
 
@@ -204,70 +272,16 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 
 	glUseProgram(shaders["level_program"]);
 
-	static vector<Vec3> vertices;
-	static vector<Vec3> normals;
-	static vector<TextureCoordinate> texture_coordinates1;
-	static vector<TextureCoordinate> texture_coordinates2;
-//	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
-
-	size_t height = lvl.pointheight_info.size();
+//	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
-	const int BUFFERS = 6;
-	static GLuint locations[BUFFERS];
-	int buffer = 0;
 	
-	// Load static buffers.
-	static bool level_buffers_loaded = false;
-	if(!level_buffers_loaded) // TODO: Move initialization somewhere else?
-	{
-		level_buffers_loaded = true;
-		assert(height*width > 0);
-		
-		vertices.reserve(height * width);
-		normals.reserve(height * width);
-		for(size_t x = 0; x < height; ++x)
-		{
-			for(size_t z = 0; z < width; ++z)
-			{
-				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
-				vertices.push_back(point);
-				
-				Location normal = lvl.getNormal(x, z);
-				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
-				
-				 // TODO: These coordinates are like :G
-				const int divisions = 25;
-//				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
-				TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
-				texture_coordinates1.push_back(tc1);
-				texture_coordinates2.push_back(tc1);
-			}
-		}
-		
-		glGenBuffers(BUFFERS, locations);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
-		
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
-		
-		assert(buffer <= BUFFERS);
-	}
+	assert(buffers_loaded);
 
 	// Load dynamic indices.
-	static vector<unsigned> indices;
-
 	if(pass == 0)
 	{
 		indices.clear();
-		for(size_t k=0; k<level_triangles.size(); k++)
+		for(size_t k = 0; k < level_triangles.size(); ++k)
 		{
 			Vec3 points[3];
 			const BTT_Triangle& tri = level_triangles[k];
@@ -322,13 +336,19 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 	
 	// TODO: check what happens when the number of lights is not 0 mod 4.
 	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
+
+	drawBuffers();
 	
+	glUseProgram(0);
+}
+
+void LevelDescriptor::drawBuffers() const
+{
 	assert(texture_coordinates1.size() == vertices.size());
 	assert(texture_coordinates2.size() == vertices.size());
 	assert(normals.size() == vertices.size());
 	
-	buffer = 0;
-	
+	int buffer = 0;
 	// Bind static data and send dynamic data to graphics card.
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
@@ -359,11 +379,11 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
+
 	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
-	
-	glUseProgram(0);
 }
 
+/*
 #include "level_square_part_block.h"
 
 void fill_level_part(VisualLevelPart& part, size_t part_min_x, size_t part_max_x, size_t part_min_z, size_t part_max_z, size_t max_x, size_t max_z, const Level& lvl)
@@ -418,7 +438,7 @@ void fill_level_part(VisualLevelPart& part, size_t part_min_x, size_t part_max_x
 	cerr << "Filled from: " << part_min_x << " - " << part_max_x << " to " << part_min_z << " - " << part_max_z << " with " << part.indices.size()/3 << " triangles" << endl;
 }
 
-/*
+
 void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shaders)
 {
 	if(pass == -1)
@@ -537,68 +557,14 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 
 	glUseProgram(shaders["deferred_level_program"]);
 
-	static vector<Vec3> vertices;
-	static vector<Vec3> normals;
-	static vector<TextureCoordinate> texture_coordinates1;
-	static vector<TextureCoordinate> texture_coordinates2;
-//	static vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.
-
-	size_t height = lvl.pointheight_info.size();
+//	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
-	const int BUFFERS = 6;
-	static GLuint locations[BUFFERS];
-	int buffer = 0;
-	static bool level_buffers_loaded = false;
 
-	// Load static buffers.
-	if(!level_buffers_loaded) // TODO: Move initialization somewhere else?
-	{
-		level_buffers_loaded = true;
-		assert(height*width > 0);
-		
-		vertices.reserve(height * width);
-		normals.reserve(height * width);
-		for(size_t x = 0; x < height; ++x)
-		{
-			for(size_t z = 0; z < width; ++z)
-			{
-				Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
-				vertices.push_back(point);
-				
-				Location normal = lvl.getNormal(x, z);
-				normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
-				
-				 // TODO: These coordinates are like :G
-				const int divisions = 25;
-//				TextureCoordinate tc1 = { float(x % (height/divisions)) / (height/divisions), float(z % (width/divisions)) / (width/divisions) };
-				TextureCoordinate tc1 = TextureCoordinate( float(x) / (height/divisions), float(z) / (width/divisions) );
-				texture_coordinates1.push_back(tc1);
-				texture_coordinates2.push_back(tc1);
-			}
-		}
-
-		glGenBuffers(BUFFERS, locations);
-
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
-
-		assert(buffer <= BUFFERS);
-	}
+	assert(buffers_loaded);
 
 	// Load dynamic indices.
-	static vector<unsigned> indices;
-
 	indices.clear();
-	for(size_t k=0; k<level_triangles.size(); k++)
+	for(size_t k = 0; k < level_triangles.size(); ++k)
 	{
 		Vec3 points[3];
 		const BTT_Triangle& tri = level_triangles[k];
@@ -625,43 +591,7 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 		TextureHandler::getSingleton().bindTexture(2, "highground");
 	}
 	
-	assert(texture_coordinates1.size() == vertices.size());
-	assert(texture_coordinates2.size() == vertices.size());
-	assert(normals.size() == vertices.size());
-	
-	buffer = 0;
-	
-	// Bind static data and send dynamic data to graphics card.
-	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	
-	glClientActiveTexture(GL_TEXTURE1);
-	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	glClientActiveTexture(GL_TEXTURE0);
-	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glNormalPointer(GL_FLOAT, 0, 0);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
-	buffer++;
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STREAM_DRAW);
-	
-	assert(buffer == BUFFERS);
-	
-	// Draw sent data.
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	TRIANGLES_DRAWN_THIS_FRAME += level_triangles.size();
+	drawBuffers();
 	
 	glUseProgram(0);
 

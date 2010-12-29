@@ -1235,13 +1235,13 @@ void Graphics::draw(
 
 	if(drawDebuglines)
 	{
-		// drawDebugLevelNormals(lvl);
+		visualworld.levelDesc.drawDebugLevelNormals();
 		drawDebugProjectiles(projectiles);
 	}
 
 	if(drawDebugWireframe)
 	{
-		// drawDebugHeightDots(lvl);
+		visualworld.levelDesc.drawDebugHeightDots(camera_p->getPosition());
 	}
 	else if(intVals["DRAW_LEVEL"])
 	{
