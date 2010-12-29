@@ -163,7 +163,7 @@ int MU_Socket::write(const string& msg)
 //	cerr << "Writing data to socket: " << msg << endl;
 	if(!alive)
 	{
-		cerr << "TRYING TO WRITE TO A DEAD SOCKET!! NOT A GOOD IDEA MAYBE?? well fuck you user, i'll just not do that :/" << endl;
+		cerr << "TRYING TO WRITE TO A DEAD SOCKET!! NOT A GOOD IDEA MAYBE?" << endl;
 		return -1;
 	}
 	

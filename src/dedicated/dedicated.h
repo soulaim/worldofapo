@@ -96,7 +96,10 @@ class DedicatedServer : public HasProperties
 	
 	void init();
 	
+	void changeArea(int playerID_val);
+	void sendAreaParameters(const std::string& areaName, int plr_ID);
 	void sendWorldCopy(const std::string& areaName, int plrID);
+	void sendWorldContent(int playerID_val);
 
 	void parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player);
 	void handleWorldEvents();

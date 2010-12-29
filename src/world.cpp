@@ -423,13 +423,13 @@ void World::init()
 void World::terminate()
 {
 	cerr << "World::terminate()" << endl;
-
-	unitIDgenerator.setNextID(10000);
 	
 	units.clear();
 	projectiles.clear();
 	deadUnits.clear(); // redundant?
-	currentWorldFrame = -1;
+	
+	// currentWorldFrame = -1;
+	// unitIDgenerator.setNextID(10000);
 	
 	visualworld->terminate();
 }

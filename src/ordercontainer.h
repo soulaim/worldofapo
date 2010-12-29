@@ -13,6 +13,7 @@ class OrderContainer
 	public:
 		
 		std::vector<std::string> orders;
+		std::vector<int> ids;
 		
 		OrderContainer(){}
 		

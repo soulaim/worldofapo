@@ -63,7 +63,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 {
 	
-	Players[playerID_val].connectionState = 1; // game on!
+	// TODO: put this to the other place? not sure how to do that though.
 	simulRules.numPlayers++;
 	
 	if(choice == "NEW" || (dormantPlayers.find(choice) == dormantPlayers.end()))
@@ -105,23 +105,49 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		dormantPlayers[choice].unit.init();
 		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
 		dormantPlayers[choice].unit.strVals["AREA"] = areaName;
-		
-		dormantPlayers[choice].playerInfo.connectionState = 1; // active.
 		dormantPlayers[choice].playerInfo.key = Players[playerID_val].key;
 	}
 	
 	
-	std::string areaName = dormantPlayers[choice].unit.strVals["AREA"];
+	changeArea(playerID_val);
+	return;
+}
+
+
+
+void DedicatedServer::changeArea(int playerID_val)
+{
+	std::string char_key = Players[playerID_val].key;
+	std::string areaName = dormantPlayers[char_key].unit.strVals["AREA"];
+	
+	Players[playerID_val].connectionState = 2; // waiting for client world gen to finish
+	dormantPlayers[char_key].playerInfo.connectionState = 2; // waiting for level gen to finish.
+	
+	std::cerr << "Sending world parameters" << std::endl;
+	sendAreaParameters(areaName, playerID_val);
+	std::cerr << "Waiting for client world gen to finish before sending game content" << std::endl;
+	return;
+}
+
+
+
+void DedicatedServer::sendWorldContent(int playerID_val)
+{
+	std::string char_key = Players[playerID_val].key;
+	std::string areaName = dormantPlayers[char_key].unit.strVals["AREA"];
+	
+	// set player as active
+	Players[playerID_val].connectionState = 1;
+	dormantPlayers[char_key].playerInfo.connectionState = 1;
+	
 	
 	std::cerr << "Sending a copy of the world" << std::endl;
 	sendWorldCopy(areaName, playerID_val);
 	
 	std::cerr << "Sending PLAYER ID" << std::endl;
-	// tell the new player what his player ID is.
 	std::stringstream playerID_msg;
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
 	sockets.write(playerID_val, playerID_msg.str());
-	
 	
 	std::cerr << "SENDING OTHER PLAYERS" << std::endl;
 	// send the new player some generic info about other players
@@ -138,9 +164,9 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 	
 	
 	// send to everyone the character info of the spawning unit / player.
-	Players[playerID_val] = dormantPlayers[choice].playerInfo;
+	Players[playerID_val] = dormantPlayers[char_key].playerInfo;
 	
-	std::string character_info_str = dormantPlayers[choice].getDescription();
+	std::string character_info_str = dormantPlayers[char_key].getDescription();
 	std::stringstream character_info_msg;
 	
 	character_info_msg << "-2 CHAR_INFO " << playerID_val << " " << character_info_str; // ALERT: sending the character key to everyone!

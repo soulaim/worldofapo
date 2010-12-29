@@ -142,6 +142,15 @@ void DedicatedServer::check_messages_from_clients()
 			}
 			msgs.clear();
 		}
+		else if(conn_state == 2)
+		{
+			// NOTE: duplicate for now, not sure if it will be later though.
+			for(size_t k=0; k < msgs.size(); k++)
+			{
+				parseClientMsg(msgs[k], i->first, i->second);
+			}
+			msgs.clear();
+		}
 	}
 	
 	// this message will go to local messagehandling at the end of function
@@ -387,13 +396,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		
 		cerr << "Chat <" << id << "> " << cmd << endl;
 		
-		if(cmd == "CRTZOMB#")
-		{
-			cerr << "SPAWNING MONSTER" << endl;
-			serverSendMonsterSpawn();
-			return;
-		}
-		else if(cmd == "SWARM")
+		if(cmd == "SWARM")
 		{
 			int n = 70;
 			int team = -1;
@@ -439,6 +442,50 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			
 			return;
 		}
+		else if(cmd == "AREA")
+		{
+			string next_area;
+			ss >> next_area;
+			
+			if(next_area[next_area.size() - 1] == '#')
+				next_area.resize(next_area.size() - 1);
+			
+			if(areas.find(next_area) == areas.end())
+			{
+				stringstream chat_msg;
+				chat_msg << "3 -1 ^RUnable to change area, area \"^G" << next_area << "^R\" does not exist.#";
+				serverMsgs.push_back(chat_msg.str());
+				return;
+			}
+			
+			for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+			{
+				auto unit_it = area_it->second.units.find(player_id);
+				if(unit_it != area_it->second.units.end())
+				{
+					
+					stringstream chat_msg;
+					chat_msg << "3 -1 ^GFound unit and target area! Sending area change kill message.#";
+					serverMsgs.push_back(chat_msg.str());
+					
+					
+					unit_it->second.strVals["NEXT_AREA"] = next_area;
+					
+					// send area change kill message
+					stringstream area_change_msg;
+					area_change_msg << "-1 " << (serverAllow + 10) << " 7 " << player_id << "#";
+					serverMsgs.push_back(area_change_msg.str());
+					return;
+				}
+			}
+			
+			// send an error message to players.
+			stringstream chat_msg;
+			chat_msg << "3 -1 ^RDid not find unit for area change! This should never happen!#";
+			serverMsgs.push_back(chat_msg.str());
+			return;
+		}
+		
 	}
 	else if(orderWord == "-1")
 	{
@@ -452,6 +499,24 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		stringstream chatmsg;
 		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
+	}
+	else if(orderWord == "-2") // instant reaction message from client
+	{
+		string cmd;
+		ss >> cmd;
+		
+		if(cmd == "WORLD_GEN_READY")
+		{
+			cerr << "Client claims to be finished with world gen! Sending world content.." << endl;
+			sendWorldContent(player_id);
+			cerr << "Done" << endl;
+			return;
+		}
+		else
+		{
+			cerr << "Unknown instant order from client: " << ss.str() << endl;
+			return;
+		}
 	}
 	else
 	{
@@ -525,6 +590,11 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			world.removeUnit(server_msg.keyState);
 		}
 		
+		// TODO: IF THE PLAYER DID NOT START ACTUALLY PLAYING (DISCONNECT AT HERO SELECTION)
+		// THIS WILL FUCK THINGS UP
+		// NUM PLAYERS SHOULD BE DETERMINABLE FROM Players
+		// (loop through and see how many are at connectionState 1)
+		
 		simulRules.numPlayers--;
 	}
 	
@@ -559,6 +629,32 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	{
 		cerr << "SERVER HAS NO ID, CAN NOT CHANGE IT" << endl;
 	}
+	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
+	{
+		// so what we actually want to do, is save the hero into dormantPlayers, then removeUnit,
+		// (by now the unit's NEXT_AREA strVal should have been set to it's new value, move this to AREA)
+		// then send area change message to the target.
+		
+		int destroy_ID = server_msg.keyState;
+		
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			auto unit_it = world.units.find(destroy_ID);
+			if(unit_it != world.units.end())
+			{
+				// found it!
+				unit_it->second.strVals["AREA"] = unit_it->second.strVals["NEXT_AREA"];
+				dormantPlayers[Players[destroy_ID].key].unit = unit_it->second;
+				
+				world.removeUnit(destroy_ID);
+				break;
+			}
+		}
+		
+		// this should be enough
+		changeArea(destroy_ID);
+	}
 	else
 	{
 		cerr << "SERVERMESSAGEFUCK: " << server_msg.serverCommand << endl;
@@ -576,7 +672,7 @@ void DedicatedServer::processClientMsgs()
 			continue;
 		}
 
-		processClientMsg(clientOrders.orders[i]);
+		processClientMsg(clientOrders.orders[i]); // TODO: the ID is implicit! should give it as parameter here!
 		
 	}
 	

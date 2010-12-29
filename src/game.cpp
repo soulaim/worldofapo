@@ -364,6 +364,11 @@ void Game::handleServerMessage(const Order& server_msg)
 			cerr << "Failed to bind camera! :(" << endl;
 		}
 	}
+	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
+	{
+		int destroy_ID = server_msg.keyState;
+		world->removeUnit(destroy_ID);
+	}
 	else
 	{
 		cerr << "SERVERMESSAGEFUCK: " << server_msg.serverCommand << endl;
@@ -566,6 +571,9 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "WORLD_GEN_PARAM")
 			{
+				// ALERT: This SHOULD be safe! But might not be.. Fix it if its not.
+				world->terminate();
+				
 				int param;
 				string area_name;
 				cerr << "got world creation parameters! creating world.." << endl;
@@ -574,6 +582,14 @@ void Game::processClientMsgs()
 				world->buildTerrain(param);
 				world->visualworld->decorate(world->lvl);
 				world->strVals["AREA_NAME"] = area_name;
+				
+				// send WORLD_GEN_READY message!
+				stringstream ss_world_gen_ready;
+				ss_world_gen_ready << "-2 WORLD_GEN_READY #";
+				clientSocket.write(SERVER_ID, ss_world_gen_ready.str());
+				
+				// wait until game starts for me..
+				cerr << "world gen finished, waiting for game content.." << endl;
 			}
 			else
 			{
