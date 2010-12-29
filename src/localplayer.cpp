@@ -43,6 +43,8 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 	need_to_tick_world = false;
+	
+	visualworld.levelDesc.setLevel(&world.lvl);
 }
 
 void Localplayer::reload_confs()
@@ -148,7 +150,10 @@ bool Localplayer::client_tick()
 			handleWorldEvents();
 			
 			hud->world_tick();
-			view->world_tick(world.lvl, visualworld.lights);
+			view->world_tick(visualworld.lights);
+			
+			visualworld.levelDesc.world_tick(view->frustum);
+			
 		}
 		else
 		{

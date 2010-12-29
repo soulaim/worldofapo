@@ -24,11 +24,11 @@ class Shaders;
 struct GrassCluster
 {
 	GrassCluster();
-
+	
 	void draw(const Shaders* shaders) const;
 	void preload();
 	void unload();
-
+	
 	Vec3 center;
 	float radius;
 	std::vector<Vec3> bushes;
