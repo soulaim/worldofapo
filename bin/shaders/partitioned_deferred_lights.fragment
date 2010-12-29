@@ -14,21 +14,27 @@ const int MAX_ACTIVE_LIGHTS = 4;
 uniform float screen_width;
 uniform float screen_height;
 
+uniform float fullscreen;
+
 varying vec2 texcoord;
 
 void main()
 {
-	vec2 texcoord2 = texcoord * 2.0 - 1.0;
-	if(texcoord2.x * texcoord2.x + texcoord2.y * texcoord2.y > 1.0)
+//	gl_FragColor = vec4(fullscreen,0,0,1); return;
+	if(fullscreen < 0.5) // Deferred lights can be rendered as point sprites or as a fullscreen quads.
 	{
-		discard;
+		vec2 texcoord2 = texcoord * 2.0 - 1.0;
+		if(texcoord2.x * texcoord2.x + texcoord2.y * texcoord2.y > 1.0)
+		{
+			discard;
+		}
 	}
 
 	vec2 real_texcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 
 	vec3 normal = texture2D(normals, real_texcoord).rgb;
 	normal = 2.0 * normal - 1.0;
-//	gl_FragColor = vec4(normal*0.5 + 0.5,1); return;
+//	gl_FragColor = vec4(normal*0.5 + 0.5, 1); return;
 	if(length(normal) < 0.5)
 	{
 //		gl_FragColor = vec4(1,0,0,1); return;

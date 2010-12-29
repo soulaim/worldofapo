@@ -29,10 +29,9 @@ vector<pair<Vec3,string> > STRINGS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
-bool near(const Camera* camera, const Vec3& position)
+bool near(const Camera& camera, const Vec3& position, float dist = 100.0)
 {
-	float dist = 100.0;
-	return (camera->getPosition() - position).lengthSquared() < dist * dist;
+	return (camera.getPosition() - position).lengthSquared() < dist * dist;
 }
 /*
 struct LightDistance
@@ -257,7 +256,7 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(FixedPoint z; z < lvl.max_z(); z += 2)
 		{
 			Vec3 v(x.getFloat(), 0, z.getFloat());
-			if(near(camera_p, v))
+			if(near(*camera_p, v))
 			{
 				v.y = lvl.getHeight(x,z).getFloat();
 				glVertex3f(v.x, v.y, v.z);
@@ -273,7 +272,7 @@ void Graphics::drawDebugHeightDots(const Level& lvl)
 		for(int z = 0; z < lvl.max_block_z(); ++z)
 		{
 			Vec3 v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
-			if(near(camera_p, v))
+			if(near(*camera_p, v))
 			{
 				v.y = lvl.getVertexHeight(x,z).getFloat();
 				glVertex3f(v.x, v.y, v.z);
@@ -304,7 +303,8 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
 	clear_errors();
 
-	vector<string> programs = { "level_program", "deferred_lights_program", "partitioned_deferred_lights_program" };
+	// TODO: update only the shader that is currently active. Or update lights when actually drawing.
+	vector<string> programs = { "level_program", "deferred_lights_program", "partitioned_deferred_lights_program", "partitioned_deferred_lights_program2" };
 
 	for(size_t p = 0; p < programs.size(); ++p)
 	{
@@ -1549,8 +1549,11 @@ void Graphics::applyAmbientLight()
 	shader.stop();
 }
 
-void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObject>& lights)
+// TODO: This doesn't work if the light is just behind the far plane (??)
+void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
+	camera.getPosition();
+
 	clear_errors();
 
 	glDepthMask(GL_FALSE);
@@ -1566,44 +1569,66 @@ void Graphics::drawLightsDeferred_multiple_passes(const std::map<int, LightObjec
 
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 	shader.start();
-
-	// Draw one light per pass and blend the results together.
+	glUniform1f(shader.uniform("fullscreen"), 0.0f);
+	// Draw lights that are not near the camera as point sprites. Lights are blended together one light at a time.
 	int pass = 0;
 	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
 	{
 		const LightObject& light = it->second;
-		glUniform1f(shader.uniform("activeLight"), float(pass));
-		if(check_errors(__FILE__, __LINE__))
-		{
-			cerr << "activeLight: " << pass << endl;
-		}
-		float power = light.getIntensity().getFloat(); // TODO: intensity doesn't actually have anything to do with how far the light is see.
-		glUniform1f(shader.uniform("power"), power);
-		if(check_errors(__FILE__, __LINE__))
-		{
-			cerr << "power: " << power << endl;
-		}
-
 
 		Location loc = light.getPosition();
 		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 
-		// TODO: if this thing will someday work really well, then lights could be passed here
-		// instead of updated through uniforms. Not sure which is faster though.
-//		float r, g, b;
-//		light.getDiffuse(r, g, b);
-//		glColor3f(r, g, b);
+		float power = light.getIntensity().getFloat(); // TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
+	
+		if(near(camera, v, power / intVals["DEFERRED_LIGHT_FIX_SPEED"]))
+		{
+			continue;
+		}
 
-		// TODO: This doesn't work if
-		// a) the light is behind the camera, or
-		// b) the light is just behind the far plane (??)
+		glUniform1f(shader.uniform("activeLight"), float(pass));
+		glUniform1f(shader.uniform("power"), power);
+
+		// TODO: if this thing will someday work really well, then all lights could be passed as varyings
+		// here instead of updated through uniforms elsewhere. Not sure which is faster though.
 
 		glBegin(GL_POINTS);
 		glVertex3f(v.x, v.y, v.z);
 		glEnd();
 	}
-
 	shader.stop();
+
+	if(intVals["DEFERRED_LIGHT_FIX"])
+	{
+		Shader& shader2 = shaders.get_shader("partitioned_deferred_lights_program2");
+		shader2.start();
+		glUniform1f(shader2.uniform("fullscreen"), 1.0f);
+		// Draw lights that are near the camera as fullscreen quads. Lights are blended together one light at a time.
+		pass = 0;
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
+		{
+			const LightObject& light = it->second;
+
+			Location loc = light.getPosition();
+			Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+
+			float power = light.getIntensity().getFloat(); // TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
+
+			if(!near(camera, v, power / intVals["DEFERRED_LIGHT_FIX_SPEED"]))
+			{
+				continue;
+			}
+
+			glUniform1f(shader2.uniform("activeLight"), float(pass));
+
+			drawFullscreenQuad();
+		}
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		shader2.stop();
+	}
 
 	glDisable(GL_BLEND);
 	
@@ -1894,7 +1919,7 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 		if(intVals["DRAW_DEFERRED_LIGHTS"])
 		{
 //			drawLightsDeferred_single_pass();
-			drawLightsDeferred_multiple_passes(lights);
+			drawLightsDeferred_multiple_passes(*camera_p, lights);
 //			drawLightsDeferred_multiple_passes_with_scissors(lights);
 		}
 	}
@@ -2322,10 +2347,20 @@ void Graphics::setInitialShaderValues()
 	glUniform1f(shaders.uniform("ssao_height"), intVals["RESOLUTION_Y"]);
 	glUseProgram(0);
 
-	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
-	shader.start();
-	glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
-	glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
-	shader.stop();
+	{
+		Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
+		shader.start();
+		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
+		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
+		shader.stop();
+	}
+
+	{
+		Shader& shader = shaders.get_shader("partitioned_deferred_lights_program2");
+		shader.start();
+		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
+		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
+		shader.stop();
+	}
 }
 

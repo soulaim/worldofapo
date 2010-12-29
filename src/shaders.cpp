@@ -42,12 +42,13 @@ void Shaders::init()
 	shaders["ssao"]             = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
 	shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 
-	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_lights.fragment"));
+	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/deferred_lights.fragment"));
 	shaders["deferred_level_program"]    = shared_ptr<Shader>(new Shader("shaders/deferred_level.vertex", "shaders/deferred_level.fragment"));
 
 	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
+	shaders["partitioned_deferred_lights_program2"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/partitioned_deferred_lights.fragment"));
 	shaders["partitioned_deferred_lights_program_with_scissors"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
-	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/deferred_lights.vertex", "shaders/deferred_ambientlight.fragment"));
+	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/deferred_ambientlight.fragment"));
 	shaders["skybox_program"] = shared_ptr<Shader>(new Shader("shaders/skybox.vertex", "shaders/skybox.fragment"));
 
 	shaders["deferred_ambientlight_program"]->start();
@@ -60,6 +61,12 @@ void Shaders::init()
 	shaders["partitioned_deferred_lights_program"]->set_texture_unit(1, "normals");
 	shaders["partitioned_deferred_lights_program"]->set_texture_unit(2, "positions");
 	shaders["partitioned_deferred_lights_program"]->stop();
+
+	shaders["partitioned_deferred_lights_program2"]->start();
+	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(0, "texture_colors");
+	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(1, "normals");
+	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(2, "positions");
+	shaders["partitioned_deferred_lights_program2"]->stop();
 
 	shaders["deferred_lights_program"]->start();
 	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
