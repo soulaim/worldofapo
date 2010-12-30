@@ -424,8 +424,16 @@ void World::terminate()
 {
 	cerr << "World::terminate()" << endl;
 	
+	cerr << "  clearing units" << endl;
 	units.clear();
+	
+	cerr << "  clearing projectiles" << endl;
 	projectiles.clear();
+	
+	cerr << "  clearing items" << endl;
+	items.clear();
+	
+	cerr << "  clearing deadUnits" << endl;
 	deadUnits.clear(); // redundant?
 	
 	// currentWorldFrame = -1;
@@ -449,7 +457,11 @@ void World::tickItem(WorldItem& item, Model* model)
 {
 	// wut
 	// model->rotate_y(item.getAngle(apomath));
-	model->updatePosition(item.position.x.getFloat(), item.position.y.getFloat(), item.position.z.getFloat());
+	if(visualworld->isActive())
+	{
+		assert(model && "item model does not exist");
+		model->updatePosition(item.position.x.getFloat(), item.position.y.getFloat(), item.position.z.getFloat());
+	}
 	
 	// some physics & game world information
 	if( (item.velocity.y + item.position.y - FixedPoint(1, 20)) <= lvl.getHeight(item.position.x, item.position.z) )
@@ -801,7 +813,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	
 	for(int i=0; i<ticks; i++)
 	{
-		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 		int lifetime = projectile["LIFETIME"];
 		
 		if(lifetime <= 0 || projectile.destroyAfterFrame)
@@ -895,6 +906,12 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				projectile.destroyAfterFrame |= death_at_collision;
 			}
 		}
+	}
+	
+	if(visualworld->isActive())
+	{
+		assert(model && "projectile model does not exist");
+		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 	}
 	
 	// as a post frame update, update values of the projectile

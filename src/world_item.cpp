@@ -56,6 +56,8 @@ string WorldItem::copyOrder(int ID) const
 	<< velocity.x << " " << velocity.z << " " << velocity.y << " ";
 	
 	item_msg << HasProperties::copyOrder();
+	item_msg << "#";
+	
 	return item_msg.str();
 }
 

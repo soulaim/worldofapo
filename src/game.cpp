@@ -525,8 +525,26 @@ void Game::processClientMsgs()
 				Logger log;
 				log << "ORDER: create unit " << unitID << "\n";
 				
-				world->addUnit(unitID);
-				world->units.find(unitID)->second.handleCopyOrder(ss);
+				
+				// ALERT TODO: THIS IS BUBBLEGUM TO CREATE THE CORRECT MODEL FOR THE UNIT
+				
+				Unit tmp_unit;
+				tmp_unit.init();
+				tmp_unit.handleCopyOrder(ss);
+				
+				if(tmp_unit.human())
+				{
+					world->addUnit(unitID);
+				}
+				else
+				{
+					world->addUnit(unitID, false);
+				}
+				
+				world->units.find(unitID)->second = tmp_unit;
+				
+				// END OF ALERT TODO
+				
 				
 				cerr << "COPY OF A UNIT: " << unitID << " / " << world->units.find(unitID)->second.id << endl;
 			}
@@ -568,6 +586,11 @@ void Game::processClientMsgs()
 				int nopause = 0;
 				ss >> nopause;
 				paused_state = (nopause ? GO : PAUSED);
+				
+				if(paused_state == GO)
+					cerr << "Resuming game simulation!" << endl;
+				else
+					cerr << "Game simulation set on pause, server orders so." << endl;
 			}
 			else if(cmd == "CHAR_INFO")
 			{
@@ -600,6 +623,10 @@ void Game::processClientMsgs()
 				stringstream ss_world_gen_ready;
 				ss_world_gen_ready << "-2 WORLD_GEN_READY #";
 				clientSocket.write(SERVER_ID, ss_world_gen_ready.str());
+				
+				// set local simulation on pause
+				cerr << "Pausing game simulation.." << endl;
+				paused_state = PAUSED;
 				
 				// wait until game starts for me..
 				cerr << "world gen finished, waiting for game content.." << endl;
