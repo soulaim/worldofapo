@@ -61,6 +61,8 @@ int Unit::getModifier(string attribute)
 		return 0;
 	}
 	
+	assert(intVals[attribute] == 4);
+	
 	return 6 + intVals[attribute];
 }
 

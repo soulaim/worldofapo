@@ -197,8 +197,6 @@ bool Game::client_tick_local()
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
 	
-	
-	
 	// handle any server commands intended for this frame
 	while((UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
@@ -222,6 +220,8 @@ void Game::process_received_game_input()
 {
 //	Logger log;
 	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
+	
+	sort(UnitInput.begin(), UnitInput.end());
 	
 	while(UnitInput.back().frameID < simulRules.currentFrame)
 	{
