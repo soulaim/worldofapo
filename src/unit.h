@@ -94,8 +94,15 @@ public:
 	std::string copyOrder(int ID) const;
 	void handleCopyOrder(std::stringstream& ss);
 	
+	// default attributes
+	void setDefaultMonsterAttributes();
+	void setDefaultPlayerAttributes();
+	
+	int getModifier(std::string attribute);
+	void levelUp(); // very much a place holder! TODO:
+	
 	float getAngle(ApoMath&);
-
+	
 	Location bb_top() const;
 	Location bb_bot() const;
 	void collides(OctreeObject&);

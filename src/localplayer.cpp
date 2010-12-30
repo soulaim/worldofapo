@@ -493,8 +493,10 @@ void Localplayer::handleWorldEvents()
 				
 				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 
-				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
+				auto unit_it = world.units.find(event.actor_id);
+				if( (unit_it != world.units.end()) && unit_it->second.human())
 				{
+					// dont remove this though
 					game.Players[event.actor_id].kills++;
 				}
 				break;
@@ -503,7 +505,7 @@ void Localplayer::handleWorldEvents()
 			{
 				if(event.target_id == game.myID)
 				{
-					// we want the player who dies to always here his own screams
+					// we want the player who dies to always hear his own screams
 					playSound("player_death", world.units[game.myID].position);
 				}
 				else
@@ -513,21 +515,19 @@ void Localplayer::handleWorldEvents()
 				
 				visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
 				
-				/*
-				if(event.actor_id == game.myID)
-				{
-					playSound("taunt", event.t_position);
-				}
-				*/
-				
-				if( (world.units.find(event.actor_id) != world.units.end()) && world.units.find(event.actor_id)->second.human())
+				auto unit_it = world.units.find(event.actor_id);
+				if( (unit_it != world.units.end()) && unit_it->second.human())
 				{
 					game.Players[event.actor_id].kills++;
+					
+					/*
 					if(game.Players[event.actor_id].kills > 9) // this way EVERYONE can be dominating :D
 						playSound("domination", event.t_position);
+					*/
 				}
 				
-				if( (world.units.find(event.target_id) != world.units.end()) && world.units.find(event.target_id)->second.human())
+				auto target_it = world.units.find(event.target_id);
+				if( (target_it != world.units.end()) && target_it->second.human() )
 				{
 					game.Players[event.target_id].deaths++;
 				}
