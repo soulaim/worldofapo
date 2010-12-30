@@ -1,8 +1,9 @@
-CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3 `pkg-config --cflags sdl`
+DIRS = src src/net src/graphics src/graphics/frustum
+INCLUDE_DIRS = -I src -I src/graphics
+
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3 `pkg-config --cflags sdl` $(INCLUDE_DIRS)
 LDLIBS   = -lSDL_mixer -L ./lib/ -lGL -lGLU -lpng -lGLEW `pkg-config --libs sdl`
 CXX      = g++
-
-DIRS = src src/net src/frustum
 
 target1 = bin/client
 target2 = bin/editor

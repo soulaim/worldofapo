@@ -17,6 +17,7 @@ struct Level
 	
 	void generate(int);
 	
+	// TODO: Maybe these shouldn't be parts of Level but parts of BTT instead?
 	void getLevelTriangles(std::vector<BTT_Triangle>& level_triangles) const
 	{
 		btt.getTriangles(level_triangles);

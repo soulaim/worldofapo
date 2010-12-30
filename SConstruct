@@ -4,14 +4,13 @@ import os
 
 Decider('timestamp-match')
 
-common_files = Glob("src/*.cpp") + Glob("src/frustum/*.cpp") + Glob("src/net/*.cpp");
+common_files = Glob("src/*.cpp") + Glob("src/graphics/*.cpp") + Glob("src/graphics/frustum/*.cpp") + Glob("src/net/*.cpp");
 server_files = Glob("src/dedicated/*.cpp")
 client_files = Glob("src/main/*.cpp")
 editor_files = Glob("src/editor/*.cpp")
 loader3ds_files = Glob("src/loader_3ds/*.cpp")
 
-#include_dirs = ['src', 'src/frustum', 'src/net/'] + os.environ['C_INCLUDE_PATH'].split(':')
-include_dirs = ['src'] + os.environ['C_INCLUDE_PATH'].split(':')
+include_dirs = ['src', 'src/graphics'] + os.environ['C_INCLUDE_PATH'].split(':')
 #libs = ['boost_system-gcc41-mt-1_39']
 libs = ['SDL', 'SDL_mixer', 'GL', 'GLU', 'png', 'GLEW']
 lib_dirs = [os.environ['LD_LIBRARY_PATH'].split(':'), './lib/']
