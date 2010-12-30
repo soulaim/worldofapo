@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
@@ -20,6 +21,54 @@ Unit::Unit():
 	mobility(0)
 {
 	type = OctreeObject::UNIT;
+	
+	// create attributes
+	intVals["STR"] = 0;
+	intVals["DEX"] = 0;
+	intVals["VIT"] = 0;
+	
+	intVals["WIS"] = 0;
+	intVals["INT"] = 0;
+}
+
+void Unit::setDefaultMonsterAttributes()
+{
+	// set attributes
+	intVals["STR"] = 4;
+	intVals["DEX"] = 4;
+	intVals["VIT"] = 4;
+	
+	intVals["WIS"] = 4;
+	intVals["INT"] = 4;
+}
+
+void Unit::setDefaultPlayerAttributes()
+{
+	// set attributes
+	intVals["STR"] = 4;
+	intVals["DEX"] = 4;
+	intVals["VIT"] = 4;
+	
+	intVals["WIS"] = 4;
+	intVals["INT"] = 4;
+}
+
+int Unit::getModifier(string attribute)
+{
+	if(intVals.find(attribute) == intVals.end())
+	{
+		throw std::logic_error("Asking for an attribute that doesn't exist: " + attribute);
+		return 0;
+	}
+	
+	assert(intVals[attribute] == 4);
+	
+	return 6 + intVals[attribute];
+}
+
+void Unit::levelUp()
+{
+	intVals["DEX"]++;
 }
 
 void Unit::takeDamage(int damage)
@@ -164,10 +213,12 @@ FixedPoint Unit::getMobility()
 {
 	if(mobility & (MOBILITY_STANDING_ON_OBJECT | MOBILITY_STANDING_ON_GROUND))
 	{
+		int dex_modifier = getModifier("DEX");
+		
 		if(mobility & MOBILITY_SQUASHED)
-			return FixedPoint(1, 6);
+			return FixedPoint(1, 6) * FixedPoint(dex_modifier, 10);
 		else
-			return FixedPoint(1);
+			return FixedPoint(1) * FixedPoint(dex_modifier, 10);
 	}
 	
 	return FixedPoint(0);
