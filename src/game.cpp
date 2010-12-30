@@ -527,7 +527,7 @@ void Game::processClientMsgs()
 				
 				
 				// ALERT TODO: THIS IS BUBBLEGUM TO CREATE THE CORRECT MODEL FOR THE UNIT
-				
+				/*
 				Unit tmp_unit;
 				tmp_unit.init();
 				tmp_unit.handleCopyOrder(ss);
@@ -542,6 +542,10 @@ void Game::processClientMsgs()
 				}
 				
 				world->units.find(unitID)->second = tmp_unit;
+				*/
+				
+				world->addUnit(unitID);
+				world->units.find(unitID)->second.handleCopyOrder(ss);
 				
 				// END OF ALERT TODO
 				
