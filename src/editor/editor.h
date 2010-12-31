@@ -1,17 +1,17 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "../model.h"
-#include "../apomodel.h"
-#include "../skeletalmodel.h"
-#include "../userio.h"
-#include "../graphics.h"
-#include "../unit.h"
-#include "../hud.h"
-#include "../particle.h"
-#include "../particle_source.h"
-#include "../visualworld.h"
-#include "../window.h"
+#include "graphics/model.h"
+#include "graphics/apomodel.h"
+#include "graphics/skeletalmodel.h"
+#include "userio.h"
+#include "graphics/graphics.h"
+#include "unit.h"
+#include "graphics/hud.h"
+#include "graphics/particle.h"
+#include "graphics/particle_source.h"
+#include "graphics/visualworld.h"
+#include "graphics/window.h"
 
 #include <string>
 #include <vector>

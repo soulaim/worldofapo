@@ -1,5 +1,5 @@
 #include "dedicated.h"
-#include "../modelfactory.h"
+#include "graphics/modelfactory.h"
 
 #include <iostream>
 #include <sstream>

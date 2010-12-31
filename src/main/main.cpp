@@ -5,12 +5,12 @@
 #include <fstream>
 
 #include "../localplayer.h"
-#include "../menu.h"
-#include "../graphics.h"
+#include "graphics/menu.h"
+#include "graphics/graphics.h"
 #include "../userio.h"
-#include "../hud.h"
+#include "graphics/hud.h"
 #include "../logger.h"
-#include "../window.h"
+#include "graphics/window.h"
 
 using namespace std;
 

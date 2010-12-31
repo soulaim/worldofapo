@@ -2,7 +2,7 @@
 #define DEDICATEDSERVER_H
 
 #include "../world.h"
-#include "../visualworld.h"
+#include "graphics/visualworld.h"
 #include "../ordercontainer.h"
 #include "../fps_manager.h"
 #include "../order.h"
