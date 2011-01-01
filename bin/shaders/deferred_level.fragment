@@ -12,8 +12,8 @@ void main()
 	vec3 n = normalize(normal);
 	
 	float weigth0 = 80.0 / (abs(height +  3.0) + 0.01);
-	float weigth2 = 80.0 / (abs(height -  6.0) + 0.01);
-	float weigth1 = 80.0 / (abs(height - 20.0) + 0.01);
+	float weigth1 = 80.0 / (abs(height -  6.0) + 0.01);
+	float weigth2 = 80.0 / (abs(height - 20.0) + 0.01);
 	float weigth3 = 0.0;
 
 	vec4 texture_color = vec4(0, 0, 0, 0);

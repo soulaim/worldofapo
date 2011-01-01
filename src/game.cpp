@@ -6,8 +6,10 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 #include <SDL.h>
+
 
 // required for obtaining character keys from file. could be located in another file.
 #include <fstream>
@@ -503,12 +505,9 @@ void Game::processClientMsgs()
 		{
 			string cmd;
 			ss >> cmd;
-			if(cmd == "GO")
-			{
-				cerr << "Setting client state to UNPAUSED" << endl;
-				paused_state = GO;
-			}
-			else if(cmd == "ALLOW")
+			
+			// allow messages handled first, since they are coming in all the time
+			if(cmd == "ALLOW")
 			{
 				int frame;
 				ss >> frame;
@@ -516,6 +515,55 @@ void Game::processClientMsgs()
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
 			}
+			else if(cmd == "GO")
+			{
+				cerr << "Setting client state to UNPAUSED" << endl;
+				paused_state = GO;
+			}
+			
+			else if(cmd == "CHANGE_PROPERTY")
+			{
+				string line;
+				getline(ss, line);
+				
+				// not the cleanest way to do this, but i really want to react to this message in LocalPlayer
+				WorldEvent event;
+				event.type = WorldEvent::SET_LOCAL_PROPERTY;
+				event.cmd = line;
+				
+				world->add_event(event);
+			}
+			else if(cmd == "CLEAR_WORLD_PROPERTIES")
+			{
+				world->intVals.clear();
+				world->strVals.clear();
+			}
+			else if(cmd == "WORLD_PROPERTY")
+			{
+				char type;
+				ss >> type;
+				
+				if(type == 'S')
+				{
+					string name;
+					string value;
+					ss >> name >> value;
+					world->strVals[name] = value;
+				}
+				else if(type == 'I')
+				{
+					string name;
+					int value;
+					ss >> name >> value;
+					world->intVals[name] = value;
+				}
+				else
+				{
+					throw std::logic_error("WORLD_PROPERTY MESSAGE BROKEN");
+				}
+			}
+			
+			
 			else if(cmd == "GIVE_NAME") // request player name message
 			{
 				// hmm

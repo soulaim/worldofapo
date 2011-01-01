@@ -30,7 +30,7 @@ void VisualWorld::decorate(const Level& lvl)
 
 	RandomMachine random;
 	random.setSeed(14);
-
+	
 	// Find the highest point in lvl and add a strong light there.
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
@@ -114,7 +114,7 @@ void VisualWorld::decorate(const Level& lvl)
 					continue;
 				}
 				
-				Vec3 v(X + x, y, Z + z);
+				Vec3 v(X + x, y - 0.1f, Z + z);
 				meadows.back().bushes.push_back(v);
 			}
 			
@@ -151,6 +151,35 @@ void VisualWorld::terminate()
 	meadows.clear();
 
 	lightIDgenerator.setNextID(0);
+}
+
+
+void VisualWorld::explosion(const Location& pos, const Location& direction)
+{
+	if(active == 0)
+		return;
+	
+	if(intVals["EXPLOSION_LIGHTS"])
+	{
+		addLight(pos, direction);
+	}
+	
+	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
+	int complexity = intVals["PARTICLE_EFFECT_COMPLEXITY"];
+	
+	stringstream ss_explosion_life; ss_explosion_life << "BOOM_" << complexity << "_LIFE";
+	int explosion_life = intVals[ss_explosion_life.str()];
+	
+	stringstream ss_explosion_ppf; ss_explosion_ppf << "BOOM_" << complexity << "_PPF";
+	int ppf = intVals[ss_explosion_ppf.str()];
+	
+	stringstream ss_explosion_plife; ss_explosion_plife << "BOOM_" << complexity << "_PLIFE";
+	int plife = intVals[ss_explosion_plife.str()];
+	
+	genParticleEmitter(pos, direction, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
+	
+	genParticleEmitter(pos, direction, 5, 3500, 7500, "GREY", "GREY", "GREY", "GREY", 1200, 50, 150);
+	
 }
 
 
@@ -315,20 +344,22 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 }
 
 
-void VisualWorld::addLight(int id, const Location& location, Location direction)
+void VisualWorld::addLight(const Location& location, Location direction)
 {
 	
 	if(active == 0)
 		return;
 	
+	int id = lightIDgenerator.nextID();
 	
 	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
-	light.setDiffuse(1.3f, 1.3f, 1.3f);
+	light.setDiffuse(5.3f, 5.3f, 5.3f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(140); // Some frames of LIGHT!
+	light.setLife(270); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
+	light.lifeType = LightSource::MORTAL;
 	light.position = location;
 	light.position.y += FixedPoint(3, 2);
 	light.velocity = direction;
