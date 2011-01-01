@@ -374,6 +374,18 @@ void Game::handleServerMessage(const Order& server_msg)
 			cerr << "Failed to bind camera! :(" << endl;
 		}
 	}
+	else if(server_msg.serverCommand == 24) // toggle god-mode
+	{
+		int id = server_msg.keyState;
+		
+		auto unit_it = world->units.find(id);
+		if(unit_it != world->units.end())
+		{
+			world->add_message(unit_it->second.name + " toggled god-mode!");
+			unit_it->second.intVals["GOD_MODE"] ^= 1;
+		}
+		
+	}
 	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
 	{
 		int destroy_ID = server_msg.keyState;

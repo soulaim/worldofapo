@@ -1053,6 +1053,12 @@ void World::worldTick(int tickCount)
 		Unit& unit = iter->second;
 		if(unit.hitpoints < 1)
 		{
+			if(unit.intVals["GOD_MODE"])
+			{
+				unit.hitpoints = 1000;
+				continue;
+			}
+			
 			// every time a unit dies, spawn some replenishment stuff
 			Location gear_pos = unit.position + Location(0, 1, 0);
 			Location gear_vel = unit.velocity + Location(0, 1, 0);

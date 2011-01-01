@@ -40,7 +40,7 @@ void VisualWorld::decorate(const Level& lvl)
 	tmp_light.setLife(150);
 	tmp_light.activateLight();
 	tmp_light.position = Location(FixedPoint(500), FixedPoint(0), FixedPoint(500));
-	// tmp_light.position.y = lvl.getHeight(tmp_light.position.x, tmp_light.position.z) + FixedPoint(5);
+	tmp_light.position.y = lvl.getHeight(tmp_light.position.x, tmp_light.position.z) + FixedPoint(5);
 	
 	lights[lightIDgenerator.nextID()] = tmp_light;
 
@@ -56,7 +56,6 @@ void VisualWorld::decorate(const Level& lvl)
 		tmp_light.activateLight();
 		
 		tmp_light.position = lvl.getRandomLocation(56710 + i);
-		// tmp_light.position.y = lvl.getHeight(tmp_light.position.x, tmp_light.position.z) + FixedPoint(5);
 		
 		lights[lightIDgenerator.nextID()] = tmp_light;
 	}
