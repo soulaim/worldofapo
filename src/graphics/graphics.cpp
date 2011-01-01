@@ -31,9 +31,16 @@ vector<pair<Vec3,string> > STRINGS;
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
+// NOTE: set the y values to be the same. lights that were high above ground were drawn poorly
+// because they were never near the player, although the effect is high.
 bool near(const Camera& camera, const Vec3& position, float dist = 100.0)
 {
-	return (camera.getPosition() - position).lengthSquared() < dist * dist;
+	Vec3 copy1 = camera.getPosition();
+	Vec3 copy2 = position;
+	
+	copy1.y = copy2.y;
+	
+	return (copy1 - copy2).lengthSquared() < dist * dist;
 }
 
 /*
@@ -1010,7 +1017,12 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 		Location loc = light.getPosition();
 		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 
-		float power = light.getIntensity().getFloat(); // TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
+		// TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
+		// light power is linear,
+		// light attenuation is quadratic
+		// so, square root of power should be sensible measure? lets approximate it with a constant number.
+		float power = light.getIntensity().getFloat();
+		power = 1000.0f;
 	
 		if(near(camera, v, power / intVals["DEFERRED_LIGHT_FIX_SPEED"]))
 		{
@@ -1038,6 +1050,9 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 		pass = 0;
 		glDepthMask(GL_FALSE);
 		glDisable(GL_DEPTH_TEST);
+		
+		int full_screen_lights = 0;
+		
 		for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
 		{
 			const LightObject& light = it->second;
@@ -1045,17 +1060,25 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 			Location loc = light.getPosition();
 			Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 
-			float power = light.getIntensity().getFloat(); // TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
-
+			// TODO: same as the todo in previous lights loop
+			float power = light.getIntensity().getFloat();
+			power = 1000.0f;
+			
 			if(!near(camera, v, power / intVals["DEFERRED_LIGHT_FIX_SPEED"]))
 			{
 				continue;
 			}
-
+			
+			full_screen_lights++;
 			glUniform1f(shader2.uniform("activeLight"), float(pass));
-
 			drawFullscreenQuad();
 		}
+		
+		stringstream lights_debug_str;
+		lights_debug_str << "FS Lights: " << full_screen_lights;
+		
+		hud.insertDebugString(lights_debug_str.str());
+		
 		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
 		shader2.stop();

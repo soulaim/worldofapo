@@ -22,9 +22,9 @@ extern int QUADS_DRAWN_THIS_FRAME;
 
 Hud::Hud():
 	showStats(false),
-	zombieCount(0),
 	currentTime(0),
-	world_ticks(0)
+	world_ticks(0),
+	zombieCount(0)
 {
 	cerr << "Loading config file for HUD.." << endl;
 	load("hud.conf");
@@ -35,6 +35,11 @@ Hud::Hud():
 void Hud::setAreaName(const string& areaName)
 {
 	area_name = areaName;
+}
+
+void Hud::insertDebugString(const std::string& str)
+{
+	core_info.push_back(str);
 }
 
 void Hud::setLevelSize(const FixedPoint& x, const FixedPoint& z)
@@ -234,23 +239,30 @@ void Hud::drawFPS()
 		world_ticks = 0;
 		last_time = time_now;
 	}
-
-
+	
+	// TODO: these should probably not be set here.
 	stringstream ss0;
 	ss0 << "FPS: " << fixed << setprecision(2) << fps;
-	drawString(ss0.str(), 0.6, 0.9, 1.5, true);
 	stringstream ss1;
 	ss1 << "SPF: " << fixed << setprecision(3) << 1.0/fps;
-	drawString(ss1.str(), 0.6, 0.8, 1.5, true);
 	stringstream ss2;
 	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
-	drawString(ss2.str(), 0.6, 0.7, 1.5, true);
 	stringstream ss3;
 	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
-	drawString(ss3.str(), 0.6, 0.6, 1.5, true);
 	stringstream ss4;
 	ss4 << "QUADS: " << fixed << setprecision(2) << QUADS_DRAWN_THIS_FRAME;
-	drawString(ss4.str(), 0.6, 0.5, 1.5, true);
+	
+	core_info.push_back(ss0.str());
+	core_info.push_back(ss1.str());
+	core_info.push_back(ss2.str());
+	core_info.push_back(ss3.str());
+	core_info.push_back(ss4.str());
+	
+	for(size_t i = 0; i < core_info.size(); i++)
+	{
+		drawString(core_info[i], 0.6f, 0.9f - 0.1f * i, 1.5, true);
+	}
+	
 }
 
 void Hud::draw(bool firstPerson)
@@ -268,6 +280,9 @@ void Hud::draw(bool firstPerson)
 	drawStats();
 	drawFPS();
 	drawAmmo();
+	
+	// clear per-visual-frame info messages
+	core_info.clear();
 }
 
 void Hud::setShowStats(bool _showStats) {

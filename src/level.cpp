@@ -57,7 +57,7 @@ Location Level::getRandomLocation(int seed) const
 	Location result;
 	result.x = ((173  * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
 	result.z = ((833 * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
-	result.y = FixedPoint(15);
+	result.y = getHeight(result.x, result.z) + FixedPoint(5);
 	return result;
 }
 

@@ -451,6 +451,19 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			
 			return;
 		}
+		else if(cmd == "GODMODE")
+		{
+			string property;
+			int value;
+			
+			ss >> property >> value;
+			
+			stringstream property_msg;
+			property_msg << "-1 " << (serverAllow + 10) << " 24 " << id << "#";
+			serverMsgs.push_back(property_msg.str());
+			
+			return;
+		}
 		else if(cmd == "TEAM")
 		{
 			int new_team = 0;
@@ -667,6 +680,22 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 2) // "set playerID" message
 	{
 		cerr << "SERVER HAS NO ID, CAN NOT CHANGE IT" << endl;
+	}
+	else if(server_msg.serverCommand == 24) // toggle god-mode
+	{
+		int id = server_msg.keyState;
+		
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			auto unit_it = world.units.find(id);
+			if(unit_it != world.units.end())
+			{
+				unit_it->second.intVals["GOD_MODE"] ^= 1;
+				break;
+			}
+		}
+		
 	}
 	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
 	{

@@ -39,7 +39,9 @@ void VisualWorld::decorate(const Level& lvl)
 	tmp_light.setDiffuse(8.0, 2.0, 2.0);
 	tmp_light.setLife(150);
 	tmp_light.activateLight();
-	tmp_light.position = Location(FixedPoint(500), FixedPoint(80), FixedPoint(500));
+	tmp_light.position = Location(FixedPoint(500), FixedPoint(0), FixedPoint(500));
+	tmp_light.position.y = lvl.getHeight(tmp_light.position.x, tmp_light.position.z) + FixedPoint(5);
+	
 	lights[lightIDgenerator.nextID()] = tmp_light;
 
 	// Add some random lights.
@@ -52,7 +54,9 @@ void VisualWorld::decorate(const Level& lvl)
 		tmp_light.setDiffuse(random.getFloat(1.0f, 8.0f), random.getFloat(1.0f, 8.0f), random.getFloat(1.0, 8.0f));
 		tmp_light.setLife(150);
 		tmp_light.activateLight();
+		
 		tmp_light.position = lvl.getRandomLocation(56710 + i);
+		
 		lights[lightIDgenerator.nextID()] = tmp_light;
 	}
 
@@ -192,7 +196,7 @@ void VisualWorld::setCamera(const Camera& cam)
 
 void VisualWorld::bindCamera(Unit* unit)
 {
-	camera.bind(unit, Camera::THIRD_PERSON);
+	camera.bind(unit, Camera::FIRST_PERSON);
 }
 
 void VisualWorld::updateModel(Model* model, const Unit& unit)

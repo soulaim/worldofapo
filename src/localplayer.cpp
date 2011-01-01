@@ -303,7 +303,17 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 	}
 	else
 	{
-		return false;
+		// handle special cases
+		if(word1 == "AMBIENT")
+		{
+			view->intVals["AMBIENT_RED"] = value;
+			view->intVals["AMBIENT_GREEN"] = value;
+			view->intVals["AMBIENT_BLUE"] = value;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	world.add_message("^Gvalue set");
 	return true;
