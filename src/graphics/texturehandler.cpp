@@ -62,7 +62,13 @@ unsigned TextureHandler::createTexture(const string& name, const string& filenam
 {
 	Image img;
 	img.loadImage(filename);
-
+	
+	if((img.sizeX == 0) || (img.sizeY == 0))
+	{
+		cerr << "Failed to load texture '" << name << "' from file '" << filename << "'. File doesn't exist?" << endl;
+		return 0;
+	}
+	
 	cerr << "Loading " << img.sizeX << "x" << img.sizeY << " texture '" << name << "' from file '" << filename << "'" << endl;
 	return createTexture(name, img);
 }

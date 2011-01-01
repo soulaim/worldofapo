@@ -250,6 +250,23 @@ void Localplayer::process_sent_game_input()
 	game.set_current_frame_input(keyState, x, y, mousepress);
 }
 
+bool setVariable(HasProperties& properties, string var_name, string word, int val)
+{
+	if(properties.intVals.find(var_name) != properties.intVals.end())
+	{
+		properties.intVals[var_name] = val;
+		return true;
+	}
+	
+	if(properties.strVals.find(var_name) != properties.strVals.end())
+	{
+		properties.strVals[var_name] = word;
+		return true;
+	}
+	
+	return false;
+}
+
 bool Localplayer::set_local_variable(const std::string& clientCommand)
 {
 	stringstream msg_ss(clientCommand);
@@ -261,47 +278,12 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 	stringstream word2_ss(word2);
 	word2_ss >> value;
 	
-	if(world.intVals.find(word1) != world.intVals.end())
-	{
-		world.intVals[word1] = value;
-	}
-	else if(view->intVals.find(word1) != view->intVals.end())
-	{
-		view->intVals[word1] = value;
-	}
-	else if(intVals.find(word1) != intVals.end())
-	{
-		intVals[word1] = value;
-	}
-	else if(visualworld.intVals.find(word1) != visualworld.intVals.end())
-	{
-		visualworld.intVals[word1] = value;
-	}
-	else if(hud->intVals.find(word1) != hud->intVals.end())
-	{
-		hud->intVals[word1] = value;
-	}
-	else if(world.strVals.find(word1) != world.strVals.end())
-	{
-		world.strVals[word1] = word2;
-	}
-	else if(view->strVals.find(word1) != view->strVals.end())
-	{
-		view->strVals[word1] = word2;
-	}
-	else if(strVals.find(word1) != strVals.end())
-	{
-		strVals[word1] = word2;
-	}
-	else if(visualworld.strVals.find(word1) != visualworld.strVals.end())
-	{
-		visualworld.strVals[word1] = word2;
-	}
-	else if(hud->strVals.find(word1) != hud->strVals.end())
-	{
-		hud->strVals[word1] = word2;
-	}
-	else
+	if(!setVariable(world, word1, word2, value))
+	if(!setVariable(*view, word1, word2, value))
+	if(!setVariable(*this, word1, word2, value))
+	if(!setVariable(visualworld, word1, word2, value))
+	if(!setVariable(*hud, word1, word2, value))
+	if(!setVariable(visualworld.levelDesc, word1, word2, value))
 	{
 		// handle special cases
 		if(word1 == "AMBIENT")
@@ -315,6 +297,7 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 			return false;
 		}
 	}
+	
 	world.add_message("^Gvalue set");
 	return true;
 }
@@ -552,6 +535,18 @@ void Localplayer::handleWorldEvents()
 				}
 				break;
 			}
+			case WorldEvent::SET_LOCAL_PROPERTY:
+			{
+				if(set_local_variable(event.cmd))
+				{
+					world.add_message("^GSomething happened");
+				}
+				else
+				{
+					world.add_message("^RSomething did not happen");
+				}
+			}
+			
 			default:
 			{
 				std::cerr << "UNKNOWN world EVENT OCCURRED" << std::endl;

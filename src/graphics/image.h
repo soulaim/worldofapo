@@ -5,7 +5,11 @@
 #include <string>
 
 struct Image {
-	Image(): data(0) {}
+	Image(): data(0)
+	{
+		sizeX = 0;
+		sizeY = 0;
+	}
 	
 	//  void constructTexture();
 	void loadImage(const std::string& filename);

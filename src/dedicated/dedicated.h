@@ -56,7 +56,9 @@ class DedicatedServer : public HasProperties
 
 	FPS_Manager fps_world;
 	VisualWorld visualworld; // one common visualworld
+	
 	std::map<std::string, World> areas;
+	std::map<std::string, HasProperties> area_settings;
 	
 	SocketHandler sockets;  // children, other processes connected to my hosted game.
 	IDGenerator playerIDGenerator;

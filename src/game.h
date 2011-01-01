@@ -69,6 +69,7 @@ private:
 		PAUSED = 0,
 		GO
 	};
+	
 	PausedState paused_state;
 	StateInfo simulRules; // rules for running the simulation.
 	

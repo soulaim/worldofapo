@@ -24,6 +24,10 @@ LevelDescriptor::LevelDescriptor()
 	{
 		locations[i] = -1;
 	}
+	
+	strVals["TERRAIN_LOW"] = "";
+	strVals["TERRAIN_MID"] = "";
+	strVals["TERRAIN_HIGH"] = "";
 }
 
 void LevelDescriptor::setLevel(Level* lvl)
@@ -554,7 +558,18 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) const
 {
 	// Draw terrain with deferred rendering, apply lights later.
-
+	if(!debugMode &&
+		(
+		strVals.find("TERRAIN_LOW") == strVals.end() ||
+		strVals.find("TERRAIN_MID") == strVals.end() ||
+		strVals.find("TERRAIN_HIGH") == strVals.end()
+		)
+	  )
+	{
+		// can't draw yet..
+		return;
+	}
+	
 	glUseProgram(shaders["deferred_level_program"]);
 
 //	size_t height = lvl.pointheight_info.size();
@@ -586,9 +601,9 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 	}
 	else
 	{
-		TextureHandler::getSingleton().bindTexture(0, "grass");
-		TextureHandler::getSingleton().bindTexture(1, "hill");
-		TextureHandler::getSingleton().bindTexture(2, "highground");
+		TextureHandler::getSingleton().bindTexture(0, strVals.find("TERRAIN_LOW")->second);
+		TextureHandler::getSingleton().bindTexture(1, strVals.find("TERRAIN_MID")->second);
+		TextureHandler::getSingleton().bindTexture(2, strVals.find("TERRAIN_HIGH")->second);
 	}
 	
 	drawBuffers();

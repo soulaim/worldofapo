@@ -10,7 +10,8 @@ struct WorldEvent
 		DAMAGE_DEVOUR,
 		DEATH_PLAYER,
 		DEATH_ENEMY,
-		CENTER_CAMERA
+		CENTER_CAMERA,
+		SET_LOCAL_PROPERTY
 	};
 
 	EventType type;
@@ -23,6 +24,8 @@ struct WorldEvent
 	
 	int actor_id;
 	int target_id;
+	
+	std::string cmd;
 };
 
 #endif

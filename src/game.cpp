@@ -503,18 +503,32 @@ void Game::processClientMsgs()
 		{
 			string cmd;
 			ss >> cmd;
-			if(cmd == "GO")
-			{
-				cerr << "Setting client state to UNPAUSED" << endl;
-				paused_state = GO;
-			}
-			else if(cmd == "ALLOW")
+			
+			// allow messages handled first, since they are coming in all the time
+			if(cmd == "ALLOW")
 			{
 				int frame;
 				ss >> frame;
 				
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
+			}
+			else if(cmd == "GO")
+			{
+				cerr << "Setting client state to UNPAUSED" << endl;
+				paused_state = GO;
+			}
+			else if(cmd == "WORLD_PROPERTY")
+			{
+				string line;
+				getline(ss, line);
+				
+				// not the cleanest way to do this, but i really want to react to this message in LocalPlayer
+				WorldEvent event;
+				event.type = WorldEvent::SET_LOCAL_PROPERTY;
+				event.cmd = line;
+				
+				world->add_event(event);
 			}
 			else if(cmd == "GIVE_NAME") // request player name message
 			{

@@ -38,6 +38,7 @@ public:
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;
 	
+	
 	enum ModelType
 	{
 		INVISIBLE_MODEL,
