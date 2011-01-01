@@ -306,7 +306,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	int myLeaderID = -1;
 	int my_team = unit["TEAM"];
 	
-	if(unit["L"] == 0)
+	if(unit["L"] == -1)
 		unit["L"] = unit.id;
 	
 	if(unit.intVals[unit.weapons[unit.weapon].strVals["AMMUNITION_TYPE"]] == 0)

@@ -114,7 +114,7 @@ void VisualWorld::decorate(const Level& lvl)
 					continue;
 				}
 				
-				Vec3 v(X + x, y, Z + z);
+				Vec3 v(X + x, y - 0.1f, Z + z);
 				meadows.back().bushes.push_back(v);
 			}
 			
@@ -324,9 +324,9 @@ void VisualWorld::addLight(int id, const Location& location, Location direction)
 	
 	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
-	light.setDiffuse(1.3f, 1.3f, 1.3f);
+	light.setDiffuse(5.3f, 5.3f, 5.3f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(140); // Some frames of LIGHT!
+	light.setLife(270); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
 	light.position = location;
