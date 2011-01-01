@@ -19,6 +19,8 @@
 #include <numeric>
 #include <map>
 #include <stdexcept>
+#include <list>
+#include <tuple>
 
 using namespace std;
 
@@ -1512,86 +1514,55 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 
 }
 
-void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<MenuParticle>& menuParticles) const
+void Graphics::drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const string& color) const
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-	
-	
-	// render a menu background scene! Falling particles would be awesome.
-	for(size_t i=0; i<menuParticles.size(); i++)
-	{
-		stringstream menuparticle;
-		float scale;
-		if(menuParticles[i].front == 0)
-		{
-			menuparticle << "^r" << menuParticles[i].val;
-			scale = 1.2f;
-			hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
-		}
-	}
-	
-	for(size_t i=0; i<menuParticles.size(); i++)
-	{
-		stringstream menuparticle;
-		float scale;
-		if(menuParticles[i].front == 1)
-		{
-			menuparticle << "^R" << menuParticles[i].val;
-			scale = 2.0f;
-			hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
-		}
-	}
-	
-	
-	// blur the effect?
-	
-	
-	// render menu buttons on top of the scene.
-	
-	float button_height = -0.10f;
-	float menu_y_offset  = 0.2f;
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-	
-	for(size_t i = 0; i < buttons.size(); ++i)
-	{
-		stringstream msg;
-		stringstream info;
-		if(buttons[i].selected == 1)
-		{
-			if(buttons[i].editing())
-			{
-				msg << "^Y";
-				info << "^G";
-			}
-			else
-			{
-				msg << "^G";
-				info << "^Y";
-			}
-		}
-		else
-		{
-			msg  << "^W";
-			info << "^W";
-		}
-		
-		float minus = i * button_height;
-		
-		// float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
-		// TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
-		
-		// void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
-		
-		msg << buttons[i].name;
-		info << buttons[i].info;
-		hud.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
-		hud.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
-		
-		/*
+    // render a menu background scene! Falling particles would be awesome.
+    for(size_t i = 0;i < menuParticles.size();i++)
+    {
+        stringstream menuparticle;
+        if(menuParticles[i].front == front)
+        {
+            menuparticle << color << menuParticles[i].val;
+            hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
+        }
+    }
+}
+
+void Graphics::drawMenuButtons(const vector<MenuButton>& buttons) const
+{
+    float button_height = -0.10f;
+    float menu_y_offset = 0.2f;
+    for(size_t i = 0;i < buttons.size();++i)
+    {
+        stringstream msg;
+        stringstream info;
+        if(buttons[i].selected == 1)
+        {
+            if(buttons[i].editing())
+            {
+                msg << "^Y";
+                info << "^G";
+            }
+            else
+            {
+                msg << "^G";
+                info << "^Y";
+            }
+        }
+        else
+        {
+            msg << "^W";
+            info << "^W";
+        }
+        float minus = i * button_height;
+        // float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
+        // TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
+        // void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
+        msg << buttons[i].name;
+        info << buttons[i].info;
+        hud.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
+        hud.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
+        /*
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus * menu_height + menu_y_offset, -1);
 		glTexCoord2f(1.f, 0.0f); glVertex3f(+0, minus * menu_height + menu_y_offset, -1);
@@ -1599,9 +1570,90 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus  * menu_height + menu_y_offset, -1);
 		glEnd();
 		*/
+    }
+}
+
+void Graphics::drawMenuRectangles() const
+{
+	static list<tuple<float, float, float, float, float, float, float> > rects;
+	static int count = 0;
+	if(count == 0)
+	{
+		rects.push_back(make_tuple(0.0f, 0.0f, 0.0f, 0.0f, 0.4f, 0.4f, 0.4f));
 	}
+	if(count++ % 30 == 0)
+	{
+		float r = sin(count / 300.0f) * 0.5 + 0.5;
+		float g = cos(count / 300.0f) * 0.5 + 0.5;
+		float b = (sin(count / 300.0f) + cos(count / 300.0f))/2 * 0.5 + 0.5;
+
+		float x = sin(count / 300.0f) / 5.0f;
+		float y = cos(count / 300.0f) / 5.0f;
+		rects.push_back(make_tuple(x, y, 0.007f, 0.004f, r, g, b));
+	}
+	TextureHandler::getSingleton().bindTexture(0, "");
+
+	for(auto it = rects.begin(); it != rects.end(); )
+	{
+		float center_x = std::get<0>(*it);
+		float center_y = std::get<1>(*it);
+		float size_x = std::get<2>(*it);
+		float size_y = std::get<3>(*it);
+		float r = std::get<4>(*it);
+		float g = std::get<5>(*it);
+		float b = std::get<6>(*it);
+
+		float left = center_x - size_x;
+		float right = center_x + size_x;
+		float top = center_y + size_y;
+		float bot = center_y - size_y;
+
+		if(top > 1.0f && bot < -1.0f && left < -1.0f && right > 1.0f)
+		{
+			it = rects.erase(it);
+			continue;
+		}
+		else
+		{
+			std::get<2>(*it) *= 1.03f;
+			std::get<3>(*it) *= 1.03f;
+			++it;
+		}
+
+		glColor3f(r, g, b);
+		glBegin(GL_LINES);
+			glVertex3f(left, top, -1.0f);
+			glVertex3f(right, top, -1.0f);
+			glVertex3f(left, bot, -1.0f);
+			glVertex3f(right, bot, -1.0f);
+			glVertex3f(left, top, -1.0f);
+			glVertex3f(left, bot, -1.0f);
+			glVertex3f(right, top, -1.0f);
+			glVertex3f(right, bot, -1.0f);
+		glEnd();
+	}
+}
+
+void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<MenuParticle>& menuParticles) const
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+    drawMenuParticles(menuParticles, 0, 1.2f, "^r");
+    drawMenuParticles(menuParticles, 1, 2.0f, "^R");
 	
-	glDepthMask(GL_TRUE);
+    drawMenuRectangles();
+
+	// blur the effect?
+	
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+
+    // render menu buttons on top of the scene.
+    drawMenuButtons(buttons);
+
+    glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	
