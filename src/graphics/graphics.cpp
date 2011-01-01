@@ -989,11 +989,16 @@ void Graphics::applyAmbientLight()
 	shader.stop();
 }
 
-Vec3 Graphics::GetOGLPos(int x, int y)
+Vec3 Graphics::getWorldPosition()
+{
+	return getWorldPosition(intVals["RESOLUTION_X"]/2, intVals["RESOLUTION_Y"]/2);
+}
+
+Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
 {
 	setupCamera(*camera_p);
 
-	GLint viewport[4];
+	GLint viewport[4] = { 0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"] };
 	GLdouble modelview[16];
 	GLdouble projection[16];
 	GLfloat winX, winY, winZ;
@@ -1002,11 +1007,13 @@ Vec3 Graphics::GetOGLPos(int x, int y)
 	// TODO: DON'T glGet* these, get directly from camera instead!!
 	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
 	glGetDoublev( GL_PROJECTION_MATRIX, projection );
-	glGetIntegerv( GL_VIEWPORT, viewport );
+//	glGetIntegerv( GL_VIEWPORT, viewport );
 
-	winX = (float)x;
-	winY = (float)viewport[3] - (float)y;
-	glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+	winX = (float)screen_x;
+	winY = (float)viewport[3] - (float)screen_y;
+
+	bind_framebuffer(deferredFBO, 0);
+	glReadPixels( screen_x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
 
 	gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 

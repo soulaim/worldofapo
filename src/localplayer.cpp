@@ -428,7 +428,7 @@ bool Localplayer::handleClientLocalInput()
 		else if(key == "o")
 		{
 			stringstream ss;
-			ss << "Camera might be looking somewhere around " << view->GetOGLPos(320, 240);
+			ss << "Camera is looking at " << view->getWorldPosition();
 			world.add_message(ss.str());
 		}
 		

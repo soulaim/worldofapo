@@ -127,7 +127,8 @@ public:
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 
-	Vec3 GetOGLPos(int x, int y);
+	Vec3 getWorldPosition();
+	Vec3 getWorldPosition(int screen_x, int screen_y);
 	
 	void zoom_in();
 	void zoom_out();
