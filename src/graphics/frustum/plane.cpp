@@ -57,8 +57,3 @@ float Plane::distance(const Vec3 &p)
 	return (d + normal.innerProduct(p));
 }
 
-void Plane::print()
-{
-	printf("Plane(");normal.print();printf("# %f)",d);
-}
-

@@ -6,6 +6,7 @@
 #include "apomath.h"
 #include "location.h"
 #include "frustum/vec3.h"
+#include "frustum/matrix4.h"
 #include "level.h"
 #include "unit.h"
 
@@ -27,6 +28,8 @@ public:
 	Vec3 getPosition() const;
 	const Location& getUnitLocation() const;
 	
+	void setPosition(const Vec3& position);
+
 	bool unitDie(int id);
 	
 	void tick();
@@ -51,6 +54,7 @@ public:
 	
 	int unit_id;
 	
+	Matrix4 modelview() const;
 private:
 	
 	void getRelativePos(Vec3&) const;

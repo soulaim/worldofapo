@@ -7,6 +7,29 @@
 
 using namespace std;
 
+Matrix4::Matrix4(const Vec3& row1, const Vec3& row2, const Vec3& row3)
+{
+	T[0] = row1.x;
+	T[1] = row1.y;
+	T[2] = row1.z;
+	T[3] = 0.0f;
+
+	T[4] = row2.x;
+	T[5] = row2.y;
+	T[6] = row2.z;
+	T[7] = 0.0f;
+
+	T[8] = row3.x;
+	T[9] = row3.y;
+	T[10] = row3.z;
+	T[11] = 0.0f;
+
+	T[12] = 0.0f;
+	T[13] = 0.0f;
+	T[14] = 0.0f;
+	T[15] = 1.0f;
+}
+
 Matrix4::Matrix4(float rotx, float roty, float rotz, float dx, float dy, float dz)
 {
 	// http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations

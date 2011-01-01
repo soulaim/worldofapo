@@ -442,6 +442,12 @@ bool Localplayer::handleClientLocalInput()
 				world.add_message(ss_msg.str());
 			}
 		}
+		else if(key == "o")
+		{
+			stringstream ss;
+			ss << "Camera might be looking somewhere around " << view->GetOGLPos(320, 240);
+			world.add_message(ss.str());
+		}
 		
 	}
 	return true;

@@ -843,7 +843,7 @@ void Graphics::setupCamera(const Camera& camera)
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);
-			  
+
 	frustum.setCamDef(camPos, camTarget, upVector);
 }
 
@@ -987,7 +987,30 @@ void Graphics::applyAmbientLight()
 	shader.stop();
 }
 
-// TODO: This doesn't work if the light is just behind the far plane (??)
+Vec3 Graphics::GetOGLPos(int x, int y)
+{
+	setupCamera(*camera_p);
+
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLfloat winX, winY, winZ;
+	GLdouble posX, posY, posZ;
+
+	// TODO: DON'T glGet* these, get directly from camera instead!!
+	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+	glGetDoublev( GL_PROJECTION_MATRIX, projection );
+	glGetIntegerv( GL_VIEWPORT, viewport );
+
+	winX = (float)x;
+	winY = (float)viewport[3] - (float)y;
+	glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+
+	gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+
+	return Vec3(posX, posY, posZ);
+}
+
 void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
 	camera.getPosition();

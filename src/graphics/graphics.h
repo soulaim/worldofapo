@@ -126,6 +126,8 @@ public:
 	void toggleLightingStatus();
 	void toggleWireframeStatus();
 	void toggleFullscreen();
+
+	Vec3 GetOGLPos(int x, int y);
 	
 	void zoom_in();
 	void zoom_out();
