@@ -551,10 +551,12 @@ void Localplayer::handleWorldEvents()
 				{
 					world.add_message("^RSomething did not happen");
 				}
+				break;
 			}
 			
 			default:
 			{
+				world.add_message("^RUNKNOWN world EVENT OCCURRED");
 				std::cerr << "UNKNOWN world EVENT OCCURRED" << std::endl;
 			}
 		}
