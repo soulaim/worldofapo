@@ -154,6 +154,35 @@ void VisualWorld::terminate()
 }
 
 
+void VisualWorld::explosion(int id, const Location& pos, const Location& direction)
+{
+	if(active == 0)
+		return;
+	
+	if(intVals["EXPLOSION_LIGHTS"])
+	{
+		addLight(id, pos, direction);
+	}
+	
+	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
+	int complexity = intVals["PARTICLE_EFFECT_COMPLEXITY"];
+	
+	stringstream ss_explosion_life; ss_explosion_life << "BOOM_" << complexity << "_LIFE";
+	int explosion_life = intVals[ss_explosion_life.str()];
+	
+	stringstream ss_explosion_ppf; ss_explosion_ppf << "BOOM_" << complexity << "_PPF";
+	int ppf = intVals[ss_explosion_ppf.str()];
+	
+	stringstream ss_explosion_plife; ss_explosion_plife << "BOOM_" << complexity << "_PLIFE";
+	int plife = intVals[ss_explosion_plife.str()];
+	
+	genParticleEmitter(pos, direction, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
+	
+	genParticleEmitter(pos, direction, 5, 3500, 7500, "GREY", "GREY", "GREY", "GREY", 1200, 50, 150);
+	
+}
+
+
 void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
 {
 	if(active == 0)

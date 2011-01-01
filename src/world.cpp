@@ -72,25 +72,8 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	// create some effect or something
 	Location zero; zero.y = FixedPoint(1, 2);
 	
-	if(intVals["EXPLOSION_LIGHTS"])
-	{
-		visualworld->addLight(nextUnitID(), pos, zero);
-	}
-
-	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
-	int complexity = visualworld->intVals["PARTICLE_EFFECT_COMPLEXITY"];
-
-	stringstream ss_explosion_life; ss_explosion_life << "BOOM_" << complexity << "_LIFE";
-	int explosion_life = intVals[ss_explosion_life.str()];
 	
-	stringstream ss_explosion_ppf; ss_explosion_ppf << "BOOM_" << complexity << "_PPF";
-	int ppf = intVals[ss_explosion_ppf.str()];
-	
-	stringstream ss_explosion_plife; ss_explosion_plife << "BOOM_" << complexity << "_PLIFE";
-	int plife = intVals[ss_explosion_plife.str()];
-		
-	visualworld->genParticleEmitter(pos, zero, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
-	visualworld->genParticleEmitter(pos, zero, 5, 3500, 7500, "GREY", "GREY", "GREY", "GREY", 1200, 50, 150);
+	visualworld->explosion(nextUnitID(), pos, zero);
 	
 	// original values for the explosion effect.
 	// visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
@@ -402,24 +385,6 @@ void World::generateInput_RabidAlien(Unit& unit)
 	
 	
 	bestSquaredDistance = (units.find(unitID)->second.position - unit.position).lengthSquared();
-	Unit& target = units.find(unitID)->second;
-	
-	// if close enough, do damage by DEVOURING
-	if(bestSquaredDistance < FixedPoint(9))
-	{
-		// DEVOUR!
-		target.takeDamage(173); // devouring does LOTS OF DAMAGE!
-		target.last_damage_dealt_by = unit.id;
-		target("DAMAGED_BY") = "devour";
-		
-		// save this information for later use.
-		WorldEvent event;
-		event.type = WorldEvent::DAMAGE_DEVOUR;
-		event.t_position = units.find(unitID)->second.position;
-		event.t_position.y += FixedPoint(2);
-		event.t_velocity.y = FixedPoint(900,1000);
-		visualworld->add_event(event);
-	}
 	
 	int best_angle, best_upangle;
 	getTurnValues(unit, units[unitID], best_angle, best_upangle);
