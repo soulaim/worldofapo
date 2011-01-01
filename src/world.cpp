@@ -73,7 +73,7 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	Location zero; zero.y = FixedPoint(1, 2);
 	
 	
-	visualworld->explosion(nextUnitID(), pos, zero);
+	visualworld->explosion(pos, zero);
 	
 	// original values for the explosion effect.
 	// visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);

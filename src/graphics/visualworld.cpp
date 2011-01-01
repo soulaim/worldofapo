@@ -30,7 +30,7 @@ void VisualWorld::decorate(const Level& lvl)
 
 	RandomMachine random;
 	random.setSeed(14);
-
+	
 	// Find the highest point in lvl and add a strong light there.
 	LightObject tmp_light;
 	tmp_light.unitBind = -1;
@@ -154,14 +154,14 @@ void VisualWorld::terminate()
 }
 
 
-void VisualWorld::explosion(int id, const Location& pos, const Location& direction)
+void VisualWorld::explosion(const Location& pos, const Location& direction)
 {
 	if(active == 0)
 		return;
 	
 	if(intVals["EXPLOSION_LIGHTS"])
 	{
-		addLight(id, pos, direction);
+		addLight(pos, direction);
 	}
 	
 	// TODO: move the visual part of the explosion to the visualworld by storing a WorldEvent (or a maybe something derived from it)
@@ -344,12 +344,13 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 }
 
 
-void VisualWorld::addLight(int id, const Location& location, Location direction)
+void VisualWorld::addLight(const Location& location, Location direction)
 {
 	
 	if(active == 0)
 		return;
 	
+	int id = lightIDgenerator.nextID();
 	
 	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
@@ -358,6 +359,7 @@ void VisualWorld::addLight(int id, const Location& location, Location direction)
 	light.setLife(270); // Some frames of LIGHT!
 	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
 	light.activateLight(); // ACTIVATE :D
+	light.lifeType = LightSource::MORTAL;
 	light.position = location;
 	light.position.y += FixedPoint(3, 2);
 	light.velocity = direction;
