@@ -5,11 +5,8 @@
 
 class Vec3
 {
-
 public:
-
 	float x,y,z;
-
 
 	Vec3(float x, float y, float z);
 	Vec3(const Vec3 &v);
@@ -35,9 +32,6 @@ public:
 	void normalize();
 	float innerProduct(const Vec3& v) const;
 	void set(float x, float y, float z);
-
-	void print();
-
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vec3& vec)

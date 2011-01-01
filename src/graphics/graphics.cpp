@@ -835,11 +835,13 @@ void Graphics::setupCamera(const Camera& camera)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	// TODO: how about changing these to our own functions, just because we can.
 	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// TODO: how about changing these to our own functions, just because we can.
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);

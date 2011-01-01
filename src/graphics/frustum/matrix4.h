@@ -19,6 +19,8 @@ public:
 	Matrix4 operator *(const Matrix4& v) const;
 
 	Vec3 operator *(const Vec3& v) const;
+
+	static Matrix4 projectionFrustum(float left, float right, float bottom, float top, float near, float far);
 };
 
 std::ostream& operator<<(std::ostream& out, const Matrix4& m);
