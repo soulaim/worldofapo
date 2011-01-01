@@ -100,8 +100,8 @@ void Camera::tick()
 
 void Camera::bind(Unit* unit, FollowMode mode)
 {
-	this->unit = unit;
 	this->mode_ = mode;
+	this->unit = unit;
 	this->unit_id = unit->id;
 }
 

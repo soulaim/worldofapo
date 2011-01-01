@@ -90,7 +90,8 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	int plife = intVals[ss_explosion_plife.str()];
 		
 	visualworld->genParticleEmitter(pos, zero, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
-
+	visualworld->genParticleEmitter(pos, zero, 5, 3500, 7500, "GREY", "GREY", "GREY", "GREY", 1200, 50, 150);
+	
 	// original values for the explosion effect.
 	// visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
 	
@@ -210,11 +211,103 @@ void World::doDeathFor(Unit& unit)
 	visualworld->add_event(event);
 }
 
+
+
+
+void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
+{
+	// turn towards the human unit until facing him. then RUSH FORWARD!
+	Location direction = target.position - me.position;
+	
+	if(direction.length() == 0)
+	{
+		// wtf, same position as my target? :G
+		return;
+	}
+	
+	direction.normalize();
+	
+	Location myDirection;
+	
+	int hypo_angle = me.angle;
+	int hypo_upangle = me.upangle;
+	bool improved = true;
+	FixedPoint best_error = FixedPoint(1000000);
+	
+	ApoMath apomath;
+	
+	while(improved)
+	{
+		improved = false;
+		hypo_angle += 5;
+		myDirection.z = apomath.getSin(hypo_angle);
+		myDirection.x = apomath.getCos(hypo_angle);
+		
+		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_angle -= 10;
+			myDirection.z = apomath.getSin(hypo_angle);
+			myDirection.x = apomath.getCos(hypo_angle);
+			
+			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_angle += 5;
+		}
+	}
+	
+	best_error = FixedPoint(1000000);
+	improved = true;
+	while(improved)
+	{
+		improved = false;
+		hypo_upangle += 5;
+		myDirection.y = apomath.getSin(hypo_upangle);
+		FixedPoint error = (direction.y * 100 - myDirection.y * 100).squared();
+		if(error < best_error)
+		{
+			best_error = error;
+			improved = true;
+		}
+		else
+		{
+			hypo_upangle -= 10;
+			myDirection.y = apomath.getSin(hypo_upangle);
+			error = (direction.y * 100 - myDirection.y * 100).squared();
+			if(error < best_error)
+			{
+				best_error = error;
+				improved = true;
+			}
+			else
+				hypo_upangle += 5;
+		}
+	}
+	
+	best_angle = hypo_angle;
+	best_upangle = hypo_upangle;
+}
+
+
 void World::generateInput_RabidAlien(Unit& unit)
 {
 	FixedPoint bestSquaredDistance = FixedPoint(200 * 200);
 	int unitID = -1;
+	int myLeaderID = -1;
 	int my_team = unit["TEAM"];
+	
+	if(unit["L"] == 0)
+		unit["L"] = unit.id;
 	
 	if(unit.intVals[unit.weapons[unit.weapon].strVals["AMMUNITION_TYPE"]] == 0)
 	{
@@ -228,7 +321,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 		}
 	}
 	
-	// find the nearest human controlled unit
+	// find the nearest human controlled unit + some "leader" for my team
 	if( (unit.birthTime + currentWorldFrame) % 70 == 0)
 	{
 		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
@@ -242,26 +335,71 @@ void World::generateInput_RabidAlien(Unit& unit)
 					unitID = it->first;
 				}
 			}
+			else
+			{
+				if(myLeaderID == -1)
+				{
+					myLeaderID = it->first;
+				}
+			}
 		}
 		
 		unit["T"] = unitID;
+		unit["L"] = myLeaderID;
+		
+		if(unitID == -1)
+		{
+			// try look
+		}
+		
 	}
 	else
 	{
 		unitID = unit["T"];
+		myLeaderID = unit["L"];
+		
 		if(units.find(unitID) == units.end())
 		{
 			unit["T"] = -1;
 			unitID = -1;
 		}
+		
+		// there is always some leader
+		if(units.find(myLeaderID) == units.end())
+		{
+			unit["L"] = -1;
+			myLeaderID = unit.id;
+		}
 	}
-	// if no nearby human controlled unit was found, sleep
+	
+	// if no opponent is near, gather to my leader!
 	if(unitID == -1)
 	{
-		// nothing interesting going on, disable unit.
-		unit.updateInput(0, 0, 0, 0);
+		
+		if(myLeaderID == unit.id)
+		{
+			// nothing to do :G
+			unit.updateInput(0, 0, 0, 0);
+		}
+		else
+		{
+			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
+			{
+				unit.updateInput(0, 0, 0, 0);
+				return;
+			}
+			
+			int mousex, mousey;
+			getTurnValues(unit, units[myLeaderID], mousex, mousey);
+			
+			unit.angle = mousex;
+			unit.upangle = mousey;
+			unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
+		}
+		
 		return;
 	}
+	
 	
 	bestSquaredDistance = (units.find(unitID)->second.position - unit.position).lengthSquared();
 	Unit& target = units.find(unitID)->second;
@@ -283,92 +421,20 @@ void World::generateInput_RabidAlien(Unit& unit)
 		visualworld->add_event(event);
 	}
 	
-	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = unit.position - target.position;
-	
-	if(direction.length() == 0)
-	{
-		// wtf, same position as my target? :G
-		
-		// so probably im devouring him alot ahahaha :DD
-		
-		return;
-	}
-	
-	direction.normalize();
-	
-	Location myDirection;
-	
-	int hypo_angle = unit.angle;
-	int hypo_upangle = unit.upangle;
-	bool improved = true;
-	FixedPoint best_error = FixedPoint(100000);
-	
-	while(improved)
-	{
-		improved = false;
-		hypo_angle += 2;
-		myDirection.z = apomath.getSin(hypo_angle);
-		myDirection.x = apomath.getCos(hypo_angle);
-		
-		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
-		if(error < best_error)
-		{
-			best_error = error;
-			improved = true;
-		}
-		else
-		{
-			hypo_angle -= 4;
-			myDirection.z = apomath.getSin(hypo_angle);
-			myDirection.x = apomath.getCos(hypo_angle);
-			
-			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
-			if(error < best_error)
-			{
-				best_error = error;
-				improved = true;
-			}
-			else
-				hypo_angle += 2;
-		}
-	}
-	
-	best_error = FixedPoint(100000);
-	improved = true;
-	while(improved)
-	{
-		improved = false;
-		hypo_upangle += 2;
-		myDirection.y = apomath.getSin(hypo_upangle);
-		FixedPoint error = (myDirection.y * 100 - direction.y * 100).squared();
-		if(error < best_error)
-		{
-			best_error = error;
-			improved = true;
-		}
-		else
-		{
-			hypo_upangle -= 4;
-			myDirection.y = apomath.getSin(hypo_upangle);
-			error = (myDirection.y * 100 - direction.y * 100).squared();
-			if(error < best_error)
-			{
-				best_error = error;
-				improved = true;
-			}
-			else
-				hypo_upangle += 2;
-		}
-	}
+	int best_angle, best_upangle;
+	getTurnValues(unit, units[unitID], best_angle, best_upangle);
 	
 	int keyState = 0;
-	int mousex = (hypo_angle - unit.angle) * 1000; // * 1000 due to mouse sensitivity stuff
+	int mousex = 0;
 	int mousey = 0;
-	unit.upangle = hypo_upangle;
 	int mousebutton = 0;
+	unit.angle = best_angle;
+	unit.upangle = best_upangle;
 	
-	keyState |= Unit::MOVE_FRONT;
+	if(bestSquaredDistance < FixedPoint(1000))
+		keyState |= Unit::MOVE_RIGHT;
+	else
+		keyState |= Unit::MOVE_FRONT;
 	
 	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
 	{

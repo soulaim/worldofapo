@@ -23,12 +23,12 @@ Unit::Unit():
 	type = OctreeObject::UNIT;
 	
 	// create attributes
-	intVals["STR"] = 0;
-	intVals["DEX"] = 0;
-	intVals["VIT"] = 0;
+	intVals["STR"] = -666;
+	intVals["DEX"] = -666;
+	intVals["VIT"] = -666;
 	
-	intVals["WIS"] = 0;
-	intVals["INT"] = 0;
+	intVals["WIS"] = -666;
+	intVals["INT"] = -666;
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -61,7 +61,10 @@ int Unit::getModifier(string attribute)
 		return 0;
 	}
 	
-	assert(intVals[attribute] == 4);
+	if(intVals[attribute] != 4)
+		cerr << "Attribute: " << intVals[attribute] << endl;
+	
+	assert(intVals[attribute] != -666);
 	
 	return 6 + intVals[attribute];
 }

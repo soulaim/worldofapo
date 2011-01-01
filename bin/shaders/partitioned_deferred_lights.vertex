@@ -5,6 +5,6 @@ uniform float power;
 void main(void)
 {
 	gl_Position = ftransform();
-	scale_var = power / 5.0;
+	scale_var = power / 10.0;
 }
 

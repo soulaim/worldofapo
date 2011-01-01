@@ -50,25 +50,30 @@ public:
 	void draw(bool firstPerson);
 
 	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle, int team = 0) const;
-
+	
+	// TODO: make it work with world-tick data also.
+	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.
+	
 private:
 	FixedPoint level_max_z;
 	FixedPoint level_max_x;
 
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
+	std::vector<std::string> core_info;
+	
 	std::string kills;
 	std::string deaths;
 	std::string health;
 	std::string plr_name;
 	std::string area_name;
 	bool showStats;
-	int zombieCount;
 	int plr_ID;
 	
 	Location unit_location;
 	unsigned currentTime;
 	int world_ticks;
+	int zombieCount;
 
 	std::map<int, PlayerInfo>* Players;
 	std::map<int, Unit>* units;
