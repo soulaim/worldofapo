@@ -209,6 +209,7 @@ bool Editor::do_tick()
 	hud.drawFPS();
 	hud.drawMessages();
 	hud.drawString(message, -0.9, 0.9, 1.5, true);
+	hud.clearDebugStrings();
 
 	view.drawParticles(visualworld.particles);
 
@@ -1145,6 +1146,15 @@ void Editor::handle_command(const string& command)
 	{
 		view.strVals["MEADOW"] = word2;
 		hud.pushMessage("MEADOW set to " + word2);
+	}
+	else if(word1 == "goto")
+	{
+		Vec3 pos;
+		stringstream ss1(command);
+		ss1 >> word1;
+		ss1 >> pos.x >> pos.y >> pos.z;
+		visualworld.camera.setPosition(pos);
+		hud.pushMessage("goto");
 	}
 	else
 	{

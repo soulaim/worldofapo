@@ -110,6 +110,10 @@ public:
 		const std::map<int, Unit>& units, // For debug.
 		int blur
 		);
+
+	void drawMenuRectangles() const;
+	void drawMenuButtons(const std::vector<MenuButton>& buttons) const;
+	void drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const std::string& color) const;
 	void drawMenu(const std::vector<MenuButton>&, const std::vector<MenuParticle>&) const;
 	
 	void drawBoundingBoxes(const std::map<int,Unit>& units);
@@ -122,6 +126,8 @@ public:
 	void toggleLightingStatus();
 	void toggleWireframeStatus();
 	void toggleFullscreen();
+
+	Vec3 GetOGLPos(int x, int y);
 	
 	void zoom_in();
 	void zoom_out();

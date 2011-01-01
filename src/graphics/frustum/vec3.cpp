@@ -99,8 +99,8 @@ Vec3 Vec3::operator-(void) const
 	return Vec3(-x, -y, -z);
 }
 
-// cross product
-Vec3 Vec3::operator*(const Vec3 &v) const
+// Cross product
+Vec3 Vec3::operator*(const Vec3& v) const
 {
 	Vec3 res;
 
@@ -108,12 +108,12 @@ Vec3 Vec3::operator*(const Vec3 &v) const
 	res.y = z * v.x - x * v.z;
 	res.z = x * v.y - y * v.x;
 
-	return (res);
+	return res;
 }
 
 float Vec3::length() const
 {
-	return((float)sqrt(x*x + y*y + z*z));
+	return sqrt(x*x + y*y + z*z);
 }
 
 float Vec3::lengthSquared() const
@@ -124,33 +124,25 @@ float Vec3::lengthSquared() const
 void Vec3::normalize()
 {
 	float len = length();
-	if (len)
+	if(len)
 	{
-		x /= len;;
+		x /= len;
 		y /= len;
 		z /= len;
 	}
 }
 
 
-float Vec3::innerProduct(const Vec3 &v) const
+float Vec3::innerProduct(const Vec3& v) const
 {
-	return (x * v.x + y * v.y + z * v.z);
+	return x * v.x + y * v.y + z * v.z;
 }
 
-void Vec3::set(float x,float y, float z) {
-
+void Vec3::set(float x, float y, float z)
+{
 	this->x = x;
 	this->y = y;
 	this->z = z;
-}
-
-// -----------------------------------------------------------------------
-// For debug pruposes: Prints a vector
-// -----------------------------------------------------------------------
-void Vec3::print() {
-	printf("Vec3(%f, %f, %f)",x,y,z);
-	
 }
 
 float Vec3::operator[](int i) const

@@ -20,8 +20,6 @@ public:
 	void setCoefficients(float a, float b, float c, float d);
 	float distance(const Vec3& p);
 
-	void print();
-
 };
 
 #endif

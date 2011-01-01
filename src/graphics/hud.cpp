@@ -721,3 +721,8 @@ void Hud::drawMinimap() const
 	glDisable(GL_BLEND);
 }
 
+void Hud::clearDebugStrings()
+{
+	core_info.clear();
+}
+

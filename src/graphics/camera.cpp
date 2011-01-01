@@ -79,6 +79,18 @@ Vec3 Camera::getPosition() const
 	return currentPosition;
 }
 
+void Camera::setPosition(const Vec3& position)
+{
+	if(mode_ == THIRD_PERSON)
+	{
+		currentRelative = position;
+	}
+	else
+	{
+		currentPosition = position;
+	}
+}
+
 void Camera::tick()
 {
 	if(unit)
@@ -330,5 +342,25 @@ float Camera::getYrot() const
 		y_rot = ApoMath().getDegrees(unit->upangle);
 	}
 	return y_rot;
+}
+
+Matrix4 Camera::modelview() const
+{
+	Vec3 position = getPosition();
+	Vec3 target = getTarget();
+	Vec3 up(0.0, 1.0, 0.0);
+
+	Vec3 forward = target - position;
+	forward.normalize();
+
+	Vec3 side = forward * up;
+	side.normalize();
+
+	up = side * forward;
+
+	Matrix4 m(side, up, -forward);
+	Matrix4 t(0,0,0, -position.x, -position.y, -position.z);
+
+	return m * t;
 }
 
