@@ -441,11 +441,7 @@ void World::init()
 {
 	cerr << "World::init()" << endl;
 	
-	load("world.conf");
-	
 	unitIDgenerator.setNextID(10000);
-
-	// lvl.generate(50);
 	
 	visualworld->init();
 	show_errors = 0;

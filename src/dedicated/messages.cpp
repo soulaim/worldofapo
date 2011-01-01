@@ -17,19 +17,40 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 	World& world = areas.find(areaName)->second;
 	
 	
+	sockets.write(plr_ID, "-2 CLEAR_WORLD_PROPERTIES#");
+	
 	// send some aesthetical settings for the world
-	HasProperties& properties = area_settings[areaName];
-	for(auto it = properties.intVals.begin(); it != properties.intVals.end(); it++)
 	{
-		stringstream settings_msg;
-		settings_msg << "-2 WORLD_PROPERTY " << it->first << " " << it->second << "#";
-		sockets.write(plr_ID, settings_msg.str());
+		HasProperties& properties = area_settings[areaName];
+		for(auto it = properties.intVals.begin(); it != properties.intVals.end(); it++)
+		{
+			stringstream settings_msg;
+			settings_msg << "-2 CHANGE_PROPERTY " << it->first << " " << it->second << "#";
+			sockets.write(plr_ID, settings_msg.str());
+		}
+		for(auto it = properties.strVals.begin(); it != properties.strVals.end(); it++)
+		{
+			stringstream settings_msg;
+			settings_msg << "-2 CHANGE_PROPERTY " << it->first << " " << it->second << "#";
+			sockets.write(plr_ID, settings_msg.str());
+		}
 	}
-	for(auto it = properties.strVals.begin(); it != properties.strVals.end(); it++)
+	
 	{
-		stringstream settings_msg;
-		settings_msg << "-2 WORLD_PROPERTY " << it->first << " " << it->second << "#";
-		sockets.write(plr_ID, settings_msg.str());
+		
+		HasProperties& properties = world;
+		for(auto it = properties.intVals.begin(); it != properties.intVals.end(); it++)
+		{
+			stringstream settings_msg;
+			settings_msg << "-2 WORLD_PROPERTY I " << it->first << " " << it->second << "#";
+			sockets.write(plr_ID, settings_msg.str());
+		}
+		for(auto it = properties.strVals.begin(); it != properties.strVals.end(); it++)
+		{
+			stringstream settings_msg;
+			settings_msg << "-2 WORLD_PROPERTY S " << it->first << " " << it->second << "#";
+			sockets.write(plr_ID, settings_msg.str());
+		}
 	}
 	
 	

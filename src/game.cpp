@@ -6,8 +6,10 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 #include <SDL.h>
+
 
 // required for obtaining character keys from file. could be located in another file.
 #include <fstream>
@@ -518,7 +520,8 @@ void Game::processClientMsgs()
 				cerr << "Setting client state to UNPAUSED" << endl;
 				paused_state = GO;
 			}
-			else if(cmd == "WORLD_PROPERTY")
+			
+			else if(cmd == "CHANGE_PROPERTY")
 			{
 				string line;
 				getline(ss, line);
@@ -530,6 +533,37 @@ void Game::processClientMsgs()
 				
 				world->add_event(event);
 			}
+			else if(cmd == "CLEAR_WORLD_PROPERTIES")
+			{
+				world->intVals.clear();
+				world->strVals.clear();
+			}
+			else if(cmd == "WORLD_PROPERTY")
+			{
+				char type;
+				ss >> type;
+				
+				if(type == 'S')
+				{
+					string name;
+					string value;
+					ss >> name >> value;
+					world->strVals[name] = value;
+				}
+				else if(type == 'I')
+				{
+					string name;
+					int value;
+					ss >> name >> value;
+					world->intVals[name] = value;
+				}
+				else
+				{
+					throw std::logic_error("WORLD_PROPERTY MESSAGE BROKEN");
+				}
+			}
+			
+			
 			else if(cmd == "GIVE_NAME") // request player name message
 			{
 				// hmm
