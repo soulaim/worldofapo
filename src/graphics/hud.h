@@ -53,6 +53,7 @@ public:
 	
 	// TODO: make it work with world-tick data also.
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.
+	void clearDebugStrings();
 	
 private:
 	FixedPoint level_max_z;

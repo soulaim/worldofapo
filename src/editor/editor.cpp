@@ -209,6 +209,7 @@ bool Editor::do_tick()
 	hud.drawFPS();
 	hud.drawMessages();
 	hud.drawString(message, -0.9, 0.9, 1.5, true);
+	hud.clearDebugStrings();
 
 	view.drawParticles(visualworld.particles);
 
