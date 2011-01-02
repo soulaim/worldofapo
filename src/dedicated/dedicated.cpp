@@ -41,17 +41,20 @@ DedicatedServer::DedicatedServer():
 	
 	load("server.conf");
 	
+	// TODO: Make a separate function for these things.
 	string first_area = "default_area";
 	areas.insert(make_pair(first_area, World(&visualworld)));
 	areas.find(first_area)->second.buildTerrain(15);
+	areas.find(first_area)->second.load("serverdata/worlds/default_area.dat");
+	area_settings[first_area].load("serverdata/worlds/default_area.area");
 	areas.find(first_area)->second.strVals["AREA_NAME"] = first_area;
-	area_settings[first_area].load("worlds/default_area.dat");
 	
 	string second_area = "other_area";
 	areas.insert(make_pair(second_area, World(&visualworld)));
 	areas.find(second_area)->second.buildTerrain(5);
+	areas.find(second_area)->second.load("serverdata/worlds/other_area.dat");
+	area_settings[second_area].load("serverdata/worlds/other_area.area");
 	areas.find(second_area)->second.strVals["AREA_NAME"] = second_area;
-	area_settings[second_area].load("worlds/other_area.dat");
 	
 	visualworld.disable(); // server doesnt need visual information
 }
