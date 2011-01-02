@@ -172,7 +172,8 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	std::string character_info_str = dormantPlayers[char_key].getDescription();
 	std::stringstream character_info_msg;
 	
-	character_info_msg << "-2 CHAR_INFO " << playerID_val << " " << character_info_str; // ALERT: sending the character key to everyone!
+	// ALERT: sending the character key to everyone!
+	character_info_msg << "-2 CHAR_INFO " << playerID_val << " " << character_info_str;
 	serverMsgs.push_back(character_info_msg.str());
 	
 	

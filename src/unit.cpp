@@ -29,6 +29,8 @@ Unit::Unit():
 	
 	intVals["WIS"] = -666;
 	intVals["INT"] = -666;
+	
+	scale = FixedPoint(1);
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -60,9 +62,6 @@ int Unit::getModifier(string attribute)
 		throw std::logic_error("Asking for an attribute that doesn't exist: " + attribute);
 		return 0;
 	}
-	
-	if(intVals[attribute] != 4)
-		cerr << "Attribute: " << intVals[attribute] << endl;
 	
 	assert(intVals[attribute] != -666);
 	
@@ -173,7 +172,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule;
+		id >> weapon >> collision_rule >> scale;
 	
 	HasProperties::handleCopyOrder(ss);
 	
@@ -196,7 +195,7 @@ string Unit::copyOrder(int ID) const
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " " << collision_rule << " ";
+		<< id << " " << weapon << " " << collision_rule << " " << scale << " ";
 	
 	hero_msg << HasProperties::copyOrder();
 	
@@ -230,12 +229,12 @@ FixedPoint Unit::getMobility()
 
 Location Unit::bb_top() const
 {
-	return Location(position.x+1, position.y+5, position.z+1);
+	return Location(position.x + scale * 1, position.y + scale * 5, position.z + scale * 1);
 }
 
 Location Unit::bb_bot() const
 {
-	return Location(position.x-1, position.y, position.z-1);
+	return Location(position.x - scale * 1, position.y, position.z - scale * 1);
 }
 
 void Unit::collides(OctreeObject& o)

@@ -976,30 +976,46 @@ void World::addRandomMonster()
 	}
 	
 	string monster_home = options[currentWorldFrame % options.size()];
+	int id = unitIDgenerator.nextID();
 	
 	if(monster_home == "_CAVE")
 	{
-		int id = unitIDgenerator.nextID();
 		addUnit(id, false, -1);
 		units[id].name = "Stone beast";
+		
+		int stonebeast_size = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 + 2 * stonebeast_size;
+		units[id].intVals["DEX"] = 4 - stonebeast_size;
 	}
 	else if(monster_home == "_MOUNTAIN")
 	{
-		int id = unitIDgenerator.nextID();
 		addUnit(id, false, -1);
 		units[id].name = "Troll";
+		
+		int troll_size = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 + troll_size;
+		units[id].intVals["DEX"] = 4;
 	}
 	else if(monster_home == "_GRASS")
 	{
-		int id = unitIDgenerator.nextID();
 		addUnit(id, false, -1);
 		units[id].name = "Moogle";
+		
+		int moogle_age = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 - moogle_age;
+		units[id].intVals["DEX"] = 4 + 2 * moogle_age;
 	}
 	else
 	{
 		throw std::logic_error("Adding random monster failed.\nUnknown monster home terrain type: " + monster_home);
 	}
 	
+	units[id].scale     = FixedPoint(units[id].getModifier("STR"), 10);
+	units[id].hitpoints = 100 * units[id].getModifier("STR");
+	
+	visualworld->setModelScale(id, units[id].scale.getFloat());
+	
+	return;
 }
 
 

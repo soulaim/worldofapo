@@ -720,7 +720,9 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			{
 				// found it!
 				unit_it->second.strVals["AREA"] = unit_it->second.strVals["NEXT_AREA"];
+				
 				dormantPlayers[Players[destroy_ID].key].unit = unit_it->second;
+				dormantPlayers[Players[destroy_ID].key].playerInfo = Players[destroy_ID];
 				
 				world.removeUnit(destroy_ID);
 				break;

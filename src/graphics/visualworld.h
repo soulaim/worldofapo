@@ -22,6 +22,7 @@ class VisualWorld : public HasProperties
 public:
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	
+	void setModelScale(int id, float scale);
 	void addLight(const Location& location, Location direction = Location());
 	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
 	void tickLights(const std::map<int, Unit>& units);
