@@ -22,6 +22,9 @@ public:
 	
 	void enable_grab() const;
 	void disable_grab() const;
+
+	bool active() const;
+	void hide() const;
 private:
 	Window& operator=(const Window&); // Disabled.
 	Window(const Window&); // Disabled.

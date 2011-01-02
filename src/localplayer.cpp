@@ -171,7 +171,8 @@ void Localplayer::draw()
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
 
-		if(!need_to_tick_world || intVals["SYNC_FPS_AND_TPS"])
+		bool have_time_to_draw = !need_to_tick_world || intVals["SYNC_FPS_AND_TPS"];
+		if(have_time_to_draw && window->active())
 		{
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
@@ -424,6 +425,11 @@ bool Localplayer::handleClientLocalInput()
 				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;
 				world.add_message(ss_msg.str());
 			}
+		}
+		else if(key == "h")
+		{
+			cerr << "Hiding window" << endl;
+			window->hide();
 		}
 		else if(key == "o")
 		{

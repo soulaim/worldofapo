@@ -159,3 +159,14 @@ void Window::disable_grab() const
 	SDL_ShowCursor(1);
 }
 
+bool Window::active() const
+{
+	return SDL_GetAppState() & SDL_APPACTIVE;
+}
+
+void Window::hide() const
+{
+	disable_grab();
+	SDL_WM_IconifyWindow();
+}
+
