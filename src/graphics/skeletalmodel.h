@@ -17,6 +17,7 @@
 struct Bone
 {
 	Bone():
+		root(false),
 		start_x(0),
 		start_y(0),
 		start_z(0),
@@ -29,20 +30,26 @@ struct Bone
 	{
 	}
 
+	bool root;
 	std::string name;
 
 	float start_x;
 	float start_y;
 	float start_z;
+	float start_r;
 
 	float end_x;
 	float end_y;
 	float end_z;
+	float end_r;
+
+	float w;
 
 	float rotation_x;
 	float rotation_y;
 	float rotation_z;
 
+	std::vector<std::string> children_names;
 	std::vector<size_t> children;
 };
 
@@ -67,6 +74,11 @@ struct WeightedVertex
 		weight1 = 1.0f;
 		weight2 = 0.0f;
 	}
+};
+
+struct ColorStruct
+{
+	float r, g, b, a;
 };
 
 struct Triangle
@@ -102,10 +114,16 @@ private:
 	
 	// These stay constant over different model instances.
 	std::vector<Vec3> vertices;
+	std::vector<Vec3> normals;
+	std::vector<ColorStruct> colors;
 	std::vector<TextureCoordinate> texture_coordinates;
+	
 	std::vector<Triangle> triangles;
+	std::vector<Vec3> triangle_normals;
+	std::vector<float> triangle_areas;
+	
 	std::vector<WeightedVertex> weighted_vertices;
-
+	
 	// These change with animations.
 	std::vector<Bone> bones;
 

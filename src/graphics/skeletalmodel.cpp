@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <cassert>
+#include <stdexcept>
 
 #include "shaders.h"
 
@@ -54,7 +55,10 @@ SkeletalModel::SkeletalModel(const SkeletalModel& model):
 
 void SkeletalModel::rotate_y(float angle)
 {
-	bones[0].rotation_y = angle;
+	// ...
+	for(size_t i=0; i<bones.size(); i++)
+		if(bones[i].root)
+			bones[i].rotation_y = angle;
 }
 
 bool SkeletalModel::load(const string& filename)
@@ -65,81 +69,305 @@ bool SkeletalModel::load(const string& filename)
 		return false;
 	}
 
+	// NOTE: Since we don't have per triangle texture/color properties,
+	// we have to gather all the info from FACE fields and sort it before placing to containers.
+	map<int, TextureCoordinate> tex_coords_map;
+	map<int, ColorStruct> colors_map;
+
 	string cmd;
 	while(in >> cmd)
 	{
+		
 		if(cmd == "MODEL")
 		{
 			vertices.clear();
 			weighted_vertices.clear();
 			texture_coordinates.clear();
+			normals.clear();
+			colors.clear();
+			
 			bones.clear();
 			triangles.clear();
+			triangle_normals.clear();
+			triangle_areas.clear();
+		}
+		
+		else if(cmd == "MESH" || cmd == "END_MESH")
+		{
+			// ...
 		}
 		else if(cmd == "BONE")
 		{
 			Bone bone;
 			in >> bone.name;
-			in >> bone.start_x >> bone.start_y >> bone.start_z;
-			in >> bone.end_x >> bone.end_y >> bone.end_z;
-			in >> bone.rotation_x >> bone.rotation_y >> bone.rotation_z;
-			size_t count = 0;
-			in >> count;
-			for(size_t i = 0; i < count; ++i)
+			
+			string sub_cmd;
+			
+			while(in >> sub_cmd)
 			{
-				size_t child = 0;
-				in >> child;
-				bone.children.push_back(child);
+				if(sub_cmd == "START_POS")
+					in >> bone.start_x >> bone.start_y >> bone.start_z;
+				else if(sub_cmd == "END_POS")
+					in >> bone.end_x >> bone.end_y >> bone.end_z;
+				else if(sub_cmd == "HEAD_RADIUS")
+					in >> bone.start_r;
+				else if(sub_cmd == "TAIL_RADIUS")
+					in >> bone.end_r;
+				else if(sub_cmd == "BONE_WEIGHT")
+					in >> bone.w;
+				else if(sub_cmd == "ROOT")
+					bone.root = true;
+				else if(sub_cmd == "CHILDREN")
+				{
+					int count;
+					in >> count;
+					for(int i=0; i<count; i++)
+					{
+						in >> sub_cmd;
+						bone.children_names.push_back(sub_cmd);
+					}
+				}
+				else if(sub_cmd == "END_BONE")
+				{
+					break;
+				}
+				else
+				{
+					throw std::logic_error(string("Skeletal Model could not be loaded, bone parameter unrecognized: ") + sub_cmd);
+				}
 			}
+			
 			bones.push_back(bone);
 		}
 		else if(cmd == "VERTEX")
 		{
+			string sub_cmd;
 			Vec3 v;
-			in >> v.x >> v.y >> v.z;
-
+			Vec3 n;
+			
+			while(in >> sub_cmd)
+			{
+				if(sub_cmd == "COORDINATE")
+				{
+					in >> v.x >> v.y >> v.z;
+					if(v.length() > 10)
+						cerr << "DUBIOUS: vertex length " << v.length() << endl;
+				}
+				else if(sub_cmd == "NORMAL")
+				{
+					in >> n.x >> n.y >> n.z;
+				}
+				else if(sub_cmd == "END_VERTEX")
+				{
+					break;
+				}
+				else
+				{
+					throw std::logic_error(string("Skeletal Model could not be loaded, vertex parameter unrecognized: ") + sub_cmd);
+				}
+			}
+			
+			if(v.length() > 10)
+				cerr << "DUBIOUS: post-check: vertex length " << v.length() << endl;
+			
 			const unsigned MAX_VERTICES = (1 << (sizeof(unsigned short)*8));
 			if(vertices.size() < MAX_VERTICES)
 			{
 				vertices.push_back(v);
+				normals.push_back(n);
 			}
 			else
 			{
 				cerr << "WARNING: model '" << filename << "' has too many vertices (" << vertices.size() << " >= " << MAX_VERTICES << "), ignoring rest!" << endl;
 			}
 		}
-		else if(cmd == "TEXTURE_COORDINATES")
+		else if(cmd == "FACE")
 		{
-			TextureCoordinate tc;
-			in >> tc.x >> tc.y;
-			texture_coordinates.push_back(tc);
-		}
-		else if(cmd == "VERTEX_WEIGHTS")
-		{
-			WeightedVertex v;
-			in >> v.bone1 >> v.weight1;
-			in >> v.bone2 >> v.weight2;
-			weighted_vertices.push_back(v);
-		}
-		else if(cmd == "TRIANGLE")
-		{
+			string sub_cmd;
+			
 			Triangle triangle;
+			Vec3 triangle_n;
+			float triangle_area = 0.0f;
+			
+			while(in >> sub_cmd)
+			{
+				if(sub_cmd == "TRIANGLE")
+				{
+					for(size_t i = 0; i < 3; ++i)
+					{
+						in >> triangle.vertices[i];
+						
+						if(triangle.vertices[i] >= vertices.size())
+						{
+							cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
+							throw std::logic_error(string("SkeletalModel triangle's vertex index out of bounds."));
+						}
+					}
+				}
+				else if(sub_cmd == "NORMAL")
+				{
+					in >> triangle_n.x >> triangle_n.y >> triangle_n.z;
+				}
+				else if(sub_cmd == "UV_COORDINATES")
+				{
+					for(int i=0; i<3; i++)
+						in >> tex_coords_map[triangle.vertices[i]].x >>
+						tex_coords_map[triangle.vertices[i]].y;
+				}
+				else if(sub_cmd == "COLORS")
+				{
+					for(int i=0; i<3; i++)
+					{
+						in >>
+						colors_map[triangle.vertices[i]].r >>
+						colors_map[triangle.vertices[i]].g >>
+						colors_map[triangle.vertices[i]].b >>
+						colors_map[triangle.vertices[i]].a;
+					}
+				}
+				else if(sub_cmd == "AREA")
+				{
+					in >> triangle_area;
+				}
+				else if(sub_cmd == "END_FACE")
+				{
+					break;
+				}
+				else
+				{
+					throw std::logic_error(string("Skeletal Model could not be loaded, face parameter unrecognized: ") + sub_cmd);
+				}
+				
+			}
+			
 			for(size_t i = 0; i < 3; ++i)
 			{
-				in >> triangle.vertices[i];
 				if(triangle.vertices[i] >= vertices.size())
 				{
-					cerr << "Malformed skeletal model '" << filename << "', vertex index: " << triangle.vertices[i] << endl;
+					cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
+					throw std::logic_error(string("SkeletalModel at post-check: triangle's vertex index out of bounds."));
 				}
 			}
+			
 			triangles.push_back(triangle);
+			triangle_normals.push_back(triangle_n);
+			triangle_areas.push_back(triangle_area);
+			
 		}
 		else
 		{
-			cerr << "Error loading skeleton model " << filename << " cmd = " << cmd << endl;
-			return false;
+			throw std::logic_error(string("SkeletalModel could not be loaded, unknown field: ") + cmd);
 		}
 	}
+	
+	
+	// get uv coordinates
+	for(auto it = tex_coords_map.begin(); it != tex_coords_map.end(); it++)
+	{
+		texture_coordinates.push_back(it->second);
+	}
+	
+	// get colors
+	for(auto it = colors_map.begin(); it != colors_map.end(); it++)
+	{
+		colors.push_back(it->second);
+	}
+	
+	if(bones.size() < 2)
+	{
+		throw std::logic_error(string("SkeletalModel has less than two bones: ") + filename);
+	}
+	
+	
+	// resolve bone dependencies
+	for(size_t i=0; i<bones.size(); i++)
+	{
+		for(size_t b=0; b<bones[i].children_names.size(); b++)
+		{
+			for(size_t k=0; k<bones.size(); k++)
+			{
+				if(bones[k].name == bones[i].children_names[b])
+				{
+					bones[i].children.push_back(k);
+				}
+			}
+		}
+		
+		// free the memory required by storing bone children names.
+		bones[i].children_names.clear();
+	}
+	
+	
+	// calculate vertex weights
+	for(size_t i=0; i<vertices.size(); ++i)
+	{
+		const Vec3& v = vertices[i];
+		
+		map<int, float> weights;
+		
+		for(size_t k=0; k<bones.size(); ++k)
+		{
+			const Bone& bone = bones[k];
+			
+			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
+			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
+			
+			Vec3 segment = end - start;
+			
+			weights[k] = .0f;
+			
+			for(int z = 0; z < 100; z++)
+			{
+				Vec3 tmp_point = start + segment * (z / 99.f);
+				
+				float length = (v - tmp_point).lengthSquared();
+				float tmp_w = 1.0f / (0.01f + length);
+				if(tmp_w > weights[k])
+					weights[k] = tmp_w;
+			}
+		}
+		
+		// we want 2 bones
+		WeightedVertex vw;
+		
+		for(int z = 0; z < 2; z++)
+		{
+			int best_index = 0;
+			float best_weight = 0.f;
+			
+			for(auto it = weights.begin(); it != weights.end(); it++)
+			{
+				if(it->second > best_weight)
+				{
+					best_index = it->first;
+					best_weight = it->second;
+				}
+			}
+			
+			if(z == 0)
+			{
+				vw.bone1 = best_index;
+				vw.weight1 = best_weight;
+			}
+			
+			if(z == 1)
+			{
+				vw.bone2 = best_index;
+				vw.weight2 = best_weight;
+			}
+			
+			weights.erase(best_index); // don't select same bone twice.
+		}
+		
+		// normalise weights
+		float sum = vw.weight1 + vw.weight2;
+		vw.weight1 /= sum;
+		vw.weight2 /= sum;
+		
+		weighted_vertices.push_back(vw);
+	}
+	
+	
 	cerr << "Loaded model '" << filename << "' with " << vertices.size() << " vertices, " << weighted_vertices.size()
 		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
 		<< " triangles, and " << bones.size() << " bones." << endl;
@@ -167,6 +395,9 @@ bool SkeletalModel::load(const string& filename)
 
 bool SkeletalModel::save(const string& filename) const
 {
+	// TODO: this doesnt do it.
+	return false;
+	
 	ofstream out(filename.c_str());
 	if(!out)
 	{
@@ -370,8 +601,14 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 	
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
-	calcMatrices(0, rotations, Matrix4(), animation_name, animation_time);
-
+	
+	// TODO: revise this
+	for(size_t i=0; i<bones.size(); i++)
+	{
+		if(bones[i].root)
+			calcMatrices(i, rotations, Matrix4(), animation_name, animation_time);
+	}
+	
 	if(draw_only_skeleton)
 	{
 		draw_skeleton(rotations, hilight);
