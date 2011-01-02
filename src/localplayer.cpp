@@ -134,6 +134,7 @@ void Localplayer::init()
 	ModelFactory::load(World::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
 	
 	ModelFactory::load(World::INVISIBLE_MODEL, "", "");
+	
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");
 

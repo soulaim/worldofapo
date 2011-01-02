@@ -39,7 +39,6 @@ bool ModelFactory::load(size_t prototype, const std::string& filename, const std
 		prototypes[prototype].reset(new InvisibleModel);
 		types[prototype] = INVISIBLEMODEL;
 	}
-	//else if(filename.find(".skeleton") != string::npos)
 	else if(filename.find(".sm2") != string::npos)
 	{
 		prototypes[prototype].reset(new SkeletalModel);

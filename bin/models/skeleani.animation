@@ -1,32 +1,36 @@
-LEFT_ARM idle2    1    0.000    0.000    0.000
 LEFT_ARM idle2   25    0.000    0.000   67.500
 LEFT_ARM idle2   25    0.000    0.000    0.000
-LEFT_FOOT idle2    1    0.000    0.000    0.000
 LEFT_FOOT idle2   25    0.000    0.000    0.000
 LEFT_FOOT idle2   25    0.000    0.000    0.000
-LEFT_LEG idle2    1    0.000    0.000    0.000
 LEFT_LEG idle2   25    0.000    0.000    0.000
 LEFT_LEG idle2   25    0.000    0.000    0.000
-LEFT_SHOULDER idle2    1    0.000    0.000    0.000
 LEFT_SHOULDER idle2   25    0.000    0.000   45.000
 LEFT_SHOULDER idle2   25    0.000    0.000    0.000
-RIGHT_ARM idle2    1    0.000    0.000    0.000
+
 RIGHT_ARM idle2   25    0.000    0.000  -67.500
 RIGHT_ARM idle2   25    0.000    0.000    0.000
-RIGHT_FOOT idle2    1    0.000    0.000    0.000
 RIGHT_FOOT idle2   25    0.000    0.000    0.000
 RIGHT_FOOT idle2   25    0.000    0.000    0.000
-RIGHT_LEG idle2    1    0.000    0.000    0.000
 RIGHT_LEG idle2   25    0.000    0.000    0.000
 RIGHT_LEG idle2   25    0.000    0.000    0.000
-RIGHT_SHOULDER idle2    1    0.000    0.000    0.000
 RIGHT_SHOULDER idle2   25    0.000    0.000  -45.000
 RIGHT_SHOULDER idle2   25    0.000    0.000    0.000
-TORSO idle2    1    0.000    0.000    0.000
-TORSO idle2   25    0.000    0.000    0.000
-TORSO idle2   25    0.000    0.000    0.000
+TORSO idle2   50    0.000    0.000    0.000
 
 TORSO run_forward    2    0.000    0.000    0.000
+
+LEFT_SHOULDER run 15   45.000 0.000 0.000
+LEFT_SHOULDER run 5    45.000 0.000 0.000
+LEFT_SHOULDER run 15  -90.000 0.000 0.000
+LEFT_SHOULDER run 5   -90.000 0.000 0.000
+
+RIGHT_SHOULDER run 15   45.000 0.000 0.000
+RIGHT_SHOULDER run 5    45.000 0.000 0.000
+RIGHT_SHOULDER run 15  -90.000 0.000 0.000
+RIGHT_SHOULDER run 5   -90.000 0.000 0.000
+
+RIGHT_ARM run 50 -75.000 0.000 0.000
+LEFT_ARM  run 50 -75.000 0.000 0.000
 
 LEFT_FOOT run_forward    2    0.000    0.000    0.000
 LEFT_FOOT run_forward    2    0.000    0.000    0.000
@@ -97,7 +101,7 @@ RIGHT_LEG run_forward    2   13.333    0.000    0.000
 
 
 
-TORSO run_right    2    0.000    -90.000    0.000
+TORSO run_right    2    0.000    0.000    0.000
 
 LEFT_FOOT run_right    2    0.000    0.000    0.000
 LEFT_FOOT run_right    2    0.000    0.000    0.000
@@ -114,7 +118,6 @@ LEFT_FOOT run_right    2   30.000    0.000    0.000
 LEFT_FOOT run_right    2   30.000    0.000    0.000
 LEFT_FOOT run_right    2   20.000    0.000    0.000
 LEFT_FOOT run_right    2   10.000    0.000    0.000
-
 
 LEFT_LEG run_right    2   -0.000    0.000    0.000
 LEFT_LEG run_right    2  -10.000    0.000    0.000
@@ -239,7 +242,7 @@ RIGHT_LEG run_backward    4   13.333    0.000    0.000
 
 
 
-TORSO run_left    2    0.000    90.000    0.000
+TORSO run_left    2    0.000    0.000    0.000
 
 LEFT_FOOT run_left    2    0.000    0.000    0.000
 LEFT_FOOT run_left    2    0.000    0.000    0.000
@@ -310,7 +313,7 @@ RIGHT_LEG run_left    2   13.333    0.000    0.000
 
 
 
-TORSO run_forwardright    2    0.000    -45.000    0.000
+TORSO run_forwardright    2    0.000    0.000    0.000
 
 LEFT_FOOT run_forwardright    2    0.000    0.000    0.000
 LEFT_FOOT run_forwardright    2    0.000    0.000    0.000
@@ -382,7 +385,7 @@ RIGHT_LEG run_forwardright    2   13.333    0.000    0.000
 
 
 
-TORSO run_forwardleft    2    0.000    45.000    0.000
+TORSO run_forwardleft    2    0.000    0.000    0.000
 
 LEFT_FOOT run_forwardleft    2    0.000    0.000    0.000
 LEFT_FOOT run_forwardleft    2    0.000    0.000    0.000

@@ -394,7 +394,10 @@ void Game::handleServerMessage(const Order& server_msg)
 		world->removeUnit(destroy_ID);
 		
 		if(destroy_ID == myID)
+		{
+			UnitInput.clear();
 			paused_state = PAUSED;
+		}
 	}
 	else
 	{

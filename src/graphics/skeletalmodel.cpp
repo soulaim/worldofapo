@@ -57,8 +57,12 @@ void SkeletalModel::rotate_y(float angle)
 {
 	// ...
 	for(size_t i=0; i<bones.size(); i++)
+	{
 		if(bones[i].root)
+		{
 			bones[i].rotation_y = angle;
+		}
+	}
 }
 
 bool SkeletalModel::load(const string& filename)
@@ -454,8 +458,26 @@ bool SkeletalModel::save(const string& filename) const
 void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state) const
 {
 	const Bone& bone = bones[current_bone];
-
-	Animation& animation = Animation::getAnimation(bone.name, animation_name);
+	
+	Animation* p_animation;
+	Animation& try_animation = Animation::getAnimation(bone.name, animation_name);
+	
+	if(try_animation.totalTime() == 0)
+	{
+		// lalala...
+		if(animation_name.substr(0, 3) == "run")
+		{
+			Animation& try_animation2 = Animation::getAnimation(bone.name, "run");
+			p_animation = &try_animation2;
+		}
+		else
+			p_animation = &try_animation;
+	}
+	else
+		p_animation = &try_animation;
+	
+	Animation& animation = *p_animation;
+	
 	// left and right sides of the body are in polarized animation_name states
 	int ani_addition = 0;
 	if(bone.name.substr(0, 4) == "LEFT")
@@ -477,8 +499,8 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 	// TODO: pass only angles and bone locations to shader and do matrix calculation there.
 
 	offset *= Matrix4(0,0,0, bone.start_x, bone.start_y, bone.start_z);
-	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
 	offset *= Matrix4(0, rot_y, 0, 0,0,0);
+	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
 	offset *= Matrix4(0, 0, rot_z, 0,0,0);
 	offset *= Matrix4(0,0,0, -bone.start_x, -bone.start_y, -bone.start_z);
 
@@ -602,7 +624,6 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	
-	// TODO: revise this
 	for(size_t i=0; i<bones.size(); i++)
 	{
 		if(bones[i].root)
@@ -620,7 +641,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 		TextureHandler::getSingleton().bindTexture(0, texture_name);
 	}
 
-	assert(rotations.size() <= 23);
+	assert(rotations.size() < 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 
 //	old_draw(hilight);
