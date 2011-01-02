@@ -40,7 +40,11 @@ Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
 	world(&visualworld)
 {
 	cerr << "Localplayer(...)" << endl;
-
+	
+	// to fix cases where no drawing happens
+	// Note the changes to how the sync variable is handled, this syncs fps and tps for the first 5 frames.
+	intVals["SYNC_FPS_AND_TPS"] = 5;
+	
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 	need_to_tick_world = false;
 	
@@ -171,9 +175,15 @@ void Localplayer::draw()
 		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
 		view->tick();
 
-		bool have_time_to_draw = !need_to_tick_world || intVals["SYNC_FPS_AND_TPS"];
+		int& fps_sync = intVals["SYNC_FPS_AND_TPS"];
+		bool have_time_to_draw = !need_to_tick_world || fps_sync;
 		if(have_time_to_draw && window->active())
 		{
+			if( (fps_sync > 0) && (fps_sync < 10) )
+			{
+				--fps_sync;
+			}
+			
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
 				blur = 0;
@@ -557,10 +567,12 @@ void Localplayer::handleWorldEvents()
 				{
 					world.add_message("^RSomething did not happen");
 				}
+				break;
 			}
 			
 			default:
 			{
+				world.add_message("^RUNKNOWN world EVENT OCCURRED");
 				std::cerr << "UNKNOWN world EVENT OCCURRED" << std::endl;
 			}
 		}

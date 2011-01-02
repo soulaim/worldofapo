@@ -4,6 +4,7 @@
 #include "visualworld.h"
 
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -950,11 +951,95 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 }
 
 
+
+void World::addRandomMonster()
+{
+	int enemies = getZombies();
+	
+	if(enemies >= intVals["MON_CAP"])
+		return;
+	
+	vector<string> options;
+	if(intVals.find("_CAVE") != intVals.end())
+	{
+		options.push_back("_CAVE");
+	}
+	
+	if(intVals.find("_GRASS") != intVals.end())
+	{
+		options.push_back("_GRASS");
+	}
+	
+	if(intVals.find("_MOUNTAIN") != intVals.end())
+	{
+		options.push_back("_MOUNTAIN");
+	}
+	
+	string monster_home = options[currentWorldFrame % options.size()];
+	int id = unitIDgenerator.nextID();
+	
+	if(monster_home == "_CAVE")
+	{
+		addUnit(id, false, -1);
+		units[id].name = "Stone beast";
+		
+		int stonebeast_size = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 + 2 * stonebeast_size;
+		units[id].intVals["DEX"] = 4 - stonebeast_size;
+	}
+	else if(monster_home == "_MOUNTAIN")
+	{
+		addUnit(id, false, -1);
+		units[id].name = "Troll";
+		
+		int troll_size = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 + troll_size;
+		units[id].intVals["DEX"] = 4;
+	}
+	else if(monster_home == "_GRASS")
+	{
+		addUnit(id, false, -1);
+		units[id].name = "Moogle";
+		
+		int moogle_age = (currentWorldFrame % 4) + 3;
+		units[id].intVals["STR"] = 4 - moogle_age;
+		units[id].intVals["DEX"] = 4 + 2 * moogle_age;
+	}
+	else
+	{
+		throw std::logic_error("Adding random monster failed.\nUnknown monster home terrain type: " + monster_home);
+	}
+	
+	units[id].scale     = FixedPoint(units[id].getModifier("STR"), 10);
+	units[id].hitpoints = 100 * units[id].getModifier("STR");
+	
+	visualworld->setModelScale(id, units[id].scale.getFloat());
+	
+	return;
+}
+
+
 void World::worldTick(int tickCount)
 {
+	
+	currentWorldFrame = tickCount;
+	
 	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
 	
 	friendly_fire = (intVals["FRIENDLY_FIRE"] == 1);
+	
+	// if this area has monsters autospawning
+	if(intVals["MON_SPAWN"])
+	{
+		if(tickCount % intVals["MON_FREQ"] == 0)
+		{
+			// TODO: Possibility to spawn monster groups.
+			
+			// it's time to create a monster!
+			addRandomMonster();
+			
+		}
+	}
 	
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -963,7 +1048,6 @@ void World::worldTick(int tickCount)
 	*/
 	
 	octree.reset(new Octree(Location(0, 0, 0), Location(lvl.max_x(), FixedPoint(400), lvl.max_z())));
-	currentWorldFrame = tickCount;
 	
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
@@ -978,19 +1062,30 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
-	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	bool players_present = (units.begin()->first < 10000);
+	
+	// shut down AI units if there are no players present.
+	if(players_present)
 	{
-		tickUnit(iter->second, visualworld->models[iter->first]);
+		for(auto iter = units.begin(); iter != units.end(); ++iter)
+		{
+			tickUnit(iter->second, visualworld->models[iter->first]);
+		}
 	}
 	
+	// ticking projectiles even without players is ok, since projectiles will die with time.
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		tickProjectile(iter->second, visualworld->models[iter->first]);
 	}
 	
-	for(auto iter = items.begin(); iter != items.end(); ++iter)
+	// don't waste time on moving items either, if no players are there.
+	if(players_present)
 	{
-		tickItem(iter->second, visualworld->models[iter->first]);
+		for(auto iter = items.begin(); iter != items.end(); ++iter)
+		{
+			tickItem(iter->second, visualworld->models[iter->first]);
+		}
 	}
 	
 	

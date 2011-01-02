@@ -63,6 +63,7 @@ public:
 	
 	void worldTick(int tickCount);
 	
+	void addRandomMonster();
 	void addUnit(int id, bool player = true, int team = -1);
 	void addProjectile(Location& location, int id, size_t model_prototype);
 	void addItem(Location& location, Location& velocity, int id); // TODO: more control over what is spawned

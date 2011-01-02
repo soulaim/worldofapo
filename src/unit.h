@@ -80,6 +80,8 @@ public:
 	
 	int mobility;
 	
+	FixedPoint scale; // unit size for collision detection etc.
+	
 	std::string name;
 	
 	void setName(const std::string&);

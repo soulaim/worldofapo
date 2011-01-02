@@ -127,6 +127,15 @@ void VisualWorld::decorate(const Level& lvl)
 	levelDesc.preload();
 }
 
+
+void VisualWorld::setModelScale(int id, float scale)
+{
+	if(active == 0)
+		return;
+	
+	models[id]->myScale = scale;
+}
+
 void VisualWorld::terminate()
 {
 	for(auto it = meadows.begin(); it != meadows.end(); ++it)

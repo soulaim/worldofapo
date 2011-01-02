@@ -603,14 +603,16 @@ void Game::processClientMsgs()
 				
 				world->units.find(unitID)->second = tmp_unit;
 				*/
-				
-				world->addUnit(unitID);
-				world->units.find(unitID)->second.handleCopyOrder(ss);
-				
 				// END OF ALERT TODO
 				
+				world->addUnit(unitID);
+				Unit& unit = world->units.find(unitID)->second;
+				unit.handleCopyOrder(ss);
 				
-				cerr << "COPY OF A UNIT: " << unitID << " / " << world->units.find(unitID)->second.id << endl;
+				world->visualworld->setModelScale(unitID, unit.scale.getFloat());
+				
+				
+				cerr << "COPY OF A UNIT: " << unitID << " / " << unit.id << endl;
 			}
 			else if(cmd == "ITEM")
 			{

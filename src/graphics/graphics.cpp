@@ -1719,21 +1719,27 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-
-    drawMenuParticles(menuParticles, 0, 1.2f, "^r");
-    drawMenuParticles(menuParticles, 1, 2.0f, "^R");
 	
-    drawMenuRectangles();
-
+	if(intVals.find("MENU_FALLING_NUMBERS")->second)
+	{
+		drawMenuParticles(menuParticles, 0, 1.2f, "^r");
+		drawMenuParticles(menuParticles, 1, 2.0f, "^R");
+	}
+	
+	if(intVals.find("MENU_RECTANGLES")->second)
+	{
+		drawMenuRectangles();
+	}
+	
 	// blur the effect?
 	
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
 
-    // render menu buttons on top of the scene.
-    drawMenuButtons(buttons);
+	// render menu buttons on top of the scene.
+	drawMenuButtons(buttons);
 
-    glDepthMask(GL_TRUE);
+	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	

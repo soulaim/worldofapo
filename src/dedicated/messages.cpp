@@ -16,7 +16,7 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 {
 	World& world = areas.find(areaName)->second;
 	
-	
+	// clear properties from previous world
 	sockets.write(plr_ID, "-2 CLEAR_WORLD_PROPERTIES#");
 	
 	// send some aesthetical settings for the world
@@ -36,8 +36,8 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 		}
 	}
 	
+	// send some world simulation parameters
 	{
-		
 		HasProperties& properties = world;
 		for(auto it = properties.intVals.begin(); it != properties.intVals.end(); it++)
 		{
