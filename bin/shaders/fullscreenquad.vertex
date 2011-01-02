@@ -1,9 +1,13 @@
 varying vec2 texcoord;
 
+attribute vec3 frustum_corner_position;
+varying vec3 fragment_direction;
+
 // Remember to draw a screen aligned quad.
 void main(void)
 {
 	gl_Position = gl_Vertex;
 	texcoord = gl_Position.xy * 0.5 + 0.5;
+	fragment_direction = frustum_corner_position;
 }
 

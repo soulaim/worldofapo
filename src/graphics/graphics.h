@@ -41,7 +41,7 @@ class Graphics: public HasProperties
 
 	void drawSkybox();
 
-	void drawLightsDeferred_single_pass();
+	void drawLightsDeferred_single_pass(int lights);
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
 	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
 

@@ -9,7 +9,7 @@ uniform float power;
 
 varying vec2 texcoord;
 
-float LinearizeDepth(float z)
+float linearizeDepth(float z)
 {
 	float n = 0.1; // camera z near
 	float f = 200.0; // camera z far
@@ -27,7 +27,7 @@ float getValue(float real_z, float sample_z)
 float getDepth(float real_z, vec2 depthTexCoord)
 {
 	float myZ     = texture2D(depthTexture, depthTexCoord).r;
-	float linearZ = LinearizeDepth(myZ);
+	float linearZ = linearizeDepth(myZ);
 	return getValue(real_z, linearZ);
 }
 
@@ -38,7 +38,7 @@ void main()
 	vec2 depthtexcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 	
 	float screen_z  = texture2D(depthTexture, depthtexcoord).r;
-	float z  = LinearizeDepth(screen_z);
+	float z  = linearizeDepth(screen_z);
 	
 	if(z > 0.99)
 	{
