@@ -55,6 +55,7 @@ public:
 	int unit_id;
 	
 	Matrix4 modelview() const;
+	Matrix4 perspective() const;
 private:
 	
 	void getRelativePos(Vec3&) const;

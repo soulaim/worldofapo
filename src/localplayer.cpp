@@ -184,7 +184,8 @@ void Localplayer::draw()
 		view->tick();
 
 		int& fps_sync = intVals["SYNC_FPS_AND_TPS"];
-		if(!need_to_tick_world || fps_sync)
+		bool have_time_to_draw = !need_to_tick_world || fps_sync;
+		if(have_time_to_draw && window->active())
 		{
 			if( (fps_sync > 0) && (fps_sync < 10) )
 			{
@@ -443,10 +444,15 @@ bool Localplayer::handleClientLocalInput()
 				world.add_message(ss_msg.str());
 			}
 		}
+		else if(key == "h")
+		{
+			cerr << "Hiding window" << endl;
+			window->hide();
+		}
 		else if(key == "o")
 		{
 			stringstream ss;
-			ss << "Camera might be looking somewhere around " << view->GetOGLPos(320, 240);
+			ss << "Camera is looking at " << view->getWorldPosition();
 			world.add_message(ss.str());
 		}
 		

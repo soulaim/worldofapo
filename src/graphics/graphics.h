@@ -41,7 +41,7 @@ class Graphics: public HasProperties
 
 	void drawSkybox();
 
-	void drawLightsDeferred_single_pass();
+	void drawLightsDeferred_single_pass(int lights);
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
 	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
 
@@ -127,7 +127,8 @@ public:
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 
-	Vec3 GetOGLPos(int x, int y);
+	Vec3 getWorldPosition();
+	Vec3 getWorldPosition(int screen_x, int screen_y);
 	
 	void zoom_in();
 	void zoom_out();

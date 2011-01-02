@@ -127,3 +127,35 @@ std::ostream& operator<<(std::ostream& out, const Matrix4& m)
 	return out;
 }
 
+Matrix4 Matrix4::projectionFrustum(float left, float right, float bottom, float top, float near, float far)
+{
+	Matrix4 m;
+
+	float A = (right + left) / (right - left);
+	float B = (top + bottom) / (top - bottom);
+	float C = -(far + near) / (far - near);
+	float D = -2.0 * far * near / (far - near);
+
+	m.T[0] = 2.0 * near / (right - left);
+	m.T[4] = 0.0f;
+	m.T[8] = 0.0f;
+	m.T[12] = 0.0f;
+
+	m.T[1] = 0.0f;
+	m.T[5] = 2* near / (top - bottom);
+	m.T[9] = 0.0f;
+	m.T[13] = 0.0f;
+
+	m.T[2] = A;
+	m.T[6] = B;
+	m.T[10] = C;
+	m.T[14] = -1.0f;
+
+	m.T[3] = 0.0f;
+	m.T[7] = 0.0f;
+	m.T[11] = D;
+	m.T[15] = 0.0f;
+
+	return m;
+}
+

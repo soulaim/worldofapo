@@ -215,7 +215,7 @@ void Hud::drawMessages()
 		
 		if(alpha < 0.f)
 			alpha = 0.f;
-		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale, viewMessages[i].hilight, alpha);
+		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale * 2.0f, viewMessages[i].hilight, alpha);
 	}
 	
 	if(currentClientCommand.size() > 0)

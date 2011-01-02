@@ -13,17 +13,11 @@ Plane::Plane()
 {
 }
 
-Plane::~Plane()
-{
-}
-
 
 void Plane::set3Points(const Vec3& v1, const Vec3& v2, const Vec3& v3)
 {
-	Vec3 aux1, aux2;
-
-	aux1 = v1 - v2;
-	aux2 = v3 - v2;
+	Vec3 aux1 = v1 - v2;
+	Vec3 aux2 = v3 - v2;
 
 	normal = aux2 * aux1;
 
@@ -52,7 +46,7 @@ void Plane::setCoefficients(float a, float b, float c, float d)
 }
 
 
-float Plane::distance(const Vec3 &p)
+float Plane::distance(const Vec3& p) const
 {
 	return (d + normal.innerProduct(p));
 }

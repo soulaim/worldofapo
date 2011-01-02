@@ -364,3 +364,11 @@ Matrix4 Camera::modelview() const
 	return m * t;
 }
 
+Matrix4 Camera::perspective() const
+{
+	float ymax = nearP * tan(fov / 2.0 / 180.0 * 3.14159265);
+	float xmax = ymax * aspect_ratio;
+
+	return Matrix4::projectionFrustum(-xmax, xmax, -ymax, ymax, nearP, farP);
+}
+

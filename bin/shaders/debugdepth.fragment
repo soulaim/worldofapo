@@ -3,7 +3,7 @@ uniform sampler2D depthTex;
 
 varying vec2 vTexCoord;
 
-float LinearizeDepth(float z)
+float linearizeDepth(float z)
 {
 	float n = 1.0; // camera z near
 	float f = 200.0; // camera z far

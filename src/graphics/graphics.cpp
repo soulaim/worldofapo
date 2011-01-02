@@ -267,7 +267,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			ss1 << "lights[" << i*2 + DIFFUSE << "]";
 			glUniform4f(shader.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 			check_errors(__FILE__, __LINE__);
-	//		cerr << shaders.uniform(ss1.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+	//		cerr << shader.uniform(ss1.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 	//		cerr << "DIFFUSE is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 
 			const Location& pos = iter->second.getPosition();
@@ -281,7 +281,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			ss2 << "lights[" << i*2 + POSITION << "]";
 			glUniform4f(shader.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
 			check_errors(__FILE__, __LINE__);
-	//		cerr << shaders.uniform(ss2.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
+	//		cerr << shader.uniform(ss2.str()) << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 	//		cerr << "POSITION of light " << i << " is now " << rgb[0] << " " << rgb[1] << " "<< rgb[2] << " " << rgb[3] << endl;
 			
 			++i;
@@ -835,11 +835,13 @@ void Graphics::setupCamera(const Camera& camera)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	// TODO: how about changing these to our own functions, just because we can.
 	gluPerspective(camera.fov, camera.aspect_ratio, camera.nearP, camera.farP);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// TODO: how about changing these to our own functions, just because we can.
 	gluLookAt(camPos.x, camPos.y, camPos.z,
 			  camTarget.x, camTarget.y, camTarget.z,
 			  upVector.x, upVector.y, upVector.z);
@@ -880,13 +882,11 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
-	glUseProgram(shaders["ssao"]);
-	glUniform1f(shaders.uniform("ssao_power"), float(power));
-	
+	Shader& shader = shaders.get_shader("ssao_program");
+	shader.start();
+	glUniform1f(shader.uniform("power"), float(power));
+
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	
-	//	TextureHandler::getSingleton().bindTexture(1, depth_texture);
-	//	glUseProgram(shaders["debug_program"]);
 	
 	drawFullscreenQuad();
 	
@@ -897,7 +897,7 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
 	TextureHandler::getSingleton().bindTexture(1, "");
-	glUseProgram(0);
+	shader.stop();
 }
 
 
@@ -930,17 +930,28 @@ void Graphics::applyBlur(int blur, const string& input_image, GLuint renderTarge
 }
 
 
-
-// TODO: this isn't very useful function unless we can somehow choose how many lights to draw in the shader.
-// One possibility is to have different shaders for different amounts of lights.
-void Graphics::drawLightsDeferred_single_pass()
+void Graphics::drawLightsDeferred_single_pass(int lights)
 {
 	Shader& shader = shaders.get_shader("deferred_lights_program");
 	shader.start();
-	
+
+	glUniform1f(shader.uniform("light_count"), float(lights));
+
+	Vec3 camera_position = camera_p->getPosition();
+	glUniform3f(shader.uniform("camera_position"), camera_position.x, camera_position.y, camera_position.z);
+	Vec3 camera_target = camera_p->getTarget();
+	glUniform3f(shader.uniform("camera_target"), camera_target.x, camera_target.y, camera_target.z);
+/*
+	cerr << "Camera: " << camera_position << endl;
+	cerr << "BL    : " << frustum.fbl << endl;
+	cerr << "BR    : " << frustum.fbr << endl;
+	cerr << "TL    : " << frustum.ftl << endl;
+	cerr << "TR    : " << frustum.ftr << endl;
+*/
 	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
 	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
 	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
+	TextureHandler::getSingleton().bindTexture(3, "deferredFBO_depth_texture");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	glDepthMask(GL_FALSE);
@@ -948,12 +959,24 @@ void Graphics::drawLightsDeferred_single_pass()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	drawFullscreenQuad();
+	GLint attribute_location = shader.attribute("frustum_corner_position");
+//	drawFullscreenQuad();
+	glBegin(GL_QUADS);
+//	glUniform3fv(shader.uniform("ftl"), 1, (float*)&frustum.ftl);
+//	glUniform3fv(shader.uniform("ftr"), 1, (float*)&frustum.ftr);
+//	glUniform3fv(shader.uniform("fbl"), 1, (float*)&frustum.fbl);
+//	glUniform3fv(shader.uniform("fbr"), 1, (float*)&frustum.fbr);
+	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.fbl.x, frustum.fbl.y, frustum.fbl.z);
+	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.fbr.x, frustum.fbr.y, frustum.fbr.z);
+	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.ftr.x, frustum.ftr.y, frustum.ftr.z);
+	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.ftl.x, frustum.ftl.y, frustum.ftl.z);
+	glEnd();
 
 	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	
+	TextureHandler::getSingleton().bindTexture(3, "");
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
@@ -987,11 +1010,16 @@ void Graphics::applyAmbientLight()
 	shader.stop();
 }
 
-Vec3 Graphics::GetOGLPos(int x, int y)
+Vec3 Graphics::getWorldPosition()
+{
+	return getWorldPosition(intVals["RESOLUTION_X"]/2, intVals["RESOLUTION_Y"]/2);
+}
+
+Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
 {
 	setupCamera(*camera_p);
 
-	GLint viewport[4];
+	GLint viewport[4] = { 0, 0, intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"] };
 	GLdouble modelview[16];
 	GLdouble projection[16];
 	GLfloat winX, winY, winZ;
@@ -1000,11 +1028,13 @@ Vec3 Graphics::GetOGLPos(int x, int y)
 	// TODO: DON'T glGet* these, get directly from camera instead!!
 	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
 	glGetDoublev( GL_PROJECTION_MATRIX, projection );
-	glGetIntegerv( GL_VIEWPORT, viewport );
+//	glGetIntegerv( GL_VIEWPORT, viewport );
 
-	winX = (float)x;
-	winY = (float)viewport[3] - (float)y;
-	glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+	winX = (float)screen_x;
+	winY = (float)viewport[3] - (float)screen_y;
+
+	bind_framebuffer(deferredFBO, 0);
+	glReadPixels( screen_x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
 
 	gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
@@ -1031,6 +1061,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 	shader.start();
 	glUniform1f(shader.uniform("fullscreen"), 0.0f);
+
 	// Draw lights that are not near the camera as point sprites. Lights are blended together one light at a time.
 	int pass = 0;
 	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
@@ -1252,9 +1283,12 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 		applyAmbientLight();
 
-		if(intVals["DRAW_DEFERRED_LIGHTS"])
+		if(intVals["DRAW_DEFERRED_LIGHTS"] == 2)
 		{
-//			drawLightsDeferred_single_pass();
+			drawLightsDeferred_single_pass(lights.size());
+		}
+		else if(intVals["DRAW_DEFERRED_LIGHTS"] == 1)
+		{
 			drawLightsDeferred_multiple_passes(*camera_p, lights);
 //			drawLightsDeferred_multiple_passes_with_scissors(lights);
 		}
@@ -1536,7 +1570,8 @@ void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles
 
 void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 {
-	glUseProgram(shaders["grass_program"]);
+	Shader& shader = shaders.get_shader("grass_program");
+	shader.start();
 	
 	if(drawDebuglines)
 	{
@@ -1556,8 +1591,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 		}
 	}
 
-	glUseProgram(0);
-
+	shader.stop();
 }
 
 void Graphics::drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const string& color) const
@@ -1721,15 +1755,21 @@ void Graphics::reload_shaders()
 
 void Graphics::setInitialShaderValues()
 {
-	glUseProgram(shaders["particle_program"]);
-	glUniform1f(shaders.uniform("particle_screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
-	glUniform1f(shaders.uniform("particle_screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
-	glUseProgram(0);
+	{
+		Shader& shader = shaders.get_shader("particle_program");
+		shader.start();
+		glUniform1f(shader.uniform("screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
+		shader.stop();
+	}
 	
-	glUseProgram(shaders["ssao"]);
-	glUniform1f(shaders.uniform("ssao_width"), intVals["RESOLUTION_X"]);
-	glUniform1f(shaders.uniform("ssao_height"), intVals["RESOLUTION_Y"]);
-	glUseProgram(0);
+	{
+		Shader& shader = shaders.get_shader("ssao_program");
+		shader.start();
+		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
+		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
+		shader.stop();
+	}
 
 	{
 		Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");

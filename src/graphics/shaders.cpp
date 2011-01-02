@@ -39,7 +39,7 @@ void Shaders::init()
 	shaders["blur_program2"]    = shared_ptr<Shader>(new Shader("shaders/blur.vertex", "shaders/blur_horizontalpass.fragment"));
 	shaders["unit_program"]     = shared_ptr<Shader>(new Shader("shaders/unit.vertex", "shaders/unit.fragment"));
 	shaders["grass_program"]    = shared_ptr<Shader>(new Shader("shaders/grass.vertex", "shaders/grass.fragment", "shaders/grass.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 3*4));
-	shaders["ssao"]             = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
+	shaders["ssao_program"]     = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
 	shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 
 	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/deferred_lights.fragment"));
@@ -72,8 +72,10 @@ void Shaders::init()
 	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
 	shaders["deferred_lights_program"]->set_texture_unit(1, "normals");
 	shaders["deferred_lights_program"]->set_texture_unit(2, "positions");
+	shaders["deferred_lights_program"]->set_texture_unit(3, "depthTexture");
 	uniform_locations["deferred_lights_ambientLight"] = shaders["deferred_lights_program"]->uniform("ambientLight");
 	uniform_locations["deferred_lights_activeLights"] = shaders["deferred_lights_program"]->uniform("activeLights");
+	/*
 	int MAX_NUM_LIGHTS = 71;
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
@@ -81,6 +83,7 @@ void Shaders::init()
 		ss << i;
 		uniform_locations["deferred_lights[" + ss.str() + "]"] = shaders["deferred_lights_program"]->uniform(("lights[" + ss.str() + "]").c_str());
 	}
+	*/
 	shaders["deferred_lights_program"]->stop();
 
 	shaders["deferred_level_program"]->start();
@@ -99,13 +102,13 @@ void Shaders::init()
 	shaders["particle_program"]->set_texture_unit(1, "depthTexture");
 	shaders["particle_program"]->stop();
 	
-	shaders["ssao"]->start();
-	uniform_locations["ssao_power"] = shaders["ssao"]->uniform("power");
-	shaders["ssao"]->set_texture_unit(0, "imageTexture");
-	shaders["ssao"]->set_texture_unit(1, "depthTexture");
-	uniform_locations["ssao_height"] = shaders["ssao"]->uniform("screen_height");
-	uniform_locations["ssao_width"]  = shaders["ssao"]->uniform("screen_width");
-	shaders["ssao"]->stop();
+	shaders["ssao_program"]->start();
+	uniform_locations["ssao_power"] = shaders["ssao_program"]->uniform("power");
+	shaders["ssao_program"]->set_texture_unit(0, "imageTexture");
+	shaders["ssao_program"]->set_texture_unit(1, "depthTexture");
+	uniform_locations["ssao_height"] = shaders["ssao_program"]->uniform("screen_height");
+	uniform_locations["ssao_width"]  = shaders["ssao_program"]->uniform("screen_width");
+	shaders["ssao_program"]->stop();
 
 	shaders["level_program"]->start();
 	shaders["level_program"]->set_texture_unit(0, "baseMap0");
@@ -114,12 +117,14 @@ void Shaders::init()
 	shaders["level_program"]->set_texture_unit(3, "baseMap3");
 	uniform_locations["lvl_ambientLight"] = shaders["level_program"]->uniform("ambientLight");
 	uniform_locations["lvl_activeLights"] = shaders["level_program"]->uniform("activeLights");
+	/*
 	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
 	{
 		stringstream ss;
 		ss << i;
 		uniform_locations["lvl_lights[" + ss.str() + "]"] = shaders["level_program"]->uniform(("lights[" + ss.str() + "]").c_str());
 	}
+	*/
 	shaders["level_program"]->stop();
 	
 	shaders["unit_program"]->start();
@@ -157,6 +162,7 @@ void Shaders::init()
 
 void Shaders::release()
 {
+	uniform_locations.clear();
 	shaders.clear();
 }
 
