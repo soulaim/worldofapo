@@ -882,9 +882,10 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
-	glUseProgram(shaders["ssao"]);
-	glUniform1f(shaders.uniform("ssao_power"), float(power));
-	
+	Shader& shader = shaders.get_shader("ssao");
+	shader.start();
+	glUniform1f(shader.uniform("power"), float(power));
+
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	//	TextureHandler::getSingleton().bindTexture(1, depth_texture);
@@ -899,7 +900,7 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
 	TextureHandler::getSingleton().bindTexture(1, "");
-	glUseProgram(0);
+	shader.stop();
 }
 
 
@@ -939,10 +940,16 @@ void Graphics::drawLightsDeferred_single_pass()
 {
 	Shader& shader = shaders.get_shader("deferred_lights_program");
 	shader.start();
+
+	glUniform3fv(shader.uniform("ftl"), 1, (float*)&frustum.ftl);
+	glUniform3fv(shader.uniform("ftr"), 1, (float*)&frustum.ftr);
+	glUniform3fv(shader.uniform("fbl"), 1, (float*)&frustum.fbl);
+	glUniform3fv(shader.uniform("fbr"), 1, (float*)&frustum.fbr);
 	
 	TextureHandler::getSingleton().bindTexture(0, "deferredFBO_texture0");
 	TextureHandler::getSingleton().bindTexture(1, "deferredFBO_texture1");
 	TextureHandler::getSingleton().bindTexture(2, "deferredFBO_texture2");
+	TextureHandler::getSingleton().bindTexture(3, "deferredFBO_depth_texture");
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	glDepthMask(GL_FALSE);
@@ -1040,6 +1047,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 	shader.start();
 	glUniform1f(shader.uniform("fullscreen"), 0.0f);
+
 	// Draw lights that are not near the camera as point sprites. Lights are blended together one light at a time.
 	int pass = 0;
 	for(auto it = lights.begin(); it != lights.end(); ++it, ++pass)
@@ -1263,7 +1271,7 @@ void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
 
 		if(intVals["DRAW_DEFERRED_LIGHTS"])
 		{
-//			drawLightsDeferred_single_pass();
+//			drawLightsDeferred_single_pass(); lights.empty();
 			drawLightsDeferred_multiple_passes(*camera_p, lights);
 //			drawLightsDeferred_multiple_passes_with_scissors(lights);
 		}

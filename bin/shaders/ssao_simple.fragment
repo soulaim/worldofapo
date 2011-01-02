@@ -58,7 +58,7 @@ void main()
 	}
 	
 	total_occlusion /= 7.0;
-	
+
 	float multiplier = max(1.0 - total_occlusion, 0.1);
 	gl_FragColor *= vec4(multiplier, multiplier, multiplier, 1.0);
 }

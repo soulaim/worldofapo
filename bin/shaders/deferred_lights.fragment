@@ -10,8 +10,14 @@ varying vec2 texcoord;
 uniform sampler2D texture_colors;
 uniform sampler2D normals;
 uniform sampler2D positions;
+uniform sampler2D depthTexture;
 
 const int MAX_ACTIVE_LIGHTS = 4;
+
+uniform vec3 ftl;
+uniform vec3 ftr;
+uniform vec3 fbl;
+uniform vec3 fbr;
 
 //#define OLD_LIGHTS
 

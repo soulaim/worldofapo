@@ -72,6 +72,7 @@ void Shaders::init()
 	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
 	shaders["deferred_lights_program"]->set_texture_unit(1, "normals");
 	shaders["deferred_lights_program"]->set_texture_unit(2, "positions");
+	shaders["deferred_lights_program"]->set_texture_unit(3, "depthTexture");
 	uniform_locations["deferred_lights_ambientLight"] = shaders["deferred_lights_program"]->uniform("ambientLight");
 	uniform_locations["deferred_lights_activeLights"] = shaders["deferred_lights_program"]->uniform("activeLights");
 	int MAX_NUM_LIGHTS = 71;
