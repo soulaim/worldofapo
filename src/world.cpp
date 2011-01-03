@@ -919,7 +919,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				event.a_velocity = projectile.velocity * projectile["TPF"];
 				
 				visualworld->add_event(event);
-				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000);
+				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000) / FixedPoint(u->intVals["MASS"], 1000);
 				
 				if(!friendly_fire && ((*u)["TEAM"] == team))
 				{
@@ -984,8 +984,9 @@ void World::addRandomMonster()
 		units[id].name = "Stone beast";
 		
 		int stonebeast_size = (currentWorldFrame % 4) + 3;
-		units[id].intVals["STR"] = 4 + 2 * stonebeast_size;
-		units[id].intVals["DEX"] = 4 - stonebeast_size;
+		units[id].intVals["STR"]  = 4 + 3 * stonebeast_size;
+		units[id].intVals["DEX"]  = 4 - stonebeast_size;
+		units[id].intVals["MASS"] = 5000;
 	}
 	else if(monster_home == "_MOUNTAIN")
 	{
@@ -995,6 +996,7 @@ void World::addRandomMonster()
 		int troll_size = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"] = 4 + troll_size;
 		units[id].intVals["DEX"] = 4;
+		units[id].intVals["MASS"] = 2000;
 	}
 	else if(monster_home == "_GRASS")
 	{
@@ -1004,6 +1006,7 @@ void World::addRandomMonster()
 		int moogle_age = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"] = 4 - moogle_age;
 		units[id].intVals["DEX"] = 4 + 2 * moogle_age;
+		units[id].intVals["MASS"] = 700;
 	}
 	else
 	{

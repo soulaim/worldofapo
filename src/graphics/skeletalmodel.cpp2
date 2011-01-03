@@ -57,12 +57,8 @@ void SkeletalModel::rotate_y(float angle)
 {
 	// ...
 	for(size_t i=0; i<bones.size(); i++)
-	{
 		if(bones[i].root)
-		{
 			bones[i].rotation_y = angle;
-		}
-	}
 }
 
 bool SkeletalModel::load(const string& filename)
@@ -154,8 +150,6 @@ bool SkeletalModel::load(const string& filename)
 				if(sub_cmd == "COORDINATE")
 				{
 					in >> v.x >> v.y >> v.z;
-					if(v.length() > 10)
-						cerr << "DUBIOUS: vertex length " << v.length() << endl;
 				}
 				else if(sub_cmd == "NORMAL")
 				{
@@ -170,9 +164,6 @@ bool SkeletalModel::load(const string& filename)
 					throw std::logic_error(string("Skeletal Model could not be loaded, vertex parameter unrecognized: ") + sub_cmd);
 				}
 			}
-			
-			if(v.length() > 10)
-				cerr << "DUBIOUS: post-check: vertex length " << v.length() << endl;
 			
 			const unsigned MAX_VERTICES = (1 << (sizeof(unsigned short)*8));
 			if(vertices.size() < MAX_VERTICES)
@@ -244,15 +235,6 @@ bool SkeletalModel::load(const string& filename)
 				
 			}
 			
-			for(size_t i = 0; i < 3; ++i)
-			{
-				if(triangle.vertices[i] >= vertices.size())
-				{
-					cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
-					throw std::logic_error(string("SkeletalModel at post-check: triangle's vertex index out of bounds."));
-				}
-			}
-			
 			triangles.push_back(triangle);
 			triangle_normals.push_back(triangle_n);
 			triangle_areas.push_back(triangle_area);
@@ -305,13 +287,13 @@ bool SkeletalModel::load(const string& filename)
 	// calculate vertex weights
 	for(size_t i=0; i<vertices.size(); ++i)
 	{
-		const Vec3& v = vertices[i];
+		Vec3& v = vertices[i];
 		
 		map<int, float> weights;
 		
 		for(size_t k=0; k<bones.size(); ++k)
 		{
-			const Bone& bone = bones[k];
+			Bone& bone = bones[k];
 			
 			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
 			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
@@ -324,8 +306,7 @@ bool SkeletalModel::load(const string& filename)
 			{
 				Vec3 tmp_point = start + segment * (z / 99.f);
 				
-				float length = (v - tmp_point).lengthSquared();
-				float tmp_w = 1.0f / (0.01f + length);
+				float tmp_w = 1.0f / (0.01f + (v - tmp_point).length());
 				if(tmp_w > weights[k])
 					weights[k] = tmp_w;
 			}
@@ -458,26 +439,8 @@ bool SkeletalModel::save(const string& filename) const
 void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state) const
 {
 	const Bone& bone = bones[current_bone];
-	
-	Animation* p_animation;
-	Animation& try_animation = Animation::getAnimation(bone.name, animation_name);
-	
-	if(try_animation.totalTime() == 0)
-	{
-		// lalala...
-		if(animation_name.substr(0, 3) == "run")
-		{
-			Animation& try_animation2 = Animation::getAnimation(bone.name, "run");
-			p_animation = &try_animation2;
-		}
-		else
-			p_animation = &try_animation;
-	}
-	else
-		p_animation = &try_animation;
-	
-	Animation& animation = *p_animation;
-	
+
+	Animation& animation = Animation::getAnimation(bone.name, animation_name);
 	// left and right sides of the body are in polarized animation_name states
 	int ani_addition = 0;
 	if(bone.name.substr(0, 4) == "LEFT")
@@ -499,8 +462,8 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 	// TODO: pass only angles and bone locations to shader and do matrix calculation there.
 
 	offset *= Matrix4(0,0,0, bone.start_x, bone.start_y, bone.start_z);
-	offset *= Matrix4(0, rot_y, 0, 0,0,0);
 	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
+	offset *= Matrix4(0, rot_y, 0, 0,0,0);
 	offset *= Matrix4(0, 0, rot_z, 0,0,0);
 	offset *= Matrix4(0,0,0, -bone.start_x, -bone.start_y, -bone.start_z);
 
@@ -623,13 +586,8 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 	
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
-	
-	for(size_t i=0; i<bones.size(); i++)
-	{
-		if(bones[i].root)
-			calcMatrices(i, rotations, Matrix4(), animation_name, animation_time);
-	}
-	
+	calcMatrices(0, rotations, Matrix4(), animation_name, animation_time);
+
 	if(draw_only_skeleton)
 	{
 		draw_skeleton(rotations, hilight);
@@ -641,7 +599,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 		TextureHandler::getSingleton().bindTexture(0, texture_name);
 	}
 
-	assert(rotations.size() < 23);
+	assert(rotations.size() <= 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 
 //	old_draw(hilight);

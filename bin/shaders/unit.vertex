@@ -4,7 +4,7 @@ varying vec4 vertex_position;
 attribute vec2 bone_index; // Each vertex has bones.
 attribute vec2 bone_weight; // And weight for each bone.
 
-uniform mat4 bones[10];  // Array of bones that are computed (animated) on the CPU and given to the shader
+uniform mat4 bones[22];  // Array of bones that are computed (animated) on the CPU and given to the shader
 uniform bool active;
 uniform vec3 unit_location;
 uniform float scale;

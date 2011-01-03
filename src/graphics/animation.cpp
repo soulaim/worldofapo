@@ -110,7 +110,6 @@ Animation& Animation::getAnimation(const std::string& modelnode_name, const std:
 	return ANIMATIONS[modelnode_name][animation_name];
 }
 
-
 bool Animation::load(const std::string& filename)
 {
 	std::ifstream in(filename);

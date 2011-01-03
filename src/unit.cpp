@@ -22,6 +22,8 @@ Unit::Unit():
 {
 	type = OctreeObject::UNIT;
 	
+	intVals["MASS"] = 1000;
+	
 	// create attributes
 	intVals["STR"] = -666;
 	intVals["DEX"] = -666;
