@@ -121,11 +121,15 @@ void Localplayer::init()
 	hud->setUnitsMap(&world.units);
 
 	// TODO: Should not be done here? FIX
+	// TODO: move model loading things to config files
+	
+	/*
 	ApoModel::loadObjects("models/model.parts"); // TODO: this is ugly, we shouldn't have to know about apomodel here.
 	ApoModel::loadObjects("models/bullet.parts"); // TODO: modelfactory should call these somehow or something.
 	ModelFactory::load(World::BULLET_MODEL, "models/bullet.bones", "");
+	*/
 	
-	
+	ModelFactory::load(World::BULLET_MODEL, "models/item_bag.sm2", "marine");
 	ModelFactory::load(World::PLAYER_MODEL, "models/marine.sm2", "marine");
 	ModelFactory::load(World::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
 	ModelFactory::load(World::INVISIBLE_MODEL, "", "");

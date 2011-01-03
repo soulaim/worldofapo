@@ -1249,7 +1249,7 @@ void World::addItem(Location& location, Location& velocity, int id)
 	visualworld->models[id]->realUnitPos = position;
 	visualworld->models[id]->currentModelPos = position;
 	
-	visualworld->models[id]->setScale(25.0f); // big balls!
+	visualworld->models[id]->setScale(1.0f);
 	
 	items[id].position = location;
 	items[id].velocity = velocity;
