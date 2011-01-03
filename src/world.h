@@ -38,7 +38,7 @@ public:
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;
 	
-	
+	// TODO: move model loading things to config files
 	enum ModelType
 	{
 		INVISIBLE_MODEL,
