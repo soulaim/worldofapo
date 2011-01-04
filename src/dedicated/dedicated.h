@@ -86,6 +86,7 @@ class DedicatedServer : public HasProperties
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
 	void handleSignInMessage(int, std::string);
+	bool startPlayerAreaChange(const std::string& next_area, int player_id);
 	void disconnect(int leaver);
 	
 	// some message sending stuff

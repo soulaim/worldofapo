@@ -32,18 +32,40 @@ void WorldItem::collides(OctreeObject& o)
 	{
 		Unit* u = static_cast<Unit*> (&o);
 		
-		// this is fucking stupid, but wtf..
-		for(size_t i=0; i<u->weapons.size(); ++i)
+		if(intVals["AMMO_BOOST"] > 0)
 		{
-			u->intVals[u->weapons[i].strVals["AMMUNITION_TYPE"]] += 100 / u->weapons[i].intVals["AMMO_VALUE"];
+			for(size_t i=0; i<u->weapons.size(); ++i)
+			{
+				u->intVals[u->weapons[i].strVals["AMMUNITION_TYPE"]] += 100 / u->weapons[i].intVals["AMMO_VALUE"];
+			}
 		}
 		
-		dead = true;
+		if(u->id < 10000 && u->human())
+		{
+			// area transfer!
+			if(intVals["AREA_CHANGE"])
+			{
+					u->intVals["NEEDS_AREA_TRANSFER"] = 1;
+					u->strVals["NEXT_AREA"] = strVals["AREA_CHANGE_TARGET"];
+			}
+		}
+		
+		if(intVals["PERSISTS"] == 0)
+			dead = true;
 	}
 	
 	if(o.type == OctreeObject::WORLD_ITEM)
 	{
-		// collision handling between items
+		Location direction = (position - o.position);
+		if(direction.length() == FixedPoint(0))
+		{
+			// unresolvable collision. leave it be.
+			return;
+		}
+		
+		direction.normalize();
+		direction *= FixedPoint(1, 5);
+		velocity += direction;
 	}
 }
 
@@ -51,7 +73,7 @@ void WorldItem::collides(OctreeObject& o)
 string WorldItem::copyOrder(int ID) const
 {
 	stringstream item_msg;
-	item_msg << "-2 ITEM " << ID << " " 
+	item_msg << "-2 ITEM " << ID << " " << type << " " << flags << " "
 	<< position.x << " " << position.z << " " << position.y << " "
 	<< velocity.x << " " << velocity.z << " " << velocity.y << " ";
 	
@@ -64,7 +86,8 @@ string WorldItem::copyOrder(int ID) const
 
 void WorldItem::handleCopyOrder(stringstream& ss)
 {
-	ss >> position.x >> position.z >> position.y >>
+	ss >> type >> flags >> 
+	position.x >> position.z >> position.y >>
 	velocity.x >> velocity.z >> velocity.y;
 	
 	HasProperties::handleCopyOrder(ss);

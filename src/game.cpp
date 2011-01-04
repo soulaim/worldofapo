@@ -220,8 +220,8 @@ bool Game::client_tick_local()
 
 void Game::process_received_game_input()
 {
-//	Logger log;
-	assert(!UnitInput.empty() && "FUUUUUUUUUUU");
+	if(UnitInput.empty())
+		return;
 	
 	sort(UnitInput.begin(), UnitInput.end());
 	
@@ -237,9 +237,6 @@ void Game::process_received_game_input()
 		Order tmp = UnitInput.back();
 		UnitInput.pop_back();
 		
-		// log all processed game data affecting commands in the order of processing
-//		log.print(tmp.copyOrder() + "\n");
-		
 		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
@@ -253,8 +250,6 @@ void Game::process_received_game_input()
 			it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
 		}
 	}
-	
-//	log.print("\n");
 }
 
 // server messages read from the network
@@ -325,6 +320,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			
 			cerr << "Creating dummy input for new hero." << endl;
 			
+			/*
 			// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
 			for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
 			{
@@ -335,6 +331,7 @@ void Game::handleServerMessage(const Order& server_msg)
 				dummy_order.frameID = frame + simulRules.currentFrame;
 				UnitInput.push_back(dummy_order);
 			}
+			*/
 			
 			sort(UnitInput.begin(), UnitInput.end());
 		}
@@ -395,6 +392,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		if(destroy_ID == myID)
 		{
+			world->terminate();
 			UnitInput.clear();
 			paused_state = PAUSED;
 		}
@@ -713,7 +711,7 @@ void Game::processClientMsgs()
 			
 			cerr << "Got a copy of an old message" << endl;
 			Order tmp_order;
-			ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButtons;
+			tmp_order.handleCopyOrder(ss);
 			UnitInput.push_back(tmp_order);
 		}
 		else

@@ -174,7 +174,10 @@ void Unit::handleCopyOrder(stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule >> scale;
+		id >> weapon >> collision_rule >> scale >>
+		posCorrection.x >> posCorrection.y >> posCorrection.z;
+	
+	assert(posCorrection == Location() && "Poscorrection was non-zero at unit copy!");
 	
 	HasProperties::handleCopyOrder(ss);
 	
@@ -197,7 +200,8 @@ string Unit::copyOrder(int ID) const
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
 		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " " << collision_rule << " " << scale << " ";
+		<< id << " " << weapon << " " << collision_rule << " " << scale << " "
+		<< posCorrection.x << " " << posCorrection.y << " " << posCorrection.z << " "; // these are just for debug now.
 	
 	hero_msg << HasProperties::copyOrder();
 	

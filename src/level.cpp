@@ -41,12 +41,6 @@ void Level::buildVarianceTree()
 	variance_tree.resize(2048, FixedPoint(0));
 	FixedPoint max_error = btt.buildVarianceTree(pointheight_info, variance_tree);
 	cerr << "Maximum encountered variance error: " << max_error << endl;
-	
-	// btt.doSplit(pointheight_info, variance_tree);
-	// btt.draw(5, 5);
-	// vector<BTT_Triangle> tris;
-	// btt.getTriangles(tris);
-	// cerr << "There is " << tris.size() << " triangles in BTT" << endl;
 }
 
 
@@ -307,7 +301,7 @@ void Level::generate(int seed)
 	
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
-			updateHeight(i, k, FixedPoint(0));
+			updateHeight(i, k, FixedPoint(20));
 	
 	
 	// create long walls
@@ -316,7 +310,7 @@ void Level::generate(int seed)
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(35);
+		FixedPoint height = FixedPoint(55);
 		
 		for(int k=0; k<15; k++)
 		{
@@ -345,7 +339,7 @@ void Level::generate(int seed)
 	{
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(-15);
+		FixedPoint height = FixedPoint(10);
 		
 		for(int k=0; k<20; k++)
 		{
@@ -377,7 +371,7 @@ void Level::generate(int seed)
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(0);
+		FixedPoint height = FixedPoint(20);
 		
 		for(int k=0; k<20; k++)
 		{
