@@ -121,11 +121,11 @@ void LevelDescriptor::drawDebugLevelNormals() const
 
 void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 {
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
 	const Level& lvl = *level;
 
 	TextureHandler::getSingleton().bindTexture(0, "");
-	
-	Vec3 points[3];
 	
 	// Draw triangles with lines.
 	glPointSize(1.0f);
@@ -133,6 +133,7 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	glBegin(GL_LINES);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
+		Vec3 points[3];
 		const BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
@@ -186,6 +187,8 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	}
 	
 	glEnd();
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 }
 
 void LevelDescriptor::unload()
@@ -553,8 +556,6 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 }
 */
 
-
-
 void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) const
 {
 	// Draw terrain with deferred rendering, apply lights later.
@@ -570,7 +571,8 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 		return;
 	}
 	
-	glUseProgram(shaders["deferred_level_program"]);
+	Shader& shader = shaders.get_shader("deferred_level_program");
+	shader.start();
 
 //	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
@@ -608,11 +610,7 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 	
 	drawBuffers();
 	
-	glUseProgram(0);
-
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
-	glDepthFunc(GL_LESS);
+	shader.stop();
 	
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");

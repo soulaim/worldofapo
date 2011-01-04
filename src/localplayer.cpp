@@ -334,7 +334,7 @@ bool Localplayer::handleClientLocalInput()
 	else if(key == "f11")
 		view->toggleFullscreen();
 	else if(key == "f10")
-		view->toggleLightingStatus();
+		view->toggleDebugStatus();
 	else if(key == "f8")
 		view->toggleWireframeStatus();
 	else if(key == "f9")

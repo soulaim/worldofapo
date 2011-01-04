@@ -75,13 +75,16 @@ void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 
 void Graphics::toggleWireframeStatus()
 {
-	drawDebugWireframe = !drawDebugWireframe;
+	int wireframe = intVals["DRAW_DEBUG_WIREFRAME"];
+	int level = intVals["DRAW_LEVEL"];
+	intVals["DRAW_DEBUG_WIREFRAME"] = 1 - wireframe;
+	intVals["DRAW_LEVEL"] = 1 - level;
 }
 
-void Graphics::toggleLightingStatus()
+void Graphics::toggleDebugStatus()
 {
-	lightsActive   = !lightsActive;
-	drawDebuglines = lightsActive;
+	int old = intVals["DRAW_DEBUG_LINES"];
+	intVals["DRAW_DEBUG_LINES"] = 1 - old;
 }
 
 Graphics::Graphics(Window& w, Hud& h):
@@ -118,11 +121,11 @@ void Graphics::init(Camera& camera)
 	glLineWidth(3.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set the background color.
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
-	glDepthFunc(GL_LESS);			// The Type Of Depth Test To Do
+	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);			// Enables Smooth Color Shading
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();				// Reset The Projection Matrix
+	glLoadIdentity();
 	
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	
@@ -198,10 +201,6 @@ void Graphics::init(Camera& camera)
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	
-	lightsActive = false;
-	drawDebuglines = false;
-	drawDebugWireframe = false;
 }
 
 /*
@@ -355,7 +354,7 @@ void Graphics::drawSkybox()
 	Shader& shader = shaders.get_shader("skybox_program");
 	shader.start();
 
-	if(drawDebuglines)
+	if(intVals["DRAW_DEBUG_LINES"])
 	{
 		TextureHandler::getSingleton().bindTexture(0, "chessboard");
 	}
@@ -435,14 +434,6 @@ void Graphics::drawSkybox()
 
 void Graphics::drawModels(const map<int, Model*>& models)
 {
-	if(lightsActive)
-	{
-		glEnable(GL_LIGHTING);
-	}
-	else
-	{
-		glDisable(GL_LIGHTING);
-	}
 	Shader& shader = shaders.get_shader("unit_program");
 	shader.start();
 	GLint unit_color_location = shader.uniform("unit_color");
@@ -457,9 +448,7 @@ void Graphics::drawModels(const map<int, Model*>& models)
 			glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 0.5);
 			glUniform3f(unit_location_location, model.currentModelPos.x, model.currentModelPos.y, model.currentModelPos.z);
 
-			glTranslatef(model.currentModelPos.x, model.currentModelPos.y, model.currentModelPos.z);
 			model.draw();
-			glTranslatef(-model.currentModelPos.x, -model.currentModelPos.y, -model.currentModelPos.z);
 		}
 	}
 	shader.stop();
@@ -709,7 +698,6 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	TextureHandler::getSingleton().bindTexture(0, "");
 	
 	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }
@@ -809,7 +797,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	
@@ -1274,25 +1261,55 @@ void Graphics::bind_framebuffer(GLuint framebuffer, int output_buffers) const
 	check_errors(__FILE__, __LINE__);
 }
 
-// TODO: this interface for deferred rendering is ugly and unintuitive to use...
-void Graphics::geometryDrawn(const std::map<int, LightObject>& lights)
+void Graphics::applyDeferredLights(const std::map<int, LightObject>& lights)
 {
-	if(intVals["DEFERRED_RENDERING"])
+	bind_framebuffer(screenFBO, 1);
+
+	applyAmbientLight();
+
+	if(intVals["DRAW_DEFERRED_LIGHTS"] == 2)
 	{
-		bind_framebuffer(screenFBO, 1);
+		drawLightsDeferred_single_pass(lights.size());
+	}
+	else if(intVals["DRAW_DEFERRED_LIGHTS"] == 1)
+	{
+		drawLightsDeferred_multiple_passes(*camera_p, lights);
+//		drawLightsDeferred_multiple_passes_with_scissors(lights);
+	}
+}
 
-		applyAmbientLight();
-
-		if(intVals["DRAW_DEFERRED_LIGHTS"] == 2)
+void Graphics::drawSolidGeometry(const VisualWorld& visualworld)
+{
+	if(intVals["DRAW_LEVEL"])
+	{
+		if(intVals["DEFERRED_RENDERING"])
 		{
-			drawLightsDeferred_single_pass(lights.size());
+			visualworld.levelDesc.drawDeferred(shaders);
 		}
-		else if(intVals["DRAW_DEFERRED_LIGHTS"] == 1)
+		else
 		{
-			drawLightsDeferred_multiple_passes(*camera_p, lights);
-//			drawLightsDeferred_multiple_passes_with_scissors(lights);
+			visualworld.levelDesc.drawFR(visualworld.lights.size(), shaders);
 		}
 	}
+
+	if(intVals["DRAW_MODELS"])
+	{
+		drawModels(visualworld.models);
+	}
+	
+	if(intVals["DRAW_GRASS"])
+	{
+		drawGrass(visualworld.meadows);
+	}
+}
+
+void Graphics::drawDeferredDepthBuffer(const VisualWorld& visualworld)
+{
+	bind_framebuffer(deferredFBO, 0);
+	glColorMask(false, false, false, false);
+	drawSolidGeometry(visualworld);
+	glColorMask(true, true, true, true);
+	bind_framebuffer(deferredFBO, 3);
 }
 
 void Graphics::draw(
@@ -1315,44 +1332,40 @@ void Graphics::draw(
 		drawSkybox();
 	}
 
-	if(drawDebuglines)
+	if(intVals["DRAW_DEBUG_LINES"])
 	{
+		drawBoundingBoxes(units);
+		drawOctree(o);
 		visualworld.levelDesc.drawDebugLevelNormals();
 		drawDebugProjectiles(projectiles);
+		drawDebugLines();
 	}
 
-	if(drawDebugWireframe)
+	if(intVals["DRAW_DEBUG_WIREFRAME"])
 	{
 		visualworld.levelDesc.drawDebugHeightDots(camera_p->getPosition());
 	}
-	else if(intVals["DRAW_LEVEL"])
+
+	if(deferred_rendering && intVals["EARLY_Z_CULLING"])
 	{
-		if(deferred_rendering)
-		{
-			visualworld.levelDesc.drawDeferred(shaders);
-		}
-		else
-		{
-			visualworld.levelDesc.drawFR(visualworld.lights.size(), shaders);
-		}
+		// TODO: for optimal performance, performs this pass with empty fragment shaders.
+		glDepthMask(GL_TRUE);
+		drawDeferredDepthBuffer(visualworld);
+		glDepthFunc(GL_EQUAL);
+		glDepthMask(GL_FALSE);
 	}
 
-	if(drawDebuglines)
+	drawSolidGeometry(visualworld);
+
+	if(deferred_rendering && intVals["EARLY_Z_CULLING"])
 	{
-		drawDebugLines();
-	}
-	
-	if(intVals["DRAW_MODELS"])
-	{
-		drawModels(visualworld.models);
-	}
-	
-	if(intVals["DRAW_GRASS"])
-	{
-		drawGrass(visualworld.meadows);
+		glDepthFunc(GL_LESS);
 	}
 
-	geometryDrawn(visualworld.lights);
+	if(deferred_rendering)
+	{
+		applyDeferredLights(visualworld.lights);
+	}
 	
 	string depth_texture = (deferred_rendering ? "deferredFBO_depth_texture" : "screenFBO_depth_texture");
 
@@ -1364,12 +1377,6 @@ void Graphics::draw(
 	if(intVals["DRAW_PARTICLES"])
 	{
 		drawParticles(visualworld.particles);
-	}
-	
-	if(drawDebuglines)
-	{
-		drawBoundingBoxes(units);
-		drawOctree(o);
 	}
 	
 	if(intVals["DRAW_NAMES"])
@@ -1573,7 +1580,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	Shader& shader = shaders.get_shader("grass_program");
 	shader.start();
 	
-	if(drawDebuglines)
+	if(intVals["DRAW_DEBUG_LINES"])
 	{
 		TextureHandler::getSingleton().bindTexture(0, "chessboard");
 	}

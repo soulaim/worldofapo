@@ -36,15 +36,18 @@ class Graphics: public HasProperties
 	void setupCamera(const Camera& camera);
 	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
 	void startDrawing();
-	void geometryDrawn(const std::map<int, LightObject>& lights);
+	void applyDeferredLights(const std::map<int, LightObject>& lights);
 	void finishDrawing();
 
 	void drawSkybox();
+
+	void drawDeferredDepthBuffer(const VisualWorld& visualworld);
 
 	void drawLightsDeferred_single_pass(int lights);
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
 	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
 
+	void drawSolidGeometry(const VisualWorld& visualworld);
 	void drawModels(const std::map<int, Model*>& models);
 	
 	void prepareForParticleRendering(const std::string& depth_texture);
@@ -80,10 +83,6 @@ class Graphics: public HasProperties
 	GLuint deferredFBO;
 	GLuint screenFBO;
 	GLuint screenRB;
-	
-	bool lightsActive;
-	bool drawDebuglines;
-	bool drawDebugWireframe;
 	
 	Window& window;
 	Hud& hud;
@@ -123,7 +122,7 @@ public:
 	void drawGrass(const std::vector<GrassCluster>& meadows);
 	void drawPlayerNames(const std::map<int, Unit>& units, const std::map<int, Model*>& models);
 	
-	void toggleLightingStatus();
+	void toggleDebugStatus();
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 

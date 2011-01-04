@@ -65,7 +65,7 @@ Editor::Editor():
 	handle_command("load animations skeleani.animation");
 //	handle_command("load objects bullet.parts");
 //	handle_command("edit type HEAD");
-	commands.push_back("load skele model.skeleton");
+	commands.push_back("load skele marine.sm2");
 	current_command = commands.size();
 
 //	view.megaFuck();
@@ -204,7 +204,10 @@ bool Editor::do_tick()
 	*/
 	view.drawGrass(vector<GrassCluster>(1, meadows));
 
-	view.geometryDrawn(visualworld.lights);
+	if(view.intVals["DEFERRED_RENDERING"])
+	{
+		view.applyDeferredLights(visualworld.lights);
+	}
 
 	hud.drawFPS();
 	hud.drawMessages();
@@ -945,7 +948,7 @@ void Editor::handle_command(const string& command)
 			loadAnimations(word3);
 		}
 	}
-	if(word1 == "save")
+	else if(word1 == "save")
 	{
 		if(word2 == "objects")
 		{
@@ -1238,7 +1241,7 @@ bool Editor::handle_input()
 		}
 		else if(key == "f10")
 		{
-			view.toggleLightingStatus();
+			view.toggleDebugStatus();
 		}
 		else if(key == "g")
 		{
