@@ -1072,14 +1072,16 @@ void World::worldTick(int tickCount)
 	{
 		for(auto iter = units.begin(); iter != units.end(); ++iter)
 		{
-			tickUnit(iter->second, visualworld->models[iter->first]);
+			Model* model = visualworld->getModel(iter->first);
+			tickUnit(iter->second, model);
 		}
 	}
 	
 	// ticking projectiles even without players is ok, since projectiles will die with time.
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
-		tickProjectile(iter->second, visualworld->models[iter->first]);
+		Model* model = visualworld->getModel(iter->first);
+		tickProjectile(iter->second, model);
 	}
 	
 	// don't waste time on moving items either, if no players are there.
@@ -1087,7 +1089,8 @@ void World::worldTick(int tickCount)
 	{
 		for(auto iter = items.begin(); iter != items.end(); ++iter)
 		{
-			tickItem(iter->second, visualworld->models[iter->first]);
+			Model* model = visualworld->getModel(iter->first);
+			tickItem(iter->second, model);
 		}
 	}
 	
@@ -1128,6 +1131,8 @@ void World::worldTick(int tickCount)
 			}
 			
 			addItem(gear_pos, gear_vel, unitIDgenerator.nextID());
+			addItem(gear_pos, gear_vel * 2, unitIDgenerator.nextID());
+			addItem(gear_pos, gear_vel * 3, unitIDgenerator.nextID());
 			
 			// then do the more important death processing
 			doDeathFor(unit);
@@ -1186,7 +1191,7 @@ void World::worldTick(int tickCount)
 void World::addUnit(int id, bool playerCharacter, int team)
 {
 	if(units.find(id) != units.end())
-		cerr << "FUCK FUCK FUCK FUCK FUCK" << endl;
+		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
 	
 	units[id] = Unit();
 	units[id].init();
@@ -1197,7 +1202,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	
 	if(!playerCharacter)
 	{
-		visualworld->models[id] = ModelFactory::create(World::ZOMBIE_MODEL);
+		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::ZOMBIE_MODEL, 1.0f);
 		
 		units[id].setDefaultMonsterAttributes();
 		
@@ -1210,7 +1215,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	}
 	else
 	{
-		visualworld->models[id] = ModelFactory::create(World::PLAYER_MODEL);
+		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
 		
 		units[id].setDefaultPlayerAttributes();
 		
@@ -1228,29 +1233,15 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
 	
-	Model* model = ModelFactory::create(model_prototype);
-	auto iter = visualworld->models.insert(make_pair(id, model)).first;
-	iter->second->realUnitPos = position;
-	iter->second->currentModelPos = position;
 	
+	visualworld->createModel(id, location, VisualWorld::ModelType(model_prototype), 0.4f);
 	projectiles[id].position = location;
 	projectiles[id].prototype_model = model_prototype;
 }
 
-void World::addItem(Location& location, Location& velocity, int id)
+void World::addItem(const Location& location, const Location& velocity, int id)
 {
-	Vec3 position;
-	position.x = location.x.getFloat();
-	position.y = location.y.getFloat();
-	position.z = location.z.getFloat();
-	
-	// ModelFactory::create(World::PLAYER_MODEL); // TODO: Models for items
-	visualworld->models[id] = ModelFactory::create(World::BULLET_MODEL);
-	visualworld->models[id]->realUnitPos = position;
-	visualworld->models[id]->currentModelPos = position;
-	
-	visualworld->models[id]->setScale(1.0f);
-	
+	visualworld->createModel(id, location, VisualWorld::ITEM_MODEL, 1.0f);
 	items[id].position = location;
 	items[id].velocity = velocity;
 }

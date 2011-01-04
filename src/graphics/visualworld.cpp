@@ -163,6 +163,35 @@ void VisualWorld::terminate()
 }
 
 
+void VisualWorld::createModel(int id, const Location& location, ModelType type, float scale)
+{
+	if(active == 0)
+		return;
+	
+	// lets try to not leak memory
+	if(models.find(id) != models.end())
+		delete models[id];
+	
+	Vec3 position;
+	position.x = location.x.getFloat();
+	position.y = location.y.getFloat();
+	position.z = location.z.getFloat();
+	
+	models[id] = ModelFactory::create(type);
+	models[id]->realUnitPos = position;
+	models[id]->currentModelPos = position;
+	models[id]->setScale(scale);
+}
+
+Model* VisualWorld::getModel(int id)
+{
+	auto it = models.find(id);
+	if(it == models.end())
+		return 0;
+	return it->second;
+}
+
+
 void VisualWorld::explosion(const Location& pos, const Location& direction)
 {
 	if(active == 0)
@@ -186,7 +215,6 @@ void VisualWorld::explosion(const Location& pos, const Location& direction)
 	int plife = intVals[ss_explosion_plife.str()];
 	
 	genParticleEmitter(pos, direction, explosion_life, 3500, 7500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1200, ppf, plife);
-	
 	genParticleEmitter(pos, direction, 5, 3500, 7500, "GREY", "GREY", "GREY", "GREY", 1200, 50, 150);
 	
 }

@@ -12,23 +12,19 @@ uniform float scale;
 void main()
 {
 	vec4 vertex_position = gl_Vertex;
-	if(active)
-	{
-		int index;
-		// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
 
-		index = int(bone_index.x);
-		vertex_position = (bones[index] * gl_Vertex) * bone_weight.x;
+	int index;
+	
+	// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
+	index = int(bone_index.x);
+	vertex_position = (bones[index] * gl_Vertex) * bone_weight.x;
 
-		index = int(bone_index.y);
-		vertex_position += (bones[index] * gl_Vertex) * bone_weight.y;
-
-		vertex_position *= scale;
-	}
-
-	// Move the model to the right position.
+	index = int(bone_index.y);
+	vertex_position += (bones[index] * gl_Vertex) * bone_weight.y;
+	
+	vertex_position.xyz *= scale;
 	vertex_position.xyz += unit_location;
-
+	
 	gl_Position = gl_ModelViewProjectionMatrix * vertex_position;
 	varTexCoord = vec2(gl_MultiTexCoord0);
 }
