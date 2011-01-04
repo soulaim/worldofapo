@@ -15,7 +15,6 @@ extern GLint color_index_location;
 extern GLint bones_location;
 extern GLint bone_index_location;
 extern GLint bone_weight_location;
-extern GLint active_location;
 extern GLint model_scale_location;
 
 class Shaders

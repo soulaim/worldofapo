@@ -596,31 +596,58 @@ void SkeletalModel::preload()
 {
 	std::cerr << "Preloading skeletalmodel buffers." << std::endl;
 
+	assert(vertices.size() == texture_coordinates.size());
+	assert(vertices.size() == weighted_vertices.size());
+	assert(vertices.size() == normals.size());
+
 	glGenBuffers(BUFFERS, locations);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+	size_t buffer = 0;
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[2]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, weighted_vertices.size() * sizeof(WeightedVertex), &weighted_vertices[0], GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+
+	assert(buffer == BUFFERS);
+
 	buffers_loaded = true;
+}
+
+void SkeletalModel::draw_normals() const
+{
+	assert(vertices.size() == normals.size());
+
+	glColor3f(1, 1, 0);
+	glBegin(GL_LINES);
+	for(size_t i = 0; i < vertices.size(); ++i)
+	{
+		Vec3 v = vertices[i] * myScale - currentModelPos;
+		Vec3 n = normals[i];
+
+		glVertex3f(v.x, v.y, v.z);
+		glVertex3f(v.x + n.x, v.y + n.y, v.z + n.z);
+	}
+	glEnd();
 }
 
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 {
 	assert(weighted_vertices.size() == vertices.size());
 
-	// does this need to be set each time before rendering a model?
-	glUniform1i(active_location, true);
+	draw_normals();
+
 	glUniform1f(model_scale_location, myScale);
-	
+
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	
@@ -647,29 +674,43 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 //	old_draw(hilight);
 //	return;
 
+	draw_buffers();
+}
+
+void SkeletalModel::draw_buffers() const
+{
 	assert(buffers_loaded);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, locations[0]);
+	size_t buffer = 0;
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[2]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, locations[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexAttribPointer(bone_index_location,  2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(WeightedVertex), 0);
 	glVertexAttribPointer(bone_weight_location, 2, GL_FLOAT,        GL_FALSE, sizeof(WeightedVertex), (char*)(0) + 2*sizeof(unsigned));
 
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glNormalPointer(GL_FLOAT, 0, 0);
+
+	assert(buffer == BUFFERS);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableVertexAttribArray(bone_weight_location);
 	glEnableVertexAttribArray(bone_index_location);
 	glDrawElements(GL_TRIANGLES, triangles_size * 3, GL_UNSIGNED_SHORT, 0);
 	glDisableVertexAttribArray(bone_index_location);
 	glDisableVertexAttribArray(bone_weight_location);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
+
 	TRIANGLES_DRAWN_THIS_FRAME += triangles_size;
 }
 
