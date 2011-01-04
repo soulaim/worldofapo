@@ -144,6 +144,25 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	dormantPlayers[char_key].playerInfo.connectionState = 1;
 	
 	
+	// NOT SURE IF THIS IS OF ANY USE
+	int orders_destroyed = 0;
+	for(size_t i = 0; i < UnitInput.size(); i++)
+	{
+		if(UnitInput[i].plr_id == playerID_val)
+		{
+			orders_destroyed++;
+			
+			UnitInput[i] = UnitInput.back();
+			UnitInput.pop_back();
+			--i;
+		}
+	}
+	
+	std::cerr << "Destroyed " << orders_destroyed << " orders prior to allowing connection." << std::endl;
+	sort(UnitInput.begin(), UnitInput.end());
+	// END SEGMENT
+	
+	
 	std::cerr << "Sending a copy of the world" << std::endl;
 	sendWorldCopy(areaName, playerID_val);
 	

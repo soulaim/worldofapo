@@ -449,8 +449,8 @@ bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_
 			chat_msg << "3 -1 ^GFound unit and target area! Sending area change kill message.#";
 			serverMsgs.push_back(chat_msg.str());
 			
-			
 			unit_it->second.strVals["NEXT_AREA"] = next_area;
+			unit_it->second.updateInput(0, 0, 0, 0);
 			
 			// send area change kill message
 			stringstream area_change_msg;
@@ -716,7 +716,11 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		SpawningHeroes[server_msg.keyState].unit.birthTime = world.units[server_msg.keyState].birthTime;
 		SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
 		
-		world.units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+		Unit& unit = world.units.find(server_msg.keyState)->second;
+		unit = SpawningHeroes[server_msg.keyState].unit;
+		// unit.intVals["NO_ORDERS"] = 80; // NOTE: to prevent de-sync!
+		
+		
 		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
 		Players[server_msg.keyState].last_order = simulRules.currentFrame + simulRules.windowSize;
 		

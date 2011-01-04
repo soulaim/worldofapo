@@ -240,7 +240,8 @@ void Game::process_received_game_input()
 		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
-			break;
+			// handleServerMessage(tmp);
+			continue;
 		}
 		
 		auto it = world->units.find(tmp.plr_id);
@@ -312,7 +313,11 @@ void Game::handleServerMessage(const Order& server_msg)
 			
 			SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
 			SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
-			world->units.find(server_msg.keyState)->second = SpawningHeroes[server_msg.keyState].unit;
+			
+			Unit& unit = world->units.find(server_msg.keyState)->second;
+			unit = SpawningHeroes[server_msg.keyState].unit;
+			world->intVals["NO_INPUT"] = 10; // NOTE: to prevent de-sync!
+			
 			Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
 			SpawningHeroes.erase(server_msg.keyState);
 			
@@ -392,6 +397,8 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		if(destroy_ID == myID)
 		{
+			myID = NO_ID;
+			world->intVals["NO_INPUT"] = 800000;
 			world->terminate();
 			UnitInput.clear();
 			paused_state = PAUSED;
@@ -423,15 +430,22 @@ void Game::processClientMsgs()
 		
 		if(order_type == 1) // ordinary input order
 		{
-			Order tmp_order;
-			ss >> tmp_order.plr_id;
-			ss >> tmp_order.frameID;
-			ss >> tmp_order.keyState;
-			ss >> tmp_order.mousex >> tmp_order.mousey;
-			ss >> tmp_order.mouseButtons;
-			ss >> tmp_order.checksum;
-			
-			UnitInput.push_back(tmp_order);
+			if(paused_state == PAUSED)
+			{
+				cerr << "RECEIVED GAME COMMAND ALTHOUGH IM IN PAUSE MODE! NOT GOING TO PROCESS IT" << endl;
+			}
+			else
+			{
+				Order tmp_order;
+				ss >> tmp_order.plr_id;
+				ss >> tmp_order.frameID;
+				ss >> tmp_order.keyState;
+				ss >> tmp_order.mousex >> tmp_order.mousey;
+				ss >> tmp_order.mouseButtons;
+				ss >> tmp_order.checksum;
+				
+				UnitInput.push_back(tmp_order);
+			}
 		}
 		else if(order_type == 3) // chat message
 		{
@@ -655,7 +669,10 @@ void Game::processClientMsgs()
 				paused_state = (nopause ? GO : PAUSED);
 				
 				if(paused_state == GO)
+				{
+					sort(UnitInput.begin(), UnitInput.end());
 					cerr << "Resuming game simulation!" << endl;
+				}
 				else
 					cerr << "Game simulation set on pause, server orders so." << endl;
 			}

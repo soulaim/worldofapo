@@ -259,7 +259,19 @@ void Localplayer::process_sent_game_input()
 	
 	userio->getMouseChange(x, y);
 	int mousepress = userio->getMousePress();
-
+	
+	int& no_input = world.intVals["NO_INPUT"];
+	if((no_input > 0) || (world.units.find(game.myID) == world.units.end()))
+	{
+		keyState = 0;
+		x = 0;
+		y = 0;
+		mousepress = 0;
+		
+		if(no_input < 1000)
+			--no_input;
+	}
+	
 	visualworld.camera.updateInput(keyState); // Make only "small" local changes like change the camera angle.
 	hud->setShowStats(keyState & (1 << 31));
 
