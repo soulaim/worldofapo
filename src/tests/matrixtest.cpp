@@ -1,4 +1,4 @@
-#include "../frustum/matrix4.h"
+#include "graphics/frustum/matrix4.h"
 #include "test.h"
 
 #include <cassert>

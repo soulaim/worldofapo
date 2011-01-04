@@ -181,7 +181,6 @@ void ApoModel::draw() const
 		cerr << "ERROR: There exists a Model descriptor which is empty! (not drawing it)" << endl;
 		return;
 	}
-	glUniform1i(active_location, false);
 	drawPartsRecursive(root);
 }
 

@@ -17,11 +17,12 @@ UserIO::UserIO()
 // this must not be called before SDL has initialized
 void UserIO::init()
 {
-	emptyString = ""; // lol initialisation :D
 	keystate = SDL_GetKeyState(&numKeys);
 	keyStates.resize(numKeys, 0);
-	for(int i=0; i<numKeys; i++)
+	for(int i = 0; i < numKeys; ++i)
+	{
 		keyNames.push_back( SDL_GetKeyName(  SDLKey(i) ) );
+	}
 }
 
 int UserIO::isPressed(int key)
@@ -192,10 +193,10 @@ string UserIO::getSingleKey()
 			return string(1, key);
 		}
 	}
-	return emptyString;
+	return "";
 }
 
-int UserIO::checkEvents()
+void UserIO::checkEvents()
 {
 	SDL_Event event;
 	
@@ -254,6 +255,4 @@ int UserIO::checkEvents()
 			}
 		}
 	}
-	
-	return 1;
 }

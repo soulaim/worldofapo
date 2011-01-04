@@ -105,9 +105,11 @@ struct SkeletalModel: public Model
 private:
 	void old_draw(size_t hilight) const;
 	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight) const;
+	void draw_normals() const;
 	void calcMatrices(size_t current_bone, std::vector<Matrix4>& rotations, Matrix4 offset, const std::string& animation_name, int animation_state) const;
+	void draw_buffers() const;
 
-	static const size_t BUFFERS = 4;
+	static const size_t BUFFERS = 5;
 	GLuint locations[BUFFERS];
 	bool buffers_loaded;
 	size_t triangles_size;

@@ -55,12 +55,12 @@ void main()
 	vec3 light_direction = vec3(gl_ModelViewMatrix * (light_position - fragment_position));
 
 	float dist = length(light_direction);
-	vec3 lightDir = normalize(light_direction);
 
 	float NdotL = 1.0;
 	if(dist > 0.0)
 	{
-		NdotL = dot(normal, normalize(lightDir));
+		light_direction /= dist;
+		NdotL = dot(normal, light_direction);
 	}
 	
 	if(NdotL > 0.0)
