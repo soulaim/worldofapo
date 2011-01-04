@@ -129,10 +129,11 @@ void Localplayer::init()
 	ModelFactory::load(World::BULLET_MODEL, "models/bullet.bones", "");
 	*/
 	
-	ModelFactory::load(World::BULLET_MODEL, "models/item_bag.sm2", "marine");
-	ModelFactory::load(World::PLAYER_MODEL, "models/marine.sm2", "marine");
-	ModelFactory::load(World::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
-	ModelFactory::load(World::INVISIBLE_MODEL, "", "");
+	ModelFactory::load(VisualWorld::ModelType::ITEM_MODEL, "models/item_bag.sm2", "");
+	ModelFactory::load(VisualWorld::ModelType::BULLET_MODEL, "models/bullet_lowpoly.sm2", "");
+	ModelFactory::load(VisualWorld::ModelType::PLAYER_MODEL, "models/marine.sm2", "marine");
+	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
+	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
 	
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");

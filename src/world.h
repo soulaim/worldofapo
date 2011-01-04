@@ -38,15 +38,6 @@ public:
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;
 	
-	// TODO: move model loading things to config files
-	enum ModelType
-	{
-		INVISIBLE_MODEL,
-		PLAYER_MODEL,
-		BULLET_MODEL,
-		ZOMBIE_MODEL
-	};
-	
 	World(VisualWorld*);
 	void init();
 
@@ -66,7 +57,7 @@ public:
 	void addRandomMonster();
 	void addUnit(int id, bool player = true, int team = -1);
 	void addProjectile(Location& location, int id, size_t model_prototype);
-	void addItem(Location& location, Location& velocity, int id); // TODO: more control over what is spawned
+	void addItem(const Location& location, const Location& velocity, int id); // TODO: more control over what is spawned
 	
 	void removeUnit(int id);
 	
