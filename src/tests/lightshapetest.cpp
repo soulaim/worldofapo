@@ -1,5 +1,5 @@
-#include "../frustum/vec3.h"
-#include "../algorithms.h"
+#include "graphics/frustum/vec3.h"
+#include "algorithms.h"
 
 #include <iostream>
 #include <cmath>

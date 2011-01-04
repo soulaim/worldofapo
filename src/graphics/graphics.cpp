@@ -114,6 +114,7 @@ void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;
 
+	OpenGL opengl;
 	shaders.init();
 	
 	camera_p = &camera;
@@ -1458,11 +1459,10 @@ void Graphics::renderToBackbuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	TextureHandler::getSingleton().bindTexture(0, "screenFBO_texture0");
 	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	
 	glColor3f(1.0, 1.0, 1.0);
 	

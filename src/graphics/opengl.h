@@ -11,5 +11,11 @@
 #include <GL/glu.h>
 #endif
 
+class OpenGL
+{
+public:
+	OpenGL();
+};
+
 #endif
 

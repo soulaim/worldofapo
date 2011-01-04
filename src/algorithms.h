@@ -2,7 +2,7 @@
 #define H_ALGORITHMS
 
 #include "location.h"
-#include "frustum/vec3.h"
+#include "graphics/frustum/vec3.h"
 
 #include <array>
 

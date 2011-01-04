@@ -1,4 +1,6 @@
-CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O0 -g
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O0 -g -I ..
+
+VPATH = ..
 
 targets= \
 	matrixtest \
@@ -8,23 +10,42 @@ targets= \
 	point_in_line \
 	lightshapetest \
 	interpolationtest \
-	datatype_test
+	datatype_test \
+	sdlwindow_test \
+	glew_test \
+	drawing_test \
+	shader_test
 # socket_test
 # btt_test
 
 all: $(targets)
 
-apomath_test: ../apomath.cpp apomath_test.cpp
-matrixtest: matrixtest.cpp ../frustum/vec3.cpp ../frustum/matrix4.cpp test.h
-point_in_line: point_in_line.cpp ../fixed_point.cpp ../location.cpp ../algorithms.cpp ../frustum/vec3.cpp ../apomath.cpp
-fixedpointtest: fixedpointtest.cpp ../apomath.cpp
-squareroot_and_crossproduct: squareroot_and_crossproduct.cpp ../fixed_point.cpp ../location.cpp
-socket_test: socket_test.cpp ../net/socket.cpp ../net/socket_handler.cpp
+apomath_test: apomath.cpp apomath_test.cpp
+matrixtest: matrixtest.cpp graphics/frustum/vec3.cpp graphics/frustum/matrix4.cpp test.h
+point_in_line: point_in_line.cpp fixed_point.cpp location.cpp algorithms.cpp graphics/frustum/vec3.cpp apomath.cpp
+fixedpointtest: fixedpointtest.cpp apomath.cpp
+squareroot_and_crossproduct: squareroot_and_crossproduct.cpp fixed_point.cpp location.cpp
+socket_test: socket_test.cpp net/socket.cpp net/socket_handler.cpp
 btt_test: btt_test.cpp
-interpolationtest: interpolationtest.cpp ../frustum/vec3.cpp ../location.cpp ../fixed_point.cpp test.h ../algorithms.cpp ../frustum/vec3.cpp
-lightshapetest: lightshapetest.cpp ../algorithms.cpp ../frustum/vec3.cpp test.h ../location.cpp
+interpolationtest: interpolationtest.cpp graphics/frustum/vec3.cpp location.cpp fixed_point.cpp test.h algorithms.cpp graphics/frustum/vec3.cpp
+lightshapetest: lightshapetest.cpp algorithms.cpp graphics/frustum/vec3.cpp test.h location.cpp
 datatype_test: datatype_test.cpp
 
+sdlwindow_test: CXXFLAGS += `pkg-config --cflags sdl gl`
+sdlwindow_test: LDLIBS += `pkg-config --libs sdl gl`
+sdlwindow_test: sdlwindow_test.cpp graphics/window.cpp
+
+glew_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
+glew_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu`
+glew_test: glew_test.cpp graphics/opengl.cpp graphics/window.cpp
+
+drawing_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
+drawing_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu` -lglut
+drawing_test: drawing_test.cpp graphics/opengl.cpp graphics/window.cpp userio.cpp
+
+shader_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
+shader_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu`
+shader_test: shader_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp
 
 clean:
 	$(RM) $(targets)

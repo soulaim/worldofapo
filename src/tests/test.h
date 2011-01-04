@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iostream>
-#include "../frustum/vec3.h"
+#include "graphics/frustum/vec3.h"
 
 const float epsilon = 0.0001;
 

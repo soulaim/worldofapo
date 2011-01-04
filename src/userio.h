@@ -30,7 +30,6 @@ class UserIO
 	
 	std::vector<int> keyStates;
 	std::vector<std::string> keyNames;
-	std::string emptyString;
 public:
 	enum MouseScrollStatus
 	{
@@ -51,7 +50,7 @@ public:
 	
 	Coord getMousePoint();
 	
-	int checkEvents();
+	void checkEvents();
 	std::string getSingleKey();
 	
 	UserIO();

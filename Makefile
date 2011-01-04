@@ -1,8 +1,9 @@
 DIRS = src src/net src/graphics src/graphics/frustum
 INCLUDE_DIRS = -I src -I src/graphics
 
-CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3 `pkg-config --cflags sdl` $(INCLUDE_DIRS)
-LDLIBS   = -lSDL_mixer -L ./lib/ -lGL -lGLU -lpng -lGLEW `pkg-config --libs sdl`
+PACKAGES = sdl gl glu libpng
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -std=c++0x -O3 `pkg-config --cflags $(PACKAGES)` $(INCLUDE_DIRS)
+LDLIBS   = -lSDL_mixer -L ./lib/ -lGLEW `pkg-config --libs $(PACKAGES)`
 CXX      = g++
 
 target1 = bin/client

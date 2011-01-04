@@ -18,16 +18,6 @@ GLint model_scale_location = -1;
 
 void Shaders::init()
 {
-	if(glewInit() == GLEW_OK)
-	{
-		cerr << "GLEW JIHUU :DD" << endl;
-	}
-	else
-	{
-		cerr << "GLEW VITYYY DD:" << endl;
-		exit(-1);
-	}
-
 	GLint n;
 	glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES, &n);
 	cerr << "Max geometry shader output vertices: " << n << endl;

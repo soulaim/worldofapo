@@ -8,4 +8,8 @@ interpolationtest
 apomath_test
 lightshapetest
 datatype_test
+shader_test
+drawing_test
+sdlwindow_test
+glew_test
 
