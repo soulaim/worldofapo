@@ -153,6 +153,7 @@ void VisualWorld::terminate()
 
 	lights.clear();
 	worldMessages.clear();
+	events.clear();
 	
 	psources.clear();
 	particles.clear();

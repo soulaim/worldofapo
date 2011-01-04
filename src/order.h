@@ -26,6 +26,11 @@ struct Order
 		return frameID > a.frameID;
 	}
 	
+	void handleCopyOrder(std::stringstream& ss)
+	{
+		ss >> frameID >> plr_id >> keyState >> mousex >> mousey >> serverCommand >> mouseButtons >> checksum;
+	}
+	
 	std::string copyOrder() const
 	{
 		std::stringstream input_msg;

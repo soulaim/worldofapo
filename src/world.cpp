@@ -491,6 +491,14 @@ void World::tickItem(WorldItem& item, Model* model)
 		model->updatePosition(item.position.x.getFloat(), item.position.y.getFloat(), item.position.z.getFloat());
 	}
 	
+	if(item.intVals["AREA_CHANGE"])
+	{
+		visualworld->genParticleEmitter(item.position + Location(0, 1, 0), item.velocity + Location(0, 1, 0),
+										3, 1000, 1000, "GREEN", "GREEN", "GREEN", "GREEN", 1000, 5, 100);
+		
+		// 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
+	}
+	
 	// some physics & game world information
 	if( (item.velocity.y + item.position.y - FixedPoint(1, 20)) <= lvl.getHeight(item.position.x, item.position.z) )
 	{
@@ -1130,9 +1138,10 @@ void World::worldTick(int tickCount)
 				gear_vel.normalize();
 			}
 			
-			addItem(gear_pos, gear_vel, unitIDgenerator.nextID());
-			addItem(gear_pos, gear_vel * 2, unitIDgenerator.nextID());
-			addItem(gear_pos, gear_vel * 3, unitIDgenerator.nextID());
+			// add some ammunition into the world.
+			int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 1, id1); items[id1].intVals["AMMO_BOOST"] = 1;
+			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 2, id2); items[id2].intVals["AMMO_BOOST"] = 1;
+			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 3, id3); items[id3].intVals["AMMO_BOOST"] = 1;
 			
 			// then do the more important death processing
 			doDeathFor(unit);

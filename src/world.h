@@ -34,6 +34,7 @@ class World : public HasProperties
 	void atDeath(MovableObject&, HasProperties&);
 	
 public:
+
 	int currentWorldFrame;
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;

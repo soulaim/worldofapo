@@ -182,7 +182,7 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	int birth_time = simulRules.currentFrame + simulRules.windowSize; // this could be just currentFrame + 1 ..
 	
 	std::stringstream createHero_msg;
-	Players[playerID_val].last_order = birth_time + simulRules.frameSkip * simulRules.windowSize;
+	Players[playerID_val].last_order = birth_time; // + simulRules.frameSkip * simulRules.windowSize;
 	
 	createHero_msg << "-1 " << birth_time << " 1 " << playerID_val << "#";
 	serverMsgs.push_back(createHero_msg.str());

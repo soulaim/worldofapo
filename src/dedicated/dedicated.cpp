@@ -43,20 +43,38 @@ DedicatedServer::DedicatedServer():
 	
 	// TODO: Make a separate function for these things.
 	string first_area = "default_area";
+	string second_area = "other_area";
+	
 	areas.insert(make_pair(first_area, World(&visualworld)));
 	areas.find(first_area)->second.buildTerrain(15);
+	visualworld.disable(); // server doesnt need visual information
+	
 	areas.find(first_area)->second.load("serverdata/worlds/default_area.dat");
 	area_settings[first_area].load("serverdata/worlds/default_area.area");
 	areas.find(first_area)->second.strVals["AREA_NAME"] = first_area;
 	
-	string second_area = "other_area";
+	int portal1_id = areas.find(first_area)->second.nextUnitID();
+	areas.find(first_area)->second.addItem(Location(200, 50, 200), Location(0, 0, 0), portal1_id);
+	WorldItem& portal1 = areas.find(first_area)->second.items[portal1_id];
+	portal1.intVals["PERSISTS"] = 1;
+	portal1.intVals["AREA_CHANGE"] = 1;
+	portal1.strVals["AREA_CHANGE_TARGET"] = second_area;
+	
+	
 	areas.insert(make_pair(second_area, World(&visualworld)));
 	areas.find(second_area)->second.buildTerrain(5);
+	visualworld.disable(); // server doesnt need visual information
+	
 	areas.find(second_area)->second.load("serverdata/worlds/other_area.dat");
 	area_settings[second_area].load("serverdata/worlds/other_area.area");
 	areas.find(second_area)->second.strVals["AREA_NAME"] = second_area;
 	
-	visualworld.disable(); // server doesnt need visual information
+	int portal2_id = areas.find(second_area)->second.nextUnitID();
+	areas.find(second_area)->second.addItem(Location(700, 50, 700), Location(0, 0, 0), portal2_id);
+	WorldItem& portal2 = areas.find(second_area)->second.items[portal2_id];
+	portal2.intVals["PERSISTS"] = 1;
+	portal2.intVals["AREA_CHANGE"] = 1;
+	portal2.strVals["AREA_CHANGE_TARGET"] = first_area;
 }
 
 void DedicatedServer::init()
@@ -274,6 +292,24 @@ void DedicatedServer::host_tick()
 		}
 		
 		simulateWorldFrame();
+		
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			map<int, Unit>& units = area_it->second.units;
+			
+			for(auto unit_it = units.begin(); unit_it != units.end(); unit_it++)
+			{
+				if(unit_it->first >= 10000)
+					break;
+				
+				if(unit_it->second.intVals["NEEDS_AREA_TRANSFER"] == 1)
+				{
+					unit_it->second.intVals["NEEDS_AREA_TRANSFER"] = 0;
+					startPlayerAreaChange(unit_it->second.strVals["NEXT_AREA"], unit_it->first);
+					break;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -340,9 +376,10 @@ void DedicatedServer::simulateWorldFrame()
 					std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
 					std::cerr << "client checksum: " << tmp.checksum << std::endl;
 					std::cerr << "server checksum: " << checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10] << std::endl;
+					std::cerr << "Area: " << area_it->second.strVals["AREA_NAME"] << std::endl;
 					cerr << "server unit locations:" << std::endl;
 					
-					for (auto it = area_it->second.units.begin(); it != area_it->second.units.end(); ++it)
+					for(auto it = area_it->second.units.begin(); it != area_it->second.units.end(); ++it)
 					{
 						int id = it->first;
 						const Location& pos = it->second.getPosition();
@@ -355,11 +392,9 @@ void DedicatedServer::simulateWorldFrame()
 					*/
 					
 					// this is another way to handle it
-					
 					stringstream chat_msg;
 					chat_msg << "3 -1 ^G" << Players[id].name << " ^Wwas ^Rout of sync ^Wand got ^Rdisconnected!" << "#";
 					serverMsgs.push_back(chat_msg.str());
-					
 					cerr << chat_msg.str() << endl;
 					
 					disconnect(id);
@@ -389,6 +424,51 @@ void DedicatedServer::simulateWorldFrame()
 	simulRules.currentFrame++;
 	handleWorldEvents();
 }
+
+
+
+
+
+bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_id)
+{
+	if(areas.find(next_area) == areas.end())
+	{
+		stringstream chat_msg;
+		chat_msg << "3 -1 ^RUnable to apply area change, area \"^G" << next_area << "^R\" does not exist.#";
+		serverMsgs.push_back(chat_msg.str());
+		return false;
+	}
+	
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		auto unit_it = area_it->second.units.find(player_id);
+		if(unit_it != area_it->second.units.end())
+		{
+			
+			stringstream chat_msg;
+			chat_msg << "3 -1 ^GFound unit and target area! Sending area change kill message.#";
+			serverMsgs.push_back(chat_msg.str());
+			
+			
+			unit_it->second.strVals["NEXT_AREA"] = next_area;
+			
+			// send area change kill message
+			stringstream area_change_msg;
+			area_change_msg << "-1 " << (serverAllow + 1) << " 7 " << player_id << "#";
+			serverMsgs.push_back(area_change_msg.str());
+			return true;
+		}
+	}
+	
+	// send an error message to players.
+	stringstream chat_msg;
+	chat_msg << "3 -1 ^RDid not find unit for area change! This should never happen!#";
+	serverMsgs.push_back(chat_msg.str());
+	return false;
+}
+
+
+
 
 void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player)
 {
@@ -503,39 +583,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			if(next_area[next_area.size() - 1] == '#')
 				next_area.resize(next_area.size() - 1);
 			
-			if(areas.find(next_area) == areas.end())
-			{
-				stringstream chat_msg;
-				chat_msg << "3 -1 ^RUnable to change area, area \"^G" << next_area << "^R\" does not exist.#";
-				serverMsgs.push_back(chat_msg.str());
-				return;
-			}
-			
-			for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
-			{
-				auto unit_it = area_it->second.units.find(player_id);
-				if(unit_it != area_it->second.units.end())
-				{
-					
-					stringstream chat_msg;
-					chat_msg << "3 -1 ^GFound unit and target area! Sending area change kill message.#";
-					serverMsgs.push_back(chat_msg.str());
-					
-					
-					unit_it->second.strVals["NEXT_AREA"] = next_area;
-					
-					// send area change kill message
-					stringstream area_change_msg;
-					area_change_msg << "-1 " << (serverAllow + 10) << " 7 " << player_id << "#";
-					serverMsgs.push_back(area_change_msg.str());
-					return;
-				}
-			}
-			
-			// send an error message to players.
-			stringstream chat_msg;
-			chat_msg << "3 -1 ^RDid not find unit for area change! This should never happen!#";
-			serverMsgs.push_back(chat_msg.str());
+			startPlayerAreaChange(next_area, player_id);
 			return;
 		}
 		
@@ -723,6 +771,22 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 				break;
 			}
 		}
+		
+		int orders_destroyed = 0;
+		for(size_t i = 0; i < UnitInput.size(); i++)
+		{
+			if(UnitInput[i].plr_id == destroy_ID)
+			{
+				orders_destroyed++;
+				
+				UnitInput[i] = UnitInput.back();
+				UnitInput.pop_back();
+				--i;
+			}
+		}
+		
+		cerr << "Destroyed " << orders_destroyed << " orders from area change fellow." << endl;
+		sort(UnitInput.begin(), UnitInput.end());
 		
 		// this should be enough
 		changeArea(destroy_ID);
