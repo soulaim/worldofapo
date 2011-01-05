@@ -62,8 +62,8 @@ Menu::Menu(Graphics* v, UserIO* u):
 	view(v),
 	userio(u)
 {
-	options_files.push_back("user.conf");
-	options_files.push_back("localplayer.conf");
+	options_files.push_back("configs/user.conf");
+	options_files.push_back("configs/localplayer.conf");
 	
 	for(size_t i=0; i<options_files.size(); i++)
 	{

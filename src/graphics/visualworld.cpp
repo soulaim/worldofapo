@@ -11,7 +11,7 @@ void VisualWorld::init()
 {
 	cerr << "VisualWorld init" << endl;
 	
-	load("visualworld.conf");
+	load("configs/visualworld.conf");
 	
 	assert(models.empty());
 	assert(meadows.empty());

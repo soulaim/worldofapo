@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 	Menu menu(&view, &userio);
 	
 	HasProperties menuOptions;
-	menuOptions.load("menu.conf");
+	menuOptions.load("configs/menu.conf");
 	
 	// start music in menu
 	master.startMusic(menuOptions.strVals["MENU_MUSIC"]);

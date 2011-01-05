@@ -56,7 +56,7 @@ void Game::init()
 
 void Game::readConfig()
 {
-	load("user.conf");
+	load("configs/user.conf");
 	
 	//ifstream configFile("config.cfg");
 	//configFile >> localPlayer.name;
@@ -71,7 +71,7 @@ void Game::readConfig()
 		else
 			name = "Player5";
 		
-		ofstream ofs("user.conf");
+		ofstream ofs("configs/user.conf");
 		ofs << "STRING player\\sname " << name << endl;
 	}
 	
