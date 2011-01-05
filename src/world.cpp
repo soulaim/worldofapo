@@ -1024,7 +1024,9 @@ void World::addRandomMonster()
 	units[id].scale     = FixedPoint(units[id].getModifier("STR"), 10);
 	units[id].hitpoints = 100 * units[id].getModifier("STR");
 	
-	visualworld->setModelScale(id, units[id].scale.getFloat());
+	VisualWorld::ModelType type = visualworld->getModelType(units[id].name);
+	float scale = units[id].scale.getFloat();
+	visualworld->createModel(id, units[id].position, type, scale);
 	
 	return;
 }

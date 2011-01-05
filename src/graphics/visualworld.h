@@ -28,9 +28,12 @@ public:
 		PLAYER_MODEL,
 		BULLET_MODEL,
 		ZOMBIE_MODEL,
-		ITEM_MODEL
+		ITEM_MODEL,
+		STONEBEAST_MODEL,
+		TROLL_MODEL = PLAYER_MODEL
 	};
 	
+	ModelType getModelType(const std::string&);
 	Model* getModel(int id);
 	
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);

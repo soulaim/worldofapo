@@ -163,6 +163,17 @@ void VisualWorld::terminate()
 	lightIDgenerator.setNextID(0);
 }
 
+// NOTE: only for units so far.
+VisualWorld::ModelType VisualWorld::getModelType(const std::string& name)
+{
+	if(name.substr(0, 5) == "Stone")
+		return VisualWorld::ModelType::STONEBEAST_MODEL;
+	if(name.substr(0, 6) == "Moogle")
+		return VisualWorld::ModelType::ZOMBIE_MODEL;
+	if(name.substr(0, 5) == "Troll")
+		return VisualWorld::ModelType::TROLL_MODEL;
+	return VisualWorld::ModelType::PLAYER_MODEL;
+}
 
 void VisualWorld::createModel(int id, const Location& location, ModelType type, float scale)
 {
