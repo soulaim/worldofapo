@@ -19,6 +19,7 @@ class OrderContainer
 		
 		void init();
 		void insert(std::string);
+		void clear();
 };
 
 

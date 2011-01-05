@@ -18,6 +18,12 @@ void OrderContainer::pushWorkCopy()
 	return;
 }
 
+void OrderContainer::clear()
+{
+	orders.clear();
+	ids.clear();
+	work_copy = "";
+}
 
 void OrderContainer::insert(string msg_part)
 {

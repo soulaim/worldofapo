@@ -40,10 +40,10 @@ public:
 	void startMusic(std::string name);
 	void endMusic();
 	void setMusicVolume();
+	void reset();
 	
 private:
 	void endGame();
-	void reset();
 	
 	void handleWorldEvents();
 	void camera_handling();

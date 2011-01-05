@@ -104,6 +104,8 @@ void Localplayer::endGame()
 void Localplayer::reset()
 {
 	game.reset();
+	client_input_state = 0;
+	clientCommand = "";
 }
 
 void Localplayer::init()

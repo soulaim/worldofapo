@@ -28,6 +28,18 @@ void Game::reset()
 {
 	Players[SERVER_ID].name = "GOD";
 	
+	clientOrders.clear();
+	serverMsgs.clear();
+	UnitInput.clear();
+	SpawningHeroes.clear();
+	Players.clear();
+	
+	paused_state = PAUSED;
+	simulRules = StateInfo();
+	
+	// need to erase localPlayer data? possible?
+	localPlayer = PlayerInfo();
+	
 	cerr << "Reseting client state." << endl;
 	myID = NO_ID;
 	

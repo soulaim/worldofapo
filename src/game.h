@@ -96,7 +96,6 @@ public:
 	void TICK();
 	void reset();
 
-	// TODO: this function might need a different name. it only gets the starting options, saved characters.
 	bool internetGameGetHeroes(const std::string&, std::map<std::string, CharacterInfo>&);
 	void internetGameSelectHero(const std::string&);
 	
