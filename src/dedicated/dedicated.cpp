@@ -532,10 +532,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	string new_message = msg + "#";
 	// keep track of last frames for which orders have been received.
 	stringstream ss(new_message);
-	string orderWord;
-	ss >> orderWord;
 	
-	if(orderWord == "1")
+	
+	int orderType;
+	ss >> orderType;
+	
+	if(orderType == MessageType::PLAYER_INPUT)
 	{
 		if(server_no_wait)
 		{
@@ -570,7 +572,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			player.last_order = frameID;
 		}
 	}
-	else if(orderWord == "2") // someone is sending an introduction message. I, as the GOD, should rewrite some of that message :D
+	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
 	{
 		int id;
 		string introductionName;
@@ -588,12 +590,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 				player.name = introductionName;
 			
 			// create a better message and distribute that to players.
-			new_message_ss << "2 " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
+			new_message_ss << MessageType::PLAYERINFO_MESSAGE << " " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
 
 			new_message = new_message_ss.str();
 		}
 	}
-	else if(orderWord == "3") // chat message!
+	else if(orderType == MessageType::CHAT_MESSAGE) // chat message!
 	{
 		string id;
 		string cmd;
@@ -614,7 +616,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			serverSendMonsterSpawn(n, team);
 			
 			stringstream chatmsg;
-			chatmsg << "3 -1 ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
+			chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
 			serverMsgs.push_back(chatmsg.str());
 			
 			return;
@@ -627,7 +629,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> property >> value;
 			
 			stringstream property_msg;
-			property_msg << "-1 " << (serverAllow + 10) << " 24 " << id << "#";
+			property_msg << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 24 " << id << "#";
 			serverMsgs.push_back(property_msg.str());
 			
 			return;
@@ -638,14 +640,14 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> new_team;
 			
 			stringstream team_change;
-			team_change << "-1 " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
+			team_change << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
 			serverMsgs.push_back(team_change.str());
 			return;
 		}
 		else if(cmd == "AUTO_SPAWN")
 		{
 			stringstream autospawn;
-			autospawn << "3 -1 ^YAutospawn functionality is ^RDEPRECATED#";
+			autospawn << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^YAutospawn functionality is ^RDEPRECATED#";
 			serverMsgs.push_back(autospawn.str());
 			return;
 		}
@@ -662,7 +664,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 	}
-	else if(orderWord == "-1")
+	else if(orderType == MessageType::SERVER_ORDER)
 	{
 		// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
 		cerr << "SOMEONE IS IMPERSONATING GOD!! :" << msg << endl;
@@ -672,10 +674,10 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		disconnect(player_id);
 		
 		stringstream chatmsg;
-		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
+		chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
 	}
-	else if(orderWord == "-2") // instant reaction message from client
+	else if(orderType == MessageType::INSTANT_REACTION) // instant reaction message from client
 	{
 		string cmd;
 		ss >> cmd;
@@ -900,7 +902,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	int order_type;
 	ss >> order_type;
 	
-	if(order_type == 1) // ordinary input order
+	if(order_type == MessageType::PLAYER_INPUT) // ordinary input order
 	{
 		Order tmp_order;
 		ss >> tmp_order.plr_id;
@@ -912,7 +914,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 
 		UnitInput.push_back(tmp_order);
 	}
-	else if(order_type == 2) // playerInfo message
+	else if(order_type == MessageType::PLAYERINFO_MESSAGE) // playerInfo message
 	{
 		cerr << "SERVER Got playerInfo message!" << endl;
 		int plrID, kills, deaths;
@@ -940,11 +942,11 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 	}
 	
-	else if(order_type == -1) // A COMMAND message from GOD (server)
+	else if(order_type == MessageType::SERVER_ORDER) // A COMMAND message from GOD (server)
 	{
 		
 		Order tmp_order;
-		tmp_order.plr_id = -1;
+		tmp_order.plr_id = SERVER_ID;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.serverCommand;
 		ss >> tmp_order.keyState;
@@ -953,7 +955,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 	
 	
-	else if(order_type == -2) // instant reaction message from GOD
+	else if(order_type == MessageType::INSTANT_REACTION) // instant reaction message from GOD
 	{
 		string cmd;
 		ss >> cmd;
@@ -1050,7 +1052,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		
 	}
-	else if(order_type == -4) // copy of an existing order
+	else if(order_type == MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message?? makes no sense." << endl;
 		

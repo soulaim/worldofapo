@@ -62,6 +62,16 @@ class DedicatedServer : public HasProperties
 		ADMIN = 3
 	};
 	
+	enum MessageType
+	{
+		COPY_ORDER_MESSAGE = -4,
+		INSTANT_REACTION = -2,
+		SERVER_ORDER = -1,
+		PLAYER_INPUT = 1,
+		PLAYERINFO_MESSAGE = 2,
+		CHAT_MESSAGE = 3
+	};
+	
 	FPS_Manager fps_world;
 	VisualWorld visualworld; // one common visualworld
 	
