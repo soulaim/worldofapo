@@ -6,7 +6,6 @@
 
 #include "fixed_point.h"
 #include "location.h"
-#include "btt.h"
 #include "random.h"
 
 struct Level
@@ -14,19 +13,9 @@ struct Level
 	Level();
 	
 	friend class LevelDescriptor;
+	friend class BinaryTriangleTree; // TODO: is this really necessary?
 	
 	void generate(int);
-	
-	// TODO: Maybe these shouldn't be parts of Level but parts of BTT instead?
-	void getLevelTriangles(std::vector<BTT_Triangle>& level_triangles) const
-	{
-		btt.getTriangles(level_triangles);
-	}
-	
-	void splitBTT(const Location& position, const FrustumR& frustum)
-	{
-		btt.doSplit(pointheight_info, variance_tree, position, frustum, (*this));
-	}
 	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int) const;
@@ -54,11 +43,7 @@ struct Level
 	enum { BLOCK_SIZE = 8 };
 
 private:
-	
 	std::vector<std::vector<FixedPoint> > pointheight_info;
-	
-	BinaryTriangleTree btt;
-	std::vector<FixedPoint> variance_tree;
 	
 	// dont use these!! ffs!
 	std::vector<std::vector<FixedPoint> > h_diff;
@@ -67,8 +52,6 @@ private:
 	FixedPoint estimateHeightDifference(int x, int z) const;
 	void updateHeightDifference(int x, int z);
 	void updateNormal(int x, int z);
-	
-	void buildVarianceTree();
 	
 	Location unitVectorUp;
 	RandomMachine randomer;

@@ -532,4 +532,15 @@ void BinaryTriangleTree::draw(int x, int z)
 	}
 }
 
+void BinaryTriangleTree::buildVarianceTree(const Level& lvl)
+{
+	variance_tree.resize(2048, FixedPoint(0));
+	FixedPoint max_error = buildVarianceTree(lvl.pointheight_info, variance_tree);
+	cerr << "Maximum encountered variance error: " << max_error << endl;
+}
+
+void BinaryTriangleTree::splitBTT(const Level& lvl, const Location& position, const FrustumR& frustum)
+{
+	doSplit(lvl.pointheight_info, variance_tree, position, frustum, lvl);
+}
 

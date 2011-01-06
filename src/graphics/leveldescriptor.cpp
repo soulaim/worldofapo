@@ -14,7 +14,8 @@ using namespace std;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
 
-LevelDescriptor::LevelDescriptor()
+LevelDescriptor::LevelDescriptor():
+	btt(4, 4)
 {
 	debugMode = false;
 	level = 0;
@@ -79,8 +80,8 @@ void LevelDescriptor::world_tick(FrustumR& frustum)
 	level_triangles.clear();
 	
 	Location pos;
-	level->splitBTT(pos, frustum);
-	level->getLevelTriangles(level_triangles);
+	btt.splitBTT(*level, pos, frustum);
+	btt.getTriangles(level_triangles);
 }
 
 void LevelDescriptor::drawDebugLevelNormals() const
@@ -214,6 +215,9 @@ void LevelDescriptor::unload()
 void LevelDescriptor::preload()
 {
 	assert(!buffers_loaded);
+
+	btt.reset(level->max_block_x() - 1, level->max_block_z() - 1);
+	btt.buildVarianceTree(*level);
 
 	const Level& lvl = *level;
 
