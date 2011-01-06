@@ -124,7 +124,7 @@ void Shaders::init()
 	bone_weight_location = shaders["unit_program"]->attribute("bone_weight");
 	bone_index_location = shaders["unit_program"]->attribute("bone_index");
 	shaders["unit_program"]->stop();
-
+/*
 	shaders["blur_program1"]->start();
 	uniform_locations["blur_amount1"] = shaders["blur_program1"]->uniform("amount");
 	shaders["blur_program1"]->stop();
@@ -132,7 +132,7 @@ void Shaders::init()
 	shaders["blur_program2"]->start();
 	uniform_locations["blur_amount2"] = shaders["blur_program2"]->uniform("amount");
 	shaders["blur_program2"]->stop();
-	
+*/
 	shaders["grass_program"]->start();
 	uniform_locations["grass_texture"] = shaders["grass_program"]->uniform("texture");
 	uniform_locations["grass_wind"] = shaders["grass_program"]->uniform("wind");

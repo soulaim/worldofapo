@@ -3,6 +3,8 @@
 #include "texturehandler.h"
 #include "apomath.h"
 #include "font.h"
+#include "frustum/matrix4.h"
+#include "string2rgb.h"
 
 #include <SDL.h>
 
@@ -11,9 +13,6 @@
 #include <map>
 #include <iomanip>
 #include <cmath>
-
-#include "frustum/matrix4.h"
-#include "string2rgb.h"
 
 using namespace std;
 
