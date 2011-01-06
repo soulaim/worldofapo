@@ -9,17 +9,20 @@ using namespace std;
 // level size should be ((2^n) + 1) because binary triangle trees work best then.
 #define LEVEL_LVLSIZE 129
 
-Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
+Level::Level()
 {
+	size_t level_x_size = LEVEL_LVLSIZE;
+	size_t level_z_size = LEVEL_LVLSIZE;
+
 	unitVectorUp.x = FixedPoint(0);
 	unitVectorUp.y = FixedPoint(1);
 	unitVectorUp.z = FixedPoint(0);
 	
 	
-	pointheight_info.resize(LEVEL_LVLSIZE);
+	pointheight_info.resize(level_x_size);
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
-		pointheight_info[i].resize(LEVEL_LVLSIZE);
+		pointheight_info[i].resize(level_z_size);
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 		{
 			pointheight_info[i][k] = FixedPoint(3);
@@ -35,22 +38,11 @@ Level::Level(): btt(LEVEL_LVLSIZE-1, LEVEL_LVLSIZE-1)
 		h_diff[i].resize(pointheight_info[i].size(), FixedPoint(0));
 }
 
-
-void Level::buildVarianceTree()
-{
-	variance_tree.resize(2048, FixedPoint(0));
-	FixedPoint max_error = btt.buildVarianceTree(pointheight_info, variance_tree);
-	cerr << "Maximum encountered variance error: " << max_error << endl;
-}
-
-
-
-
 Location Level::getRandomLocation(int seed) const
 {
 	Location result;
-	result.x = ((173  * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
-	result.z = ((833 * seed) % LEVEL_LVLSIZE) * BLOCK_SIZE;
+	result.x = ((173  * seed) % max_block_x()) * BLOCK_SIZE;
+	result.z = ((833 * seed) % max_block_z()) * BLOCK_SIZE;
 	result.y = getHeight(result.x, result.z) + FixedPoint(5);
 	return result;
 }
@@ -461,9 +453,6 @@ void Level::generate(int seed)
 		}
 	}
 	cerr << endl;
-	
-	// after level has been fully defined, build the corresponding variance tree.
-	buildVarianceTree();
 }
 
 // TODO: THIS IS BULLSHIT

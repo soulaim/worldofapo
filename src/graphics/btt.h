@@ -54,19 +54,27 @@ class BinaryTriangleTree
 {
 public:
 	BinaryTriangleTree(int max_x, int max_z);
+	void buildVarianceTree(const Level&);
+
 	~BinaryTriangleTree();
-	
-	FixedPoint buildVarianceTree(const std::vector<std::vector<FixedPoint> >& h_diffs, std::vector<FixedPoint>& var_tree);
-	
 	void reset(int max_x, int max_z);
-	void doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum, const Level& lvl);
+
+
 	void print() const;
-	void getTriangles(std::vector<BTT_Triangle>& tris) const;
 	void draw(int x, int z);
+
+	void splitBTT(const Level& lvl, const Location& position, const FrustumR& frustum);
+	void getTriangles(std::vector<BTT_Triangle>& tris) const;
 	
 private:
+	FixedPoint buildVarianceTree(const Level&, std::vector<FixedPoint>& var_tree);
+	FixedPoint buildVarianceTree(const std::vector<std::vector<FixedPoint> >& h_diffs, std::vector<FixedPoint>& var_tree);
+	void doSplit(const std::vector<std::vector<FixedPoint> >& h_diffs, const std::vector<FixedPoint>& var_tree, const Location& position, const FrustumR& frustum, const Level& lvl);
+
 	std::shared_ptr<BTT_Node> upper_left;
 	std::shared_ptr<BTT_Node> lower_right;
+
+	std::vector<FixedPoint> variance_tree;
 };
 
 #endif

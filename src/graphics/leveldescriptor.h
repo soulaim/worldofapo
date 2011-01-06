@@ -14,10 +14,9 @@
 class Level;
 class FrustumR;
 
-class LevelDescriptor : public HasProperties
+class LevelDescriptor: public HasProperties
 {
 public:
-	
 	LevelDescriptor();
 	
 	void setLevel(Level* lvl);
@@ -32,6 +31,7 @@ public:
 
 	void preload();
 	void unload();
+
 private:
 	LevelDescriptor(const LevelDescriptor&); // Disabled.
 	LevelDescriptor& operator=(const LevelDescriptor&); // Disabled.
@@ -46,8 +46,6 @@ private:
 	Level* level;
 	
 	bool debugMode;
-	
-	std::vector<BTT_Triangle> level_triangles;
 
 	// Static data.
 	std::vector<Vec3> vertices;
@@ -59,6 +57,8 @@ private:
 	// Dynamic data.
 	mutable std::vector<unsigned> indices; // TODO: remove mutable.
 
+	std::vector<BTT_Triangle> level_triangles;
+	BinaryTriangleTree btt;
 
 	enum { BUFFERS = 6 };
 	GLuint locations[BUFFERS];

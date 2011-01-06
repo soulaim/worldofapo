@@ -17,6 +17,7 @@
 #include "light_object.h"
 #include "projectile.h"
 #include "visualworld.h"
+#include "framebuffer.h"
 
 #include "hasproperties.h"
 
@@ -45,7 +46,6 @@ class Graphics: public HasProperties
 
 	void drawLightsDeferred_single_pass(int lights);
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
-	void drawLightsDeferred_multiple_passes_with_scissors(const std::map<int, LightObject>& lights);
 
 	void drawSolidGeometry(const VisualWorld& visualworld);
 	void drawModels(const std::map<int, Model*>& models);
@@ -59,8 +59,8 @@ class Graphics: public HasProperties
 	void renderToBackbuffer();
 	
 	void applyAmbientLight();
-	void applyBlur(int blur, const std::string& input_texture, GLuint renderTarget);
-	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, GLuint renderTarget);
+	void applyBlur(int blur, const std::string& input_texture, const Framebuffer& renderTarget);
+	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, const Framebuffer& renderTarget);
 	
 	void drawDebugLines();
 	void drawDebugStrings();
@@ -76,13 +76,13 @@ class Graphics: public HasProperties
 	GLint MAX_NUM_LIGHTS;
 	GLint MAX_NUM_ACTIVE_LIGHTS;
 	
-	GLuint postFBO;
-	GLuint particlesDownScaledFBO;
-	GLuint particlesUpScaledFBO;
+	Framebuffer postFBO;
+	Framebuffer particlesDownScaledFBO;
+	Framebuffer particlesUpScaledFBO;
 	
-	GLuint deferredFBO;
-	GLuint screenFBO;
-	GLuint screenRB;
+	Framebuffer deferredFBO;
+	Framebuffer screenFBO;
+//	GLuint screenRB;
 	
 	Window& window;
 	Hud& hud;
@@ -90,8 +90,8 @@ class Graphics: public HasProperties
 	
 	void clear_errors() const;
 	bool check_errors(const char* filename, int line) const;
-	void check_framebuffer_status(const std::string& fbo_name);
-	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
+//	void check_framebuffer_status(const std::string& fbo_name);
+//	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
 
 	void drawFullscreenQuad() const;
 public:
