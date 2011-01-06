@@ -1,16 +1,20 @@
 #include "dedicated.h"
-#include "graphics/modelfactory.h"
+
+// #include "graphics/modelfactory.h"
 
 #include <iostream>
 #include <sstream>
 #include <algorithm>
 #include <ctime>
 
+#include <omp.h>
+
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
 
 #define SLEEP_IF_POSSIBLE
+#define MULTI_THREADED_WORLD_TICKS 0
 
 using namespace std;
 
@@ -44,6 +48,15 @@ DedicatedServer::DedicatedServer():
 	// TODO: Make a separate function for these things.
 	string first_area = "default_area";
 	string second_area = "other_area";
+	
+	if(intVals.find("SERVER_NO_WAIT") != intVals.end())
+	{
+		server_no_wait = intVals["SERVER_NO_WAIT"];
+	}
+	else
+	{
+		server_no_wait = false;
+	}
 	
 	areas.insert(make_pair(first_area, World(&visualworld)));
 	areas.find(first_area)->second.buildTerrain(15);
@@ -204,6 +217,9 @@ void DedicatedServer::host_tick()
 	check_messages_from_clients();
 	
 	unsigned minAllowed = UINT_MAX;
+	if(server_no_wait)
+		--minAllowed;
+	
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
 		if(it->second.connectionState == 1 && (it->second.last_order < minAllowed))
@@ -267,6 +283,14 @@ void DedicatedServer::host_tick()
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
 	{
+		cerr << "waiting ..." << endl;
+		
+		#ifdef SLEEP_IF_POSSIBLE
+		usleep(1000);
+		#endif
+		
+		return;
+		
 		simulRules.reset();
 		
 		long long milliseconds = time_now();
@@ -322,23 +346,26 @@ void DedicatedServer::host_tick()
 
 void DedicatedServer::simulateWorldFrame()
 {
-	if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
-		cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+	if(!UnitInput.empty())
+		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
+			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 	
 	fps_world.insert();
 	
 	static bool checkSumsInitialized = false;
 	static map<string, vector<World::CheckSumType> > checkSums;
+	const int checkSumVectorSize = 150;
 	
 	if(!checkSumsInitialized)
 	{
+		checkSumsInitialized = true;
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
-			checkSums[area_it->first].resize(10, 0);
+			checkSums[area_it->first].resize(checkSumVectorSize, 0); // gives about three seconds to clients.
 		}
 	}
 	
-	int current = simulRules.currentFrame % 10;
+	int current = simulRules.currentFrame % checkSumVectorSize;
 	
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 	{
@@ -360,9 +387,10 @@ void DedicatedServer::simulateWorldFrame()
 		
 		if(tmp.plr_id == SERVER_ID)
 		{
-			cerr << "MOTHERFUCKER FUCKING FUCK YOU MAN?= JUST FUCK YOU!!" << endl;
-			break;
+			cerr << "ERROR: Server processing order messages and encountered a server message" << endl;
+			continue;
 		}
+		
 		
 		// check the checksums
 		int id = tmp.plr_id;
@@ -370,8 +398,19 @@ void DedicatedServer::simulateWorldFrame()
 		{
 			if(area_it->second.units.find(id) != area_it->second.units.end())
 			{
-				World::CheckSumType cs_tmp = checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10];
-				if((simulRules.currentFrame > 10) && (tmp.checksum != cs_tmp) && (tmp.checksum != 0))
+				bool all_is_fine = false;
+				vector<World::CheckSumType>& checksum_vector = checkSums[area_it->first];
+				for(auto checksum_it = checksum_vector.begin(); checksum_it != checksum_vector.end(); ++checksum_it)
+				{
+					if(*checksum_it == tmp.checksum)
+					{
+						// all is fine!
+						all_is_fine = true;
+						break;
+					}
+				}
+				
+				if((simulRules.currentFrame > checksum_vector.size()) && (!all_is_fine) && (tmp.checksum != 0))
 				{
 					std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
 					std::cerr << "client checksum: " << tmp.checksum << std::endl;
@@ -402,6 +441,7 @@ void DedicatedServer::simulateWorldFrame()
 			}
 		}
 		
+		
 		// the actual update code
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
@@ -415,11 +455,33 @@ void DedicatedServer::simulateWorldFrame()
 		}
 	}
 	
+#if MULTI_THREADED_WORLD_TICKS > 0
+	// build something that is easier to iterate over.
+	vector<World*> worlds;
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		worlds.push_back(&(area_it->second));
+	}
+	
+	int num_worlds = worlds.size();
+	int current_world_num = 0;
+	
+	// TODO ALERT: Move event container from visual world to world.
+	//             Because server has a shared visual world,
+	//             things will be fucked up when 8 threads are writing there
+	//             concurrently.
+	#pragma omp parallel for shared(num_worlds) schedule(dynamic)
+	for(current_world_num = 0; current_world_num < num_worlds; current_world_num++)
+	{
+		worlds[current_world_num]->worldTick(simulRules.currentFrame);
+	}
+#else
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 	{
 		World& world = area_it->second;
 		world.worldTick(simulRules.currentFrame);
 	}
+#endif
 	
 	simulRules.currentFrame++;
 	handleWorldEvents();
@@ -480,9 +542,38 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	
 	if(orderWord == "1")
 	{
-		int order_player_id, frame;
-		ss >> order_player_id >> frame;
-		player.last_order = frame;
+		if(server_no_wait)
+		{
+			// recreate the message
+			Order tmp_order;
+			ss >> tmp_order.plr_id;
+			ss >> tmp_order.frameID;
+			ss >> tmp_order.keyState;
+			ss >> tmp_order.mousex >> tmp_order.mousey;
+			ss >> tmp_order.mouseButtons;
+			ss >> tmp_order.checksum;
+			
+			if(player.last_order < simulRules.currentFrame + 5)
+			{
+				// increasing player's order frameskip to compensate for lag.
+				player.last_order = simulRules.currentFrame + 5;
+			}
+			
+			tmp_order.frameID = ++player.last_order;
+			
+			stringstream order_msg;
+			order_msg << "1 " << tmp_order.plr_id << " " << tmp_order.frameID << " " << 
+			tmp_order.keyState << " " << tmp_order.mousex << " " << tmp_order.mousey << " " << tmp_order.mouseButtons << " " <<
+			tmp_order.checksum << "#";
+			
+			new_message = order_msg.str();
+		}
+		else
+		{
+			int plr_id, frameID;
+			ss >> plr_id >> frameID;
+			player.last_order = frameID;
+		}
 	}
 	else if(orderWord == "2") // someone is sending an introduction message. I, as the GOD, should rewrite some of that message :D
 	{

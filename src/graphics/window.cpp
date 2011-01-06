@@ -63,6 +63,8 @@ void Window::createWindow(int width, int height)
 	}
 	else
 	{
+		SDL_WM_SetCaption("World of Apo", "World of Apo");
+		
 //		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
 }

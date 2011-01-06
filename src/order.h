@@ -28,13 +28,13 @@ struct Order
 	
 	void handleCopyOrder(std::stringstream& ss)
 	{
-		ss >> frameID >> plr_id >> keyState >> mousex >> mousey >> serverCommand >> mouseButtons >> checksum;
+		ss >> plr_id >> frameID >> keyState >> mousex >> mousey >> serverCommand >> mouseButtons >> checksum;
 	}
 	
 	std::string copyOrder() const
 	{
 		std::stringstream input_msg;
-		input_msg << "-4 " << frameID << " " << plr_id << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << " " << checksum << "#";
+		input_msg << "-4 " << plr_id << " " << frameID << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << " " << checksum << "#";
 		return input_msg.str();
 	}
 };
