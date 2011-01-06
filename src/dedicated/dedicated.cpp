@@ -106,7 +106,7 @@ void DedicatedServer::send_to_all(const std::string& msg)
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
 		// dont write to disconnected players
-		if(sockets.alive(it->first) && it->second.connectionState == 1)
+		if(sockets.alive(it->first) && it->second.connectionState == ConnectionState::GAMEPLAY)
 		{
 			sockets.write(it->first, msg);
 		}
@@ -161,13 +161,13 @@ void DedicatedServer::check_messages_from_clients()
 		vector<string>& msgs = sockets.read(i->first);
 		int conn_state = Players[i->first].connectionState;
 		
-		if(conn_state == 0)
+		if(conn_state == ConnectionState::SIGN_IN)
 		{
 			for(size_t k=0; k < msgs.size(); k++)
 				handleSignInMessage(i->first, msgs[k]);
 			msgs.clear();
 		}
-		else if(conn_state == 1)
+		else if(conn_state == ConnectionState::GAMEPLAY)
 		{
 			for(size_t k=0; k < msgs.size(); k++)
 			{
@@ -175,7 +175,7 @@ void DedicatedServer::check_messages_from_clients()
 			}
 			msgs.clear();
 		}
-		else if(conn_state == 2)
+		else if(conn_state == ConnectionState::WAIT_WORLD_GEN)
 		{
 			// NOTE: duplicate for now, not sure if it will be later though.
 			for(size_t k=0; k < msgs.size(); k++)
@@ -183,6 +183,9 @@ void DedicatedServer::check_messages_from_clients()
 				parseClientMsg(msgs[k], i->first, i->second);
 			}
 			msgs.clear();
+		}
+		else if(conn_state == ConnectionState::ADMIN)
+		{
 		}
 	}
 	
@@ -222,7 +225,7 @@ void DedicatedServer::host_tick()
 	
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
-		if(it->second.connectionState == 1 && (it->second.last_order < minAllowed))
+		if(it->second.connectionState == ConnectionState::GAMEPLAY && (it->second.last_order < minAllowed))
 			minAllowed = it->second.last_order;
 	}
 	
@@ -307,14 +310,6 @@ void DedicatedServer::host_tick()
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
-		if(intVals["AUTO_SPAWN"])
-		{
-			if((simulRules.currentFrame % intVals["AUTO_SPAWN_RATE"]) == 0)
-			{
-				serverSendMonsterSpawn(); // spawn a monster every now and then.
-			}
-		}
-		
 		simulateWorldFrame();
 		
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -649,21 +644,9 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		else if(cmd == "AUTO_SPAWN")
 		{
-			intVals["AUTO_SPAWN"] ^= 1;
-			
-			if(intVals["AUTO_SPAWN"])
-			{
-				stringstream autospawn;
-				autospawn << "3 -1 ^YAutospawn toggled ^GON#";
-				serverMsgs.push_back(autospawn.str());
-			}
-			else
-			{
-				stringstream autospawn;
-				autospawn << "3 -1 ^YAutospawn toggled ^ROFF#";
-				serverMsgs.push_back(autospawn.str());
-			}
-			
+			stringstream autospawn;
+			autospawn << "3 -1 ^YAutospawn functionality is ^RDEPRECATED#";
+			serverMsgs.push_back(autospawn.str());
 			return;
 		}
 		else if(cmd == "AREA")
@@ -727,7 +710,7 @@ void DedicatedServer::acceptConnections()
 	if(sockets.accept(id))
 	{
 		cerr << "looks like someone is connecting :O" << endl;
-		Players[id].connectionState = 0;
+		Players[id].connectionState = ConnectionState::SIGN_IN;
 		id = nextPlayerID();
 	}
 }
@@ -785,7 +768,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		// TODO: IF THE PLAYER DID NOT START ACTUALLY PLAYING (DISCONNECT AT HERO SELECTION)
 		// THIS WILL FUCK THINGS UP
 		// NUM PLAYERS SHOULD BE DETERMINABLE FROM Players
-		// (loop through and see how many are at connectionState 1)
+		// (loop through and see how many are at connectionState GAMEPLAY)
 		
 		simulRules.numPlayers--;
 	}

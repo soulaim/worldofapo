@@ -1044,7 +1044,8 @@ void World::worldTick(int tickCount)
 	// if this area has monsters autospawning
 	if(intVals["MON_SPAWN"])
 	{
-		if(tickCount % intVals["MON_FREQ"] == 0)
+		int& freq = intVals["MON_FREQ"];
+		if(tickCount % freq == 0)
 		{
 			// TODO: Possibility to spawn monster groups.
 			
@@ -1195,8 +1196,6 @@ void World::worldTick(int tickCount)
 		}
 	}
 }
-
-
 
 
 void World::addUnit(int id, bool playerCharacter, int team)

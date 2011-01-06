@@ -172,6 +172,8 @@ VisualWorld::ModelType VisualWorld::getModelType(const std::string& name)
 		return VisualWorld::ModelType::ZOMBIE_MODEL;
 	if(name.substr(0, 5) == "Troll")
 		return VisualWorld::ModelType::TROLL_MODEL;
+	
+	cerr << "name: " << name << ", creating player model." << endl;
 	return VisualWorld::ModelType::PLAYER_MODEL;
 }
 

@@ -53,7 +53,15 @@ struct StateInfo
 class DedicatedServer : public HasProperties
 {
 	enum { SERVER_ID = -1 };
-
+	
+	enum ConnectionState
+	{
+		SIGN_IN = 0,
+		GAMEPLAY = 1,
+		WAIT_WORLD_GEN = 2,
+		ADMIN = 3
+	};
+	
 	FPS_Manager fps_world;
 	VisualWorld visualworld; // one common visualworld
 	
