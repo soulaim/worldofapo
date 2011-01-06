@@ -184,8 +184,17 @@ void DedicatedServer::check_messages_from_clients()
 			}
 			msgs.clear();
 		}
+		else if(conn_state == ConnectionState::OBSERVER)
+		{
+			
+		}
 		else if(conn_state == ConnectionState::ADMIN)
 		{
+			for(size_t k=0; k<msgs.size(); k++)
+			{
+				parseAdminMsg(msgs[k], i->first, i->second);
+			}
+			msgs.clear();
 		}
 	}
 	
@@ -525,7 +534,32 @@ bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_
 }
 
 
-
+void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo& admin)
+{
+	string new_message = msg + "#";
+	stringstream ss(new_message);
+	
+	int orderType;
+	ss >> orderType;
+	
+	switch(orderType)
+	{
+		case MessageType::ADMIN_ORDER_MESSAGE:
+		{
+			// ...
+			
+			// to make it compile..
+			admin_id++;
+			admin.last_order++;
+			
+			break;
+		}
+		default:
+		{
+			cerr << "WARNING: Admin connection sent an unrecognized command: " << msg << endl;
+		}
+	}
+}
 
 void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player)
 {

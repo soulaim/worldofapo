@@ -59,7 +59,8 @@ class DedicatedServer : public HasProperties
 		SIGN_IN = 0,
 		GAMEPLAY = 1,
 		WAIT_WORLD_GEN = 2,
-		ADMIN = 3
+		ADMIN = 3,
+		OBSERVER = 4
 	};
 	
 	enum MessageType
@@ -69,7 +70,9 @@ class DedicatedServer : public HasProperties
 		SERVER_ORDER = -1,
 		PLAYER_INPUT = 1,
 		PLAYERINFO_MESSAGE = 2,
-		CHAT_MESSAGE = 3
+		CHAT_MESSAGE = 3,
+		
+		ADMIN_ORDER_MESSAGE = 4
 	};
 	
 	FPS_Manager fps_world;
@@ -124,7 +127,9 @@ class DedicatedServer : public HasProperties
 	void sendWorldCopy(const std::string& areaName, int plrID);
 	void sendWorldContent(int playerID_val);
 
+	void parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo& admin);
 	void parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player);
+	
 	void handleWorldEvents();
 	void simulateWorldFrame();
 

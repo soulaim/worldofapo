@@ -989,7 +989,7 @@ void World::addRandomMonster()
 	if(monster_home == "_CAVE")
 	{
 		addUnit(id, false, -1);
-		units[id].name = "Stone beast";
+		units[id].name = "Stone\\sbeast";
 		
 		int stonebeast_size = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"]  = 4 + 3 * stonebeast_size;
@@ -1012,7 +1012,7 @@ void World::addRandomMonster()
 		units[id].name = "Moogle";
 		
 		int moogle_age = (currentWorldFrame % 4) + 3;
-		units[id].intVals["STR"] = 4 - moogle_age;
+		units[id].intVals["STR"] = 4;
 		units[id].intVals["DEX"] = 4 + 2 * moogle_age;
 		units[id].intVals["MASS"] = 700;
 	}
@@ -1205,7 +1205,14 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	
 	units[id] = Unit();
 	units[id].init();
-	units[id].position = lvl.getRandomLocation(currentWorldFrame);
+	
+	int r_seed = team + 7;
+	if(playerCharacter)
+	{
+		r_seed += 17;
+	}
+	
+	units[id].position = lvl.getRandomLocation(currentWorldFrame + r_seed);
 	units[id].id = id;
 	
 	units[id].birthTime = currentWorldFrame;
@@ -1216,7 +1223,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		
 		units[id].setDefaultMonsterAttributes();
 		
-		units[id].name = "Alien monster";
+		units[id].name = "Alien\\smonster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
@@ -1229,7 +1236,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		
 		units[id].setDefaultPlayerAttributes();
 		
-		units[id].name = "Unknown Player";
+		units[id].name = "Unknown\\sPlayer";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
 		units[id]["TEAM"] = id;
