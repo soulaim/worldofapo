@@ -601,9 +601,18 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		else
 		{
-			int plr_id, frameID;
+			int plr_id;
+			unsigned frameID;
+			
 			ss >> plr_id >> frameID;
 			player.last_order = frameID;
+			
+			// ignore order if it's in the past.
+			if(frameID <= simulRules.currentFrame)
+			{
+				cerr << "WARNING: Server intentionally skipping an order, it arrived too late!" << endl;
+				return;
+			}
 		}
 	}
 	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
