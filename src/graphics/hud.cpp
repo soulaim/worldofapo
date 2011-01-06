@@ -27,7 +27,7 @@ Hud::Hud():
 	zombieCount(0)
 {
 	cerr << "Loading config file for HUD.." << endl;
-	load("hud.conf");
+	load("configs/hud.conf");
 	
 	area_name = "World of Apo";
 }

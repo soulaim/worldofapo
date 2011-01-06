@@ -43,7 +43,7 @@ DedicatedServer::DedicatedServer():
 	serverAllow = 0;
 	init();
 	
-	load("server.conf");
+	load("configs/server.conf");
 	
 	// TODO: Make a separate function for these things.
 	string first_area = "default_area";

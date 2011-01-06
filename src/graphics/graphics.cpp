@@ -92,7 +92,7 @@ Graphics::Graphics(Window& w, Hud& h):
 	hud(h)
 {
 	cerr << "Loading config file for Graphics.." << endl;
-	load("graphics.conf");
+	load("configs/graphics.conf");
 	
 	window.createWindow(intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 }

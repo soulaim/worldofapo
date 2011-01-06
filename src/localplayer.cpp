@@ -55,12 +55,12 @@ void Localplayer::reload_confs()
 {
 	cerr << "Reloading conf files.." << endl;
 	
-	world.load("world.conf");
-	visualworld.load("visualworld.conf");
+	world.load("configs/world.conf");
+	visualworld.load("configs/visualworld.conf");
 	game.readConfig();
-	this->load("localplayer.conf");
-	hud->load("hud.conf");
-	view->load("graphics.conf");
+	this->load("configs/localplayer.conf");
+	hud->load("configs/hud.conf");
+	view->load("configs/graphics.conf");
 }
 
 
@@ -112,7 +112,7 @@ void Localplayer::init()
 {
 	cerr << "Localplayer::init()" << endl;
 
-	load("localplayer.conf");
+	load("configs/localplayer.conf");
 
 	soundsystem.init();
 	game.init();
