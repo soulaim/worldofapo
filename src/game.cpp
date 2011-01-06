@@ -636,7 +636,9 @@ void Game::processClientMsgs()
 				Unit& unit = world->units.find(unitID)->second;
 				unit.handleCopyOrder(ss);
 				
-				world->visualworld->setModelScale(unitID, unit.scale.getFloat());
+				VisualWorld::ModelType type = world->visualworld->getModelType(unit.name);
+				float scale = unit.scale.getFloat();
+				world->visualworld->createModel(unitID, unit.position, type, scale);
 				
 				
 				cerr << "COPY OF A UNIT: " << unitID << " / " << unit.id << endl;
