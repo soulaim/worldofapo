@@ -97,6 +97,8 @@ class DedicatedServer : public HasProperties
 	unsigned serverAllow;
 	StateInfo simulRules; // rules for running the simulation.
 	
+	bool server_no_wait;
+	
 	void init();
 	
 	void changeArea(int playerID_val);
