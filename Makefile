@@ -3,7 +3,7 @@ INCLUDE_DIRS = -I src -I src/graphics
 OPENMP   = -fopenmp
 
 PACKAGES = sdl gl glu libpng
-CXXFLAGS = -pedantic -Wall -Werror -Wextra -fopenmp -std=c++0x -O3 `pkg-config --cflags $(PACKAGES)` $(INCLUDE_DIRS)
+CXXFLAGS = -pedantic -Wall -Werror -Wextra -fopenmp -lpthread -std=c++0x -O3 `pkg-config --cflags $(PACKAGES)` $(INCLUDE_DIRS)
 LDLIBS   = -lSDL_mixer -L ./lib/ -lGLEW `pkg-config --libs $(PACKAGES)`
 CXX      = g++
 

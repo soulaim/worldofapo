@@ -81,6 +81,39 @@ Graphics::~Graphics()
 {
 }
 
+
+void Graphics::drawLoadScreen(const string&, const float& percent_done)
+{
+	float y_plus  =  0.5f;
+	float y_minus = -0.5f;
+	float plus  = percent_done;
+	float minus = -1.0f;
+	
+	Framebuffer::unbind();
+	TextureHandler::getSingleton().bindTexture(0, "");
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	glColor3f(1.0, 1.0, 1.0);
+	
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glBegin(GL_QUADS);
+	glVertex3f(minus, y_minus, -1.0f);
+	glVertex3f( plus, y_minus, -1.0f);
+	glVertex3f( plus,  y_plus, -1.0f);
+	glVertex3f(minus,  y_plus, -1.0f);
+	glEnd();
+	
+	window.swap_buffers();
+	return;
+}
+
+
 void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;

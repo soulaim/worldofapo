@@ -27,6 +27,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <pthread.h>
 
 using namespace std;
 
@@ -139,6 +140,33 @@ void Localplayer::init()
 }
 
 
+
+struct LoadScreenInfo
+{
+	Graphics* view;
+	World* world;
+	float* percentage;
+	string* task_name;
+	int world_seed;
+};
+
+void* generateTerrain(void* loadScreenInfo)
+{
+	LoadScreenInfo* lsi = static_cast<LoadScreenInfo*>(loadScreenInfo);
+	
+	float& worldGenPercent = *(lsi->percentage);
+	string& taskName       = *(lsi->task_name);
+	
+	worldGenPercent = 0.0f;
+	taskName = "Generating terrain..";
+	
+	lsi->world->buildTerrain(lsi->world_seed, worldGenPercent);
+	
+	worldGenPercent = 1.1f;
+	
+	return 0;
+}
+
 bool Localplayer::client_tick()
 {
 	for(size_t i=0; i<game.meta_events.size(); ++i)
@@ -150,46 +178,41 @@ bool Localplayer::client_tick()
 			int world_seed   = event.intVals["WORLD_GEN_SEED"];
 			string area_name = event.strVals["WORLD_NAME"];
 			
+			world.strVals["AREA_NAME"] = area_name;
+			
+			world.terminate();
+			
 			// shared memory for processes to determine how far terrain generation has progressed.
 			float done_percent = 0.0f;
 			string task_name = "Preparing to load world..";
 			
-			// task 1: generate terrain
+			LoadScreenInfo info;
+			info.view = view;
+			info.world = &world;
+			info.percentage = &done_percent;
+			info.task_name = &task_name;
+			info.world_seed = world_seed;
+			
+			
+			pthread_t worldGen;
+			
+			int  iret1;
+			iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
+			
+			while(true)
 			{
-				// first subtask
-				task_name = "Generating terrain..";
-				done_percent = 0.0f;
+				if(done_percent > 1.0f)
+					break;
 				
-				world.terminate();
-				world.buildTerrain(world_seed, done_percent);
-				
-				
-				// change of subtask
-				task_name = "Decorating world..";
-				done_percent = 0.0f;
-				
-				visualworld.decorate(world.lvl);
-				world.strVals["AREA_NAME"] = area_name;
-				done_percent = 1.1f;
+				view->drawLoadScreen(task_name, done_percent);
+				usleep(1000);
 			}
 			
-			/*
-			// task 2: visualise terrain gen progress
-			{
-				// ..
-				while(true)
-				{
-					if(done_percent > 1.0f)
-						break;
-					
-					// TODO: draw!
-					
-					usleep(1000);
-				}
-			}
-			*/
+			task_name = "Decorating terrain..";
+			visualworld.decorate(world.lvl);
 			
-			// send WORLD_GEN_READY message!
+			
+			// and then send WORLD_GEN_READY message!
 			stringstream ss_world_gen_ready;
 			ss_world_gen_ready << "-2 WORLD_GEN_READY #";
 			game.write(Game::SERVER_ID, ss_world_gen_ready.str());
