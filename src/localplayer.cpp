@@ -341,6 +341,14 @@ bool Localplayer::handleClientLocalInput()
 	
 	if(key == "return")
 		client_input_state ^= 2;
+	else if(key == "f1")
+		view->intVals["HELP"] ^= 1;
+	else if(key == "f2")
+		visualworld.camera.setMode(Camera::THIRD_PERSON);
+	else if(key == "f3")
+		visualworld.camera.setMode(Camera::FIRST_PERSON);
+	else if(key == "f4")
+		visualworld.camera.setMode(Camera::STATIC);
 	else if(key == "f11")
 		view->toggleFullscreen();
 	else if(key == "f10")

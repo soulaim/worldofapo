@@ -222,7 +222,7 @@ bool Game::client_tick_local()
 	if( (simulRules.currentFrame < simulRules.allowedFrame) )
 	{
 		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
-			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 		return true;
 	}
 
@@ -252,7 +252,6 @@ void Game::process_received_game_input()
 		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
-			// handleServerMessage(tmp);
 			continue;
 		}
 		

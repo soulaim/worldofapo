@@ -85,7 +85,7 @@ bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions)
 			in_menu = true;
 			master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 			
-			// must set client state here I guess.
+			// at least if server disconnects us, this is the only place where reset is called.
 			cerr << "did reset get called before this?" << endl;
 			master.reset();
 		}

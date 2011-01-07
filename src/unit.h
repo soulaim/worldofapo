@@ -34,6 +34,7 @@ public:
 		WEAPON3      = 1<<22,
 		WEAPON4      = 1<<23,
 		WEAPON5      = 1<<24,
+		
 		MOUSE_LEFT = 1,
 		MOUSE_RIGHT = 2,
 		

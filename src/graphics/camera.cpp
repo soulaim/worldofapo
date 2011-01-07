@@ -163,21 +163,6 @@ void Camera::updateInput(int keystate)
 			currentTarget   -= delta;
 		}
 	}
-
-	if(keystate & 1 << 18)
-	{
-		setMode(Camera::THIRD_PERSON);
-	}
-	if(keystate & 1 << 19)
-	{
-		setMode(Camera::FIRST_PERSON);
-	}
-	if(keystate & 1 << 11)
-	{
-		Vec3 position = getPosition();
-		setMode(Camera::STATIC);
-		currentPosition = position;
-	}
 }
 
 void Camera::fpsTick()

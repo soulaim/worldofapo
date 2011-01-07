@@ -352,7 +352,7 @@ void DedicatedServer::simulateWorldFrame()
 {
 	if(!UnitInput.empty())
 		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
-			cerr << "ERROR: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 	
 	fps_world.insert();
 	

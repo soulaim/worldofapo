@@ -85,6 +85,8 @@ void Graphics::init(Camera& camera)
 {
 	cerr << "Graphics::init()" << endl;
 
+	intVals["HELP"] = 1;
+	
 	OpenGL opengl;
 	shaders.init();
 	
@@ -139,6 +141,7 @@ void Graphics::init(Camera& camera)
 	
 	TextureHandler::getSingleton().createTexture("font", "data/fonts/font2.png");
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
+	TextureHandler::getSingleton().createTexture("help_layer", "data/images/help_overlay_dark.png");
 	
 	camera_p->aspect_ratio = float(intVals["RESOLUTION_X"]) / float(intVals["RESOLUTION_Y"]);
 	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
@@ -1260,7 +1263,16 @@ void Graphics::renderToBackbuffer()
 	glColor3f(1.0, 1.0, 1.0);
 	
 	drawFullscreenQuad();
-
+	
+	if(intVals["HELP"])
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		TextureHandler::getSingleton().bindTexture(0, "help_layer");
+		drawFullscreenQuad();
+		glDisable(GL_BLEND);
+	}
+	
 	glEnable(GL_DEPTH_TEST);
 }
 
