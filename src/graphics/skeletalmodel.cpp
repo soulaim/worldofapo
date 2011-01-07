@@ -500,8 +500,8 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 
 	offset *= Matrix4(0,0,0, bone.start_x, bone.start_y, bone.start_z);
 	offset *= Matrix4(0, rot_y, 0, 0,0,0);
-	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
 	offset *= Matrix4(0, 0, rot_z, 0,0,0);
+	offset *= Matrix4(rot_x, 0, 0, 0,0,0);
 	offset *= Matrix4(0,0,0, -bone.start_x, -bone.start_y, -bone.start_z);
 
 	rotations[current_bone] = offset;

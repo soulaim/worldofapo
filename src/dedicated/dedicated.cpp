@@ -106,7 +106,7 @@ void DedicatedServer::send_to_all(const std::string& msg)
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
 		// dont write to disconnected players
-		if(sockets.alive(it->first) && it->second.connectionState == 1)
+		if(sockets.alive(it->first) && it->second.connectionState == ConnectionState::GAMEPLAY)
 		{
 			sockets.write(it->first, msg);
 		}
@@ -161,13 +161,13 @@ void DedicatedServer::check_messages_from_clients()
 		vector<string>& msgs = sockets.read(i->first);
 		int conn_state = Players[i->first].connectionState;
 		
-		if(conn_state == 0)
+		if(conn_state == ConnectionState::SIGN_IN)
 		{
 			for(size_t k=0; k < msgs.size(); k++)
 				handleSignInMessage(i->first, msgs[k]);
 			msgs.clear();
 		}
-		else if(conn_state == 1)
+		else if(conn_state == ConnectionState::GAMEPLAY)
 		{
 			for(size_t k=0; k < msgs.size(); k++)
 			{
@@ -175,12 +175,24 @@ void DedicatedServer::check_messages_from_clients()
 			}
 			msgs.clear();
 		}
-		else if(conn_state == 2)
+		else if(conn_state == ConnectionState::WAIT_WORLD_GEN)
 		{
 			// NOTE: duplicate for now, not sure if it will be later though.
 			for(size_t k=0; k < msgs.size(); k++)
 			{
 				parseClientMsg(msgs[k], i->first, i->second);
+			}
+			msgs.clear();
+		}
+		else if(conn_state == ConnectionState::OBSERVER)
+		{
+			
+		}
+		else if(conn_state == ConnectionState::ADMIN)
+		{
+			for(size_t k=0; k<msgs.size(); k++)
+			{
+				parseAdminMsg(msgs[k], i->first, i->second);
 			}
 			msgs.clear();
 		}
@@ -222,7 +234,7 @@ void DedicatedServer::host_tick()
 	
 	for(auto it = Players.begin(); it != Players.end(); ++it)
 	{
-		if(it->second.connectionState == 1 && (it->second.last_order < minAllowed))
+		if(it->second.connectionState == ConnectionState::GAMEPLAY && (it->second.last_order < minAllowed))
 			minAllowed = it->second.last_order;
 	}
 	
@@ -307,14 +319,6 @@ void DedicatedServer::host_tick()
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
-		if(intVals["AUTO_SPAWN"])
-		{
-			if((simulRules.currentFrame % intVals["AUTO_SPAWN_RATE"]) == 0)
-			{
-				serverSendMonsterSpawn(); // spawn a monster every now and then.
-			}
-		}
-		
 		simulateWorldFrame();
 		
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -530,17 +534,44 @@ bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_
 }
 
 
-
+void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo& admin)
+{
+	string new_message = msg + "#";
+	stringstream ss(new_message);
+	
+	int orderType;
+	ss >> orderType;
+	
+	switch(orderType)
+	{
+		case MessageType::ADMIN_ORDER_MESSAGE:
+		{
+			// ...
+			
+			// to make it compile..
+			admin_id++;
+			admin.last_order++;
+			
+			break;
+		}
+		default:
+		{
+			cerr << "WARNING: Admin connection sent an unrecognized command: " << msg << endl;
+		}
+	}
+}
 
 void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player)
 {
 	string new_message = msg + "#";
 	// keep track of last frames for which orders have been received.
 	stringstream ss(new_message);
-	string orderWord;
-	ss >> orderWord;
 	
-	if(orderWord == "1")
+	
+	int orderType;
+	ss >> orderType;
+	
+	if(orderType == MessageType::PLAYER_INPUT)
 	{
 		if(server_no_wait)
 		{
@@ -570,12 +601,21 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		else
 		{
-			int plr_id, frameID;
+			int plr_id;
+			unsigned frameID;
+			
 			ss >> plr_id >> frameID;
 			player.last_order = frameID;
+			
+			// ignore order if it's in the past.
+			if(frameID <= simulRules.currentFrame)
+			{
+				cerr << "WARNING: Server intentionally skipping an order, it arrived too late!" << endl;
+				return;
+			}
 		}
 	}
-	else if(orderWord == "2") // someone is sending an introduction message. I, as the GOD, should rewrite some of that message :D
+	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
 	{
 		int id;
 		string introductionName;
@@ -593,12 +633,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 				player.name = introductionName;
 			
 			// create a better message and distribute that to players.
-			new_message_ss << "2 " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
+			new_message_ss << MessageType::PLAYERINFO_MESSAGE << " " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
 
 			new_message = new_message_ss.str();
 		}
 	}
-	else if(orderWord == "3") // chat message!
+	else if(orderType == MessageType::CHAT_MESSAGE) // chat message!
 	{
 		string id;
 		string cmd;
@@ -619,7 +659,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			serverSendMonsterSpawn(n, team);
 			
 			stringstream chatmsg;
-			chatmsg << "3 -1 ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
+			chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
 			serverMsgs.push_back(chatmsg.str());
 			
 			return;
@@ -632,7 +672,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> property >> value;
 			
 			stringstream property_msg;
-			property_msg << "-1 " << (serverAllow + 10) << " 24 " << id << "#";
+			property_msg << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 24 " << id << "#";
 			serverMsgs.push_back(property_msg.str());
 			
 			return;
@@ -643,27 +683,15 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> new_team;
 			
 			stringstream team_change;
-			team_change << "-1 " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
+			team_change << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
 			serverMsgs.push_back(team_change.str());
 			return;
 		}
 		else if(cmd == "AUTO_SPAWN")
 		{
-			intVals["AUTO_SPAWN"] ^= 1;
-			
-			if(intVals["AUTO_SPAWN"])
-			{
-				stringstream autospawn;
-				autospawn << "3 -1 ^YAutospawn toggled ^GON#";
-				serverMsgs.push_back(autospawn.str());
-			}
-			else
-			{
-				stringstream autospawn;
-				autospawn << "3 -1 ^YAutospawn toggled ^ROFF#";
-				serverMsgs.push_back(autospawn.str());
-			}
-			
+			stringstream autospawn;
+			autospawn << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^YAutospawn functionality is ^RDEPRECATED#";
+			serverMsgs.push_back(autospawn.str());
 			return;
 		}
 		else if(cmd == "AREA")
@@ -679,7 +707,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 	}
-	else if(orderWord == "-1")
+	else if(orderType == MessageType::SERVER_ORDER)
 	{
 		// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
 		cerr << "SOMEONE IS IMPERSONATING GOD!! :" << msg << endl;
@@ -689,10 +717,10 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		disconnect(player_id);
 		
 		stringstream chatmsg;
-		chatmsg << "3 -1 ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
+		chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
 	}
-	else if(orderWord == "-2") // instant reaction message from client
+	else if(orderType == MessageType::INSTANT_REACTION) // instant reaction message from client
 	{
 		string cmd;
 		ss >> cmd;
@@ -727,7 +755,7 @@ void DedicatedServer::acceptConnections()
 	if(sockets.accept(id))
 	{
 		cerr << "looks like someone is connecting :O" << endl;
-		Players[id].connectionState = 0;
+		Players[id].connectionState = ConnectionState::SIGN_IN;
 		id = nextPlayerID();
 	}
 }
@@ -785,7 +813,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		// TODO: IF THE PLAYER DID NOT START ACTUALLY PLAYING (DISCONNECT AT HERO SELECTION)
 		// THIS WILL FUCK THINGS UP
 		// NUM PLAYERS SHOULD BE DETERMINABLE FROM Players
-		// (loop through and see how many are at connectionState 1)
+		// (loop through and see how many are at connectionState GAMEPLAY)
 		
 		simulRules.numPlayers--;
 	}
@@ -917,7 +945,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	int order_type;
 	ss >> order_type;
 	
-	if(order_type == 1) // ordinary input order
+	if(order_type == MessageType::PLAYER_INPUT) // ordinary input order
 	{
 		Order tmp_order;
 		ss >> tmp_order.plr_id;
@@ -929,7 +957,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 
 		UnitInput.push_back(tmp_order);
 	}
-	else if(order_type == 2) // playerInfo message
+	else if(order_type == MessageType::PLAYERINFO_MESSAGE) // playerInfo message
 	{
 		cerr << "SERVER Got playerInfo message!" << endl;
 		int plrID, kills, deaths;
@@ -957,11 +985,11 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 	}
 	
-	else if(order_type == -1) // A COMMAND message from GOD (server)
+	else if(order_type == MessageType::SERVER_ORDER) // A COMMAND message from GOD (server)
 	{
 		
 		Order tmp_order;
-		tmp_order.plr_id = -1;
+		tmp_order.plr_id = SERVER_ID;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.serverCommand;
 		ss >> tmp_order.keyState;
@@ -970,7 +998,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 	
 	
-	else if(order_type == -2) // instant reaction message from GOD
+	else if(order_type == MessageType::INSTANT_REACTION) // instant reaction message from GOD
 	{
 		string cmd;
 		ss >> cmd;
@@ -1067,7 +1095,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		
 	}
-	else if(order_type == -4) // copy of an existing order
+	else if(order_type == MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message?? makes no sense." << endl;
 		

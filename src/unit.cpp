@@ -202,8 +202,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		weapons[i].handleCopyOrder(ss);
 	}
 	
-	// name must be the last element. it is read until the end of the message.
-	getline(ss, name);
+	ss >> name;
 }
 
 string Unit::copyOrder(int ID) const

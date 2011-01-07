@@ -58,11 +58,19 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 		ss >> cmd;
 		playerStartingChoice(playerID_val, cmd);
 	}
+	else if(cmd == "ADMIN")
+	{
+		// ...
+		
+	}
+	else
+	{
+		std::cerr << "WARNING: Sign-in command \"" << cmd << "\" was unrecognized." << std::endl;
+	}
 }
 
 void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 {
-	
 	// TODO: put this to the other place? not sure how to do that though.
 	simulRules.numPlayers++;
 	
@@ -123,8 +131,8 @@ void DedicatedServer::changeArea(int playerID_val)
 	std::string char_key = Players[playerID_val].key;
 	std::string areaName = dormantPlayers[char_key].unit.strVals["AREA"];
 	
-	Players[playerID_val].connectionState = 2; // waiting for client world gen to finish
-	dormantPlayers[char_key].playerInfo.connectionState = 2; // waiting for level gen to finish.
+	Players[playerID_val].connectionState = ConnectionState::WAIT_WORLD_GEN; // waiting for client world gen to finish
+	dormantPlayers[char_key].playerInfo.connectionState = ConnectionState::WAIT_WORLD_GEN; // waiting for level gen to finish.
 	
 	std::cerr << "Sending world parameters" << std::endl;
 	sendAreaParameters(areaName, playerID_val);
@@ -140,8 +148,8 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	std::string areaName = dormantPlayers[char_key].unit.strVals["AREA"];
 	
 	// set player as active
-	Players[playerID_val].connectionState = 1;
-	dormantPlayers[char_key].playerInfo.connectionState = 1;
+	Players[playerID_val].connectionState = ConnectionState::GAMEPLAY;
+	dormantPlayers[char_key].playerInfo.connectionState = ConnectionState::GAMEPLAY;
 	
 	
 	// NOT SURE IF THIS IS OF ANY USE
