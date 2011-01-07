@@ -76,7 +76,7 @@ public:
 	void add_message(const std::string& message) const;
 	void add_event(const WorldEvent& event) const;
 	
-	void buildTerrain(int n);
+	void buildTerrain(int n, float&);
 	std::string generatorMessage();
 	
 private:

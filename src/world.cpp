@@ -425,9 +425,9 @@ World::World(VisualWorld* vw)
 	init();
 }
 
-void World::buildTerrain(int n)
+void World::buildTerrain(int n, float& percentage_done)
 {
-	lvl.generate(n);
+	lvl.generate(n, percentage_done);
 	intVals["GENERATOR"] = n;
 }
 

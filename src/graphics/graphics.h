@@ -95,8 +95,8 @@ class Graphics: public HasProperties
 
 public:
 	void init(Camera&);
-
 	void reload_shaders();
+	void drawLoadScreen(const std::string&, const float&);
 	
 	friend class Editor;
 	

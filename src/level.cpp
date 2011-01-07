@@ -287,7 +287,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 
 
-void Level::generate(int seed)
+void Level::generate(int seed, float& percentage_done)
 {
 	randomer.setSeed(seed);
 	
@@ -296,9 +296,11 @@ void Level::generate(int seed)
 			updateHeight(i, k, FixedPoint(20));
 	
 	
+	
 	// create long walls
 	for(int i=0; i<350; i++)
 	{
+		percentage_done = float(i) / 3500.f;
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
@@ -329,6 +331,8 @@ void Level::generate(int seed)
 	// create some valleys
 	for(int i=0; i<150; i++)
 	{
+		percentage_done = 0.1f + float(i) / 3500.f;
+		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
 		FixedPoint height = FixedPoint(10);
@@ -360,6 +364,7 @@ void Level::generate(int seed)
 	// create some semihigh-ground
 	for(int i=0; i<150; i++)
 	{
+		percentage_done = 0.2f + float(i) / 3500.f;
 		
 		int x_p = randomer.getInt() % pointheight_info.size();
 		int y_p = randomer.getInt() % pointheight_info[x_p].size();
@@ -394,6 +399,8 @@ void Level::generate(int seed)
 	size_t x_size = pointheight_info.size();
 	for(int loops = 0; loops < 8; loops++)
 	{
+		percentage_done = 0.3 + 0.7f * loops / 7.0f;
+		
 		for(size_t i = 0; i < x_size; ++i)
 		{
 			size_t y_size = pointheight_info[i].size();
@@ -455,19 +462,6 @@ void Level::generate(int seed)
 	cerr << endl;
 }
 
-// TODO: THIS IS BULLSHIT
-FixedPoint Level::getJumpPower(FixedPoint& x, FixedPoint& z)
-{
-	int x_index = x.getInteger() / BLOCK_SIZE;
-	int z_index = z.getInteger() / BLOCK_SIZE;
-	
-	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(1, 2);
-	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
-		return FixedPoint(1, 2);
-	
-	return normals[x_index][z_index].dotProduct(unitVectorUp);
-}
 
 
 FixedPoint Level::max_x() const
