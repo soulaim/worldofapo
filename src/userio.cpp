@@ -31,6 +31,9 @@ int UserIO::isPressed(int key)
 	return keystate[key];
 }
 
+// TODO: All input that is not relevant for the update of the world should be somewhere else.
+//       this stuff is sent over network. for local needs, handle key press with getSingleKey()
+//       at Localplayer::handleClientLocalInput()
 int UserIO::getGameInput()
 {
 	checkEvents();
@@ -50,14 +53,6 @@ int UserIO::getGameInput()
 		keyBoard |= 32;
 	if(keystate[SDLK_e])
 		keyBoard |= 64;
-	if(keystate[SDLK_HOME])
-		keyBoard |= 128;
-	if(keystate[SDLK_END])
-		keyBoard |= 256;
-	if(keystate[SDLK_PAGEUP])
-		keyBoard |= 512;
-	if(keystate[SDLK_PAGEDOWN])
-		keyBoard |= 1024;
 	
 	if(keystate[SDLK_F5])
 		keyBoard |= 1<<12;
