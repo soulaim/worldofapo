@@ -18,7 +18,7 @@
 #include "projectile.h"
 #include "visualworld.h"
 #include "framebuffer.h"
-
+#include "graphics_helper.h"
 #include "hasproperties.h"
 
 struct Level;
@@ -93,7 +93,6 @@ class Graphics: public HasProperties
 //	void check_framebuffer_status(const std::string& fbo_name);
 //	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
 
-	void drawFullscreenQuad() const;
 public:
 	void init(Camera&);
 

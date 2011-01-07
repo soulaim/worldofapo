@@ -2,67 +2,25 @@
 #include "graphics/window.h"
 #include "userio.h"
 
-void draw_box(float scale)
-{
-	GLfloat vertices[8 * 3] =
-	{
-		-scale, -scale, -scale,
-		 scale, -scale, -scale,
-		 scale,  scale, -scale,
-		-scale,  scale, -scale,
-		-scale,  scale,  scale,
-		-scale, -scale,  scale,
-		 scale, -scale,  scale,
-		 scale,  scale,  scale
-	};
-	GLfloat colors[8 * 3] =
-	{
-		1, 1, 1,
-		1, 1, 0,
-		1, 0, 1,
-		1, 0, 0,
-		0, 1, 1,
-		0, 1, 0,
-		0, 0, 1,
-		0, 0, 0
-	};
-	GLubyte indices[6 * 4] =
-	{
-		0,1,2,3,
-		0,3,4,5,
-		0,5,6,1,
-		1,6,7,2,
-		7,4,3,2,
-		4,7,6,5
-	};
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-
-	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(3, GL_FLOAT, 0, colors);
-
-	glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE, indices);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-}
+#include "graphics_tests.h"
 
 int main()
 {
+	size_t x = 600;
+	size_t y = 400;
+
 	Window w;
-	w.createWindow(600, 400);
+	w.createWindow(x, y);
 
 	UserIO io;
 	io.init();
 
 	OpenGL opengl;
 
-	glMatrixMode(GL_MODELVIEW);
-	gluLookAt(0.4,0.3,0.5, 0,0,0, 0,1,0);
-
 	while(io.getSingleKey() != "escape")
 	{
+		setup_camera(x, y);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		draw_box(0.2f);

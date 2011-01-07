@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cassert>
+#include <iomanip>
 
 enum { MAX_TARGETS = 4 };
 
@@ -32,6 +33,10 @@ Framebuffer::Framebuffer(const std::string& prefixx, size_t screen_width, size_t
 		TextureHandler::getSingleton().createTexture(targets.back(), resolution_x, resolution_y);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, TextureHandler::getSingleton().getTextureID(targets.back()), 0);
 	}
+	if(!target_count)
+	{
+		glDrawBuffer(GL_NONE);
+	}
 
 	if(depth_texture)
 	{
@@ -43,7 +48,9 @@ Framebuffer::Framebuffer(const std::string& prefixx, size_t screen_width, size_t
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if(status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		throw std::runtime_error("Failed to create FBO: " + prefix);
+		std::stringstream ss;
+		ss << "Failed to create FBO: '" << prefix << "', error: 0x" << std::hex << status;
+		throw std::runtime_error(ss.str());
 	}
 }
 

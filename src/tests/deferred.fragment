@@ -1,0 +1,14 @@
+varying vec4 vertex_position;
+
+void main()
+{
+	vec3 camera_position = vec3(0.4, 0.3, 0.5);
+
+	float linearDepth = length(vertex_position.xyz - camera_position);
+	gl_FragData[0] = vec4(sin(10.0*vertex_position.xyz), 1);
+	gl_FragData[1] = vec4(linearDepth);
+	gl_FragData[2] = vertex_position;
+
+//	gl_FragDepth = gl_FragCoord.z; // Default depth.
+}
+

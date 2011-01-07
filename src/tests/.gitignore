@@ -12,4 +12,6 @@ shader_test
 drawing_test
 sdlwindow_test
 glew_test
+framebuffer_test
+deferred_test
 
