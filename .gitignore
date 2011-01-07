@@ -25,6 +25,7 @@ bin/profile-editor
 gmon.out
 .sconsign.dblite
 html
+worldofapo.tar.gz
 
 # Client's temporary files:
 bin/myKeys

@@ -271,7 +271,13 @@ int TextureHandler::bindTexture(size_t texture_unit, const std::string& name)
 	}
 	else
 	{
-		cerr << "Trying to bind to a texture that doesnt exist: \"" << name << "\"" << endl;
+		cerr << "Trying to bind to a texture that does not exist: \"" << name << "\"" << endl;
+		assert(!textures.empty() && "please load at least one texture...");
+		std::string default_texture = textures.begin()->first;
+		cerr << "Loading texture '" << default_texture << "' instead" << endl;
+		textures[name] = textures[default_texture];
+		bindTexture(texture_unit, default_texture);
+		return 0;
 	}
 	return 0;
 }
