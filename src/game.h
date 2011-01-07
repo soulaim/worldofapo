@@ -51,7 +51,6 @@ class Game : public HasProperties
 	World* world;
 
 	SocketHandler clientSocket;
-	enum { NO_ID = -2, SERVER_ID = -1 };
 
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
@@ -60,8 +59,12 @@ class Game : public HasProperties
 	std::map<int, CharacterInfo> SpawningHeroes;
 	
 public:
+	enum { NO_ID = -2, SERVER_ID = -1 };
+	
 	std::map<int, PlayerInfo> Players; // TODO: make private?
 	PlayerInfo localPlayer;
+	
+	std::vector<HasProperties> meta_events;
 private:
 
 	enum PausedState
@@ -95,6 +98,8 @@ public:
 	bool client_tick_local();
 	void TICK();
 	void reset();
+	
+	void write(int id, const std::string&);
 
 	bool internetGameGetHeroes(const std::string&, std::map<std::string, CharacterInfo>&);
 	void internetGameSelectHero(const std::string&);

@@ -58,8 +58,10 @@ DedicatedServer::DedicatedServer():
 		server_no_wait = false;
 	}
 	
+	float world_gen_percentage = 0.0f;
+	
 	areas.insert(make_pair(first_area, World(&visualworld)));
-	areas.find(first_area)->second.buildTerrain(15);
+	areas.find(first_area)->second.buildTerrain(15, world_gen_percentage);
 	visualworld.disable(); // server doesnt need visual information
 	
 	areas.find(first_area)->second.load("serverdata/worlds/default_area.dat");
@@ -75,7 +77,7 @@ DedicatedServer::DedicatedServer():
 	
 	
 	areas.insert(make_pair(second_area, World(&visualworld)));
-	areas.find(second_area)->second.buildTerrain(5);
+	areas.find(second_area)->second.buildTerrain(5, world_gen_percentage);
 	visualworld.disable(); // server doesnt need visual information
 	
 	areas.find(second_area)->second.load("serverdata/worlds/other_area.dat");

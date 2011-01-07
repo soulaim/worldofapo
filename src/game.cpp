@@ -54,6 +54,11 @@ void Game::init()
 	readConfig();
 }
 
+void Game::write(int id, const string& msg)
+{
+	clientSocket.write(id, msg);
+}
+
 void Game::readConfig()
 {
 	load("configs/user.conf");
@@ -704,29 +709,23 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "WORLD_GEN_PARAM")
 			{
-				// ALERT: This SHOULD be safe! But might not be.. Fix it if its not.
-				world->terminate();
+				
+				meta_events.push_back(HasProperties());
+				HasProperties& event = meta_events.back();
 				
 				int param;
 				string area_name;
-				cerr << "got world creation parameters! creating world.." << endl;
 				
 				ss >> param >> area_name;
-				world->buildTerrain(param);
-				world->visualworld->decorate(world->lvl);
-				world->strVals["AREA_NAME"] = area_name;
 				
-				// send WORLD_GEN_READY message!
-				stringstream ss_world_gen_ready;
-				ss_world_gen_ready << "-2 WORLD_GEN_READY #";
-				clientSocket.write(SERVER_ID, ss_world_gen_ready.str());
+				event.strVals["EVENT_TYPE"] = "WORLD_GEN_PARAM";
+				event.intVals["WORLD_GEN_SEED"] = param;
+				event.strVals["WORLD_NAME"] = area_name;
 				
 				// set local simulation on pause
 				cerr << "Pausing game simulation.." << endl;
 				paused_state = PAUSED;
 				
-				// wait until game starts for me..
-				cerr << "world gen finished, waiting for game content.." << endl;
 			}
 			else
 			{

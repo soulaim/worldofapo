@@ -141,6 +141,71 @@ void Localplayer::init()
 
 bool Localplayer::client_tick()
 {
+	for(size_t i=0; i<game.meta_events.size(); ++i)
+	{
+		HasProperties& event = game.meta_events[i];
+		
+		if(event.strVals["EVENT_TYPE"] == "WORLD_GEN_PARAM")
+		{
+			int world_seed   = event.intVals["WORLD_GEN_SEED"];
+			string area_name = event.strVals["WORLD_NAME"];
+			
+			// shared memory for processes to determine how far terrain generation has progressed.
+			float done_percent = 0.0f;
+			string task_name = "Preparing to load world..";
+			
+			// task 1: generate terrain
+			{
+				// first subtask
+				task_name = "Generating terrain..";
+				done_percent = 0.0f;
+				
+				world.terminate();
+				world.buildTerrain(world_seed, done_percent);
+				
+				
+				// change of subtask
+				task_name = "Decorating world..";
+				done_percent = 0.0f;
+				
+				visualworld.decorate(world.lvl);
+				world.strVals["AREA_NAME"] = area_name;
+				done_percent = 1.1f;
+			}
+			
+			/*
+			// task 2: visualise terrain gen progress
+			{
+				// ..
+				while(true)
+				{
+					if(done_percent > 1.0f)
+						break;
+					
+					// TODO: draw!
+					
+					usleep(1000);
+				}
+			}
+			*/
+			
+			// send WORLD_GEN_READY message!
+			stringstream ss_world_gen_ready;
+			ss_world_gen_ready << "-2 WORLD_GEN_READY #";
+			game.write(Game::SERVER_ID, ss_world_gen_ready.str());
+			
+			// wait until game starts for me..
+			cerr << "world gen finished, waiting for game content.." << endl;
+			
+		}
+		else
+		{
+			world.add_message("^RUnkown game metaevent occurred: " + event.strVals["EVENT_TYPE"]);
+		}
+		
+	}
+	game.meta_events.clear();
+	
 	bool stop = game.check_messages_from_server();
 	game.processClientMsgs();
 
