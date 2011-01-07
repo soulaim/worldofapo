@@ -1,0 +1,8 @@
+varying vec4 vertex_position;
+
+void main()
+{
+	gl_FragData[0] = vec4(sin(10.0*vertex_position.xyz), 1);
+	gl_FragData[1] = vertex_position;
+}
+

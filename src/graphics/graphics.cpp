@@ -90,13 +90,10 @@ void Graphics::init(Camera& camera)
 	
 	camera_p = &camera;
 
-	glLineWidth(3.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set the background color.
 	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);			// Enables Smooth Color Shading
-	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -132,22 +129,19 @@ void Graphics::init(Camera& camera)
 	*/
 
 	Framebuffer::unbind();
-	
-	// do some weird magic i dont understand
-	glEnable(GL_COLOR_MATERIAL);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-	
+
 	TextureHandler::getSingleton().createTexture("font", "data/fonts/font2.png");
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
-	
+
 	camera_p->aspect_ratio = float(intVals["RESOLUTION_X"]) / float(intVals["RESOLUTION_Y"]);
-	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
+
 	frustum.setCamInternals(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
-	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(camera_p->fov, camera_p->aspect_ratio, camera_p->nearP, camera_p->farP);
 	glMatrixMode(GL_MODELVIEW);
+	
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
 }
 
 void Graphics::clear_errors() const
@@ -240,6 +234,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 
 void Graphics::drawDebugLines()
 {
+	glLineWidth(2.0f);
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glBegin(GL_LINES);
 	for(size_t i = 0; i < LINES.size(); ++i)
@@ -359,7 +354,6 @@ void Graphics::drawModels(const map<int, Model*>& models)
 	shader.start();
 	GLint unit_color_location = shader.uniform("unit_color");
 	GLint unit_location_location = shader.uniform("unit_location");
-	glMatrixMode(GL_MODELVIEW);
 	for(map<int, Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		const Model& model = *iter->second;
@@ -521,43 +515,6 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	TextureHandler::getSingleton().bindTexture(1, "");
 
 	glUseProgram(0);
-}
-
-
-void Graphics::drawFullscreenQuad() const
-{
-	float vertices[4*3] =
-	{
-		-1.0f, -1.0f, -1.0f,
-		+1.0f, -1.0f, -1.0f,
-		-1.0f, +1.0f, -1.0f,
-		+1.0f, +1.0f, -1.0f
-	};
-	float texcoords[4*2] =
-	{
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f
-	};
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-/*
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
-	glEnd();
-*/
 }
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
@@ -1500,6 +1457,7 @@ void Graphics::drawMenuRectangles() const
 			++it;
 		}
 
+		glLineWidth(3.0f);
 		glColor3f(r, g, b);
 		glBegin(GL_LINES);
 			glVertex3f(left, top, -1.0f);

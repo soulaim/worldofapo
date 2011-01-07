@@ -14,7 +14,9 @@ targets= \
 	sdlwindow_test \
 	glew_test \
 	drawing_test \
-	shader_test
+	shader_test \
+	framebuffer_test \
+	deferred_test
 # socket_test
 # btt_test
 
@@ -41,11 +43,19 @@ glew_test: glew_test.cpp graphics/opengl.cpp graphics/window.cpp
 
 drawing_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
 drawing_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu` -lglut
-drawing_test: drawing_test.cpp graphics/opengl.cpp graphics/window.cpp userio.cpp
+drawing_test: drawing_test.cpp graphics/opengl.cpp graphics/window.cpp userio.cpp graphics_tests.h
 
 shader_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
 shader_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu`
-shader_test: shader_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp
+shader_test: shader_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp graphics_tests.h
+
+framebuffer_test: CXXFLAGS += `pkg-config --cflags sdl gl glu libpng`
+framebuffer_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu libpng`
+framebuffer_test: framebuffer_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp graphics/framebuffer.cpp graphics/texturehandler.cpp logger.cpp graphics/image.cpp graphics/loadpng.cpp graphics/graphics_helper.cpp graphics_tests.h
+
+deferred_test: CXXFLAGS += `pkg-config --cflags sdl gl glu libpng`
+deferred_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu libpng`
+deferred_test: deferred_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp graphics/framebuffer.cpp graphics/texturehandler.cpp logger.cpp graphics/image.cpp graphics/loadpng.cpp graphics/graphics_helper.cpp graphics_tests.h
 
 clean:
 	$(RM) $(targets)

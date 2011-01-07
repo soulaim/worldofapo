@@ -1,0 +1,21 @@
+uniform sampler2D realPosition;
+uniform sampler2D depthTexture;
+
+varying vec2 texcoord;
+
+void main()
+{
+	float depth = texture2D(depthTexture, texcoord).r;
+	vec3 real_position = texture2D(realPosition, texcoord).xyz;
+
+	if(texcoord.x < 0.5)
+	{
+		gl_FragData[0] = vec4(sin(10.0*real_position),1);
+	}
+	else
+	{
+		// TODO: fix me!
+		gl_FragData[0] = vec4(depth);
+	}
+}
+
