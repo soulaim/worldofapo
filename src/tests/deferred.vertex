@@ -2,7 +2,7 @@ varying vec4 vertex_position;
 
 void main()
 {
-	gl_Position = ftransform();
-	vertex_position = gl_Position;
+	vertex_position = gl_Vertex;
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
 

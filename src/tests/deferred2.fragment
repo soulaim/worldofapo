@@ -1,21 +1,40 @@
 uniform sampler2D realPosition;
+uniform sampler2D linearDepthTexture;
 uniform sampler2D depthTexture;
 
 varying vec2 texcoord;
 
+uniform float method;
+
 void main()
 {
-	float depth = texture2D(depthTexture, texcoord).r;
+	vec3 camera_position = vec3(0.4, 0.3, 0.5);
+
+	float defaultDepth = texture2D(depthTexture, texcoord).r;
+	float linearDepth = texture2D(linearDepthTexture, texcoord).r;
 	vec3 real_position = texture2D(realPosition, texcoord).xyz;
 
-	if(texcoord.x < 0.5)
+	vec3 real_frag_direction = normalize(real_position - camera_position);
+
+	if(texcoord.x < 0.45)
 	{
-		gl_FragData[0] = vec4(sin(10.0*real_position),1);
+		gl_FragData[0] = vec4(sin(10.0*real_position),1); // The left part is always the reference image.
 	}
 	else
 	{
-		// TODO: fix me!
-		gl_FragData[0] = vec4(depth);
+		vec3 pos = vec3(0);
+		if(method < 0.5) // Default depth method.
+		{
+			vec4 ndc = vec4(2.0 * texcoord.x - 1.0, 2.0 * texcoord.y - 1.0, 2.0 * defaultDepth - 1.0, 1);
+
+			vec4 homogeneous = gl_ModelViewProjectionMatrixInverse * ndc;
+			pos = homogeneous.xyz / homogeneous.w;
+		}
+		else // Linear depth method.
+		{
+			pos = camera_position + linearDepth * real_frag_direction;
+		}
+		gl_FragData[0] = vec4(sin(10.0*pos),1);
 	}
 }
 

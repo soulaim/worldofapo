@@ -14,22 +14,23 @@ int main()
 	size_t y = 400;
 
 	Window w;
-	w.createWindow(x * 2, y * 2);
+	w.createWindow(x * 3, y * 2);
 
 	UserIO io;
 	io.init();
 
 	OpenGL opengl;
 
-	Framebuffer deferredFBO = Framebuffer("deferredFBO", x, y, true, 1);
+	Framebuffer deferredFBO = Framebuffer("deferredFBO", x, y, true, 2);
 	deferredFBO.add_float_target();
 
 	Shader shader("deferred.vertex", "deferred.fragment");
 
 	Shader shader2("deferred2.vertex", "deferred2.fragment");
 	shader2.start();
-	shader2.set_texture_unit(0, "realPosition");
+	shader2.set_texture_unit(0, "linearDepthTexture");
 	shader2.set_texture_unit(1, "depthTexture");
+	shader2.set_texture_unit(2, "realPosition");
 	shader2.stop();
 
 	while(io.getSingleKey() != "escape")
@@ -56,26 +57,65 @@ int main()
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		glViewport(0, y, x, y);
-		TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
-		drawFullscreenQuad();
+		{
+			// Actual reference image.
+			glViewport(0, y, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
+			TextureHandler::getSingleton().bindTexture(1, "");
+			TextureHandler::getSingleton().bindTexture(2, "");
+			drawFullscreenQuad();
+			
+			// Real reference positions.
+			glViewport(0, 0, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(2));
+			TextureHandler::getSingleton().bindTexture(1, "");
+			TextureHandler::getSingleton().bindTexture(2, "");
+			drawFullscreenQuad();
+		}
 
-		glViewport(x, y, x, y);
-		TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
-		drawFullscreenQuad();
+		{
+			// Linear depth.
+			glViewport(x, y, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
+			TextureHandler::getSingleton().bindTexture(1, "");
+			TextureHandler::getSingleton().bindTexture(2, "");
+			drawFullscreenQuad();
 
-		glViewport(0, 0, x, y);
-		TextureHandler::getSingleton().bindTexture(0, deferredFBO.depth_texture());
-		drawFullscreenQuad();
+			// Reconstruction with linear depth.
+			glViewport(x, 0, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
+			TextureHandler::getSingleton().bindTexture(1, deferredFBO.depth_texture());
+			TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+			shader2.start();
+			glUniform1f(shader2.uniform("method"), 1.0f);
+			drawFullscreenQuad();
+			shader2.stop();
+		}
 
+		{
+			// Default depth.
+			glViewport(2*x, y, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.depth_texture());
+			TextureHandler::getSingleton().bindTexture(1, "");
+			TextureHandler::getSingleton().bindTexture(2, "");
+			drawFullscreenQuad();
 
-		glViewport(x, 0, x, y);
-		TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
-		TextureHandler::getSingleton().bindTexture(1, deferredFBO.depth_texture());
-		shader2.start();
-		drawFullscreenQuad();
-		shader2.stop();
+			setup_camera(x, y);
+
+			// Reconstruction with default depth.
+			glViewport(2*x, 0, x, y);
+			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
+			TextureHandler::getSingleton().bindTexture(1, deferredFBO.depth_texture());
+			TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+			shader2.start();
+			glUniform1f(shader2.uniform("method"), 0.0f);
+			drawFullscreenQuad();
+			shader2.stop();
+		}
+
 		TextureHandler::getSingleton().bindTexture(0, "");
+		TextureHandler::getSingleton().bindTexture(1, "");
+		TextureHandler::getSingleton().bindTexture(2, "");
 
 		w.swap_buffers();
 	}
