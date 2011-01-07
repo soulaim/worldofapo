@@ -158,7 +158,7 @@ void* generateTerrain(void* loadScreenInfo)
 	string& taskName       = *(lsi->task_name);
 	
 	worldGenPercent = 0.0f;
-	taskName = "Generating terrain..";
+	taskName = "^GGenerating terrain..";
 	
 	lsi->world->buildTerrain(lsi->world_seed, worldGenPercent);
 	
@@ -199,12 +199,23 @@ bool Localplayer::client_tick()
 			int  iret1;
 			iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
 			
+			string bg_image;
+			
+			if(rand() % 2)
+			{
+				bg_image = "loading2";
+			}
+			else
+			{
+				bg_image = "loading1";
+			}
+			
 			while(true)
 			{
 				if(done_percent > 1.0f)
 					break;
 				
-				view->drawLoadScreen(task_name, done_percent);
+				view->drawLoadScreen(task_name, bg_image, done_percent);
 				usleep(1000);
 			}
 			
