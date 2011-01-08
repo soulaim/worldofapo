@@ -131,6 +131,7 @@ void Localplayer::init()
 	ModelFactory::load(VisualWorld::ModelType::BULLET_MODEL, "models/bullet_lowpoly.sm2", "");
 	ModelFactory::load(VisualWorld::ModelType::PLAYER_MODEL, "models/marine.sm2", "marine");
 	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
+	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "");
 	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
 	
 	Animation::load("models/model.animation");
@@ -138,8 +139,6 @@ void Localplayer::init()
 
 	TextureHandler::getSingleton().createTextures("data/textures.txt");
 }
-
-
 
 struct LoadScreenInfo
 {
@@ -167,76 +166,79 @@ void* generateTerrain(void* loadScreenInfo)
 	return 0;
 }
 
+void Localplayer::handleMetaEvent(HasProperties& event)
+{
+	if(event.strVals["EVENT_TYPE"] == "WORLD_GEN_PARAM")
+	{
+		int world_seed   = event.intVals["WORLD_GEN_SEED"];
+		string area_name = event.strVals["WORLD_NAME"];
+		
+		world.strVals["AREA_NAME"] = area_name;
+		
+		world.terminate();
+		
+		// shared memory for processes to determine how far terrain generation has progressed.
+		float done_percent = 0.0f;
+		string task_name = "Preparing to load world..";
+		
+		LoadScreenInfo info;
+		info.view = view;
+		info.world = &world;
+		info.percentage = &done_percent;
+		info.task_name = &task_name;
+		info.world_seed = world_seed;
+		
+		
+		pthread_t worldGen;
+		
+		int  iret1;
+		iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
+		
+		string bg_image;
+		
+		if(rand() % 2)
+		{
+			bg_image = "loading2";
+		}
+		else
+		{
+			bg_image = "loading1";
+		}
+		
+		while(true)
+		{
+			if(done_percent > 1.0f)
+				break;
+			
+			view->drawLoadScreen(task_name, bg_image, done_percent);
+			usleep(1000);
+		}
+		
+		task_name = "Decorating terrain..";
+		visualworld.decorate(world.lvl);
+		
+		
+		// and then send WORLD_GEN_READY message!
+		stringstream ss_world_gen_ready;
+		ss_world_gen_ready << "-2 WORLD_GEN_READY #";
+		game.write(Game::SERVER_ID, ss_world_gen_ready.str());
+		
+		// wait until game starts for me..
+		cerr << "world gen finished, waiting for game content.." << endl;
+		
+	}
+	else
+	{
+		world.add_message("^RUnkown game metaevent occurred: " + event.strVals["EVENT_TYPE"]);
+	}
+}
+
 bool Localplayer::client_tick()
 {
 	for(size_t i=0; i<game.meta_events.size(); ++i)
 	{
 		HasProperties& event = game.meta_events[i];
-		
-		if(event.strVals["EVENT_TYPE"] == "WORLD_GEN_PARAM")
-		{
-			int world_seed   = event.intVals["WORLD_GEN_SEED"];
-			string area_name = event.strVals["WORLD_NAME"];
-			
-			world.strVals["AREA_NAME"] = area_name;
-			
-			world.terminate();
-			
-			// shared memory for processes to determine how far terrain generation has progressed.
-			float done_percent = 0.0f;
-			string task_name = "Preparing to load world..";
-			
-			LoadScreenInfo info;
-			info.view = view;
-			info.world = &world;
-			info.percentage = &done_percent;
-			info.task_name = &task_name;
-			info.world_seed = world_seed;
-			
-			
-			pthread_t worldGen;
-			
-			int  iret1;
-			iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
-			
-			string bg_image;
-			
-			if(rand() % 2)
-			{
-				bg_image = "loading2";
-			}
-			else
-			{
-				bg_image = "loading1";
-			}
-			
-			while(true)
-			{
-				if(done_percent > 1.0f)
-					break;
-				
-				view->drawLoadScreen(task_name, bg_image, done_percent);
-				usleep(1000);
-			}
-			
-			task_name = "Decorating terrain..";
-			visualworld.decorate(world.lvl);
-			
-			
-			// and then send WORLD_GEN_READY message!
-			stringstream ss_world_gen_ready;
-			ss_world_gen_ready << "-2 WORLD_GEN_READY #";
-			game.write(Game::SERVER_ID, ss_world_gen_ready.str());
-			
-			// wait until game starts for me..
-			cerr << "world gen finished, waiting for game content.." << endl;
-			
-		}
-		else
-		{
-			world.add_message("^RUnkown game metaevent occurred: " + event.strVals["EVENT_TYPE"]);
-		}
-		
+		handleMetaEvent(event);
 	}
 	game.meta_events.clear();
 	
@@ -276,7 +278,7 @@ void Localplayer::draw()
 	hud->setTime( SDL_GetTicks() );
 	if((world.units.find(game.myID) != world.units.end()) && (game.myID >= 0)) // TODO: why do we need myID?
 	{
-		visualworld.viewTick(world.units, world.projectiles, world.currentWorldFrame);
+		visualworld.viewTick(world.units, world.projectiles, world.items, world.currentWorldFrame);
 		view->tick();
 
 		int& fps_sync = intVals["SYNC_FPS_AND_TPS"];

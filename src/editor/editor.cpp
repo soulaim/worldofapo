@@ -99,6 +99,8 @@ Editor::~Editor()
 
 bool Editor::do_tick()
 {
+	view.intVals["HELP"] = 0;
+	
 	if(!handle_input())
 	{
 		return false;
@@ -1205,6 +1207,10 @@ bool Editor::handle_input()
 		if(key == "pause")
 		{
 			window.screenshot();
+		}
+		if(key == "f1")
+		{
+			visualworld.camera.setMode(Camera::FollowMode::STATIC);
 		}
 		if(key == "f3")
 		{

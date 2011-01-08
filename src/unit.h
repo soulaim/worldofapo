@@ -56,6 +56,8 @@ public:
 	const Location& getPosition() const;
 	const Location& getVelocity() const;
 	
+	int getMaxHP() const;
+	
 	FixedPoint getMobility();
 	
 	std::string soundInfo;
@@ -101,7 +103,7 @@ public:
 	void setDefaultMonsterAttributes();
 	void setDefaultPlayerAttributes();
 	
-	int getModifier(std::string attribute);
+	int getModifier(const std::string& attribute) const;
 	void levelUp(); // very much a place holder! TODO:
 	
 	float getAngle(ApoMath&);

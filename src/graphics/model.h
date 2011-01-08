@@ -20,6 +20,9 @@ public:
 	
 	float myScale;
 	
+	float target_y_rot;
+	float current_y_rot;
+	
 	Model();
 	virtual ~Model();
 
@@ -30,11 +33,14 @@ public:
 	void updatePosition(float x, float y, float z);
 	void tick(int current_frame);
 	void setAction(const std::string&);
-
+	
+	void rotate_y(float angle);
+	void increase_rot_y(float angle);
+	
 	virtual bool load(const std::string& filename) = 0;
 	virtual bool save(const std::string& filename) const = 0;
 	virtual void draw() const = 0;
-	virtual void rotate_y(float angle) = 0;
+	virtual void viewTick() = 0;
 };
 
 #endif

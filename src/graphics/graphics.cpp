@@ -1210,11 +1210,24 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		}
 		*/
 		const Model& model = *models.find(iter->first)->second;
-		Vec3 pos = model.currentModelPos;
-		pos.y += 5.0;
-
-		hud.draw3Dstring(iter->second.name, pos, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
+		Vec3 posName = model.currentModelPos;
+		posName.y += 5.5f * model.myScale;
+		hud.draw3Dstring(iter->second.name, posName, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
+		
+		float hp_percent = float(iter->second.hitpoints) / float(iter->second.getMaxHP());
+		
+		if(&(iter->second) == camera_p->getUnitPointer())
+		{
+			hud.drawBar(hp_percent, "GREEN", "DARK_RED", -1.0f, 0.0f, -1.0f, -0.9f);
+		}
+		else
+		{
+			Vec3 posHP = model.currentModelPos;
+			posHP.y += 5.0f * model.myScale;
+			hud.draw3DBar(hp_percent, posHP, camera_p->getXrot(), camera_p->getYrot(), "GREEN", "DARK_RED", 5.0f);
+		}
 	}
+	
 }
 
 void Graphics::drawDebugQuad()

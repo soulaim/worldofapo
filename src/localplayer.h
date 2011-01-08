@@ -45,6 +45,7 @@ public:
 private:
 	void endGame();
 	
+	void handleMetaEvent(HasProperties& event);
 	void handleWorldEvents();
 	void camera_handling();
 	

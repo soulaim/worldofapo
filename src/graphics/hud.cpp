@@ -381,7 +381,6 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 {
 	float scale = 50.0f;
 
-	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
@@ -490,6 +489,62 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 
 	glEnable(GL_DEPTH_TEST);
 }
+
+
+void Hud::draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale) const
+{
+	TextureHandler::getSingleton().bindTexture(0, "");
+	
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Determine color
+	
+	float rgb1[4];
+	float rgb2[4];
+	float rgb_current[4];
+	
+	getColor(start_color, rgb1);
+	getColor(end_color, rgb2);
+	
+	for(int i=0; i<3; i++)
+		rgb_current[i] = rgb2[i] + (rgb1[i] - rgb2[i]) * percentage;
+	rgb_current[3] = 0.6f;
+	
+	glColor4fv(rgb_current);
+	
+	// Build transformation matrix
+	y_angle = -y_angle + 90.f;
+	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
+	
+	float x_val = -scale + 2.0f * scale * percentage;
+	
+	glBegin(GL_QUADS);
+	{
+		/*
+		Vec3 p1 = m * Vec3(-x_val, -scale * 0.1f, 0);
+		Vec3 p2 = m * Vec3(-x_val, +scale * 0.1f, 0);
+		Vec3 p3 = m * Vec3(+scale, +scale * 0.1f, 0);
+		Vec3 p4 = m * Vec3(+scale, -scale * 0.1f, 0);
+		*/
+		
+		Vec3 p1 = m * Vec3(-x_val, -scale * 0.1f, 0);
+		Vec3 p2 = m * Vec3(-x_val, +scale * 0.1f, 0);
+		Vec3 p3 = m * Vec3(+x_val, +scale * 0.1f, 0);
+		Vec3 p4 = m * Vec3(+x_val, -scale * 0.1f, 0);
+		
+		glVertex3f(p1.x, p1.y, p1.z);
+		glVertex3f(p2.x, p2.y, p2.z);
+		glVertex3f(p3.x, p3.y, p3.z);
+		glVertex3f(p4.x, p4.y, p4.z);
+	}
+	glEnd();
+	
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+}
+
+
 
 
 void Hud::drawBar(float size, const string& start_color, const string& end_color, float min_x, float max_x, float min_y, float max_y) const

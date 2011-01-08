@@ -184,9 +184,8 @@ void ApoModel::draw() const
 	drawPartsRecursive(root);
 }
 
-void ApoModel::rotate_y(float angle)
+void ApoModel::viewTick()
 {
-	parts[root].rotation_y = angle;
 }
 
 bool ApoModel::loadObjects(const string& object_filename)

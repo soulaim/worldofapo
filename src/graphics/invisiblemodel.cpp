@@ -12,7 +12,7 @@ InvisibleModel::InvisibleModel(const InvisibleModel& model):
 {
 }
 
-void InvisibleModel::rotate_y(float)
+void InvisibleModel::viewTick()
 {
 }
 

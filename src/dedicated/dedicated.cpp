@@ -575,6 +575,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	
 	if(orderType == MessageType::PLAYER_INPUT)
 	{
+		if(player.connectionState != ConnectionState::GAMEPLAY)
+		{
+			cerr << "WARNING: Ignoring a player input command. Arrived from a source with a wrong connectionstate." << endl;
+			return;
+		}
+		
 		if(server_no_wait)
 		{
 			// recreate the message
@@ -607,7 +613,6 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			unsigned frameID;
 			
 			ss >> plr_id >> frameID;
-			player.last_order = frameID;
 			
 			// ignore order if it's in the past.
 			if(frameID <= simulRules.currentFrame)
@@ -615,6 +620,8 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 				cerr << "WARNING: Server intentionally skipping an order, it arrived too late!" << endl;
 				return;
 			}
+			
+			player.last_order = frameID;
 		}
 	}
 	else if(orderType == MessageType::PLAYERINFO_MESSAGE)

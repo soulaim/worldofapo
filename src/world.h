@@ -22,6 +22,8 @@ class Model;
 class World : public HasProperties
 {
 	
+	void clampToLevelArea(MovableObject&);
+	
 	void tickUnit(Unit&, Model*);                 // world frame update
 	void tickProjectile(Projectile&, Model*);     // world frame update
 	void tickItem(WorldItem& item, Model* model); // world frame update

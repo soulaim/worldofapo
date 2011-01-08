@@ -339,26 +339,11 @@ void Game::handleServerMessage(const Order& server_msg)
 			
 			world->add_message("^GHero created!");
 			
-			cerr << "Creating dummy input for new hero." << endl;
-			
-			/*
-			// WE MUST CREATE DUMMY INPUT FOR ALL PLAYERS FOR THE FIRST windowSize frames!
-			for(unsigned frame = 0; frame < simulRules.windowSize * simulRules.frameSkip; ++frame)
-			{
-				Order dummy_order;
-				dummy_order.plr_id = server_msg.keyState;
-				cerr << "dummy order plrid: " << dummy_order.plr_id << endl;
-				
-				dummy_order.frameID = frame + simulRules.currentFrame;
-				UnitInput.push_back(dummy_order);
-			}
-			*/
-			
 			sort(UnitInput.begin(), UnitInput.end());
 		}
 		else
 		{
-			cerr << "a hero was created into another area!" << endl;
+			world->add_message("^GA hero was created into another area!");
 		}
 	}
 	else if(server_msg.serverCommand == 2) // "set playerID" message
@@ -657,7 +642,9 @@ void Game::processClientMsgs()
 				
 				Location dummy;
 				world->addItem(dummy, dummy, itemID);
-				world->items.find(itemID)->second.handleCopyOrder(ss);
+				auto item_it = world->items.find(itemID);
+				item_it->second.handleCopyOrder(ss);
+				world->visualworld->createModel(itemID, item_it->second.position, VisualWorld::ModelType(item_it->second.intVals["MODEL_TYPE"]), 1.0f);
 			}
 			else if(cmd == "PROJECTILE")
 			{

@@ -55,19 +55,27 @@ void Unit::setDefaultPlayerAttributes()
 	
 	intVals["WIS"] = 4;
 	intVals["INT"] = 4;
+	
+	intVals["REGEN"] = 10;
 }
 
-int Unit::getModifier(string attribute)
+int Unit::getModifier(const string& attribute) const
 {
-	if(intVals.find(attribute) == intVals.end())
+	auto it = intVals.find(attribute);
+	if(it == intVals.end())
 	{
 		throw std::logic_error("Asking for an attribute that doesn't exist: " + attribute);
 		return 0;
 	}
 	
-	assert(intVals[attribute] != -666);
+	assert(it->second != -666);
 	
-	return 6 + intVals[attribute];
+	return 6 + it->second;
+}
+
+int Unit::getMaxHP() const
+{
+	return 100 * getModifier("STR");
 }
 
 void Unit::levelUp()

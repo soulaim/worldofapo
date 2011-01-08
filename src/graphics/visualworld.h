@@ -13,6 +13,8 @@
 #include "hasproperties.h"
 #include "idgenerator.h"
 
+#include "world_item.h"
+
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld : public HasProperties
 {
@@ -30,6 +32,7 @@ public:
 		ZOMBIE_MODEL,
 		ITEM_MODEL,
 		STONEBEAST_MODEL,
+		WEAPON_MODEL,
 		TROLL_MODEL = PLAYER_MODEL
 	};
 	
@@ -40,6 +43,7 @@ public:
 	
 	void createModel(int id, const Location& location, ModelType type, float scale);
 	void setModelScale(int id, float scale);
+	
 	void addLight(const Location& location, Location direction = Location());
 	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
 	void tickLights(const std::map<int, Unit>& units);
@@ -48,7 +52,7 @@ public:
 	void init();
 	void terminate();
 	void tickParticles();
-	void viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame);
+	void viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, const std::map<int, WorldItem>& items, int currentWorldFrame);
 
 	void removeUnit(int id);
 

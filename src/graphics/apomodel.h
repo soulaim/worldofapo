@@ -55,8 +55,8 @@ struct ApoModel: public Model
 	virtual bool load(const std::string& filename);
 	virtual bool save(const std::string& filename) const;
 	virtual void draw() const;
-	virtual void rotate_y(float angle);
-
+	virtual void viewTick();
+	
 	static std::map<std::string, ObjectPart> objects;
 	static bool loadObjects(const std::string&);
 	static bool saveObjects(const std::string&);

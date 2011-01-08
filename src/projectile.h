@@ -31,7 +31,7 @@ class Projectile : MovableObject, HasProperties
 		bool destroyAfterFrame; // this does not need to be transmitted (if value changes => projectile is erased before the frame tick ends)
 		size_t prototype_model;
 		
-		const Location& getPosition()
+		const Location& getPosition() const
 		{
 			return position;
 		}

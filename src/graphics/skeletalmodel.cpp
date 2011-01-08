@@ -53,14 +53,13 @@ SkeletalModel::SkeletalModel(const SkeletalModel& model):
 	}
 }
 
-void SkeletalModel::rotate_y(float angle)
+void SkeletalModel::viewTick()
 {
-	// ...
 	for(size_t i=0; i<bones.size(); i++)
 	{
 		if(bones[i].root)
 		{
-			bones[i].rotation_y = angle;
+			bones[i].rotation_y = current_y_rot;
 		}
 	}
 }
@@ -452,6 +451,7 @@ bool SkeletalModel::save(const string& filename) const
 		}
 		out << endl;
 	}
+	
 	return bool(out);
 }
 
@@ -643,11 +643,11 @@ void SkeletalModel::draw_normals() const
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 {
 	assert(weighted_vertices.size() == vertices.size());
-
+	
 	draw_normals();
-
+	
 	glUniform1f(model_scale_location, myScale);
-
+	
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
 	

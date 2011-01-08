@@ -93,21 +93,9 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		Players[playerID_val] = dormantPlayers[choice].playerInfo;
 	}
 	
-	static int playerCounter = 0;
-	
 	if(dormantPlayers[choice].unit.name == "")
 	{
-		std::string areaName;
-		
-		if( (playerCounter++ % 2) == 0 )
-		{
-			areaName = "default_area";
-		}
-		else
-		{
-			areaName = "other_area";
-		}
-		
+		std::string areaName = "default_area";
 		World& world = areas.find(areaName)->second;
 		
 		// TODO: how about calling some actual unit init function?
@@ -118,7 +106,6 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		dormantPlayers[choice].unit.strVals["AREA"] = areaName;
 		dormantPlayers[choice].playerInfo.key = Players[playerID_val].key;
 	}
-	
 	
 	changeArea(playerID_val);
 	return;

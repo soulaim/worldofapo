@@ -11,13 +11,12 @@ void main()
 {
 	vec3 n = normalize(normal);
 	
-	float weigth0 = 80.0 / (abs(height +  3.0) + 0.01);
-	float weigth1 = 80.0 / (abs(height -  6.0) + 0.01);
-	float weigth2 = 80.0 / (abs(height - 20.0) + 0.01);
+	float weigth0 = 80.0 / (abs(height - 12.0) + 0.01);
+	float weigth1 = 80.0 / (abs(height - 20.0) + 0.01);
+	float weigth2 = 80.0 / (abs(height - 35.0) + 0.01);
 	float weigth3 = 0.0;
 
 	vec4 texture_color = vec4(0, 0, 0, 0);
-//	texture_color += texture2D(baseMap0, gl_TexCoord[0].st);
 	texture_color += weigth0 * texture2D(baseMap0, gl_TexCoord[0].st);
 	texture_color += weigth1 * texture2D(baseMap1, gl_TexCoord[1].st);
 	texture_color += weigth2 * texture2D(baseMap2, gl_TexCoord[2].st);

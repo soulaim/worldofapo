@@ -50,6 +50,7 @@ public:
 	void draw(bool firstPerson);
 
 	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle, int team = 0) const;
+	void draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale = 5.0f) const;
 	
 	// TODO: make it work with world-tick data also.
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.

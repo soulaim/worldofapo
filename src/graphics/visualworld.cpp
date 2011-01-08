@@ -234,10 +234,13 @@ void VisualWorld::explosion(const Location& pos, const Location& direction)
 }
 
 
-void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, int currentWorldFrame)
+void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int, Projectile>& projectiles, const std::map<int, WorldItem>& items, int currentWorldFrame)
 {
 	if(active == 0)
 		return;
+	
+	static int previousWorldFrame = currentWorldFrame;
+	int timeDiff = currentWorldFrame - previousWorldFrame;
 	
 	camera.tick();
 	
@@ -257,11 +260,19 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 		model->setAction("idle");
 	}
 	
+	for(map<int, WorldItem>::const_iterator iter = items.begin(); iter != items.end(); ++iter)
+	{
+		Model* model = models[iter->first];
+		model->increase_rot_y(3.0f * timeDiff);
+	}
+	
 	// update all models, which ever type they might be.
 	for(auto iter = models.begin(); iter != models.end(); ++iter)
 	{
 		iter->second->tick(currentWorldFrame);
 	}
+	
+	previousWorldFrame = currentWorldFrame;
 }
 
 bool VisualWorld::isActive()

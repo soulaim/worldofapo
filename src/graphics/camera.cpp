@@ -25,6 +25,11 @@ Camera::Camera():
 	unit_id = -2;
 }
 
+Unit* Camera::getUnitPointer() const
+{
+	return unit;
+}
+
 const Vec3& Camera::getTarget() const
 {
 	if(mode_ == FIRST_PERSON)

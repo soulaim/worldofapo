@@ -96,12 +96,13 @@ struct SkeletalModel: public Model
 	virtual bool load(const std::string& filename);
 	virtual bool save(const std::string& filename) const;
 	virtual void draw() const;
-	virtual void rotate_y(float angle);
+	virtual void viewTick();
 	
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1) const;
 	void preload();
+	
 private:
 	void old_draw(size_t hilight) const;
 	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight) const;

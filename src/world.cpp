@@ -33,7 +33,56 @@ World::CheckSumType World::checksum() const
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
 	
+	for(auto it = items.begin(); it != items.end(); it++)
+	{
+		int id = it->first;
+		Location pos = it->second.getPosition();
+		hash = ((hash << 5) + hash) + id;
+		hash = ((hash << 5) + hash) + pos.x.getInteger();
+		hash = ((hash << 5) + hash) + pos.y.getInteger();
+		hash = ((hash << 5) + hash) + pos.z.getInteger();
+	}
+	
+	for(auto it = projectiles.begin(); it != projectiles.end(); it++)
+	{
+		int id = it->first;
+		Location pos = it->second.getPosition();
+		hash = ((hash << 5) + hash) + id;
+		hash = ((hash << 5) + hash) + pos.x.getInteger();
+		hash = ((hash << 5) + hash) + pos.y.getInteger();
+		hash = ((hash << 5) + hash) + pos.z.getInteger();
+	}
+	
 	return hash;
+}
+
+
+void World::clampToLevelArea(MovableObject& object)
+{
+	if(object.position.x < 0)
+	{
+		object.position.x = 0;
+		if(object.velocity.x < 0)
+			object.velocity.x = 0;
+	}
+	if(object.position.x > lvl.max_x())
+	{
+		object.position.x = lvl.max_x();
+		if(object.velocity.x > 0)
+			object.velocity.x = 0;
+	}
+	if(object.position.z < 0)
+	{
+		object.position.z = 0;
+		if(object.velocity.z < 0)
+			object.velocity.z = 0;
+	}
+	if(object.position.z > lvl.max_z())
+	{
+		object.position.z = lvl.max_z();
+		if(object.velocity.z > 0)
+			object.velocity.z = 0;
+	}
 }
 
 
@@ -367,18 +416,20 @@ void World::generateInput_RabidAlien(Unit& unit)
 		}
 		else
 		{
-			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
-			{
-				unit.updateInput(0, 0, 0, 0);
-				return;
-			}
-			
 			int mousex, mousey;
 			getTurnValues(unit, units[myLeaderID], mousex, mousey);
 			
 			unit.angle = mousex;
 			unit.upangle = mousey;
-			unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
+			
+			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
+			{
+				unit.updateInput(0, 0, 0, 0);
+			}
+			else
+			{
+				unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
+			}
 		}
 		
 		return;
@@ -398,7 +449,7 @@ void World::generateInput_RabidAlien(Unit& unit)
 	unit.upangle = best_upangle;
 	
 	if(bestSquaredDistance < FixedPoint(1000))
-		keyState |= Unit::MOVE_RIGHT;
+		keyState |= Unit::MOVE_BACK | Unit::LEAP_RIGHT;
 	else
 		keyState |= Unit::MOVE_FRONT;
 	
@@ -484,7 +535,6 @@ FixedPoint getSlideAcceleration(const FixedPoint& unit_y, const FixedPoint& refe
 void World::tickItem(WorldItem& item, Model* model)
 {
 	// wut
-	// model->rotate_y(item.getAngle(apomath));
 	if(visualworld->isActive())
 	{
 		assert(model && "item model does not exist");
@@ -534,6 +584,8 @@ void World::tickItem(WorldItem& item, Model* model)
 	
 	// apply motion
 	item.position += item.velocity;
+	
+	clampToLevelArea(item);
 }
 
 void World::tickUnit(Unit& unit, Model* model)
@@ -542,6 +594,22 @@ void World::tickUnit(Unit& unit, Model* model)
 	{
 		unit.intVals["D"] *= 0.95;
 	}
+	
+	
+	{
+		int unit_max_hp = unit.getMaxHP();
+		if(unit.hitpoints < unit_max_hp)
+		{
+			int regen = unit.intVals["REGEN"];
+			if(currentWorldFrame % 50 == 0)
+			{
+				unit.hitpoints += regen;
+				if(unit.hitpoints > unit_max_hp)
+					unit.hitpoints = unit_max_hp;
+			}
+		}
+	}
+	
 	
 	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
 	{
@@ -785,30 +853,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	*/
 	
-	if(unit.position.x < 0)
-	{
-		unit.position.x = 0;
-		if(unit.velocity.x < 0)
-			unit.velocity.x = 0;
-	}
-	if(unit.position.x > lvl.max_x())
-	{
-		unit.position.x = lvl.max_x();
-		if(unit.velocity.x > 0)
-			unit.velocity.x = 0;
-	}
-	if(unit.position.z < 0)
-	{
-		unit.position.z = 0;
-		if(unit.velocity.z < 0)
-			unit.velocity.z = 0;
-	}
-	if(unit.position.z > lvl.max_z())
-	{
-		unit.position.z = lvl.max_z();
-		if(unit.velocity.z > 0)
-			unit.velocity.z = 0;
-	}
+	clampToLevelArea(unit);
 	
 	unit.mobility = Unit::MOBILITY_CLEAR_VALUE;
 	unit.position += unit.posCorrection;
@@ -937,6 +982,15 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					u->takeDamage(projectile["DAMAGE"]); // does damage according to weapon definition :)
 					u->last_damage_dealt_by = projectile_owner;
 					(*u)("DAMAGED_BY") = projectile_name;
+					
+					auto string_property_it = projectile.strVals.find("AT_DEATH");
+					if(string_property_it != projectile.strVals.end())
+					{
+						if(string_property_it->second == "PUFF")
+						{
+							projectile.strVals.erase("AT_DEATH");
+						}
+					}
 				}
 				
 				projectile.destroyAfterFrame |= death_at_collision;
@@ -1022,7 +1076,7 @@ void World::addRandomMonster()
 	}
 	
 	units[id].scale     = FixedPoint(units[id].getModifier("STR"), 10);
-	units[id].hitpoints = 100 * units[id].getModifier("STR");
+	units[id].hitpoints = units[id].getMaxHP();
 	
 	VisualWorld::ModelType type = visualworld->getModelType(units[id].name);
 	float scale = units[id].scale.getFloat();
@@ -1142,9 +1196,21 @@ void World::worldTick(int tickCount)
 			}
 			
 			// add some ammunition into the world.
-			int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 1, id1); items[id1].intVals["AMMO_BOOST"] = 1;
-			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 2, id2); items[id2].intVals["AMMO_BOOST"] = 1;
-			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel * 3, id3); items[id3].intVals["AMMO_BOOST"] = 1;
+			FixedPoint half = FixedPoint(1, 2);
+			int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(half, 0, half), id1);
+			items[id1].intVals["AMMO_BOOST"] = 1;
+			items[id1].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
+			visualworld->createModel(id1, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
+			
+			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(0, half, -half), id2); 
+			items[id2].intVals["AMMO_BOOST"] = 1;
+			items[id2].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
+			visualworld->createModel(id2, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
+			
+			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(-half, -half, 0), id3); 
+			items[id3].intVals["AMMO_BOOST"] = 1;
+			items[id3].intVals["MODEL_TYPE"] = VisualWorld::ModelType::WEAPON_MODEL;
+			visualworld->createModel(id3, gear_pos, VisualWorld::ModelType::WEAPON_MODEL, 2.0f);
 			
 			// then do the more important death processing
 			doDeathFor(unit);
@@ -1258,7 +1324,9 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 
 void World::addItem(const Location& location, const Location& velocity, int id)
 {
-	visualworld->createModel(id, location, VisualWorld::ITEM_MODEL, 1.0f);
+	// NOTE: We don't know what kind of an item it is here, so let's not decide on the model here either.
+	// visualworld->createModel(id, location, VisualWorld::ITEM_MODEL, 1.0f);
+	
 	items[id].position = location;
 	items[id].velocity = velocity;
 }
