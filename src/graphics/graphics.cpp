@@ -219,10 +219,11 @@ bool Graphics::check_errors(const char* filename, int line) const
 
 void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
-	clear_errors();
+//	clear_errors();
 
 	// TODO: update only the shader that is currently active. Or update lights when actually drawing.
 	vector<string> programs = { "level_program", "deferred_lights_program", "partitioned_deferred_lights_program", "partitioned_deferred_lights_program2" };
+	Matrix4 modelview = camera_p->modelview();
 
 	for(size_t p = 0; p < programs.size(); ++p)
 	{
@@ -245,13 +246,12 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 //			check_errors(__FILE__, __LINE__);
 
 			const Location& pos = iter->second.getPosition();
-			rgb[0] = pos.x.getFloat();
-			rgb[1] = pos.y.getFloat();
-			rgb[2] = pos.z.getFloat();
+			Vec3 v(pos.x.getFloat(), pos.y.getFloat(), pos.z.getFloat());
+			v = modelview * v;
 
 			stringstream ss2;
 			ss2 << "lights[" << i*2 + POSITION << "]";
-			glUniform4f(shader.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
+			glUniform4f(shader.uniform(ss2.str()), v.x, v.y, v.z, 1.0f);
 //			check_errors(__FILE__, __LINE__);
 			
 			++i;
@@ -603,7 +603,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	// blur upscaled particle texture
 	if(intVals["PARTICLE_BLUR"])
 	{
-		clear_errors();
+//		clear_errors();
 		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
 //		check_errors(__FILE__, __LINE__);
@@ -957,7 +957,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 {
 	camera.getPosition();
 
-	clear_errors();
+//	clear_errors();
 
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);

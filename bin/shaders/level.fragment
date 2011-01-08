@@ -1,13 +1,18 @@
+const int MAX_LIGHTS = 71;
 const int MAX_ACTIVE_LIGHTS = 4;
 
-varying vec4 position[MAX_ACTIVE_LIGHTS];
-varying vec4 diffuse[MAX_ACTIVE_LIGHTS];
-varying vec4 ecPos;
+uniform vec4 lights[MAX_LIGHTS * 2];
+const int POSITION = 0;
+const int DIFFUSE = 1;
 
+uniform vec4 activeLights;
+uniform vec4 ambientLight;
+
+
+varying vec4 fragment_eye_position;
 varying vec3 normal;
 varying float height;
 
-uniform vec4 ambientLight;
 
 uniform sampler2D baseMap0;
 uniform sampler2D baseMap1;
@@ -16,6 +21,12 @@ uniform sampler2D baseMap3;
 
 void main()
 {
+	int activeLight[MAX_ACTIVE_LIGHTS];
+	activeLight[0] = int(activeLights.x);
+	activeLight[1] = int(activeLights.y);
+	activeLight[2] = int(activeLights.z);
+	activeLight[3] = int(activeLights.w);
+
 	vec4 light_color = ambientLight;
 	vec3 n = normalize(normal);
 
@@ -23,7 +34,12 @@ void main()
 	
 	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
 	{
-		vec3 aux = vec3(gl_ModelViewMatrix * position[i] - ecPos);
+		int lightIndex = activeLight[i];
+
+		vec4 light_diffuse = lights[lightIndex*2 + DIFFUSE];
+		vec4 light_position = lights[lightIndex*2 + POSITION];
+
+		vec3 aux = vec3(light_position - fragment_eye_position);
 		vec3 lightDir = normalize(aux);
 		float dist = length(aux);
 		
@@ -31,8 +47,8 @@ void main()
 
 		if(NdotL > 0.0)
 		{
-			float att = 1.0 / (0.0001 + 0.0020 * dist * dist);
-			light_color += att * (diffuse[i] * NdotL);
+			float att = 1.0 / (1.0 + 0.01 * dist * dist);
+			light_color += att * (light_diffuse * NdotL);
 		}
 	}
 	

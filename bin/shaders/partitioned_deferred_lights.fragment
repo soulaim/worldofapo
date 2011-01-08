@@ -10,8 +10,6 @@ uniform sampler2D normals;
 //uniform sampler2D positions;
 uniform sampler2D depthTexture;
 
-const int MAX_ACTIVE_LIGHTS = 4;
-
 uniform float screen_width;
 uniform float screen_height;
 
@@ -21,11 +19,21 @@ varying vec2 texcoord;
 
 vec4 reconstruct_position(vec2 tex)
 {
-//	vec4 fragment_position = texture2D(positions, tex);
+//	return texture2D(positions, tex);
 
 	float depth = texture2D(depthTexture, tex).r;
 	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
 	vec4 homogeneous = gl_ModelViewProjectionMatrixInverse * ndc;
+	return vec4(homogeneous.xyz / homogeneous.w,1);
+}
+
+vec4 reconstruct_eye_position(vec2 tex)
+{
+//	return gl_ModelViewMatrix * texture2D(positions, tex);
+
+	float depth = texture2D(depthTexture, tex).r;
+	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
+	vec4 homogeneous = gl_ProjectionMatrixInverse * ndc;
 	return vec4(homogeneous.xyz / homogeneous.w,1);
 }
 
@@ -56,14 +64,14 @@ void main()
 	vec4 light_color = vec4(0,0,0,1);
 	vec4 texture_color = texture2D(texture_colors, real_texcoord);
 
-	vec4 fragment_position = reconstruct_position(real_texcoord);
+	vec4 fragment_eye_position = reconstruct_eye_position(real_texcoord);
 
 	int lightIndex = int(activeLight);
 
 	vec4 light_diffuse = lights[lightIndex*2 + DIFFUSE];
 	vec4 light_position = lights[lightIndex*2 + POSITION];
 
-	vec3 light_direction = vec3(gl_ModelViewMatrix * (light_position - fragment_position));
+	vec3 light_direction = vec3(light_position - fragment_eye_position);
 
 	float dist = length(light_direction);
 
