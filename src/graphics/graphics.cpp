@@ -161,8 +161,8 @@ void Graphics::init(Camera& camera)
 		size_t y = intVals["RESOLUTION_Y"];
 		screenFBO = Framebuffer("screenFBO", x, y, true, 1);
 
-		deferredFBO = Framebuffer("deferredFBO", x, y, true, 3);
-		deferredFBO.add_float_target();
+		deferredFBO = Framebuffer("deferredFBO", x, y, true, 2);
+//		deferredFBO.add_float_target();
 
 		postFBO = Framebuffer("postFBO", x, y, false, 1);
 
@@ -242,7 +242,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			stringstream ss1;
 			ss1 << "lights[" << i*2 + DIFFUSE << "]";
 			glUniform4f(shader.uniform(ss1.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-			check_errors(__FILE__, __LINE__);
+//			check_errors(__FILE__, __LINE__);
 
 			const Location& pos = iter->second.getPosition();
 			rgb[0] = pos.x.getFloat();
@@ -252,7 +252,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 			stringstream ss2;
 			ss2 << "lights[" << i*2 + POSITION << "]";
 			glUniform4f(shader.uniform(ss2.str()), rgb[0], rgb[1], rgb[2], rgb[3]);
-			check_errors(__FILE__, __LINE__);
+//			check_errors(__FILE__, __LINE__);
 			
 			++i;
 			if(i >= MAX_NUM_LIGHTS)
@@ -441,8 +441,9 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 // TODO: Now it has to do extra copying.
 void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
-	glUseProgram(shaders["particle_program"]);
-	GLint scale_location = shaders.uniform("particle_particleScale");
+	Shader& shader = shaders.get_shader("particle_program");
+	shader.start();
+	GLint scale_location = shader.attribute("particleScale");
 
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
@@ -517,7 +518,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
 
-	glUseProgram(0);
+	shader.stop();
 }
 
 void Graphics::prepareForParticleRendering(const std::string& depth_texture)
@@ -539,9 +540,9 @@ void Graphics::prepareForParticleRendering(const std::string& depth_texture)
 
 void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 {
-	glUseProgram(shaders["particle_program"]);
-	
-	GLint scale_location = shaders.uniform("particle_particleScale");
+	Shader& shader = shaders.get_shader("particle_program");
+	shader.start();
+	GLint scale_location = shader.attribute("particleScale");
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
@@ -570,7 +571,7 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().bindTexture(1, "");
 
-	glUseProgram(0);
+	shader.stop();
 }
 
 void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
@@ -605,10 +606,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 		clear_errors();
 		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
-		check_errors(__FILE__, __LINE__);
+//		check_errors(__FILE__, __LINE__);
 		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
-		check_errors(__FILE__, __LINE__);
+//		check_errors(__FILE__, __LINE__);
 	}
 	
 	glEnable(GL_BLEND);
@@ -646,9 +647,6 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	
 	//TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
-	
-	// glUseProgram(shaders["particle_program"]);
-	// GLint scale_location = shaders.uniform("particle_particleScale");
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -694,16 +692,12 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	
 	glEnd();
 	
-	
-	
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().bindTexture(1, "");
 	
 	screenFBO.bind();
 	
 	TextureHandler::getSingleton().bindTexture(0, particlesDownScaledFBO.texture(0));
-	
-	glUseProgram(0);
 	
 	//glBlendFunc(GL_ONE, GL_ONE);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
@@ -724,13 +718,10 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
-	glUseProgram(0);
 	TextureHandler::getSingleton().bindTexture(0, "");
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-	
-	glUseProgram(0);
 }
 
 void Graphics::updateCamera(const Level& lvl)
@@ -871,7 +862,7 @@ void Graphics::drawLightsDeferred_single_pass(int lights)
 */
 	TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
 	TextureHandler::getSingleton().bindTexture(1, deferredFBO.texture(1));
-	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+//	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
 	TextureHandler::getSingleton().bindTexture(3, deferredFBO.depth_texture());
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
@@ -887,10 +878,10 @@ void Graphics::drawLightsDeferred_single_pass(int lights)
 //	glUniform3fv(shader.uniform("ftr"), 1, (float*)&frustum.ftr);
 //	glUniform3fv(shader.uniform("fbl"), 1, (float*)&frustum.fbl);
 //	glUniform3fv(shader.uniform("fbr"), 1, (float*)&frustum.fbr);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.fbl.x, frustum.fbl.y, frustum.fbl.z);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.fbr.x, frustum.fbr.y, frustum.fbr.z);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.ftr.x, frustum.ftr.y, frustum.ftr.z);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f); glVertexAttrib3f(attribute_location, frustum.ftl.x, frustum.ftl.y, frustum.ftl.z);
+	glTexCoord2f(0.f, 0.f); glVertexAttrib3f(attribute_location, frustum.fbl.x, frustum.fbl.y, frustum.fbl.z); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 0.f); glVertexAttrib3f(attribute_location, frustum.fbr.x, frustum.fbr.y, frustum.fbr.z); glVertex3f(+1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.f, 1.f); glVertexAttrib3f(attribute_location, frustum.ftr.x, frustum.ftr.y, frustum.ftr.z); glVertex3f(+1.0f, +1.0f, -1.0f);
+	glTexCoord2f(0.f, 1.f); glVertexAttrib3f(attribute_location, frustum.ftl.x, frustum.ftl.y, frustum.ftl.z); glVertex3f(-1.0f, +1.0f, -1.0f);
 	glEnd();
 
 	glDisable(GL_BLEND);
@@ -976,7 +967,8 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 
 	TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
 	TextureHandler::getSingleton().bindTexture(1, deferredFBO.texture(1));
-	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+//	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+	TextureHandler::getSingleton().bindTexture(3, deferredFBO.depth_texture());
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
@@ -1061,6 +1053,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 
 	glDisable(GL_BLEND);
 	
+	TextureHandler::getSingleton().bindTexture(3, "");
 	TextureHandler::getSingleton().bindTexture(2, "");
 	TextureHandler::getSingleton().bindTexture(1, "");
 	TextureHandler::getSingleton().bindTexture(0, "");
@@ -1409,7 +1402,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	{
 		if(frustum.sphereInFrustum(meadows[i].center, meadows[i].radius) != FrustumR::OUTSIDE)
 		{
-			meadows[i].draw(&shaders);
+			meadows[i].draw(shader);
 		}
 	}
 

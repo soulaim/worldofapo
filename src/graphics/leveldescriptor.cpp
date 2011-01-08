@@ -281,7 +281,8 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 		return;
 	}
 
-	glUseProgram(shaders["level_program"]);
+	Shader& shader = shaders.get_shader("level_program");
+	shader.start();
 
 //	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
@@ -321,14 +322,14 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 		
 		if(debugMode)
 		{
-			glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
+			glUniform4f(shader.uniform("ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
 		}
 		else
 		{
 			float r = operator[]("AMBIENT_RED")   / 255.0f;
 			float g = operator[]("AMBIENT_GREEN") / 255.0f;
 			float b = operator[]("AMBIENT_BLUE")  / 255.0f;
-			glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
+			glUniform4f(shader.uniform("ambientLight"), r, g, b, 1.0f);
 		}
 
 		glDepthMask(GL_TRUE);
@@ -342,15 +343,15 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 		glDepthFunc(GL_EQUAL);
 		glDepthMask(GL_FALSE);
 		
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
+		glUniform4f(shader.uniform("ambientLight"), 0.f, 0.f, 0.f, 1.0f);
 	}
 	
 	// TODO: check what happens when the number of lights is not 0 mod 4.
-	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
+	glUniform4f(shader.uniform("activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
 
 	drawBuffers();
 	
-	glUseProgram(0);
+	shader.stop();
 }
 
 void LevelDescriptor::drawBuffers() const
@@ -464,7 +465,8 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 		return;
 	}
 
-	glUseProgram(shaders["level_program"]);
+	Shader& shader = shaders.get_shader("level_program");
+	shader.start();
 
 	size_t max_x = lvl.max_block_x();
 	size_t max_z = lvl.max_block_z();
@@ -520,14 +522,14 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 		
 		if(debugMode)
 		{
-			glUniform4f(shaders.uniform("lvl_ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
+			glUniform4f(shader.uniform("ambientLight"), 0.4f, 0.4f, 0.4f, 1.f);
 		}
 		else
 		{
 			float r = operator[]("AMBIENT_RED")   / 255.0f;
 			float g = operator[]("AMBIENT_GREEN") / 255.0f;
 			float b = operator[]("AMBIENT_BLUE")  / 255.0f;
-			glUniform4f(shaders.uniform("lvl_ambientLight"), r, g, b, 1.0f);
+			glUniform4f(shader.uniform("ambientLight"), r, g, b, 1.0f);
 		}
 		
 		glDepthMask(GL_TRUE);
@@ -541,11 +543,11 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 		glDepthFunc(GL_EQUAL);
 		glDepthMask(GL_FALSE);
 		
-		glUniform4f(shaders.uniform("lvl_ambientLight"), 0.f, 0.f, 0.f, 1.0f);
+		glUniform4f(shader.uniform("ambientLight"), 0.f, 0.f, 0.f, 1.0f);
 	}
 	
 	
-	glUniform4f(shaders.uniform("lvl_activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
+	glUniform4f(shader.uniform("activeLights"), float(pass), float(pass+1), float(pass+2), float(pass+3));
 
 	for(size_t i = 0; i < parts.size(); ++i)
 	{
@@ -556,7 +558,7 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 		}
 	}
 	
-	glUseProgram(0);
+	shader.stop();
 }
 */
 

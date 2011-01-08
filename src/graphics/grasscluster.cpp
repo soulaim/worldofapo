@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "shaders.h"
+#include "shader.h"
 
 using namespace std;
 
@@ -55,7 +55,7 @@ void GrassCluster::unload()
 	buffers_loaded = false;
 }
 
-void GrassCluster::draw_fbo(const Shaders*) const
+void GrassCluster::draw_fbo(Shader&) const
 {
 	assert(buffers_loaded);
 	size_t buffer = 0;
@@ -77,7 +77,7 @@ void GrassCluster::draw_fbo(const Shaders*) const
 	QUADS_DRAWN_THIS_FRAME += bushes.size() * 3;
 }
 
-void GrassCluster::draw_old(const Shaders* shaders) const
+void GrassCluster::draw_old(Shader& shader) const
 {
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < bushes.size(); ++i)
@@ -87,8 +87,8 @@ void GrassCluster::draw_old(const Shaders* shaders) const
 		Vec3 wind(0,0,0);
 		float scale = 1.0;
 
-		glVertexAttrib1f(shaders->uniform("grass_scale"), scale);
-		glVertexAttrib3f(shaders->uniform("grass_wind"), wind.x, wind.y, wind.z);
+		glVertexAttrib1f(shader.uniform("scale"), scale);
+		glVertexAttrib3f(shader.uniform("wind"), wind.x, wind.y, wind.z);
 		glVertex3f(v.x, v.y, v.z);
 
 		QUADS_DRAWN_THIS_FRAME += 3;
@@ -96,12 +96,12 @@ void GrassCluster::draw_old(const Shaders* shaders) const
 	glEnd();
 }
 
-void GrassCluster::draw(const Shaders* shaders) const
+void GrassCluster::draw(Shader& shader) const
 {
 	glDisable(GL_CULL_FACE);
 
-	draw_fbo(shaders);
-//	draw_old(shaders);
+	draw_fbo(shader);
+//	draw_old(shader);
 
 	glEnable(GL_CULL_FACE);
 }

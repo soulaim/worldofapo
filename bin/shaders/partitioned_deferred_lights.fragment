@@ -7,7 +7,8 @@ uniform float activeLight;
 
 uniform sampler2D texture_colors;
 uniform sampler2D normals;
-uniform sampler2D positions;
+//uniform sampler2D positions;
+uniform sampler2D depthTexture;
 
 const int MAX_ACTIVE_LIGHTS = 4;
 
@@ -17,6 +18,16 @@ uniform float screen_height;
 uniform float fullscreen;
 
 varying vec2 texcoord;
+
+vec4 reconstruct_position(vec2 tex)
+{
+//	vec4 fragment_position = texture2D(positions, tex);
+
+	float depth = texture2D(depthTexture, tex).r;
+	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
+	vec4 homogeneous = gl_ModelViewProjectionMatrixInverse * ndc;
+	return vec4(homogeneous.xyz / homogeneous.w,1);
+}
 
 void main()
 {
@@ -45,7 +56,7 @@ void main()
 	vec4 light_color = vec4(0,0,0,1);
 	vec4 texture_color = texture2D(texture_colors, real_texcoord);
 
-	vec4 fragment_position = texture2D(positions, real_texcoord);
+	vec4 fragment_position = reconstruct_position(real_texcoord);
 
 	int lightIndex = int(activeLight);
 

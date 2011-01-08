@@ -13,6 +13,7 @@
 
 class Level;
 class FrustumR;
+class Shaders;
 
 class LevelDescriptor: public HasProperties
 {

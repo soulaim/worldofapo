@@ -36,7 +36,6 @@ void Shaders::init()
 
 	shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
 	shaders["partitioned_deferred_lights_program2"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/partitioned_deferred_lights.fragment"));
-	shaders["partitioned_deferred_lights_program_with_scissors"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
 	shaders["deferred_ambientlight_program"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/deferred_ambientlight.fragment"));
 	shaders["skybox_program"] = shared_ptr<Shader>(new Shader("shaders/skybox.vertex", "shaders/skybox.fragment"));
 
@@ -48,31 +47,22 @@ void Shaders::init()
 	shaders["partitioned_deferred_lights_program"]->start();
 	shaders["partitioned_deferred_lights_program"]->set_texture_unit(0, "texture_colors");
 	shaders["partitioned_deferred_lights_program"]->set_texture_unit(1, "normals");
-	shaders["partitioned_deferred_lights_program"]->set_texture_unit(2, "positions");
+//	shaders["partitioned_deferred_lights_program"]->set_texture_unit(2, "positions");
+	shaders["partitioned_deferred_lights_program"]->set_texture_unit(3, "depthTexture");
 	shaders["partitioned_deferred_lights_program"]->stop();
 
 	shaders["partitioned_deferred_lights_program2"]->start();
 	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(0, "texture_colors");
 	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(1, "normals");
-	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(2, "positions");
+//	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(2, "positions");
+	shaders["partitioned_deferred_lights_program2"]->set_texture_unit(3, "depthTexture");
 	shaders["partitioned_deferred_lights_program2"]->stop();
 
 	shaders["deferred_lights_program"]->start();
 	shaders["deferred_lights_program"]->set_texture_unit(0, "texture_colors");
 	shaders["deferred_lights_program"]->set_texture_unit(1, "normals");
-	shaders["deferred_lights_program"]->set_texture_unit(2, "positions");
+//	shaders["deferred_lights_program"]->set_texture_unit(2, "positions");
 	shaders["deferred_lights_program"]->set_texture_unit(3, "depthTexture");
-	uniform_locations["deferred_lights_ambientLight"] = shaders["deferred_lights_program"]->uniform("ambientLight");
-	uniform_locations["deferred_lights_activeLights"] = shaders["deferred_lights_program"]->uniform("activeLights");
-	/*
-	int MAX_NUM_LIGHTS = 71;
-	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
-	{
-		stringstream ss;
-		ss << i;
-		uniform_locations["deferred_lights[" + ss.str() + "]"] = shaders["deferred_lights_program"]->uniform(("lights[" + ss.str() + "]").c_str());
-	}
-	*/
 	shaders["deferred_lights_program"]->stop();
 
 	shaders["deferred_level_program"]->start();
@@ -84,19 +74,13 @@ void Shaders::init()
 
 
 	shaders["particle_program"]->start();
-	uniform_locations["particle_screen_width"] = shaders["particle_program"]->uniform("screen_width");
-	uniform_locations["particle_screen_height"] = shaders["particle_program"]->uniform("screen_height");
-	uniform_locations["particle_particleScale"] = shaders["particle_program"]->attribute("particleScale");
 	shaders["particle_program"]->set_texture_unit(0, "particleTexture");
 	shaders["particle_program"]->set_texture_unit(1, "depthTexture");
 	shaders["particle_program"]->stop();
 	
 	shaders["ssao_program"]->start();
-	uniform_locations["ssao_power"] = shaders["ssao_program"]->uniform("power");
 	shaders["ssao_program"]->set_texture_unit(0, "imageTexture");
 	shaders["ssao_program"]->set_texture_unit(1, "depthTexture");
-	uniform_locations["ssao_height"] = shaders["ssao_program"]->uniform("screen_height");
-	uniform_locations["ssao_width"]  = shaders["ssao_program"]->uniform("screen_width");
 	shaders["ssao_program"]->stop();
 
 	shaders["level_program"]->start();
@@ -104,16 +88,6 @@ void Shaders::init()
 	shaders["level_program"]->set_texture_unit(1, "baseMap1");
 	shaders["level_program"]->set_texture_unit(2, "baseMap2");
 	shaders["level_program"]->set_texture_unit(3, "baseMap3");
-	uniform_locations["lvl_ambientLight"] = shaders["level_program"]->uniform("ambientLight");
-	uniform_locations["lvl_activeLights"] = shaders["level_program"]->uniform("activeLights");
-	/*
-	for(int i = 0; i < MAX_NUM_LIGHTS*2; ++i)
-	{
-		stringstream ss;
-		ss << i;
-		uniform_locations["lvl_lights[" + ss.str() + "]"] = shaders["level_program"]->uniform(("lights[" + ss.str() + "]").c_str());
-	}
-	*/
 	shaders["level_program"]->stop();
 	
 	shaders["unit_program"]->start();
@@ -124,43 +98,11 @@ void Shaders::init()
 	bone_weight_location = shaders["unit_program"]->attribute("bone_weight");
 	bone_index_location = shaders["unit_program"]->attribute("bone_index");
 	shaders["unit_program"]->stop();
-/*
-	shaders["blur_program1"]->start();
-	uniform_locations["blur_amount1"] = shaders["blur_program1"]->uniform("amount");
-	shaders["blur_program1"]->stop();
-
-	shaders["blur_program2"]->start();
-	uniform_locations["blur_amount2"] = shaders["blur_program2"]->uniform("amount");
-	shaders["blur_program2"]->stop();
-*/
-	shaders["grass_program"]->start();
-	uniform_locations["grass_texture"] = shaders["grass_program"]->uniform("texture");
-	uniform_locations["grass_wind"] = shaders["grass_program"]->uniform("wind");
-	uniform_locations["grass_scale"] = shaders["grass_program"]->uniform("scale");
-	shaders["grass_program"]->stop();
-
-	for(auto it = uniform_locations.begin(); it != uniform_locations.end(); ++it)
-	{
-		if(it->second == -1)
-		{
-			cerr << "WARNING: shader variable " << it->first << " not in use" << endl;
-		}
-	}
 }
 
 void Shaders::release()
 {
-	uniform_locations.clear();
 	shaders.clear();
-}
-
-GLint Shaders::uniform(const string& name) const
-{
-	auto it = uniform_locations.find(name);
-	if(it == uniform_locations.end())
-		return -1;
-	else
-		return it->second;
 }
 
 GLuint Shaders::operator[](const string& program_name) const

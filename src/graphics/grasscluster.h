@@ -10,14 +10,14 @@
 #include "frustum/vec3.h"
 #include "frustum/matrix4.h"
 
-class Shaders;
+class Shader;
 
 struct GrassCluster
 {
 	GrassCluster();
 	~GrassCluster();
 	
-	void draw(const Shaders* shaders) const;
+	void draw(Shader& shader) const;
 	void preload();
 	void unload();
 	
@@ -26,8 +26,8 @@ struct GrassCluster
 	std::vector<Vec3> bushes;
 	
 private:
-	void draw_old(const Shaders* shaders) const;
-	void draw_fbo(const Shaders* shaders) const;
+	void draw_old(Shader& shader) const;
+	void draw_fbo(Shader& shader) const;
 
 	static const size_t BUFFERS = 1;
 	GLuint locations[BUFFERS];

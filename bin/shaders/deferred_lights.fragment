@@ -3,13 +3,11 @@ uniform vec4 lights[MAX_LIGHTS * 2];
 const int POSITION = 0;
 const int DIFFUSE = 1;
 
-uniform vec4 activeLights;
-
 varying vec2 texcoord;
 
 uniform sampler2D texture_colors;
 uniform sampler2D normals;
-uniform sampler2D positions;
+//uniform sampler2D positions;
 uniform sampler2D depthTexture;
 
 const int MAX_ACTIVE_LIGHTS = 4;
@@ -20,26 +18,15 @@ varying vec3 fragment_direction;
 
 uniform float light_count;
 
-#define zFar 200.0
-#define zNear 0.1
-
-// Maps ]0,1[ to ]0,1[
-float linearizeDepth(float z)
+vec4 reconstruct_position(vec2 tex)
 {
-	float n = 0.1; // camera z near
-	float f = 200.0; // camera z far
-	return (2.0 * n) / (f + n - z * (f - n));
-}
+//	vec4 fragment_position = texture2D(positions, tex);
 
-// Maps ]0,1[ to ]0,1[
-float delinearizeDepth(float z)
-{
-	float a = zFar / ( zFar - zNear );
-	float b = zFar * zNear / ( zNear - zFar );
-	return a + b / z;
+	float depth = texture2D(depthTexture, tex).r;
+	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
+	vec4 homogeneous = gl_ModelViewProjectionMatrixInverse * ndc;
+	return vec4(homogeneous.xyz / homogeneous.w,1);
 }
-
-//#define OLD_LIGHTS
 
 void main()
 {
@@ -47,50 +34,14 @@ void main()
 	vec4 texture_color = texture2D(texture_colors, texcoord);
 	vec3 normal = texture2D(normals, texcoord).rgb;
 	normal = 2.0 * normal - 1.0;
-	vec4 fragment_position = texture2D(positions, texcoord);
 
-	if(gl_FragCoord.x < 500.0)
-	{
-	//	gl_FragColor = vec4(normal*0.5 + 0.5,1); return;
+	vec4 fragment_position = reconstruct_position(texcoord);
 
-		if(gl_FragCoord.y > 200.0)
-		{
-//			gl_FragColor = vec4(sin( normalize(fragment_position.xyz - camera_position) ),1); return;
-//			gl_FragColor = vec4( length(fragment_position.xyz - camera_position) / (200.0 - 0.1)); return;
-			vec3 camera_direction = normalize(camera_target - camera_position);
-			float d = dot(camera_direction, fragment_position.xyz - camera_position);
-			float real_z = delinearizeDepth(d);
-			gl_FragColor = vec4(real_z); return;
-
-//			gl_FragColor = vec4(sin(fragment_position.xyz),1); return;
-		}
-
-		float depth = texture2D(depthTexture, texcoord).r;
-		float z = linearizeDepth(depth);
-		gl_FragColor = vec4(z); return;
-
-		vec3 frag_dir = normalize(fragment_direction - camera_position);
-		gl_FragColor = vec4(sin(frag_dir),1); return;
-		//vec3 pospos = camera_position + frag_dir;
-	}
-
-
-#ifdef OLD_LIGHTS
-	int activeLight[MAX_ACTIVE_LIGHTS];
-	activeLight[0] = int(activeLights.x);
-	activeLight[1] = int(activeLights.y);
-	activeLight[2] = int(activeLights.z);
-	activeLight[3] = int(activeLights.w);
-
-	for(int i = 0; i < MAX_ACTIVE_LIGHTS; ++i)
-	{
-		int lightIndex = activeLight[i];
-#else
 	int light_counti = int(light_count);
 	for(int i = 0; i < light_counti; ++i)
 	{
 		int lightIndex = i;
-#endif
+
 		vec4 light_diffuse = lights[lightIndex*2 + DIFFUSE];
 		vec4 light_position = lights[lightIndex*2 + POSITION];
 

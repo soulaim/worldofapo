@@ -27,6 +27,6 @@ void main()
 	n = n * 0.5 + 0.5;
 	gl_FragData[0] = texture_color;
 	gl_FragData[1] = vec4(n, 1.0);
-	gl_FragData[2] = vertex_position;
+//	gl_FragData[2] = vertex_position;
 }
 
