@@ -13,18 +13,18 @@ void setup_camera(size_t x, size_t y)
 	gluLookAt(0.4,0.3,0.5, 0,0,0, 0,1,0);
 }
 
-void draw_box(float scale)
+void draw_box(float scale, float center_x, float center_y, float center_z)
 {
 	GLfloat vertices[8 * 3] =
 	{
-		-scale, -scale, -scale,
-		 scale, -scale, -scale,
-		 scale,  scale, -scale,
-		-scale,  scale, -scale,
-		-scale,  scale,  scale,
-		-scale, -scale,  scale,
-		 scale, -scale,  scale,
-		 scale,  scale,  scale
+		-scale + center_x, -scale + center_y, -scale + center_z,
+		 scale + center_x, -scale + center_y, -scale + center_z,
+		 scale + center_x,  scale + center_y, -scale + center_z,
+		-scale + center_x,  scale + center_y, -scale + center_z,
+		-scale + center_x,  scale + center_y,  scale + center_z,
+		-scale + center_x, -scale + center_y,  scale + center_z,
+		 scale + center_x, -scale + center_y,  scale + center_z,
+		 scale + center_x,  scale + center_y,  scale + center_z
 	};
 	GLfloat colors[8 * 3] =
 	{

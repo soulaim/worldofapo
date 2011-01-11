@@ -374,7 +374,7 @@ void Localplayer::process_sent_game_input()
 			--no_input;
 	}
 	
-	visualworld.camera.updateInput(keyState); // Make only "small" local changes like change the camera angle.
+	visualworld.camera.updateInput(keyState, x, y); // Make only "small" local changes like change the camera angle.
 	hud->setShowStats(keyState & (1 << 31));
 
 	x *= intVals["sensitivity"];
@@ -548,7 +548,7 @@ bool Localplayer::handleClientLocalInput()
 			
 			if(iter != world.units.end())
 			{
-				visualworld.bindCamera(&world.units[iter->first]);
+				visualworld.bindCamera(&iter->second);
 				std::stringstream ss_msg;
 				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;
 				world.add_message(ss_msg.str());
@@ -560,9 +560,33 @@ bool Localplayer::handleClientLocalInput()
 			if(iter != world.units.begin())
 			{
 				iter--;
-				visualworld.bindCamera(&world.units[iter->first]);
+				visualworld.bindCamera(&iter->second);
 				std::stringstream ss_msg;
 				ss_msg << "Bound camera to " << iter->second.name << " with unitID " << iter->first;
+				world.add_message(ss_msg.str());
+			}
+		}
+		else if(key == "N")
+		{
+			auto iter = world.units.find(visualworld.camera.unit_id);
+			if(iter == world.units.end())
+				iter = world.units.begin();
+			else
+			{
+				iter++;
+				if(iter == world.units.end())
+					iter = world.units.begin();
+			}
+			
+			if(iter != world.units.end())
+			{
+				Location loc = iter->second.getPosition();
+				Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+				visualworld.camera.unit_id = iter->second.id;
+				visualworld.camera.setMode(Camera::STATIC);
+				visualworld.camera.setTarget(v);
+				std::stringstream ss_msg;
+				ss_msg << "Looking at " << v;
 				world.add_message(ss_msg.str());
 			}
 		}

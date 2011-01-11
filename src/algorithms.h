@@ -21,5 +21,14 @@ void interpolate(const Location& A, const Location& B, const Location& C, Locati
 // pixel on the screen.
 int light_scissor(const Vec3& lightpos, float r, int screen_width, int screen_height, std::array<int,4>& rect );
 
+
+// Returns the clockwise angle between the vector (0,0,-1) and the given vector projected to the plane spanned by (1,0,0) and (0,0,1).
+// The angle is returned in degrees from range [0, 360[.
+float getXangle(const Vec3& vec);
+
+// Returns the angle between the given vector and the vector (0, -1, 0).
+// The angle is returned in degrees from range [0, 180].
+float getYangle(const Vec3& vec);
+
 #endif
 

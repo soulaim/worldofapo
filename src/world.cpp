@@ -1,7 +1,7 @@
 
 #include "world.h"
-#include "modelfactory.h"
-#include "visualworld.h"
+#include "graphics/modelfactory.h"
+#include "graphics/visualworld.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -243,7 +243,6 @@ void World::doDeathFor(Unit& unit)
 	// store the event information for later use.
 	visualworld->add_event(event);
 }
-
 
 
 

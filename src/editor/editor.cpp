@@ -1409,7 +1409,7 @@ bool Editor::handle_input()
 	{
 		view.zoom_out();
 	}
-	visualworld.camera.updateInput(keystate);
+	visualworld.camera.updateInput(keystate, x, y);
 	int sensitivity = 1000;
 	x *= sensitivity;
 	y *= sensitivity;

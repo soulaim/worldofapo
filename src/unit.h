@@ -8,10 +8,11 @@
 
 #include "weapon.h"
 #include "location.h"
-#include "apomath.h"
 #include "octree_object.h"
 #include "movable_object.h"
 #include "item.h"
+
+class ApoMath;
 
 class Unit : public HasProperties, public OctreeObject
 {

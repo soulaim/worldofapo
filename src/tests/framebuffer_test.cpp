@@ -36,7 +36,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader.start();
-		draw_box(0.2f);
+		draw_box(0.2f, 0.0f, 0.0f, 0.0f);
 		shader.stop();
 
 		Framebuffer::unbind();

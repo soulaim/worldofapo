@@ -5,6 +5,7 @@ squareroot_and_crossproduct
 matrixtest
 btt_test
 interpolationtest
+rotation_test
 apomath_test
 lightshapetest
 datatype_test
@@ -14,4 +15,5 @@ sdlwindow_test
 glew_test
 framebuffer_test
 deferred_test
+depth_test
 

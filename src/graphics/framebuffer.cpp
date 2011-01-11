@@ -76,6 +76,22 @@ void Framebuffer::bind(size_t target_count) const
 {
 	assert(target_count <= targets.size());
 	glBindFramebuffer(GL_FRAMEBUFFER, location);
+	bind_helper(target_count);
+}
+
+void Framebuffer::bind_for_reading() const
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, location);
+}
+
+void Framebuffer::bind_for_writing() const
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, location);
+	bind_helper(targets.size());
+}
+
+void Framebuffer::bind_helper(size_t target_count) const
+{
 	if(targets.empty())
 	{
 		glDrawBuffer(GL_NONE);
@@ -87,7 +103,6 @@ void Framebuffer::bind(size_t target_count) const
 	}
 	glViewport(0, 0, resolution_x, resolution_y);
 }
-
 
 void Framebuffer::unbind()
 {

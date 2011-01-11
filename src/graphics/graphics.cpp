@@ -164,6 +164,8 @@ void Graphics::init(Camera& camera)
 		deferredFBO = Framebuffer("deferredFBO", x, y, true, 2);
 //		deferredFBO.add_float_target();
 
+
+		// TODO: Should these use renderbuffer targets instead of textures?
 		postFBO = Framebuffer("postFBO", x, y, false, 1);
 
 		size_t downscale = intVals["PARTICLE_RESOLUTION_DIVISOR"];

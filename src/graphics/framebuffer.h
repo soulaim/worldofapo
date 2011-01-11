@@ -16,6 +16,8 @@ public:
 	void destroy();
 
 	void bind() const;
+	void bind_for_reading() const;
+	void bind_for_writing() const;
 	void bind(size_t target_count) const;
 
 	std::string depth_texture() const;
@@ -29,6 +31,7 @@ public:
 	static void unbind();
 private:
 	std::string target_name(size_t target) const;
+	void bind_helper(size_t target_count) const;
 
 	std::string prefix;
 	size_t resolution_x;

@@ -1,5 +1,7 @@
 #include "unit.h"
 
+#include "apomath.h"
+
 #include <iostream>
 #include <sstream>
 #include <algorithm>

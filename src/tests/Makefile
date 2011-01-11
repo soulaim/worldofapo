@@ -11,12 +11,14 @@ targets= \
 	lightshapetest \
 	interpolationtest \
 	datatype_test \
+	rotation_test \
 	sdlwindow_test \
 	glew_test \
 	drawing_test \
 	shader_test \
 	framebuffer_test \
-	deferred_test
+	deferred_test \
+	depth_test
 # socket_test
 # btt_test
 
@@ -30,6 +32,7 @@ squareroot_and_crossproduct: squareroot_and_crossproduct.cpp fixed_point.cpp loc
 socket_test: socket_test.cpp net/socket.cpp net/socket_handler.cpp
 btt_test: btt_test.cpp
 interpolationtest: interpolationtest.cpp graphics/frustum/vec3.cpp location.cpp fixed_point.cpp test.h algorithms.cpp graphics/frustum/vec3.cpp
+rotation_test: rotation_test.cpp algorithms.cpp graphics/frustum/vec3.cpp test.h location.cpp
 lightshapetest: lightshapetest.cpp algorithms.cpp graphics/frustum/vec3.cpp test.h location.cpp
 datatype_test: datatype_test.cpp
 
@@ -56,6 +59,10 @@ framebuffer_test: framebuffer_test.cpp graphics/opengl.cpp graphics/shader.cpp g
 deferred_test: CXXFLAGS += `pkg-config --cflags sdl gl glu libpng`
 deferred_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu libpng`
 deferred_test: deferred_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp graphics/framebuffer.cpp graphics/texturehandler.cpp logger.cpp graphics/image.cpp graphics/loadpng.cpp graphics/graphics_helper.cpp graphics_tests.h
+
+depth_test: CXXFLAGS += `pkg-config --cflags sdl gl glu libpng`
+depth_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu libpng`
+depth_test: depth_test.cpp graphics/opengl.cpp graphics/shader.cpp graphics/window.cpp userio.cpp graphics/framebuffer.cpp graphics/texturehandler.cpp logger.cpp graphics/image.cpp graphics/loadpng.cpp graphics/graphics_helper.cpp graphics_tests.h graphics/basiccamera.cpp graphics/frustum/vec3.cpp graphics/frustum/matrix4.cpp algorithms.cpp location.cpp
 
 clean:
 	$(RM) $(targets)
