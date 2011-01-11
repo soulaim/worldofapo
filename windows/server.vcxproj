@@ -12,99 +12,123 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\algorithms.cpp" />
-    <ClCompile Include="..\src\animation.cpp" />
     <ClCompile Include="..\src\apomath.cpp" />
-    <ClCompile Include="..\src\apomodel.cpp" />
-    <ClCompile Include="..\src\btt.cpp" />
-    <ClCompile Include="..\src\camera.cpp" />
     <ClCompile Include="..\src\collision.cpp" />
     <ClCompile Include="..\src\dedicated\dedicated.cpp" />
     <ClCompile Include="..\src\dedicated\main.cpp" />
     <ClCompile Include="..\src\dedicated\messages.cpp" />
     <ClCompile Include="..\src\dedicated\sign_in.cpp" />
     <ClCompile Include="..\src\fixed_point.cpp" />
-    <ClCompile Include="..\src\font.cpp" />
     <ClCompile Include="..\src\fps_manager.cpp" />
-    <ClCompile Include="..\src\frustum\frustumr.cpp" />
-    <ClCompile Include="..\src\frustum\matrix4.cpp" />
-    <ClCompile Include="..\src\frustum\plane.cpp" />
-    <ClCompile Include="..\src\frustum\vec3.cpp" />
     <ClCompile Include="..\src\game.cpp" />
     <ClCompile Include="..\src\gamesound.cpp" />
-    <ClCompile Include="..\src\graphics.cpp" />
-    <ClCompile Include="..\src\grasscluster.cpp" />
-    <ClCompile Include="..\src\hud.cpp" />
-    <ClCompile Include="..\src\image.cpp" />
-    <ClCompile Include="..\src\invisiblemodel.cpp" />
+    <ClCompile Include="..\src\graphics\animation.cpp" />
+    <ClCompile Include="..\src\graphics\apomodel.cpp" />
+    <ClCompile Include="..\src\graphics\btt.cpp" />
+    <ClCompile Include="..\src\graphics\camera.cpp" />
+    <ClCompile Include="..\src\graphics\font.cpp" />
+    <ClCompile Include="..\src\graphics\framebuffer.cpp" />
+    <ClCompile Include="..\src\graphics\frustum\frustumr.cpp" />
+    <ClCompile Include="..\src\graphics\frustum\matrix4.cpp" />
+    <ClCompile Include="..\src\graphics\frustum\plane.cpp" />
+    <ClCompile Include="..\src\graphics\frustum\vec3.cpp" />
+    <ClCompile Include="..\src\graphics\graphics.cpp" />
+    <ClCompile Include="..\src\graphics\graphics_helper.cpp" />
+    <ClCompile Include="..\src\graphics\grasscluster.cpp" />
+    <ClCompile Include="..\src\graphics\hud.cpp" />
+    <ClCompile Include="..\src\graphics\image.cpp" />
+    <ClCompile Include="..\src\graphics\invisiblemodel.cpp" />
+    <ClCompile Include="..\src\graphics\leveldescriptor.cpp" />
+    <ClCompile Include="..\src\graphics\lightsource.cpp" />
+    <ClCompile Include="..\src\graphics\loadpng.cpp" />
+    <ClCompile Include="..\src\graphics\menu.cpp" />
+    <ClCompile Include="..\src\graphics\model.cpp" />
+    <ClCompile Include="..\src\graphics\modelfactory.cpp" />
+    <ClCompile Include="..\src\graphics\opengl.cpp" />
+    <ClCompile Include="..\src\graphics\particle_source.cpp" />
+    <ClCompile Include="..\src\graphics\shader.cpp" />
+    <ClCompile Include="..\src\graphics\shaders.cpp" />
+    <ClCompile Include="..\src\graphics\skeletalmodel.cpp" />
+    <ClCompile Include="..\src\graphics\string2rgb.cpp" />
+    <ClCompile Include="..\src\graphics\texturehandler.cpp" />
+    <ClCompile Include="..\src\graphics\visualworld.cpp" />
+    <ClCompile Include="..\src\graphics\window.cpp" />
+    <ClCompile Include="..\src\hasproperties.cpp" />
     <ClCompile Include="..\src\keymanager.cpp" />
     <ClCompile Include="..\src\level.cpp" />
-    <ClCompile Include="..\src\lightsource.cpp" />
-    <ClCompile Include="..\src\loadpng.cpp" />
     <ClCompile Include="..\src\localplayer.cpp" />
     <ClCompile Include="..\src\location.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
-    <ClCompile Include="..\src\medikit.cpp" />
-    <ClCompile Include="..\src\model.cpp" />
-    <ClCompile Include="..\src\modelfactory.cpp" />
     <ClCompile Include="..\src\movable_object.cpp" />
     <ClCompile Include="..\src\net\socket.cpp" />
     <ClCompile Include="..\src\net\socket_handler.cpp" />
     <ClCompile Include="..\src\octree.cpp" />
     <ClCompile Include="..\src\octree_object.cpp" />
     <ClCompile Include="..\src\ordercontainer.cpp" />
-    <ClCompile Include="..\src\particle_source.cpp" />
     <ClCompile Include="..\src\playerinfo.cpp" />
     <ClCompile Include="..\src\projectile.cpp" />
     <ClCompile Include="..\src\random.cpp" />
-    <ClCompile Include="..\src\shader.cpp" />
-    <ClCompile Include="..\src\shaders.cpp" />
-    <ClCompile Include="..\src\skeletalmodel.cpp" />
-    <ClCompile Include="..\src\string2rgb.cpp" />
-    <ClCompile Include="..\src\texturehandler.cpp" />
     <ClCompile Include="..\src\unit.cpp" />
     <ClCompile Include="..\src\userio.cpp" />
-    <ClCompile Include="..\src\visualworld.cpp" />
     <ClCompile Include="..\src\weapon.cpp" />
-    <ClCompile Include="..\src\window.cpp" />
     <ClCompile Include="..\src\world.cpp" />
+    <ClCompile Include="..\src\world_item.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\algorithms.h" />
-    <ClInclude Include="..\src\animation.h" />
     <ClInclude Include="..\src\apomath.h" />
-    <ClInclude Include="..\src\apomodel.h" />
-    <ClInclude Include="..\src\btt.h" />
-    <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\collision.h" />
     <ClInclude Include="..\src\dedicated\dedicated.h" />
     <ClInclude Include="..\src\fixed_point.h" />
-    <ClInclude Include="..\src\font.h" />
     <ClInclude Include="..\src\fps_manager.h" />
-    <ClInclude Include="..\src\frustum\frustumr.h" />
-    <ClInclude Include="..\src\frustum\matrix4.h" />
-    <ClInclude Include="..\src\frustum\plane.h" />
-    <ClInclude Include="..\src\frustum\vec3.h" />
     <ClInclude Include="..\src\game.h" />
     <ClInclude Include="..\src\gamesound.h" />
-    <ClInclude Include="..\src\graphics.h" />
-    <ClInclude Include="..\src\grasscluster.h" />
+    <ClInclude Include="..\src\game_data\character_info.h" />
+    <ClInclude Include="..\src\graphics\animation.h" />
+    <ClInclude Include="..\src\graphics\apomodel.h" />
+    <ClInclude Include="..\src\graphics\btt.h" />
+    <ClInclude Include="..\src\graphics\camera.h" />
+    <ClInclude Include="..\src\graphics\font.h" />
+    <ClInclude Include="..\src\graphics\framebuffer.h" />
+    <ClInclude Include="..\src\graphics\frustum\frustumr.h" />
+    <ClInclude Include="..\src\graphics\frustum\matrix4.h" />
+    <ClInclude Include="..\src\graphics\frustum\plane.h" />
+    <ClInclude Include="..\src\graphics\frustum\vec3.h" />
+    <ClInclude Include="..\src\graphics\graphics.h" />
+    <ClInclude Include="..\src\graphics\graphics_helper.h" />
+    <ClInclude Include="..\src\graphics\grasscluster.h" />
+    <ClInclude Include="..\src\graphics\hud.h" />
+    <ClInclude Include="..\src\graphics\image.h" />
+    <ClInclude Include="..\src\graphics\invisiblemodel.h" />
+    <ClInclude Include="..\src\graphics\leveldescriptor.h" />
+    <ClInclude Include="..\src\graphics\level_square_part_block.h" />
+    <ClInclude Include="..\src\graphics\lightsource.h" />
+    <ClInclude Include="..\src\graphics\light_object.h" />
+    <ClInclude Include="..\src\graphics\menu.h" />
+    <ClInclude Include="..\src\graphics\menubutton.h" />
+    <ClInclude Include="..\src\graphics\model.h" />
+    <ClInclude Include="..\src\graphics\modelfactory.h" />
+    <ClInclude Include="..\src\graphics\opengl.h" />
+    <ClInclude Include="..\src\graphics\particle.h" />
+    <ClInclude Include="..\src\graphics\particle_source.h" />
+    <ClInclude Include="..\src\graphics\primitives.h" />
+    <ClInclude Include="..\src\graphics\shader.h" />
+    <ClInclude Include="..\src\graphics\shaders.h" />
+    <ClInclude Include="..\src\graphics\skeletalmodel.h" />
+    <ClInclude Include="..\src\graphics\string2rgb.h" />
+    <ClInclude Include="..\src\graphics\texturecoordinate.h" />
+    <ClInclude Include="..\src\graphics\texturehandler.h" />
+    <ClInclude Include="..\src\graphics\viewmessage.h" />
+    <ClInclude Include="..\src\graphics\visualworld.h" />
+    <ClInclude Include="..\src\graphics\window.h" />
     <ClInclude Include="..\src\hasproperties.h" />
-    <ClInclude Include="..\src\hud.h" />
-    <ClInclude Include="..\src\image.h" />
-    <ClInclude Include="..\src\invisiblemodel.h" />
+    <ClInclude Include="..\src\idgenerator.h" />
     <ClInclude Include="..\src\item.h" />
     <ClInclude Include="..\src\keymanager.h" />
     <ClInclude Include="..\src\level.h" />
-    <ClInclude Include="..\src\lightsource.h" />
-    <ClInclude Include="..\src\light_object.h" />
     <ClInclude Include="..\src\localplayer.h" />
     <ClInclude Include="..\src\location.h" />
     <ClInclude Include="..\src\logger.h" />
-    <ClInclude Include="..\src\medikit.h" />
-    <ClInclude Include="..\src\menu.h" />
-    <ClInclude Include="..\src\menubutton.h" />
-    <ClInclude Include="..\src\model.h" />
-    <ClInclude Include="..\src\modelfactory.h" />
     <ClInclude Include="..\src\movable_object.h" />
     <ClInclude Include="..\src\net\socket.h" />
     <ClInclude Include="..\src\net\socket_handler.h" />
@@ -112,27 +136,16 @@
     <ClInclude Include="..\src\octree_object.h" />
     <ClInclude Include="..\src\order.h" />
     <ClInclude Include="..\src\ordercontainer.h" />
-    <ClInclude Include="..\src\particle.h" />
-    <ClInclude Include="..\src\particle_source.h" />
     <ClInclude Include="..\src\playerinfo.h" />
-    <ClInclude Include="..\src\primitives.h" />
     <ClInclude Include="..\src\projectile.h" />
     <ClInclude Include="..\src\random.h" />
-    <ClInclude Include="..\src\shader.h" />
-    <ClInclude Include="..\src\shaders.h" />
-    <ClInclude Include="..\src\skeletalmodel.h" />
-    <ClInclude Include="..\src\string2rgb.h" />
     <ClInclude Include="..\src\stringsystem.h" />
-    <ClInclude Include="..\src\texturecoordinate.h" />
-    <ClInclude Include="..\src\texturehandler.h" />
     <ClInclude Include="..\src\unit.h" />
     <ClInclude Include="..\src\userio.h" />
-    <ClInclude Include="..\src\viewmessage.h" />
-    <ClInclude Include="..\src\visualworld.h" />
     <ClInclude Include="..\src\weapon.h" />
-    <ClInclude Include="..\src\window.h" />
     <ClInclude Include="..\src\world.h" />
     <ClInclude Include="..\src\worldevent.h" />
+    <ClInclude Include="..\src\world_item.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D44DCB0A-3D9B-4CB8-AB50-BDE1C9BC6A28}</ProjectGuid>
@@ -167,7 +180,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng;$(IncludePath)</IncludePath>
-    <LibraryPath>..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
+    <LibraryPath>H:\code\opengl\diablo\trololol\Pre-built.2\lib;..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
     <IntDir>server\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -192,13 +205,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\code\opengl\diablo\trololol\Pre-built.2\include;H:\code\opengl\diablo\src\graphics;H:\code\opengl\diablo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libpng.lib;zlib.lib;SDL_mixer.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpng.lib;zlib.lib;SDL_mixer.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;pthreadVC2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

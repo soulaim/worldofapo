@@ -222,7 +222,16 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 //	clear_errors();
 
 	// TODO: update only the shader that is currently active. Or update lights when actually drawing.
+#ifdef _WIN32
+	vector<string> programs;
+	programs.push_back("level_program");
+	programs.push_back("deferred_lights_program");
+	programs.push_back("partitioned_deferred_lights_program");
+	programs.push_back("partitioned_deferred_lights_program2");
+#else
 	vector<string> programs = { "level_program", "deferred_lights_program", "partitioned_deferred_lights_program", "partitioned_deferred_lights_program2" };
+#endif
+
 	Matrix4 modelview = camera_p->modelview();
 
 	for(size_t p = 0; p < programs.size(); ++p)

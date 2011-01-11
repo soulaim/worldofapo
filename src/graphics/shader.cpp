@@ -211,7 +211,7 @@ GLint Shader::uniform(const std::string& name)
 	if(it == uniform_locations.end())
 	{
 		GLint location = glGetUniformLocation(program, name.c_str());
-		uniform_locations.insert(it, {name, location});
+		uniform_locations.insert(it, make_pair(name, location));
 		if(location == -1)
 		{
 			cerr << "WARNING: shader has no uniform with name " << name << endl;
@@ -231,7 +231,7 @@ GLint Shader::attribute(const std::string& name)
 	if(it == uniform_locations.end())
 	{
 		GLint location = glGetAttribLocation(program, name.c_str());
-		uniform_locations.insert(it, {name, location});
+		uniform_locations.insert(it, make_pair(name, location));
 		if(location == -1)
 		{
 			cerr << "WARNING: shader has no attribute with name " << name << endl;

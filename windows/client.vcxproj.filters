@@ -15,11 +15,17 @@
     <Filter Include="Source Files\net">
       <UniqueIdentifier>{67df7f5e-7b99-46fd-be84-9ed0e01a17ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\frustum">
-      <UniqueIdentifier>{e66328cc-c32f-4ec6-a925-8f7b939470f1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\main">
       <UniqueIdentifier>{1bd5afb9-cdf4-4a46-84d7-48799a9e451d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics">
+      <UniqueIdentifier>{f99788ef-a04e-4fc6-bcef-0fc1898fff75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gamedata">
+      <UniqueIdentifier>{c1dc50d8-6bd0-40b8-9239-ba49a0df498a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\frustum">
+      <UniqueIdentifier>{7351d699-1ba5-4fed-a48b-33fcf661f8cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -94,354 +100,393 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\algorithms.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\apomath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\apomodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\btt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\collision.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\fixed_point.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\fps_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\gamesound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\grasscluster.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\hud.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\invisiblemodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\keymanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\lightsource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\loadpng.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\localplayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\location.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\medikit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\modelfactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\movable_object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\octree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\octree_object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ordercontainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\particle_source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\playerinfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\shaders.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\skeletalmodel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\string2rgb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\texturehandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\unit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\userio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\visualworld.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\weapon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\net\socket.cpp">
       <Filter>Source Files\net</Filter>
     </ClCompile>
     <ClCompile Include="..\src\net\socket_handler.cpp">
       <Filter>Source Files\net</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\frustum\frustumr.cpp">
-      <Filter>Source Files\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\frustum\matrix4.cpp">
-      <Filter>Source Files\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\frustum\plane.cpp">
-      <Filter>Source Files\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\frustum\vec3.cpp">
-      <Filter>Source Files\frustum</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\main\main.cpp">
       <Filter>Source Files\main</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\random.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\src\graphics\animation.cpp">
+      <Filter>Source Files\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\shader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\src\graphics\apomodel.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\btt.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\camera.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\font.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\framebuffer.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\graphics.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\graphics_helper.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\grasscluster.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\image.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\invisiblemodel.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\leveldescriptor.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\lightsource.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\loadpng.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\menu.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\model.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\modelfactory.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\opengl.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\particle_source.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\shader.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\shaders.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\skeletalmodel.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\string2rgb.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\texturehandler.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\visualworld.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\window.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\algorithms.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\apomath.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\collision.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fixed_point.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fps_manager.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gamesound.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hasproperties.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\keymanager.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\level.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\localplayer.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\location.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\logger.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\movable_object.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\octree.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\octree_object.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ordercontainer.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\playerinfo.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\projectile.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\random.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\unit.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\userio.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\weapon.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world_item.cpp">
+      <Filter>Source Files\gamedata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\frustum\frustumr.cpp">
+      <Filter>Source Files\frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\frustum\matrix4.cpp">
+      <Filter>Source Files\frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\frustum\plane.cpp">
+      <Filter>Source Files\frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\frustum\vec3.cpp">
+      <Filter>Source Files\frustum</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\algorithms.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\animation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\apomath.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\apomodel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\btt.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\camera.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\collision.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\fixed_point.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\font.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\fps_manager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\game.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\gamesound.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\grasscluster.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\hasproperties.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\hud.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\image.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\invisiblemodel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\item.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\keymanager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\level.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\light_object.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\lightsource.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\localplayer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\location.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\logger.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\medikit.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\menu.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\menubutton.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\model.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\modelfactory.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\movable_object.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\octree.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\octree_object.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\order.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ordercontainer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\particle.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\particle_source.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\playerinfo.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\primitives.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\projectile.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\random.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\shaders.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\skeletalmodel.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\string2rgb.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\stringsystem.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\texturecoordinate.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\texturehandler.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\unit.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\userio.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\viewmessage.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\visualworld.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\weapon.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\window.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\worldevent.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\net\socket.h">
       <Filter>Source Files\net</Filter>
     </ClInclude>
     <ClInclude Include="..\src\net\socket_handler.h">
       <Filter>Source Files\net</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\frustum\frustumr.h">
+    <ClInclude Include="..\src\graphics\animation.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\apomodel.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\btt.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\camera.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\font.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\framebuffer.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\graphics.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\graphics_helper.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\grasscluster.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\image.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\invisiblemodel.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\level_square_part_block.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\leveldescriptor.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\light_object.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\lightsource.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\menu.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\menubutton.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\model.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\modelfactory.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\opengl.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\particle.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\particle_source.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\primitives.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\shader.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\shaders.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\skeletalmodel.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\string2rgb.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\texturecoordinate.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\texturehandler.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\viewmessage.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\visualworld.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\window.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\algorithms.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\apomath.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\collision.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\fixed_point.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\fps_manager.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\gamesound.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\hasproperties.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\idgenerator.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\item.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\keymanager.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\level.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\localplayer.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\location.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\logger.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\movable_object.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\octree.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\octree_object.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\order.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ordercontainer.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\playerinfo.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\projectile.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\random.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\stringsystem.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\unit.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\userio.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\weapon.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world_item.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldevent.h">
+      <Filter>Source Files\gamedata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game_data\character_info.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\frustum\frustumr.h">
       <Filter>Source Files\frustum</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\frustum\matrix4.h">
+    <ClInclude Include="..\src\graphics\frustum\matrix4.h">
       <Filter>Source Files\frustum</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\frustum\plane.h">
+    <ClInclude Include="..\src\graphics\frustum\plane.h">
       <Filter>Source Files\frustum</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\frustum\vec3.h">
+    <ClInclude Include="..\src\graphics\frustum\vec3.h">
       <Filter>Source Files\frustum</Filter>
     </ClInclude>
   </ItemGroup>

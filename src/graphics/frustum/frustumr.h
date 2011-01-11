@@ -4,6 +4,11 @@
 #include "vec3.h"
 #include "plane.h"
 
+#ifdef _WIN32
+#undef near
+#undef far
+#endif
+
 class FrustumR
 {
 public:
@@ -34,7 +39,11 @@ private:
 
 	Vec3 X,Y,Z;
 	Vec3 camPos;
-	float near, far, ratio, angle;
+	float near;
+	float far;
+	float ratio;
+	float angle;
+
 	float sphereFactorX, sphereFactorY;
 	double tang;
 	double nw,nh,fw,fh;

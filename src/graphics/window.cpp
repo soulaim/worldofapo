@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cassert>
 #include <iomanip>
+#include <stdexcept>
 
 using namespace std;
 
@@ -37,9 +38,9 @@ Window::~Window()
 
 void Window::createWindow(int width, int height)
 {
-	assert(width > 10);
-	assert(width <= 4096);
-	assert(height > 10);
+	assert(width   >   10);
+	assert(width  <= 4096);
+	assert(height  >   10);
 	assert(height <= 4096);
 
 	width_  = width;
@@ -48,24 +49,22 @@ void Window::createWindow(int width, int height)
 	assert(!drawContext);
 	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  16);
 	
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	
 	drawContext = SDL_SetVideoMode(width_, height_, 0, SDL_OPENGL); // | SDL_FULLSCREEN);
 	if(drawContext == 0)
 	{
 		cerr << "ERROR: drawContext = " << drawContext << endl;
-		throw std::string("Unable to set SDL video mode");
+		throw std::runtime_error("Unable to set SDL video mode");
 	}
 	else
 	{
 		SDL_WM_SetCaption("World of Apo", "World of Apo");
-		
-//		cerr << "SUCCESS: Got a drawContext!" << endl;
 	}
 }
 

@@ -211,7 +211,11 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 				break;
 			
 			view->drawLoadScreen(task_name, bg_image, done_percent);
+#ifndef _WIN32
 			usleep(1000);
+#else
+			// sleep(10);
+#endif
 		}
 		
 		task_name = "Decorating terrain..";

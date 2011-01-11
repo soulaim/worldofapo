@@ -306,7 +306,7 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 		improved = false;
 		hypo_upangle += 5;
 		myDirection.y = apomath.getSin(hypo_upangle);
-		FixedPoint error = (direction.y * 100 - myDirection.y * 100).squared();
+		FixedPoint error = (direction.y * 100 + myDirection.y * 100).squared();
 		if(error < best_error)
 		{
 			best_error = error;
@@ -316,7 +316,7 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 		{
 			hypo_upangle -= 10;
 			myDirection.y = apomath.getSin(hypo_upangle);
-			error = (direction.y * 100 - myDirection.y * 100).squared();
+			error = (direction.y * 100 + myDirection.y * 100).squared();
 			if(error < best_error)
 			{
 				best_error = error;
