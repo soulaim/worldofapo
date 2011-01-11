@@ -1,8 +1,8 @@
 
 #include "unit.h"
 #include "world.h"
-#include "visualworld.h"
 #include "weapon.h"
+#include "graphics/visualworld.h"
 
 
 inline int min(const int a, const int b)

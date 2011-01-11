@@ -1,6 +1,7 @@
 #include "algorithms.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -152,5 +153,23 @@ int light_scissor(const Vec3& lightpos, float r, int screen_width, int screen_he
 		// Enable scissor test with rect.
 		return n;
 	}
+}
+
+float getXangle(const Vec3& vec)
+{
+	Vec3 v1 = vec;
+	v1.y = 0.0;
+	v1.normalize();
+	Vec3 v2(-1, 0, 0);
+	float angle = atan2(v2.z, v2.x) - atan2(v1.z, v1.x);
+	return fmod(angle / 3.14159265f * 180.0f + 90.0f, 360.0f);
+}
+
+float getYangle(const Vec3& vec)
+{
+	Vec3 v = vec;
+	v.normalize();
+	float angle = acos(v.innerProduct(Vec3(0,1,0)));
+	return -angle / 3.14159265f * 180.0f + 180.0f;
 }
 
