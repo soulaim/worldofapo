@@ -23,34 +23,57 @@ void HasProperties::save(const std::string& file)
 	}
 }
 
-void HasProperties::load(const std::string& file)
+void HasProperties::load_helper(const std::string& filename)
 {
-	std::string filename1 = file;
-	std::string filename2 = file + ".default";
-	std::ifstream in1(filename1);
-	std::ifstream in2(filename2);
-
-	std::ifstream& in = (in1 ? in1 : in2);
-	std::string filename = (in1 ? filename1 : filename2);
+	std::ifstream in(filename);
 
 	Logger log;
 	log << "Loading config file: '" << filename << "'\n";
-	
-	std::string word1, word2, word3;
-	int val;
-	while(in >> word1)
+
+	std::string line;
+	int linenumber = 0;
+	while(getline(in, line))
 	{
+		++linenumber;
+		if(line.empty() || line[0] == '#')
+		{
+			continue;
+		}
+		bool bad_format = false;
+		std::string word1, word2, word3;
+		int val = 0;
+		std::stringstream ss(line);
+		ss >> word1;
+
 		if(word1 == "INT")
 		{
-			in >> word2 >> val;
+			ss >> word2 >> val;
 			intVals[word2] = val;
 		}
 		else if(word1 == "STRING")
 		{
-			in >> word2 >> word3;
+			ss >> word2 >> word3;
 			strVals[word2] = word3;
 		}
+		else
+		{
+			bad_format = true;
+		}
+
+		if(bad_format || !ss)
+		{
+			std::stringstream error;
+			error << "Error on line " << linenumber << " when reading '" << filename << "'\n";
+			std::cerr << error.str();
+			log << error.str();
+		}
 	}
+}
+
+void HasProperties::load(const std::string& file)
+{
+	load_helper(file + ".default");
+	load_helper(file);
 }
 
 int& HasProperties::operator [] (const std::string& a)

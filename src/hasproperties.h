@@ -22,6 +22,8 @@ public:
 
 	std::unordered_map<std::string, int> intVals;
 	std::unordered_map<std::string, std::string> strVals;
+private:
+	void load_helper(const std::string& file);
 };
 
 #endif
