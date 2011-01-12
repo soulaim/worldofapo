@@ -89,7 +89,6 @@ bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions, Wind
 			master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 			
 			// at least if server disconnects us, this is the only place where reset is called.
-			cerr << "did reset get called before this?" << endl;
 			master.reset();
 		}
 	}
