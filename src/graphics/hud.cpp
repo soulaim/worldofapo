@@ -517,17 +517,10 @@ void Hud::draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_an
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
 	
-	float x_val = 2.0f * scale * percentage;
+	float x_val = scale * percentage;
 	
 	glBegin(GL_QUADS);
 	{
-		/*
-		Vec3 p1 = m * Vec3(-x_val, -scale * 0.1f, 0);
-		Vec3 p2 = m * Vec3(-x_val, +scale * 0.1f, 0);
-		Vec3 p3 = m * Vec3(+scale, +scale * 0.1f, 0);
-		Vec3 p4 = m * Vec3(+scale, -scale * 0.1f, 0);
-		*/
-		
 		Vec3 p1 = m * Vec3(-x_val, -scale * 0.1f, 0);
 		Vec3 p2 = m * Vec3(-x_val, +scale * 0.1f, 0);
 		Vec3 p3 = m * Vec3(+x_val, +scale * 0.1f, 0);
