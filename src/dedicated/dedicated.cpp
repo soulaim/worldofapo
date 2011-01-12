@@ -35,13 +35,13 @@ int DedicatedServer::nextPlayerID()
 }
 
 DedicatedServer::DedicatedServer():
+	checkSumVectorSize(150),
 	fps_world(0)
 {
 	playerIDGenerator.setNextID(0);
 	
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
-	init();
 	
 	load("configs/server.conf");
 	
@@ -90,6 +90,8 @@ DedicatedServer::DedicatedServer():
 	portal2.intVals["PERSISTS"] = 1;
 	portal2.intVals["AREA_CHANGE"] = 1;
 	portal2.strVals["AREA_CHANGE_TARGET"] = first_area;
+	
+	init();
 }
 
 void DedicatedServer::init()
@@ -101,6 +103,11 @@ void DedicatedServer::init()
 	
 	srand(time(0));
 	
+	// init checksums
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		checkSums[area_it->first].resize(checkSumVectorSize); // gives about three seconds to clients.
+	}
 }
 
 void DedicatedServer::send_to_all(const std::string& msg)
@@ -350,6 +357,51 @@ void DedicatedServer::host_tick()
 	}
 }
 
+
+bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumType>& plr_cs)
+{
+	
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		if(area_it->second.units.find(plrID) != area_it->second.units.end())
+		{
+			bool all_is_fine = true;
+			vector<World::CheckSumType>& checksum_vector = checkSums[area_it->first][frameID % 150];
+			
+			for(size_t i = 0; i < checksum_vector.size(); ++i)
+			{
+				if(checksum_vector[i] != plr_cs[i])
+				{
+					cerr << "out of sync " << i << ", server cs: " << checksum_vector[i] << ", client cs: " << plr_cs[i] << endl;
+					
+					stringstream chat_msg;
+					chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: " << i << "#";
+					serverMsgs.push_back(chat_msg.str());
+					
+					all_is_fine = false;
+				}
+			}
+			
+			if((simulRules.currentFrame > checksum_vector.size()) && (!all_is_fine))
+			{
+				stringstream chat_msg;
+				chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: DISCONNECTED#";
+				serverMsgs.push_back(chat_msg.str());
+				cerr << chat_msg.str() << endl;
+				disconnect(plrID);
+			}
+			
+			// no worries! all is fine!
+			return all_is_fine;
+		}
+	}
+	
+	// if player character is nowhere, how can?
+	return true;
+}
+
+
+
 void DedicatedServer::simulateWorldFrame()
 {
 	if(!UnitInput.empty())
@@ -358,24 +410,11 @@ void DedicatedServer::simulateWorldFrame()
 	
 	fps_world.insert();
 	
-	static bool checkSumsInitialized = false;
-	static map<string, vector<World::CheckSumType> > checkSums;
-	const int checkSumVectorSize = 150;
-	
-	if(!checkSumsInitialized)
-	{
-		checkSumsInitialized = true;
-		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
-		{
-			checkSums[area_it->first].resize(checkSumVectorSize, 0); // gives about three seconds to clients.
-		}
-	}
-	
 	int current = simulRules.currentFrame % checkSumVectorSize;
-	
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 	{
-		checkSums[area_it->first][current] = area_it->second.checksum();
+		checkSums[area_it->first][current].clear();
+		area_it->second.checksum(checkSums[area_it->first][current]);
 	}
 	
 	sort(UnitInput.begin(), UnitInput.end());
@@ -396,57 +435,6 @@ void DedicatedServer::simulateWorldFrame()
 			cerr << "ERROR: Server processing order messages and encountered a server message" << endl;
 			continue;
 		}
-		
-		
-		// check the checksums
-		int id = tmp.plr_id;
-		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
-		{
-			if(area_it->second.units.find(id) != area_it->second.units.end())
-			{
-				bool all_is_fine = false;
-				vector<World::CheckSumType>& checksum_vector = checkSums[area_it->first];
-				for(auto checksum_it = checksum_vector.begin(); checksum_it != checksum_vector.end(); ++checksum_it)
-				{
-					if(*checksum_it == tmp.checksum)
-					{
-						// all is fine!
-						all_is_fine = true;
-						break;
-					}
-				}
-				
-				if((simulRules.currentFrame > checksum_vector.size()) && (!all_is_fine) && (tmp.checksum != 0))
-				{
-					std::cerr << "OUT OF SYNC: player " << tmp.plr_id << " frame: " << tmp.frameID << std::endl;
-					std::cerr << "client checksum: " << tmp.checksum << std::endl;
-					std::cerr << "server checksum: " << checkSums[area_it->first][(tmp.frameID + 10 - 5) % 10] << std::endl;
-					std::cerr << "Area: " << area_it->second.strVals["AREA_NAME"] << std::endl;
-					cerr << "server unit locations:" << std::endl;
-					
-					for(auto it = area_it->second.units.begin(); it != area_it->second.units.end(); ++it)
-					{
-						int id = it->first;
-						const Location& pos = it->second.getPosition();
-						cerr << id << ": " << pos << std::endl;
-					}
-					
-					// this is one way to handle it
-					/*
-					pause_state = PAUSED;
-					*/
-					
-					// this is another way to handle it
-					stringstream chat_msg;
-					chat_msg << "3 -1 ^G" << Players[id].name << " ^Wwas ^Rout of sync ^Wand got ^Rdisconnected!" << "#";
-					serverMsgs.push_back(chat_msg.str());
-					cerr << chat_msg.str() << endl;
-					
-					disconnect(id);
-				}
-			}
-		}
-		
 		
 		// the actual update code
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -590,7 +578,6 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> tmp_order.keyState;
 			ss >> tmp_order.mousex >> tmp_order.mousey;
 			ss >> tmp_order.mouseButtons;
-			ss >> tmp_order.checksum;
 			
 			if(player.last_order < simulRules.currentFrame + 5)
 			{
@@ -602,8 +589,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			
 			stringstream order_msg;
 			order_msg << "1 " << tmp_order.plr_id << " " << tmp_order.frameID << " " << 
-			tmp_order.keyState << " " << tmp_order.mousex << " " << tmp_order.mousey << " " << tmp_order.mouseButtons << " " <<
-			tmp_order.checksum << "#";
+			tmp_order.keyState << " " << tmp_order.mousex << " " << tmp_order.mousey << " " << tmp_order.mouseButtons << "#";
 			
 			new_message = order_msg.str();
 		}
@@ -740,6 +726,17 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			sendWorldContent(player_id);
 			cerr << "Done" << endl;
 			return;
+		}
+		if(cmd == "CSMSG")
+		{
+			int frameID;
+			ss >> frameID;
+			
+			vector<World::CheckSumType> plr_cs;
+			World::CheckSumType cs_tmp;
+			while(ss >> cs_tmp)
+				plr_cs.push_back(cs_tmp);
+			checkSumOK(player_id, frameID, plr_cs);
 		}
 		else
 		{
@@ -962,8 +959,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		ss >> tmp_order.keyState;
 		ss >> tmp_order.mousex >> tmp_order.mousey;
 		ss >> tmp_order.mouseButtons;
-		ss >> tmp_order.checksum;
-
+		
 		UnitInput.push_back(tmp_order);
 	}
 	else if(order_type == MessageType::PLAYERINFO_MESSAGE) // playerInfo message

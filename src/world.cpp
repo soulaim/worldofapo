@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define LAZY_UPDATE 0
+
 
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 {
@@ -19,7 +21,7 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 	return (FixedPoint(2) - h_diff)/FixedPoint(2);
 }
 
-World::CheckSumType World::checksum() const
+void World::checksum(vector<World::CheckSumType>& checksums) const
 {
 	CheckSumType hash = 5381;
 	
@@ -32,7 +34,16 @@ World::CheckSumType World::checksum() const
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
+	checksums.push_back(hash);
 	
+	hash = 5381;
+	for (auto it = units.begin(); it != units.end(); ++it)
+	{
+		hash = ((hash << 5) + hash) + it->second.hitpoints;
+	}
+	checksums.push_back(hash);
+	
+	hash = 5381;
 	for(auto it = items.begin(); it != items.end(); it++)
 	{
 		int id = it->first;
@@ -42,7 +53,9 @@ World::CheckSumType World::checksum() const
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
+	checksums.push_back(hash);
 	
+	hash = 5381;
 	for(auto it = projectiles.begin(); it != projectiles.end(); it++)
 	{
 		int id = it->first;
@@ -52,8 +65,7 @@ World::CheckSumType World::checksum() const
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
-	
-	return hash;
+	checksums.push_back(hash);
 }
 
 
@@ -1129,6 +1141,7 @@ void World::worldTick(int tickCount)
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 	
+#if LAZY_UPDATE > 0
 	bool players_present = (units.begin()->first < 10000);
 	
 	// shut down AI units if there are no players present.
@@ -1140,6 +1153,13 @@ void World::worldTick(int tickCount)
 			tickUnit(iter->second, model);
 		}
 	}
+#else
+	for(auto iter = units.begin(); iter != units.end(); ++iter)
+	{
+		Model* model = visualworld->getModel(iter->first);
+		tickUnit(iter->second, model);
+	}
+#endif
 	
 	// ticking projectiles even without players is ok, since projectiles will die with time.
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
@@ -1148,6 +1168,7 @@ void World::worldTick(int tickCount)
 		tickProjectile(iter->second, model);
 	}
 	
+#if LAZY_UPDATE > 0
 	// don't waste time on moving items either, if no players are there.
 	if(players_present)
 	{
@@ -1157,7 +1178,13 @@ void World::worldTick(int tickCount)
 			tickItem(iter->second, model);
 		}
 	}
-	
+#else
+	for(auto iter = items.begin(); iter != items.end(); ++iter)
+	{
+		Model* model = visualworld->getModel(iter->first);
+		tickItem(iter->second, model);
+	}
+#endif
 	
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \

@@ -51,6 +51,7 @@ private:
 	
 	bool handleClientLocalInput();
 	void process_sent_game_input();
+	void sendCheckSumMessage();
 	
 	// fully 3D single channel sounds! :DD
 	void playSound(const std::string& name, const Location& position);

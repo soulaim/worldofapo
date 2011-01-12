@@ -17,7 +17,6 @@ struct Order
 	int mousey;
 	int serverCommand;
 	int mouseButtons;
-	unsigned long long checksum;
 	
 	bool operator < (const Order& a) const
 	{
@@ -28,13 +27,13 @@ struct Order
 	
 	void handleCopyOrder(std::stringstream& ss)
 	{
-		ss >> plr_id >> frameID >> keyState >> mousex >> mousey >> serverCommand >> mouseButtons >> checksum;
+		ss >> plr_id >> frameID >> keyState >> mousex >> mousey >> serverCommand >> mouseButtons;
 	}
 	
 	std::string copyOrder() const
 	{
 		std::stringstream input_msg;
-		input_msg << "-4 " << plr_id << " " << frameID << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << " " << checksum << "#";
+		input_msg << "-4 " << plr_id << " " << frameID << " " << keyState << " " << mousex << " " << mousey << " " << serverCommand << " " << mouseButtons << "#";
 		return input_msg.str();
 	}
 };

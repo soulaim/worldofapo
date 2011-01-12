@@ -237,6 +237,21 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 	}
 }
 
+void Localplayer::sendCheckSumMessage()
+{
+	vector<World::CheckSumType> checksums;
+	world.checksum(checksums);
+	
+	stringstream checksum_msg;
+	checksum_msg << "-2 CSMSG";
+	for(size_t k = 0; k < checksums.size(); k++)
+	{
+		checksum_msg << " " << checksums[k];
+	}
+	checksum_msg << "#";
+	game.write(Game::SERVER_ID, checksum_msg.str());
+}
+
 bool Localplayer::client_tick()
 {
 	for(size_t i=0; i<game.meta_events.size(); ++i)
@@ -268,6 +283,7 @@ bool Localplayer::client_tick()
 			
 			visualworld.levelDesc.world_tick(view->frustum);
 			
+			sendCheckSumMessage();
 		}
 		else
 		{

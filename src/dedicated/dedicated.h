@@ -75,6 +75,11 @@ class DedicatedServer : public HasProperties
 		ADMIN_ORDER_MESSAGE = 4
 	};
 	
+	
+	std::map<std::string, std::vector< std::vector<World::CheckSumType> > > checkSums;
+	const int checkSumVectorSize;
+	
+	
 	FPS_Manager fps_world;
 	VisualWorld visualworld; // one common visualworld
 	
@@ -138,6 +143,7 @@ class DedicatedServer : public HasProperties
 	void processClientMsgs();
 	void processClientMsg(const std::string& msg);
 	void processServerMsgs();
+	bool checkSumOK(int plrID, int frameID, std::vector<World::CheckSumType>& plr_cs);
 	
 	void send_to_all(const std::string& msg);
 	void acceptConnections();

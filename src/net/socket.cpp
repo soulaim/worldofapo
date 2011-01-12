@@ -47,13 +47,13 @@ SocketInitializer socket_initializer;
 
 MU_Socket::MU_Socket()
 {
-	alive = true;
+	alive = false;
 }
 
 MU_Socket::MU_Socket(const string& ip, int port)
 {
 	//	cerr << "Constructing a new socket and connecting.. " << endl;
-	alive = true;
+	alive = false;
 	conn_init(ip, port);
 }
 
