@@ -406,15 +406,25 @@ void Graphics::drawSkybox()
 	shader.stop();
 }
 
-void Graphics::drawModels(const map<int, Model*>& models)
+void Graphics::drawModels(const map<int, Model*>& models, const Camera& camera)
 {
 	Shader& shader = shaders.get_shader("unit_program");
 	shader.start();
 	GLint unit_color_location = shader.uniform("unit_color");
 	GLint unit_location_location = shader.uniform("unit_location");
+	int skipped_unit_id = -2;
+	if(camera.mode() == Camera::FIRST_PERSON)
+	{
+		skipped_unit_id = camera.unit_id;
+	}
 	for(map<int, Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		const Model& model = *iter->second;
+
+		if(iter->first == skipped_unit_id)
+		{
+			continue;
+		}
 
 		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
@@ -1095,7 +1105,7 @@ void Graphics::drawSolidGeometry(const VisualWorld& visualworld)
 
 	if(intVals["DRAW_MODELS"])
 	{
-		drawModels(visualworld.models);
+		drawModels(visualworld.models, *camera_p);
 	}
 	
 	if(intVals["DRAW_GRASS"])

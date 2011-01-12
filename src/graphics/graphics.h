@@ -48,7 +48,7 @@ class Graphics: public HasProperties
 	void drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights);
 
 	void drawSolidGeometry(const VisualWorld& visualworld);
-	void drawModels(const std::map<int, Model*>& models);
+	void drawModels(const std::map<int, Model*>& models, const Camera& camera);
 	
 	void prepareForParticleRendering(const std::string& depth_texture);
 	void renderParticles(std::vector<Particle>&);

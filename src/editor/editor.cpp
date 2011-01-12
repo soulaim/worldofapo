@@ -177,7 +177,7 @@ bool Editor::do_tick()
 		{
 //			skeletal_model.draw(false, selected_part);
 			models[0] = &skeletal_model;
-			view.drawModels(models);
+			view.drawModels(models, visualworld.camera);
 		}
 	}
 	else
@@ -186,7 +186,7 @@ bool Editor::do_tick()
 		{
 //			edited_model.draw();
 			models[0] = &edited_model;
-			view.drawModels(models);
+			view.drawModels(models, visualworld.camera);
 		}
 	}
 

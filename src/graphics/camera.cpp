@@ -16,14 +16,6 @@ Camera::Camera():
 	cur_cos = 0.0f;
 	cur_upsin = 0.0f;
 	cur_upcos = 0.0f;
-	
-	fov = 100.f;
-	aspect_ratio = 800.f / 600.f;
-	nearP = 0.1f;
-	farP  = 200.f;
-	
-	min_fov = 15.0f;
-	max_fov = 100.0f;
 
 	unit_id = -2;
 }
