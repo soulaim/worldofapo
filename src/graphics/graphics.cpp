@@ -415,15 +415,25 @@ void Graphics::drawSkybox()
 	shader.stop();
 }
 
-void Graphics::drawModels(const map<int, Model*>& models)
+void Graphics::drawModels(const map<int, Model*>& models, const Camera& camera)
 {
 	Shader& shader = shaders.get_shader("unit_program");
 	shader.start();
 	GLint unit_color_location = shader.uniform("unit_color");
 	GLint unit_location_location = shader.uniform("unit_location");
+	int skipped_unit_id = -2;
+	if(camera.mode() == Camera::FIRST_PERSON)
+	{
+		skipped_unit_id = camera.unit_id;
+	}
 	for(map<int, Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter)
 	{
 		const Model& model = *iter->second;
+
+		if(iter->first == skipped_unit_id)
+		{
+			continue;
+		}
 
 		if(frustum.sphereInFrustum(model.currentModelPos, 5) != FrustumR::OUTSIDE)
 		{
@@ -455,6 +465,8 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
 	GLint scale_location = shader.attribute("particleScale");
+	glUniform1f(shader.uniform("near"), camera_p->nearP);
+	glUniform1f(shader.uniform("far"), camera_p->farP);
 
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
@@ -554,6 +566,8 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
 	GLint scale_location = shader.attribute("particleScale");
+	glUniform1f(shader.uniform("near"), camera_p->nearP);
+	glUniform1f(shader.uniform("far"), camera_p->farP);
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
@@ -966,10 +980,6 @@ Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
 
 void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
-	camera.getPosition();
-
-//	clear_errors();
-
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -1054,7 +1064,6 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 		
 		stringstream lights_debug_str;
 		lights_debug_str << "FS Lights: " << full_screen_lights;
-		
 		hud.insertDebugString(lights_debug_str.str());
 		
 		glDepthMask(GL_TRUE);
@@ -1105,7 +1114,7 @@ void Graphics::drawSolidGeometry(const VisualWorld& visualworld)
 
 	if(intVals["DRAW_MODELS"])
 	{
-		drawModels(visualworld.models);
+		drawModels(visualworld.models, *camera_p);
 	}
 	
 	if(intVals["DRAW_GRASS"])

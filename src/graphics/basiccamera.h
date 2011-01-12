@@ -12,14 +12,17 @@ public:
 
 	void zoomIn();
 	void zoomOut();
+	void zoomDefault();
 
 	void change_yaw(float dx);
 	void change_pitch(float dy);
 
-	float fov, min_fov, max_fov;
+	float fov;
 	float aspect_ratio;
-	float nearP;
-	float farP;
+	static const float min_fov;
+	static const float max_fov;
+	static const float nearP;
+	static const float farP;
 
 	void setTarget(const Vec3& target);
 	virtual void setPosition(const Vec3& position);

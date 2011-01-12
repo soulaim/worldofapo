@@ -114,7 +114,9 @@ private:
 	GLuint locations[BUFFERS];
 	bool buffers_loaded;
 	size_t triangles_size;
-	
+
+	void calculate_weights();
+
 	// These stay constant over different model instances.
 	std::vector<Vec3> vertices;
 	std::vector<Vec3> normals;

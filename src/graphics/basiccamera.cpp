@@ -5,7 +5,19 @@
 
 using namespace std;
 
+namespace
+{
+	const float default_fov = 100.0f;
+	const float default_aspect_ratio = 800.0f / 600.0f;
+}
+const float BasicCamera::min_fov = 15.0f;
+const float BasicCamera::max_fov = 100.0f;
+const float BasicCamera::nearP = 0.1f;
+const float BasicCamera::farP = 200.0f;
+
 BasicCamera::BasicCamera():
+	fov(default_fov),
+	aspect_ratio(default_aspect_ratio),
 	static_angle(0.0f),
 	static_upangle(0.0f)
 {
@@ -24,8 +36,8 @@ Vec3 BasicCamera::getTarget() const
 {
 	float angle1 = static_angle;
 	float angle2 = static_upangle;
-	Matrix4 rotation1(0, angle1, 0, 0,0,0);
-	Matrix4 rotation2(0, 0, angle2, 0,0,0);
+	Matrix4 rotation1(0.0f, angle1,   0.0f, 0.0f,0.0f,0.0f);
+	Matrix4 rotation2(0.0f,   0.0f, angle2, 0.0f,0.0f,0.0f);
 	
 	return currentPosition + rotation1 * rotation2 * Vec3(-30.0f, 0.0f, 0.0f);
 }
@@ -72,6 +84,11 @@ void BasicCamera::zoomOut()
 	{
 		fov = max_fov;
 	}
+}
+
+void BasicCamera::zoomDefault()
+{
+	fov = default_fov;
 }
 
 Matrix4 BasicCamera::modelview() const
