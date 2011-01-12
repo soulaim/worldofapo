@@ -961,10 +961,6 @@ Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
 
 void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
-	camera.getPosition();
-
-//	clear_errors();
-
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -1049,7 +1045,6 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 		
 		stringstream lights_debug_str;
 		lights_debug_str << "FS Lights: " << full_screen_lights;
-		
 		hud.insertDebugString(lights_debug_str.str());
 		
 		glDepthMask(GL_TRUE);
