@@ -7,19 +7,16 @@ uniform float screen_height;
 
 varying vec2 texcoord;
 
+uniform float near;
+uniform float far;
+
 float LinearizeDepth(float z)
 {
-	float n = 1.0; // camera z near
-	float f = 200.0; // camera z far
-	return (2.0 * n) / (f + n - z * (f - n));
+	return (2.0 * near) / (far + near - z * (far - near));
 }
 
 void main()
 {
-	//texcoord = (texcoord - 0.5) * 2.0;
-	//float sqrdist = max(1.0 - (texcoord.x * texcoord.x) + (texcoord.y * texcoord.y), 0.0);
-	//gl_FragColor = vec4(sqrdist) * gl_Color;
-	
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
 	
 	vec2 depthtexcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);

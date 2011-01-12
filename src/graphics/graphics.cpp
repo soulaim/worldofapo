@@ -446,6 +446,8 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
 	GLint scale_location = shader.attribute("particleScale");
+	glUniform1f(shader.uniform("near"), camera_p->nearP);
+	glUniform1f(shader.uniform("far"), camera_p->farP);
 
 	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
@@ -545,6 +547,8 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
 	GLint scale_location = shader.attribute("particleScale");
+	glUniform1f(shader.uniform("near"), camera_p->nearP);
+	glUniform1f(shader.uniform("far"), camera_p->farP);
 	
 	// The geometry shader transforms the points into quads.
 	glBegin(GL_POINTS);
