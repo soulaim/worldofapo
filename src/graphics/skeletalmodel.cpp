@@ -64,6 +64,78 @@ void SkeletalModel::viewTick()
 	}
 }
 
+void SkeletalModel::calculate_weights()
+{
+	for(size_t i=0; i<vertices.size(); ++i)
+	{
+		const Vec3& v = vertices[i];
+		
+		map<int, float> weights;
+		
+		for(size_t k=0; k<bones.size(); ++k)
+		{
+			const Bone& bone = bones[k];
+			
+			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
+			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
+			
+			Vec3 segment = end - start;
+			
+			weights[k] = .0f;
+			
+			for(int z = 0; z < 100; z++)
+			{
+				Vec3 tmp_point = start + segment * (z / 99.f);
+				
+				float length = (v - tmp_point).lengthSquared();
+				float tmp_w = 1.0f / (0.01f + length);
+				if(tmp_w > weights[k])
+					weights[k] = tmp_w;
+			}
+		}
+		
+		// we want 2 bones
+		WeightedVertex vw;
+		
+		for(int z = 0; z < 2; z++)
+		{
+			int best_index = 0;
+			float best_weight = 0.f;
+			
+			for(auto it = weights.begin(); it != weights.end(); it++)
+			{
+				if(it->second > best_weight)
+				{
+					best_index = it->first;
+					best_weight = it->second;
+				}
+			}
+			
+			if(z == 0)
+			{
+				vw.bone1 = best_index;
+				vw.weight1 = best_weight;
+			}
+			
+			if(z == 1)
+			{
+				vw.bone2 = best_index;
+				vw.weight2 = best_weight;
+			}
+			
+			weights.erase(best_index); // don't select same bone twice.
+		}
+		
+		// normalise weights
+		float sum = vw.weight1 + vw.weight2;
+		vw.weight1 /= sum;
+		vw.weight2 /= sum;
+		
+		weighted_vertices.push_back(vw);
+	}
+}
+
+
 bool SkeletalModel::load(const string& filename)
 {
 	ifstream in(filename.c_str());
@@ -76,6 +148,13 @@ bool SkeletalModel::load(const string& filename)
 	// we have to gather all the info from FACE fields and sort it before placing to containers.
 	map<int, TextureCoordinate> tex_coords_map;
 	map<int, ColorStruct> colors_map;
+
+	// NOTE2: In order to have per vertex attributes we can make duplicate copies of the vertex coordinates and normals.
+	vector<Vec3> final_vertices;
+	vector<Vec3> final_normals;
+
+	// TODO: Not all vertices need to be duplicated for all triangles. When adding a new vertex, check if some old vertex has the same coordinates and UV coordinates etc.
+	// TODO: Make this dirty duplicating already in the blender exporter?
 
 	string cmd;
 	while(in >> cmd)
@@ -205,6 +284,10 @@ bool SkeletalModel::load(const string& filename)
 							cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
 							throw std::logic_error(string("SkeletalModel triangle's vertex index out of bounds."));
 						}
+						
+						final_vertices.push_back(vertices.at(triangle.vertices[i]));
+						final_normals.push_back(normals.at(triangle.vertices[i]));
+						triangle.vertices[i] = final_vertices.size() - 1;
 					}
 				}
 				else if(sub_cmd == "NORMAL")
@@ -213,19 +296,20 @@ bool SkeletalModel::load(const string& filename)
 				}
 				else if(sub_cmd == "UV_COORDINATES")
 				{
-					for(int i=0; i<3; i++)
-						in >> tex_coords_map[triangle.vertices[i]].x >>
-						tex_coords_map[triangle.vertices[i]].y;
+					for(int i = 0; i < 3; ++i)
+					{
+						in >> tex_coords_map[triangle.vertices[i]].x >> tex_coords_map[triangle.vertices[i]].y;
+					}
 				}
 				else if(sub_cmd == "COLORS")
 				{
-					for(int i=0; i<3; i++)
+					for(int i = 0; i < 3; ++i)
 					{
 						in >>
-						colors_map[triangle.vertices[i]].r >>
-						colors_map[triangle.vertices[i]].g >>
-						colors_map[triangle.vertices[i]].b >>
-						colors_map[triangle.vertices[i]].a;
+							colors_map[triangle.vertices[i]].r >>
+							colors_map[triangle.vertices[i]].g >>
+							colors_map[triangle.vertices[i]].b >>
+							colors_map[triangle.vertices[i]].a;
 					}
 				}
 				else if(sub_cmd == "AREA")
@@ -245,7 +329,8 @@ bool SkeletalModel::load(const string& filename)
 			
 			for(size_t i = 0; i < 3; ++i)
 			{
-				if(triangle.vertices[i] >= vertices.size())
+//				if(triangle.vertices[i] >= vertices.size())
+				if(triangle.vertices[i] >= final_vertices.size())
 				{
 					cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
 					throw std::logic_error(string("SkeletalModel at post-check: triangle's vertex index out of bounds."));
@@ -255,7 +340,6 @@ bool SkeletalModel::load(const string& filename)
 			triangles.push_back(triangle);
 			triangle_normals.push_back(triangle_n);
 			triangle_areas.push_back(triangle_area);
-			
 		}
 		else
 		{
@@ -263,7 +347,12 @@ bool SkeletalModel::load(const string& filename)
 		}
 	}
 	
-	
+	assert(final_normals.size() == final_vertices.size());
+//	assert(tex_coords_map.size() == final_vertices.size());
+//	assert(colors_map.size() == final_vertices.size());
+	vertices.swap(final_vertices);
+	normals.swap(final_normals);
+
 	// get uv coordinates
 	for(auto it = tex_coords_map.begin(); it != tex_coords_map.end(); it++)
 	{
@@ -300,76 +389,7 @@ bool SkeletalModel::load(const string& filename)
 		bones[i].children_names.clear();
 	}
 	
-	
-	// calculate vertex weights
-	for(size_t i=0; i<vertices.size(); ++i)
-	{
-		const Vec3& v = vertices[i];
-		
-		map<int, float> weights;
-		
-		for(size_t k=0; k<bones.size(); ++k)
-		{
-			const Bone& bone = bones[k];
-			
-			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
-			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
-			
-			Vec3 segment = end - start;
-			
-			weights[k] = .0f;
-			
-			for(int z = 0; z < 100; z++)
-			{
-				Vec3 tmp_point = start + segment * (z / 99.f);
-				
-				float length = (v - tmp_point).lengthSquared();
-				float tmp_w = 1.0f / (0.01f + length);
-				if(tmp_w > weights[k])
-					weights[k] = tmp_w;
-			}
-		}
-		
-		// we want 2 bones
-		WeightedVertex vw;
-		
-		for(int z = 0; z < 2; z++)
-		{
-			int best_index = 0;
-			float best_weight = 0.f;
-			
-			for(auto it = weights.begin(); it != weights.end(); it++)
-			{
-				if(it->second > best_weight)
-				{
-					best_index = it->first;
-					best_weight = it->second;
-				}
-			}
-			
-			if(z == 0)
-			{
-				vw.bone1 = best_index;
-				vw.weight1 = best_weight;
-			}
-			
-			if(z == 1)
-			{
-				vw.bone2 = best_index;
-				vw.weight2 = best_weight;
-			}
-			
-			weights.erase(best_index); // don't select same bone twice.
-		}
-		
-		// normalise weights
-		float sum = vw.weight1 + vw.weight2;
-		vw.weight1 /= sum;
-		vw.weight2 /= sum;
-		
-		weighted_vertices.push_back(vw);
-	}
-	
+	calculate_weights();
 	
 	cerr << "Loaded model '" << filename << "' with " << vertices.size() << " vertices, " << weighted_vertices.size()
 		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
