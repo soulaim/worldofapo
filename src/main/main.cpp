@@ -74,7 +74,7 @@ bool make_menu_choice(Localplayer& master, Menu& menu, HasProperties& menuOption
 	return false;
 }
 
-bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions)
+bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions, Window& window)
 {
 	static bool in_menu = true;
 
@@ -82,6 +82,9 @@ bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions)
 	{
 		if(master.client_tick())
 		{
+			
+			window.disable_grab();
+			
 			in_menu = true;
 			master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 			
@@ -129,7 +132,7 @@ int main(int argc, char* argv[])
 	// start music in menu
 	master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
 	
-	while(main_loop(master, menu, menuOptions))
+	while(main_loop(master, menu, menuOptions, window))
 	{
 		master.draw(); // draws if possible
 	}
