@@ -226,11 +226,15 @@ string MU_Socket::read()
 
 void MU_Socket::closeConnection()
 {
+	if(alive)
+	{
 #ifndef _WIN32
-	close(sock);
+		close(sock);
 #else
-	closesocket(sock);
+		closesocket(sock);
 #endif
+		alive = false;
+	}
 }
 
 

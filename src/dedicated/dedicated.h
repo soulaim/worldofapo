@@ -77,7 +77,7 @@ class DedicatedServer : public HasProperties
 	
 	
 	std::map<std::string, std::vector< std::vector<World::CheckSumType> > > checkSums;
-	const int checkSumVectorSize;
+	const unsigned checkSumVectorSize;
 	
 	
 	FPS_Manager fps_world;

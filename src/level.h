@@ -15,7 +15,7 @@ struct Level
 	friend class LevelDescriptor;
 	friend class BinaryTriangleTree; // TODO: is this really necessary?
 	
-	void generate(int, float&);
+	void generate(int, int, float&);
 	
 	// random position from the map. (spawn)
 	Location getRandomLocation(int) const;

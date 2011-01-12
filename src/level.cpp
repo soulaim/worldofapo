@@ -287,7 +287,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 
 
-void Level::generate(int seed, float& percentage_done)
+void Level::generate(int seed, int post_passes, float& percentage_done)
 {
 	randomer.setSeed(seed);
 	
@@ -397,10 +397,8 @@ void Level::generate(int seed, float& percentage_done)
 	// post process the ground to get rid of some discontinuities
 	cerr << "post-processing terrain" << flush;
 	size_t x_size = pointheight_info.size();
-	for(int loops = 0; loops < 8; loops++)
+	for(int loops = 0; loops < post_passes; loops++)
 	{
-		percentage_done = 0.3 + 0.7f * loops / 7.0f;
-		
 		for(size_t i = 0; i < x_size; ++i)
 		{
 			size_t y_size = pointheight_info[i].size();
@@ -457,6 +455,16 @@ void Level::generate(int seed, float& percentage_done)
 				FixedPoint newHeight = pointheight_info[i][k] + (currentHeight / divisor - pointheight_info[i][k]) * FixedPoint(1, 8);
 				updateHeight(i, k, newHeight);
 			}
+		}
+		cerr << endl;
+		
+		if(post_passes < 2)
+		{
+			percentage_done = 203529.f;
+		}
+		else
+		{
+			percentage_done = 0.3 + 0.7f * loops / (1.0f - post_passes);
 		}
 	}
 	cerr << endl;

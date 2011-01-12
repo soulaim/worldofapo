@@ -43,6 +43,8 @@ DedicatedServer::DedicatedServer():
 	pause_state = WAITING_PLAYERS;
 	serverAllow = 0;
 	
+	visualworld.disable();
+	
 	load("configs/server.conf");
 	
 	// TODO: Make a separate function for these things.
@@ -129,6 +131,12 @@ bool DedicatedServer::start(int port)
 
 void DedicatedServer::disconnect(int leaver)
 {
+	if(Players.find(leaver) == Players.end())
+	{
+		cerr << "Trying to disconnect a player that doesn't exist! Breaking attempt." << endl;
+		return;
+	}
+	
 	stringstream discCommand;
 	discCommand << -1 << " " << (serverAllow + 1) << " 100 " << leaver << "#";
 	serverMsgs.push_back( discCommand.str() );
@@ -304,7 +312,7 @@ void DedicatedServer::host_tick()
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
 	{
-		cerr << "waiting ..." << endl;
+		// cerr << "waiting ..." << endl;
 		
 		#ifdef SLEEP_IF_POSSIBLE
 		usleep(1000);
@@ -363,26 +371,44 @@ bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumT
 	
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 	{
+		assert(checkSumVectorSize == 150);
+		assert(checkSums[area_it->first].size() == unsigned(checkSumVectorSize));
+		
 		if(area_it->second.units.find(plrID) != area_it->second.units.end())
 		{
+			assert(checkSums.find(area_it->first) != checkSums.end());
+			
 			bool all_is_fine = true;
-			vector<World::CheckSumType>& checksum_vector = checkSums[area_it->first][frameID % 150];
+			vector<World::CheckSumType>& checksum_vector = checkSums[area_it->first][frameID % checkSumVectorSize];
+			
+			
+			// cerr << "checksum size: " << plr_cs.size() << " " << checksum_vector.size() << endl;
+			assert(plr_cs.size() == checksum_vector.size());
+			
+			assert(Players.find(plrID) != Players.end());
 			
 			for(size_t i = 0; i < checksum_vector.size(); ++i)
 			{
 				if(checksum_vector[i] != plr_cs[i])
 				{
-					cerr << "out of sync " << i << ", server cs: " << checksum_vector[i] << ", client cs: " << plr_cs[i] << endl;
+					vector<string> reasons;
+					reasons.push_back("unit positions and ids");
+					reasons.push_back("unit hitpoints");
+					reasons.push_back("item positions");
+					reasons.push_back("projectile positions");
+					
+					cerr << "out of sync! reason: \"" << reasons[i] << "\", frame: " << frameID << ", server cs: " << checksum_vector[i] << ", client cs: " << plr_cs[i] << endl;
 					
 					stringstream chat_msg;
-					chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: " << i << "#";
+					chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: " << reasons[i] << "#";
 					serverMsgs.push_back(chat_msg.str());
 					
 					all_is_fine = false;
 				}
 			}
 			
-			if((simulRules.currentFrame > checksum_vector.size()) && (!all_is_fine))
+			/*
+			if( (simulRules.currentFrame > checkSumVectorSize) && (!all_is_fine))
 			{
 				stringstream chat_msg;
 				chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: DISCONNECTED#";
@@ -390,6 +416,7 @@ bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumT
 				cerr << chat_msg.str() << endl;
 				disconnect(plrID);
 			}
+			*/
 			
 			// no worries! all is fine!
 			return all_is_fine;
@@ -404,18 +431,11 @@ bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumT
 
 void DedicatedServer::simulateWorldFrame()
 {
+	
+	
 	if(!UnitInput.empty())
 		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
 			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
-	
-	fps_world.insert();
-	
-	int current = simulRules.currentFrame % checkSumVectorSize;
-	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
-	{
-		checkSums[area_it->first][current].clear();
-		area_it->second.checksum(checkSums[area_it->first][current]);
-	}
 	
 	sort(UnitInput.begin(), UnitInput.end());
 	
@@ -449,6 +469,9 @@ void DedicatedServer::simulateWorldFrame()
 		}
 	}
 	
+	
+	fps_world.insert();
+	
 #if MULTI_THREADED_WORLD_TICKS > 0
 	// build something that is easier to iterate over.
 	vector<World*> worlds;
@@ -477,8 +500,16 @@ void DedicatedServer::simulateWorldFrame()
 	}
 #endif
 	
-	simulRules.currentFrame++;
 	handleWorldEvents();
+	
+	int current = simulRules.currentFrame % checkSumVectorSize;
+	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+	{
+		checkSums[area_it->first][current].clear();
+		area_it->second.checksum(checkSums[area_it->first][current]);
+	}
+	
+	simulRules.currentFrame++;
 }
 
 
@@ -737,6 +768,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			while(ss >> cs_tmp)
 				plr_cs.push_back(cs_tmp);
 			checkSumOK(player_id, frameID, plr_cs);
+			return;
 		}
 		else
 		{
@@ -1096,7 +1128,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		else
 		{
-			cerr << "INSTANT ORDER FUCK!" << endl;
+			cerr << "Unrecognized instant order: \"" << msg << "\"" << endl;
 		}
 		
 	}

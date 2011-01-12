@@ -33,6 +33,7 @@ Unit::Unit():
 	
 	intVals["WIS"] = -666;
 	intVals["INT"] = -666;
+	intVals["REGEN"] = 0;
 	
 	scale = FixedPoint(1);
 }
@@ -46,6 +47,8 @@ void Unit::setDefaultMonsterAttributes()
 	
 	intVals["WIS"] = 4;
 	intVals["INT"] = 4;
+	
+	intVals["REGEN"] = 5;
 }
 
 void Unit::setDefaultPlayerAttributes()
@@ -230,7 +233,6 @@ string Unit::copyOrder(int ID) const
 		hero_msg << weapons[i].copyOrder();
 	}
 	
-	// name must be the last element.
 	hero_msg << " " << name << "#";
 	
 	return hero_msg.str();

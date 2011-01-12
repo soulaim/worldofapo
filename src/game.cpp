@@ -709,7 +709,7 @@ void Game::processClientMsgs()
 			}
 			else
 			{
-				cerr << "INSTANT ORDER FUCK!" << endl;
+				cerr << "Unrecognized instant order: \"" << clientOrders.orders[i] << "\"" << endl;
 			}
 			
 		}

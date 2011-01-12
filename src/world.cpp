@@ -10,7 +10,6 @@ using namespace std;
 
 #define LAZY_UPDATE 0
 
-
 FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 {
 	// no restrictions for moving downhill
@@ -489,7 +488,8 @@ World::World(VisualWorld* vw)
 
 void World::buildTerrain(int n, float& percentage_done)
 {
-	lvl.generate(n, percentage_done);
+	// TODO, post-passes should not be constant in code
+	lvl.generate(n, 2, percentage_done);
 	intVals["GENERATOR"] = n;
 }
 
@@ -1320,7 +1320,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
 		units[id]["T"] = -1;
-		units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
+		units[id].weapon = 2; // currentWorldFrame % (units[id].weapons.size() - 1);
 	}
 	else
 	{

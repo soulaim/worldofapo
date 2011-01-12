@@ -179,6 +179,7 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 		
 		// shared memory for processes to determine how far terrain generation has progressed.
 		float done_percent = 0.0f;
+		float prev_done_percent = -1.0f;
 		string task_name = "Preparing to load world..";
 		
 		LoadScreenInfo info;
@@ -210,7 +211,12 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 			if(done_percent > 1.0f)
 				break;
 			
-			view->drawLoadScreen(task_name, bg_image, done_percent);
+			// if(done_percent > prev_done_percent)
+			{
+				view->drawLoadScreen(task_name, bg_image, done_percent);
+				prev_done_percent = done_percent;
+			}
+			
 #ifndef _WIN32
 			usleep(1000);
 #else
@@ -239,15 +245,17 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 
 void Localplayer::sendCheckSumMessage()
 {
+	stringstream checksum_msg;
+	checksum_msg << "-2 CSMSG " << (world.currentWorldFrame);
+	
 	vector<World::CheckSumType> checksums;
 	world.checksum(checksums);
 	
-	stringstream checksum_msg;
-	checksum_msg << "-2 CSMSG";
 	for(size_t k = 0; k < checksums.size(); k++)
 	{
 		checksum_msg << " " << checksums[k];
 	}
+	
 	checksum_msg << "#";
 	game.write(Game::SERVER_ID, checksum_msg.str());
 }
