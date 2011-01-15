@@ -493,7 +493,7 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 
 void Hud::draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale) const
 {
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -550,7 +550,7 @@ void Hud::drawBar(float size, const string& start_color, const string& end_color
 	glPushMatrix();
 	glLoadIdentity();
 	
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	float width = max_x - min_x;
 	
@@ -691,7 +691,7 @@ void Hud::drawMinimap() const
 	if(iteratorMyUnit == units->end())
 		return;
 
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
