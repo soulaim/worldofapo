@@ -215,6 +215,9 @@
     <ClCompile Include="..\src\net\socket_handler.cpp">
       <Filter>Source Files\net</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graphics\basiccamera.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\dedicated\dedicated.h">
@@ -429,6 +432,9 @@
     </ClInclude>
     <ClInclude Include="..\src\game_data\character_info.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\basiccamera.h">
+      <Filter>Source Files\graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,7 +1,12 @@
 #ifndef OPENGL_H
 #define OPENGL_H
 
+
+#ifdef _WIN32
+#include <GL\glew.h>
+#else
 #include "glew/glew.h"
+#endif
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>

@@ -24,6 +24,7 @@
     <ClCompile Include="..\src\gamesound.cpp" />
     <ClCompile Include="..\src\graphics\animation.cpp" />
     <ClCompile Include="..\src\graphics\apomodel.cpp" />
+    <ClCompile Include="..\src\graphics\basiccamera.cpp" />
     <ClCompile Include="..\src\graphics\btt.cpp" />
     <ClCompile Include="..\src\graphics\camera.cpp" />
     <ClCompile Include="..\src\graphics\font.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="..\src\game_data\character_info.h" />
     <ClInclude Include="..\src\graphics\animation.h" />
     <ClInclude Include="..\src\graphics\apomodel.h" />
+    <ClInclude Include="..\src\graphics\basiccamera.h" />
     <ClInclude Include="..\src\graphics\btt.h" />
     <ClInclude Include="..\src\graphics\camera.h" />
     <ClInclude Include="..\src\graphics\font.h" />
@@ -176,12 +178,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\</OutDir>
+    <IntDir>server\</IntDir>
+    <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng\;..\lib\win32\pthread\include;..\src\graphics;..\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\lib\win32\pthread\lib;..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng;$(IncludePath)</IncludePath>
-    <LibraryPath>H:\code\opengl\diablo\trololol\Pre-built.2\lib;..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\lib\win32\SDL-1.2.14\include;..\lib\win32\glew-1.5.7\include;..\lib\win32\SDL_mixer-1.2.11\include;..\lib\win32\libpng\;..\lib\win32\pthread\include;..\src\graphics;..\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\lib\win32\pthread\lib;..\lib\win32\SDL-1.2.14\lib;..\lib\win32\glew-1.5.7\lib;..\lib\win32\SDL_mixer-1.2.11\lib;..\lib\win32\libpng;$(LibraryPath)</LibraryPath>
     <IntDir>server\</IntDir>
+    <OutDir>..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -205,7 +212,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>H:\code\opengl\diablo\trololol\Pre-built.2\include;H:\code\opengl\diablo\src\graphics;H:\code\opengl\diablo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\trololol\Pre-built.2\include;...\src;...\src\graphics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -18,6 +18,9 @@
 
 using namespace std;
 
+namespace
+{
+
 long long time_now()
 {
 #ifdef _WIN32
@@ -28,6 +31,19 @@ long long time_now()
 	return t.tv_sec * 1000 + t.tv_usec / 1000;
 #endif
 }
+
+void sleep(int milliseconds)
+{
+#ifdef SLEEP_IF_POSSIBLE
+#ifdef _WIN32
+			Sleep(milliseconds);
+#else
+			usleep(milliseconds * 1000);
+#endif
+#endif
+}
+
+};
 
 int DedicatedServer::nextPlayerID()
 {
@@ -300,9 +316,7 @@ void DedicatedServer::host_tick()
 		}
 		else
 		{
-			#ifdef SLEEP_IF_POSSIBLE
-			usleep(1000);
-			#endif
+			sleep(1);
 			
 			return;
 		}
@@ -314,9 +328,7 @@ void DedicatedServer::host_tick()
 	{
 		// cerr << "waiting ..." << endl;
 		
-		#ifdef SLEEP_IF_POSSIBLE
-		usleep(1000);
-		#endif
+		sleep(1);
 		
 		return;
 		
@@ -359,9 +371,7 @@ void DedicatedServer::host_tick()
 	else
 	{
 		// this might not be a good idea in the end, but should show us how much it really uses processing power.
-		#ifdef SLEEP_IF_POSSIBLE
-		usleep(1000);
-		#endif
+		sleep(1);
 	}
 }
 

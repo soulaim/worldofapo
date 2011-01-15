@@ -9,6 +9,8 @@ bin/debug-editor
 bin/profile-client
 bin/profile-server
 bin/profile-editor
+bin/server.exe
+bin/client.exe
 
 # Compiled files:
 *.d
@@ -32,7 +34,8 @@ bin/myKeys
 
 # Visual studio temporary files:
 windows/diablo2.suo
-windows/Debug
-windows/Release
+windows/client
 windows/server
+bin/client.pdb
+bin/server.pdb
 

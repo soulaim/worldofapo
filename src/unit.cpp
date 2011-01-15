@@ -218,6 +218,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 string Unit::copyOrder(int ID) const
 {
 	stringstream hero_msg;
+	/*
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
 		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
@@ -225,7 +226,25 @@ string Unit::copyOrder(int ID) const
 		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
 		<< id << " " << weapon << " " << collision_rule << " " << scale << " "
 		<< mouse_x_minor << " " << mouse_y_minor << " ";
-	
+	*/
+	hero_msg << "-2 UNIT " << ID;
+	hero_msg << " " << angle;
+	hero_msg << " " << upangle;
+	hero_msg << " " << keyState;
+	hero_msg << " " << position.x << " " << position.z << " " << position.y;
+	hero_msg << " " << velocity.x << " " << velocity.z << " " << velocity.y;
+	hero_msg << " " << mouseButtons;
+	hero_msg << " " << weapon_cooldown;
+	hero_msg << " " << leap_cooldown;
+	hero_msg << " " << controllerTypeID;
+	hero_msg << " " << hitpoints;
+	hero_msg << " " << birthTime;
+	hero_msg << " " << id;
+	hero_msg << " " << weapon;
+	hero_msg << " " << collision_rule;
+	hero_msg << " " << scale;
+	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " ";
+
 	hero_msg << HasProperties::copyOrder();
 	
 	for(size_t i = 0; i < weapons.size(); ++i)
