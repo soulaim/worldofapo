@@ -21,7 +21,6 @@
     <ClCompile Include="..\src\fixed_point.cpp" />
     <ClCompile Include="..\src\fps_manager.cpp" />
     <ClCompile Include="..\src\game.cpp" />
-    <ClCompile Include="..\src\gamesound.cpp" />
     <ClCompile Include="..\src\graphics\animation.cpp" />
     <ClCompile Include="..\src\graphics\apomodel.cpp" />
     <ClCompile Include="..\src\graphics\basiccamera.cpp" />
@@ -57,7 +56,6 @@
     <ClCompile Include="..\src\hasproperties.cpp" />
     <ClCompile Include="..\src\keymanager.cpp" />
     <ClCompile Include="..\src\level.cpp" />
-    <ClCompile Include="..\src\localplayer.cpp" />
     <ClCompile Include="..\src\location.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\movable_object.cpp" />
@@ -83,7 +81,6 @@
     <ClInclude Include="..\src\fixed_point.h" />
     <ClInclude Include="..\src\fps_manager.h" />
     <ClInclude Include="..\src\game.h" />
-    <ClInclude Include="..\src\gamesound.h" />
     <ClInclude Include="..\src\game_data\character_info.h" />
     <ClInclude Include="..\src\graphics\animation.h" />
     <ClInclude Include="..\src\graphics\apomodel.h" />
@@ -128,7 +125,6 @@
     <ClInclude Include="..\src\item.h" />
     <ClInclude Include="..\src\keymanager.h" />
     <ClInclude Include="..\src\level.h" />
-    <ClInclude Include="..\src\localplayer.h" />
     <ClInclude Include="..\src\location.h" />
     <ClInclude Include="..\src\logger.h" />
     <ClInclude Include="..\src\movable_object.h" />
@@ -212,14 +208,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\trololol\Pre-built.2\include;...\src;...\src\graphics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libpng.lib;zlib.lib;SDL_mixer.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;pthreadVC2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpng15.lib;opengl32.lib;glu32.lib;glew32.lib;sdl.lib;wsock32.lib;SDLmain.lib;pthreadVCE2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
