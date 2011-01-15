@@ -33,7 +33,7 @@ TextureHandler& TextureHandler::getSingleton()
 	return s_TexHandler;
 }
 
-const string& TextureHandler::getCurrentTexture(size_t texture_unit)
+const string& TextureHandler::getCurrentTexture(size_t texture_unit) const
 {
 	assert(texture_unit < current_textures.size());
 	return current_textures[texture_unit];
@@ -60,6 +60,8 @@ void TextureHandler::createTextures(const std::string& filename)
 
 unsigned TextureHandler::createTexture(const string& name, const string& filename)
 {
+	assert(!name.empty());
+
 	Image img;
 	img.loadImage(filename);
 	
@@ -74,12 +76,12 @@ unsigned TextureHandler::createTexture(const string& name, const string& filenam
 }
 
 
-unsigned TextureHandler::getTextureID(const std::string& name)
+unsigned TextureHandler::getTextureID(const std::string& name) const
 {
-	if(textureExists(name))
-		return textures[name];
-	glGenTextures(1, &(textures[name]));
-	return textures[name];
+	assert(!name.empty());
+	auto it = textures.find(name);
+	assert(it != textures.end());
+	return it->second;
 }
 
 namespace
@@ -121,6 +123,8 @@ void buildDebugMipmaps(size_t x, size_t y)
 
 unsigned TextureHandler::createFloatTexture(const std::string& name, int width, int height)
 {
+	assert(!name.empty());
+
 	glGenTextures(1, &(textures[name]));
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	
@@ -141,6 +145,8 @@ unsigned TextureHandler::createFloatTexture(const std::string& name, int width, 
 
 unsigned TextureHandler::createTexture(const std::string& name, int width, int height)
 {
+	assert(!name.empty());
+
 	glGenTextures(1, &(textures[name]));
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	
@@ -164,6 +170,8 @@ unsigned TextureHandler::createTexture(const std::string& name, int width, int h
 
 unsigned TextureHandler::createDepthTexture(const std::string& name, int width, int height)
 {
+	assert(!name.empty());
+
 	glGenTextures(1, &(textures[name]));
 	glBindTexture(GL_TEXTURE_2D, textures[name]);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // scale linearly when image bigger than texture
@@ -240,27 +248,33 @@ unsigned TextureHandler::createTexture(const string& name, Image& img)
 
 void TextureHandler::deleteTexture(const std::string& name)
 {
+	assert(!name.empty());
+
 	if(textureExists(name))
 	{
 		glDeleteTextures(1, &textures[name]);
 		textures.erase(name);
 	}
 	else
-		cerr << "You tried to delete a texture that doesnt exist: \"" << name << "\"" << endl;
-	return;
+	{
+		cerr << "WARNING: tried to delete a texture that doesnt exist: \"" << name << "\"" << endl;
+	}
 }
 
 
+void TextureHandler::unbindTexture(size_t texture_unit)
+{
+	glActiveTexture(GL_TEXTURE0 + texture_unit);
+	glDisable(GL_TEXTURE_2D);
+	current_textures[texture_unit] = "";
+}
 
 int TextureHandler::bindTexture(size_t texture_unit, const std::string& name)
 {
 	assert(texture_unit < current_textures.size());
-	if(name == "")
-	{
-		glActiveTexture(GL_TEXTURE0 + texture_unit);
-		glDisable(GL_TEXTURE_2D);
-	}
-	else if(textureExists(name))
+	assert(!name.empty());
+
+	if(textureExists(name))
 	{
 		glActiveTexture(GL_TEXTURE0 + texture_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -274,26 +288,26 @@ int TextureHandler::bindTexture(size_t texture_unit, const std::string& name)
 		cerr << "Trying to bind to a texture that does not exist: \"" << name << "\"" << endl;
 		assert(!textures.empty() && "please load at least one texture...");
 		std::string default_texture = textures.begin()->first;
-		cerr << "Loading texture '" << default_texture << "' instead" << endl;
+		cerr << "Loading default texture '" << default_texture << "'" << endl;
+		assert(!default_texture.empty());
 		textures[name] = textures[default_texture];
 		bindTexture(texture_unit, default_texture);
 		return 0;
 	}
-	return 0;
 }
 
 void TextureHandler::deleteAllTextures()
 {
 	for(map<string, unsigned>::iterator iter = textures.begin(); iter != textures.end(); iter++)
-		glDeleteTextures(1, &textures[(*iter).first]);
+	{
+		glDeleteTextures(1, &iter->second);
+	}
 	textures.clear();
 }
 
 
-bool TextureHandler::textureExists(const std::string& name)
+bool TextureHandler::textureExists(const std::string& name) const
 {
-	if(textures.find(name) == textures.end())
-		return false;
-	return true;
+	return textures.find(name) != textures.end();
 }
 

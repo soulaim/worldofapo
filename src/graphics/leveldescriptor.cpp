@@ -126,7 +126,7 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	glDepthMask(GL_FALSE);
 	const Level& lvl = *level;
 
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	// Draw triangles with lines.
 	glPointSize(1.0f);
@@ -275,9 +275,9 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 		
-		TextureHandler::getSingleton().bindTexture(2, "");
-		TextureHandler::getSingleton().bindTexture(1, "");
-		TextureHandler::getSingleton().bindTexture(0, "");
+		TextureHandler::getSingleton().unbindTexture(2);
+		TextureHandler::getSingleton().unbindTexture(1);
+		TextureHandler::getSingleton().unbindTexture(0);
 		return;
 	}
 
@@ -459,9 +459,9 @@ void LevelDescriptor::drawLevelFR_new(const Level& lvl, int pass, Shaders& shade
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 		
-		TextureHandler::getSingleton().bindTexture(2, "");
-		TextureHandler::getSingleton().bindTexture(1, "");
-		TextureHandler::getSingleton().bindTexture(0, "");
+		TextureHandler::getSingleton().unbindTexture(2);
+		TextureHandler::getSingleton().unbindTexture(1);
+		TextureHandler::getSingleton().unbindTexture(0);
 		return;
 	}
 
@@ -618,8 +618,8 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 	
 	shader.stop();
 	
-	TextureHandler::getSingleton().bindTexture(2, "");
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(2);
+	TextureHandler::getSingleton().unbindTexture(1);
+	TextureHandler::getSingleton().unbindTexture(0);
 }
 

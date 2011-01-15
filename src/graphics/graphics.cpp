@@ -112,7 +112,7 @@ void Graphics::drawLoadScreen(const string& message, const string& bg_image, con
 	glEnd();
 	
 	// DRAW LOAD BAR
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	glColor3f(1.0f - percent_done, percent_done, 0.0f);
 	
@@ -538,8 +538,8 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	glDepthMask(GL_TRUE); // re-enable depth writing.
 	glDisable(GL_BLEND);
 
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(1);
+	TextureHandler::getSingleton().unbindTexture(0);
 
 	shader.stop();
 }
@@ -594,7 +594,7 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	glEnd();
 	
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().unbindTexture(1);
 
 	shader.stop();
 }
@@ -654,7 +654,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -718,7 +718,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glEnd();
 	
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().unbindTexture(1);
 	
 	screenFBO.bind();
 	
@@ -743,7 +743,7 @@ void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
@@ -828,7 +828,7 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	TextureHandler::getSingleton().bindTexture(1, "");
+	TextureHandler::getSingleton().unbindTexture(1);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 }
@@ -913,10 +913,10 @@ void Graphics::drawLightsDeferred_single_pass(int lights)
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	
-	TextureHandler::getSingleton().bindTexture(3, "");
-	TextureHandler::getSingleton().bindTexture(2, "");
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(3);
+	TextureHandler::getSingleton().unbindTexture(2);
+	TextureHandler::getSingleton().unbindTexture(1);
+	TextureHandler::getSingleton().unbindTexture(0);
 	
 	shader.stop();
 }
@@ -941,8 +941,8 @@ void Graphics::applyAmbientLight()
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(1);
+	TextureHandler::getSingleton().unbindTexture(0);
 
 	shader.stop();
 }
@@ -1073,10 +1073,10 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 
 	glDisable(GL_BLEND);
 	
-	TextureHandler::getSingleton().bindTexture(3, "");
-	TextureHandler::getSingleton().bindTexture(2, "");
-	TextureHandler::getSingleton().bindTexture(1, "");
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(3);
+	TextureHandler::getSingleton().unbindTexture(2);
+	TextureHandler::getSingleton().unbindTexture(1);
+	TextureHandler::getSingleton().unbindTexture(0);
 
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -1276,7 +1276,7 @@ void Graphics::drawDebugQuad()
 	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +0.0f, -1.0f);
 	glEnd();
 
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -1519,7 +1519,7 @@ void Graphics::drawMenuRectangles() const
 		float y = cos(count / 300.0f) / 5.0f;
 		rects.push_back(make_tuple(x, y, 0.007f, 0.004f, r, g, b));
 	}
-	TextureHandler::getSingleton().bindTexture(0, "");
+	TextureHandler::getSingleton().unbindTexture(0);
 
 	for(auto it = rects.begin(); it != rects.end(); )
 	{

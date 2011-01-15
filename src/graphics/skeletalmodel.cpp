@@ -685,7 +685,14 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 	
 	if(TextureHandler::getSingleton().getCurrentTexture(0) != texture_name)
 	{
-		TextureHandler::getSingleton().bindTexture(0, texture_name);
+		if(texture_name.empty())
+		{
+			TextureHandler::getSingleton().unbindTexture(0);
+		}
+		else
+		{
+			TextureHandler::getSingleton().bindTexture(0, texture_name);
+		}
 	}
 
 	assert(rotations.size() < 23);
