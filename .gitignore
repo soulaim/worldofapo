@@ -28,6 +28,7 @@ gmon.out
 .sconsign.dblite
 html
 worldofapo.tar.gz
+worldofapo.zip
 
 # Client's temporary files:
 bin/myKeys
