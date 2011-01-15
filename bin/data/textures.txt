@@ -19,3 +19,7 @@ violentdays data/violentdays.png
 
 crosshair data/images/crosshair.png
 
+itembag data/images/itemtex_bag_01.png
+stonebeast data/images/stonebeast_tex_01.png
+bullet_tex data/images/bullet_tex.png
+big_pistol data/images/big_pistol.png

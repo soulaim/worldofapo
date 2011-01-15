@@ -993,14 +993,15 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					u->takeDamage(projectile["DAMAGE"]); // does damage according to weapon definition :)
 					u->last_damage_dealt_by = projectile_owner;
 					(*u)("DAMAGED_BY") = projectile_name;
-					
-					auto string_property_it = projectile.strVals.find("AT_DEATH");
-					if(string_property_it != projectile.strVals.end())
+				}
+				
+				// blood is blood is blood
+				auto string_property_it = projectile.strVals.find("AT_DEATH");
+				if(string_property_it != projectile.strVals.end())
+				{
+					if(string_property_it->second == "PUFF")
 					{
-						if(string_property_it->second == "PUFF")
-						{
-							projectile.strVals.erase("AT_DEATH");
-						}
+						projectile.strVals.erase("AT_DEATH");
 					}
 				}
 				

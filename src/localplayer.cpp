@@ -126,12 +126,12 @@ void Localplayer::init()
 	
 	// TODO: Should not be done here? FIX
 	// TODO: move model loading things to config files
-	ModelFactory::load(VisualWorld::ModelType::ITEM_MODEL, "models/item_bag.sm2", "");
-	ModelFactory::load(VisualWorld::ModelType::STONEBEAST_MODEL, "models/stone_beast.sm2", "");
-	ModelFactory::load(VisualWorld::ModelType::BULLET_MODEL, "models/bullet_lowpoly.sm2", "");
+	ModelFactory::load(VisualWorld::ModelType::ITEM_MODEL, "models/item_bag.sm2", "itembag");
+	ModelFactory::load(VisualWorld::ModelType::STONEBEAST_MODEL, "models/stone_beast.sm2", "stonebeast");
+	ModelFactory::load(VisualWorld::ModelType::BULLET_MODEL, "models/bullet_lowpoly.sm2", "bullet_tex");
 	ModelFactory::load(VisualWorld::ModelType::PLAYER_MODEL, "models/marine.sm2", "marine");
 	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine");
-	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "");
+	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "big_pistol");
 	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
 	
 	Animation::load("models/model.animation");
