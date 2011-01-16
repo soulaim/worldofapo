@@ -61,15 +61,15 @@ int main()
 			// Actual reference image.
 			glViewport(0, y, x, y);
 			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
-			TextureHandler::getSingleton().bindTexture(1, "");
-			TextureHandler::getSingleton().bindTexture(2, "");
+			TextureHandler::getSingleton().unbindTexture(1);
+			TextureHandler::getSingleton().unbindTexture(2);
 			drawFullscreenQuad();
 			
 			// Real reference positions.
 			glViewport(0, 0, x, y);
 			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(2));
-			TextureHandler::getSingleton().bindTexture(1, "");
-			TextureHandler::getSingleton().bindTexture(2, "");
+			TextureHandler::getSingleton().unbindTexture(1);
+			TextureHandler::getSingleton().unbindTexture(2);
 			drawFullscreenQuad();
 		}
 
@@ -77,8 +77,8 @@ int main()
 			// Linear depth.
 			glViewport(x, y, x, y);
 			TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(1));
-			TextureHandler::getSingleton().bindTexture(1, "");
-			TextureHandler::getSingleton().bindTexture(2, "");
+			TextureHandler::getSingleton().unbindTexture(1);
+			TextureHandler::getSingleton().unbindTexture(2);
 			drawFullscreenQuad();
 
 			// Reconstruction with linear depth.
@@ -96,8 +96,8 @@ int main()
 			// Default depth.
 			glViewport(2*x, y, x, y);
 			TextureHandler::getSingleton().bindTexture(0, deferredFBO.depth_texture());
-			TextureHandler::getSingleton().bindTexture(1, "");
-			TextureHandler::getSingleton().bindTexture(2, "");
+			TextureHandler::getSingleton().unbindTexture(1);
+			TextureHandler::getSingleton().unbindTexture(2);
 			drawFullscreenQuad();
 
 			setup_camera(x, y);
@@ -113,9 +113,9 @@ int main()
 			shader2.stop();
 		}
 
-		TextureHandler::getSingleton().bindTexture(0, "");
-		TextureHandler::getSingleton().bindTexture(1, "");
-		TextureHandler::getSingleton().bindTexture(2, "");
+		TextureHandler::getSingleton().unbindTexture(0);
+		TextureHandler::getSingleton().unbindTexture(1);
+		TextureHandler::getSingleton().unbindTexture(2);
 
 		w.swap_buffers();
 	}

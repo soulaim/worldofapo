@@ -41,7 +41,7 @@ sdlwindow_test: LDLIBS += `pkg-config --libs sdl gl`
 sdlwindow_test: sdlwindow_test.cpp graphics/window.cpp
 
 glew_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`
-glew_test: LDLIBS += -L ../../lib/ -lGLEW `pkg-config --libs sdl gl glu`
+glew_test: LDLIBS +=  -Wl,--rpath,../../bin/ -L../../bin/ -lGLEW `pkg-config --libs sdl gl glu`
 glew_test: glew_test.cpp graphics/opengl.cpp graphics/window.cpp
 
 drawing_test: CXXFLAGS += `pkg-config --cflags sdl gl glu`

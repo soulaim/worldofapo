@@ -9,13 +9,15 @@
 
 #include "graphics_tests.h"
 
+#include <iostream>
+
 void setup_camera2(size_t x, size_t y)
 {
 	BasicCamera c;
 	c.fov = 100.0f;
 	c.aspect_ratio = float(x)/y;
-	c.nearP = 0.3f;
-	c.farP = 2.0f;
+//	c.nearP = 0.3f;
+//	c.farP = 2.0f;
 	Matrix4 p = c.perspective();
 
 	c.setPosition(Vec3(0.4f,0.5f,0.3f));
@@ -35,6 +37,8 @@ void setup_camera2(size_t x, size_t y)
 
 int main()
 {
+	std::cerr << "Demo failed: not implemented properly." << std::endl;
+
 	size_t x = 600;
 	size_t y = 400;
 
