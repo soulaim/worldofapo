@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <csignal>
+#include <cctype>
 
 #ifndef _WIN32
 #include <sys/wait.h>
@@ -90,13 +91,13 @@ std::string Menu::handleOptionsMenu(vector<MenuButton>& buttons, size_t selected
 		getInput(buttons, selected);
 		return "";
 	}
-	else // int value
+	else
 	{
+		// int value
 		changeValue(buttons, selected);
 		return "";
 	}
 }
-
 
 std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 {
@@ -119,13 +120,15 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 			for(auto iter = options[i].intVals.begin(); iter != options[i].intVals.end(); iter++)
 			{
 				string dummy;
-				options_buttons.push_back(MenuButton(iter->first, dummy, iter->second));
+				if(islower(iter->first[0]))
+					options_buttons.push_back(MenuButton(iter->first, dummy, iter->second));
 			}
 			
 			for(auto iter = options[i].strVals.begin(); iter != options[i].strVals.end(); iter++)
 			{
 				int dummy = -1;
-				options_buttons.push_back(MenuButton(iter->first, iter->second, dummy));
+				if(islower(iter->first[0]))
+					options_buttons.push_back(MenuButton(iter->first, iter->second, dummy));
 			}
 		}
 		
