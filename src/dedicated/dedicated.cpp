@@ -43,7 +43,7 @@ void sleep(int milliseconds)
 #endif
 }
 
-};
+}
 
 int DedicatedServer::nextPlayerID()
 {
