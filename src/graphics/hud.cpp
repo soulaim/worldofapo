@@ -5,8 +5,7 @@
 #include "font.h"
 #include "frustum/matrix4.h"
 #include "string2rgb.h"
-
-#include <SDL.h>
+#include "timer.h"
 
 #include <string>
 #include <sstream>
@@ -223,13 +222,13 @@ void Hud::drawMessages()
 
 void Hud::drawFPS()
 {
-	static int last_time = SDL_GetTicks();
+	static long long last_time = Timer::time_now();
 	static double fps = 0;
 	static double world_fps = 0;
 	static int frames = 0;
 	++frames;
-	int time_now = SDL_GetTicks();
-	int time_since_last = time_now - last_time;
+	long long time_now = Timer::time_now();
+	long long time_since_last = time_now - last_time;
 	if(time_since_last > 500)
 	{
 		fps = 1000.0 * frames / time_since_last;

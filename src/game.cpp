@@ -7,11 +7,6 @@
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
-
-#include <SDL.h>
-
-
-// required for obtaining character keys from file. could be located in another file.
 #include <fstream>
 
 using namespace std;
