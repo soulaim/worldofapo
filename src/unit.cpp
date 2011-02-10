@@ -64,6 +64,73 @@ void Unit::setDefaultPlayerAttributes()
 	intVals["REGEN"] = 10;
 }
 
+
+void Unit::accelerateForward()
+{
+	FixedPoint mobility_scale = FixedPoint(10, 100) * getMobility();
+	velocity.x += ApoMath::getCos(angle) * mobility_scale;
+	velocity.z += ApoMath::getSin(angle) * mobility_scale;
+}
+
+void Unit::accelerateBackward()
+{
+	FixedPoint mobility_scale = FixedPoint(6, 100) * getMobility();
+	velocity.x -= ApoMath::getCos(angle) * mobility_scale;
+	velocity.z -= ApoMath::getSin(angle) * mobility_scale;
+}
+
+void Unit::accelerateLeft()
+{
+	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	int dummy_angle = angle - ApoMath::DEGREES_90;
+	
+	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
+	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
+}
+
+void Unit::accelerateRight()
+{
+	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	int dummy_angle = angle + ApoMath::DEGREES_90;
+	
+	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
+	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
+}
+
+void Unit::leapLeft()
+{
+	int dummy_angle = angle - ApoMath::DEGREES_90;
+	
+	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
+	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
+	velocity.y += FixedPoint(45, 100);
+	leap_cooldown = 40;
+	
+	soundInfo = "jump";
+}
+
+void Unit::leapRight()
+{
+	int dummy_angle = angle + ApoMath::DEGREES_90;
+	
+	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
+	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
+	velocity.y += FixedPoint(45, 100);
+	leap_cooldown = 40;
+	
+	soundInfo = "jump";
+}
+
+void Unit::jump()
+{
+	if(getMobility() > FixedPoint(0))
+	{
+		soundInfo = "jump";
+		velocity.y = FixedPoint(900, 1000);
+	}
+}
+
+
 int Unit::getModifier(const string& attribute) const
 {
 	auto it = intVals.find(attribute);
@@ -128,28 +195,13 @@ bool Unit::human() const
 	return false;
 }
 
-float Unit::getAngle(ApoMath& apomath)
+float Unit::getAngle()
 {
-	return apomath.getDegrees(angle);
+	return ApoMath::getDegrees(angle);
 }
 
 void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons_)
 {
-	/*
-	int& no_orders = intVals["NO_ORDERS"];
-	
-	if(no_orders > 0)
-	{
-		// no actions allowed!
-		--no_orders;
-		keyState = 0;
-		mouseButtons = 0;
-		return;
-	}
-	*/
-	
-	static ApoMath math;
-	
 	int changey = mousey_;
 	int changex = mousex_;
 	
@@ -171,14 +223,14 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons
 	mouseButtons = mouseButtons_;
 	angle -= x_major_change;
 	
-	upangle += math.DEGREES_180; // Prevent going full circles when moving camera up or down.
+	upangle += ApoMath::DEGREES_180; // Prevent going full circles when moving camera up or down.
 	upangle -= y_major_change;
 	
-	if(upangle < math.DEGREES_180+5)
-		upangle = math.DEGREES_180+5;
-	if(upangle > math.DEGREES_360-6)
-		upangle = math.DEGREES_360-6;
-	upangle -= math.DEGREES_180;
+	if(upangle < ApoMath::DEGREES_180+5)
+		upangle = ApoMath::DEGREES_180+5;
+	if(upangle > ApoMath::DEGREES_360-6)
+		upangle = ApoMath::DEGREES_360-6;
+	upangle -= ApoMath::DEGREES_180;
 }
 
 
@@ -201,7 +253,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
 		id >> weapon >> collision_rule >> scale >>
-		mouse_x_minor >> mouse_y_minor;
+		mouse_x_minor >> mouse_y_minor >> mobility_val;
 	
 	HasProperties::handleCopyOrder(ss);
 	
@@ -243,7 +295,7 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << weapon;
 	hero_msg << " " << collision_rule;
 	hero_msg << " " << scale;
-	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " ";
+	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val << " ";
 
 	hero_msg << HasProperties::copyOrder();
 	
@@ -258,19 +310,24 @@ string Unit::copyOrder(int ID) const
 }
 
 
-FixedPoint Unit::getMobility()
+void Unit::updateMobility()
 {
 	if(mobility & (MOBILITY_STANDING_ON_OBJECT | MOBILITY_STANDING_ON_GROUND))
 	{
 		int dex_modifier = getModifier("DEX");
 		
 		if(mobility & MOBILITY_SQUASHED)
-			return FixedPoint(1, 6) * FixedPoint(dex_modifier, 10);
+			mobility_val = FixedPoint(1, 6) * FixedPoint(dex_modifier, 10);
 		else
-			return FixedPoint(1) * FixedPoint(dex_modifier, 10);
+			mobility_val = FixedPoint(1) * FixedPoint(dex_modifier, 10);
 	}
-	
-	return FixedPoint(0);
+	else
+		mobility_val = FixedPoint(0);
+}
+
+const FixedPoint& Unit::getMobility() const
+{
+	return mobility_val;
 }
 
 

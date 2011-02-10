@@ -52,6 +52,14 @@ public:
 	
 	Unit();
 	
+	void accelerateForward();
+	void accelerateBackward();
+	void accelerateRight();
+	void accelerateLeft();
+	void leapLeft();
+	void leapRight();
+	void jump();
+	
 	void zeroMovement();
 	void setPosition(const Location&);
 	const Location& getPosition() const;
@@ -59,7 +67,8 @@ public:
 	
 	int getMaxHP() const;
 	
-	FixedPoint getMobility();
+	void updateMobility();
+	const FixedPoint& getMobility() const;
 	
 	std::string soundInfo;
 	
@@ -83,6 +92,7 @@ public:
 	int birthTime;
 	
 	int mobility;
+	FixedPoint mobility_val;
 	
 	FixedPoint scale; // unit size for collision detection etc.
 	
@@ -107,7 +117,7 @@ public:
 	int getModifier(const std::string& attribute) const;
 	void levelUp(); // very much a place holder! TODO:
 	
-	float getAngle(ApoMath&);
+	float getAngle();
 	
 	Location bb_top() const;
 	Location bb_bot() const;

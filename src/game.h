@@ -1,7 +1,6 @@
 #ifndef H_GAME_
 #define H_GAME_
 
-#include "world.h"
 #include "ordercontainer.h"
 #include "fps_manager.h"
 #include "order.h"
@@ -18,6 +17,8 @@
 #include <map>
 #include <set>
 
+
+class World;
 
 // information regarding how much of the simulation is allowed to play now,
 // at which point of the simulation we are now,

@@ -145,7 +145,7 @@ void GameSound::playEffect(const string& lol, float distance, float magnitude)
 }
 
 
-void GameSound::startMusic(string name)
+void GameSound::startMusic(string& name)
 {
 	if(!soundsystem_ok)
 		return;

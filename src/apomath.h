@@ -15,17 +15,15 @@ private:
 	static std::vector<float> degree_vals;
 
 public:
-	void clamp(int& angle) const;
-	FixedPoint& getCos(int& angle) const;
-	FixedPoint& getSin(int& angle) const;
-	float getDegrees(int& angle) const;
+	static void clamp(int& angle);
+	static FixedPoint& getCos(int& angle);
+	static FixedPoint& getSin(int& angle);
+	static float getDegrees(int& angle);
 
 	static FixedPoint sqrt(const FixedPoint& point);
 
 	ApoMath();
-	void init(int);
-	bool ready() const;
-
+	static void init(int);
 
 	static int DEGREES_90;
 	static int DEGREES_180;

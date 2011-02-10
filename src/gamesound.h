@@ -19,7 +19,7 @@ public:
 	int init();
 	
 	void playEffect(const std::string&, float, float);
-	void startMusic(std::string name);
+	void startMusic(std::string& name);
 	int end_music();
 };
 

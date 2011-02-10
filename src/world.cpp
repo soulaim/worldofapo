@@ -132,14 +132,7 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	
 	// create some effect or something
 	Location zero; zero.y = FixedPoint(1, 2);
-	
-	
 	visualworld->explosion(pos, zero);
-	
-	// original values for the explosion effect.
-	// visualworld->genParticleEmitter(pos, zero, 50, 5000, 5500, "WHITE", "ORANGE", "ORANGE", "DARK_RED", 1500, 10, 80);
-	
-	// 	genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, int r, int g, int b, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 }
 
 void World::atDeath(MovableObject& object, HasProperties& properties)
@@ -277,14 +270,12 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 	bool improved = true;
 	FixedPoint best_error = FixedPoint(1000000);
 	
-	ApoMath apomath;
-	
 	while(improved)
 	{
 		improved = false;
 		hypo_angle += 5;
-		myDirection.z = apomath.getSin(hypo_angle);
-		myDirection.x = apomath.getCos(hypo_angle);
+		myDirection.z = ApoMath::getSin(hypo_angle);
+		myDirection.x = ApoMath::getCos(hypo_angle);
 		
 		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
 		if(error < best_error)
@@ -295,8 +286,8 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 		else
 		{
 			hypo_angle -= 10;
-			myDirection.z = apomath.getSin(hypo_angle);
-			myDirection.x = apomath.getCos(hypo_angle);
+			myDirection.z = ApoMath::getSin(hypo_angle);
+			myDirection.x = ApoMath::getCos(hypo_angle);
 			
 			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
 			if(error < best_error)
@@ -315,7 +306,7 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 	{
 		improved = false;
 		hypo_upangle += 5;
-		myDirection.y = apomath.getSin(hypo_upangle);
+		myDirection.y = ApoMath::getSin(hypo_upangle);
 		FixedPoint error = (direction.y * 100 + myDirection.y * 100).squared();
 		if(error < best_error)
 		{
@@ -325,7 +316,7 @@ void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 		else
 		{
 			hypo_upangle -= 10;
-			myDirection.y = apomath.getSin(hypo_upangle);
+			myDirection.y = ApoMath::getSin(hypo_upangle);
 			error = (direction.y * 100 + myDirection.y * 100).squared();
 			if(error < best_error)
 			{
@@ -643,7 +634,7 @@ void World::tickUnit(Unit& unit, Model* model)
 	{
 		assert(model && "this should never happen");
 		
-		model->rotate_y(unit.getAngle(apomath));
+		model->rotate_y(unit.getAngle());
 		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	}
 	
@@ -704,6 +695,9 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.velocity.z *= friction;
 	
 	
+	unit.updateMobility();
+	
+	
 	if(unit.getKeyAction(Unit::WEAPON1))
 	{
 		unit.switchWeapon(1);
@@ -730,70 +724,40 @@ void World::tickUnit(Unit& unit, Model* model)
 	}
 	
 	
-	FixedPoint mobility = unit.getMobility();
 	if(unit.getKeyAction(Unit::MOVE_FRONT))
 	{
-		FixedPoint scale = FixedPoint(10, 100) * mobility;
-		unit.velocity.x += apomath.getCos(unit.angle) * scale;
-		unit.velocity.z += apomath.getSin(unit.angle) * scale;
+		unit.accelerateForward();
 	}
 	
 	if(unit.getKeyAction(Unit::MOVE_BACK))
 	{
-		FixedPoint scale = FixedPoint(6, 100) * mobility;
-		unit.velocity.x -= apomath.getCos(unit.angle) * scale;
-		unit.velocity.z -= apomath.getSin(unit.angle) * scale;
+		unit.accelerateBackward();
 	}
 
 	if(unit.getKeyAction(Unit::MOVE_LEFT))
 	{
-		FixedPoint scale = FixedPoint(8, 100) * mobility;
-		int dummy_angle = unit.angle - apomath.DEGREES_90;
-		
-		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+		unit.accelerateLeft();
 	}
 	if(unit.getKeyAction(Unit::MOVE_RIGHT))
 	{
-		FixedPoint scale = FixedPoint(8, 100) * mobility;
-		int dummy_angle = unit.angle + apomath.DEGREES_90;
-		
-		unit.velocity.x -= apomath.getCos(dummy_angle) * scale;
-		unit.velocity.z -= apomath.getSin(dummy_angle) * scale;
+		unit.accelerateRight();
 	}
 	
 	if(unit.getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (unit.soundInfo == ""))
 		unit.soundInfo = "walk";
 
-	if(unit.leap_cooldown == 0)
+	if(unit.leap_cooldown == 0 && unit.getMobility() > FixedPoint(0))
 	{
-		FixedPoint scale(950,1000);
-		if(unit.getKeyAction(Unit::LEAP_LEFT) && (mobility > 0))
+		if(unit.getKeyAction(Unit::LEAP_LEFT))
 		{
-			int dummy_angle = unit.angle - apomath.DEGREES_90;
-			
-			unit.velocity.x -= apomath.getCos(dummy_angle) * scale * mobility;
-			unit.velocity.z -= apomath.getSin(dummy_angle) * scale * mobility;
-			unit.velocity.y += FixedPoint(45, 100);
-			unit.leap_cooldown = 40;
-			
-			unit.soundInfo = "jump";
-			// unit.soundInfo = "leap";
+			unit.leapLeft();
 		}
-		if(unit.getKeyAction(Unit::LEAP_RIGHT) && (mobility > 0))
+		if(unit.getKeyAction(Unit::LEAP_RIGHT))
 		{
-			int dummy_angle = unit.angle + apomath.DEGREES_90;
-			
-			unit.velocity.x -= apomath.getCos(dummy_angle) * scale * mobility;
-			unit.velocity.z -= apomath.getSin(dummy_angle) * scale * mobility;
-			unit.velocity.y += FixedPoint(45, 100);
-			unit.leap_cooldown = 40;
-			
-			unit.soundInfo = "jump";
-			// unit.soundInfo = "leap";
+			unit.leapRight();
 		}
 	}
-	else
+	else if(unit.leap_cooldown > 0)
 	{
 		--unit.leap_cooldown;
 	}
@@ -819,15 +783,14 @@ void World::tickUnit(Unit& unit, Model* model)
 	
 	FixedPoint yy_val = heightDifference2Velocity(y_diff);
 	
-	if(mobility == 0)
+	if(unit.getMobility() == 0)
 	{
 		yy_val = FixedPoint(1);
 	}
 
-	if(unit.getKeyAction(Unit::JUMP) && mobility > 0)
+	if(unit.getKeyAction(Unit::JUMP))
 	{
-		unit.soundInfo = "jump";
-		unit.velocity.y = FixedPoint(900, 1000);
+		unit.jump();
 	}
 	
 	
@@ -835,34 +798,6 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.velocity.x *= yy_val;
 	
 	unit.position += unit.velocity;
-	
-	/*
-	if(unit.mobility == Unit::MOBILITY_STANDING_ON_GROUND)
-	{
-		
-		Location r1 = unit.position + Location(FixedPoint(+1, 20), 0, 0);
-		Location r2 = unit.position + Location(FixedPoint(-1, 20), 0, 0);
-		Location r3 = unit.position + Location(0, 0, FixedPoint(+1, 20));
-		Location r4 = unit.position + Location(0, 0, FixedPoint(-1, 20));
-		
-		FixedPoint ry1 = lvl.getHeight(r1.x, r1.z);
-		Location c1(+1, 0, 0); c1 *= getSlideAcceleration(unit.position.y, ry1);
-		
-		FixedPoint ry2 = lvl.getHeight(r2.x, r2.z);
-		Location c2(-1, 0, 0); c2 *= getSlideAcceleration(unit.position.y, ry2);
-		
-		FixedPoint ry3 = lvl.getHeight(r3.x, r3.z);
-		Location c3(0, 0, +1); c3 *= getSlideAcceleration(unit.position.y, ry3);
-		
-		FixedPoint ry4 = lvl.getHeight(r4.x, r4.z);
-		Location c4(0, 0, -1); c4 *= getSlideAcceleration(unit.position.y, ry4);
-		
-		unit.velocity += c1;
-		unit.velocity += c2;
-		unit.velocity += c3;
-		unit.velocity += c4;
-	}
-	*/
 	
 	clampToLevelArea(unit);
 	

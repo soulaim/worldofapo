@@ -94,12 +94,22 @@ int MU_Socket::setnonblocking()
 {
 	if(!alive)
 		return 0;
+
 	cerr << "Setting socket to non blocking state.. " << endl;
 	
 #ifdef _WIN32
 	u_long iMode=1;
-	ioctlsocket(sock,FIONBIO,&iMode);
-	cerr << "non blocking state change was successful." << endl;
+	int nodelay = 1;
+	ioctlsocket(sock, FIONBIO, &iMode);
+	
+	if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)(&nodelay), sizeof(int)) == 0)
+	{
+		cerr << "non blocking state change was successful." << endl;
+	}
+	else
+	{
+		cerr << "Networking warning: COULD NOT DISABLE NAGLE!" << endl;
+	}
 	return 1;
 #else
 	int opts;

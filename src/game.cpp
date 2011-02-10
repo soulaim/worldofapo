@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "worldevent.h"
 #include "visualworld.h"
+#include "world.h"
 
 #include <iostream>
 #include <sstream>
@@ -50,6 +51,8 @@ void Game::reset()
 
 void Game::init()
 {
+	ApoMath::init(3000);
+	
 	reset();
 	readConfig();
 }

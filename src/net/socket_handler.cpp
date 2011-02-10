@@ -74,10 +74,7 @@ std::vector<std::string>& SocketHandler::read(int id)
 {
 	auto iter = sockets.find(id);
 	if(iter == sockets.end())
-	{
-		cerr << "Trying to read from dead connection" << endl;
 		throw std::string("Trying to read from dead connection");
-	}
 	return iter->second.msgs;
 }
 
