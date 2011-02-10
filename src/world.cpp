@@ -592,26 +592,10 @@ void World::tickItem(WorldItem& item, Model* model)
 
 void World::tickUnit(Unit& unit, Model* model)
 {
-	if(unit.intVals["D"] > 0)
-	{
-		unit.intVals["D"] *= 0.95;
-	}
+	unit.intVals["D"] *= 0.95;
 	
-	
-	{
-		int unit_max_hp = unit.getMaxHP();
-		if(unit.hitpoints < unit_max_hp)
-		{
-			int regen = unit.intVals["REGEN"];
-			if(currentWorldFrame % 50 == 0)
-			{
-				unit.hitpoints += regen;
-				if(unit.hitpoints > unit_max_hp)
-					unit.hitpoints = unit_max_hp;
-			}
-		}
-	}
-	
+	if(currentWorldFrame % 50 == 0)
+		unit.regenerate();
 	
 	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
 	{
@@ -622,79 +606,35 @@ void World::tickUnit(Unit& unit, Model* model)
 		// hmm?
 	}
 	
-	if(unit.getKeyAction(Unit::RELOAD))
-	{
-		unit.weapons[unit.weapon].prepareReload(unit);
-	}
-	
-	unit.soundInfo = "";
-	
 	// for server it's ok that there are no models sometimes :G
 	if(visualworld->isActive())
 	{
 		assert(model && "this should never happen");
-		
 		model->rotate_y(unit.getAngle());
 		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	}
-	
-	// TODO: heavy landing is a special case of any kind of collisions. Other collisions are still not handled.
 	
 	// some physics & game world information
 	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
 	
-	if( unit.mobility & Unit::MOBILITY_STANDING_ON_GROUND || unit.mobility & Unit::MOBILITY_STANDING_ON_OBJECT )
+	if(unit.hasSupportUnderFeet())
 	{
-		// TODO: Heavy landings should have a gameplay effect!
 		if(unit.velocity.y < FixedPoint(-7, 10))
 			unit.soundInfo = "jump_land";
-		if(unit.velocity.y < FixedPoint(-12, 10))
-		{
-			unit("DAMAGED_BY") = "falling";
-			
-			FixedPoint damage_fp = unit.velocity.y + FixedPoint(12, 10);
-			int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
-			
-			if(damage_int < -500)
-			{
-				// is hitting the ground REALLY HARD. Nothing could possibly survive. Just insta-kill.
-				unit.hitpoints = -1;
-			}
-			else
-			{
-				unit.velocity.x *= FixedPoint(10, 100);
-				unit.velocity.z *= FixedPoint(10, 100);
-				unit.takeDamage(damage_int * damage_int / 500);
-			}
-			
-			// allow deny only after surviving the first hit with ground.
-			if(unit.hitpoints > 0)
-			{
-				// no deny by jumping down a cliff!
-				unit.last_damage_dealt_by = unit.id;
-			}
-		}
 		
-		FixedPoint friction = FixedPoint(88, 100);
+		unit.landingDamage();
+		unit.applyFriction();
 		
-		if(unit.mobility & Unit::MOBILITY_STANDING_ON_GROUND)
+		if(unit.hasGroundUnderFeet())
 		{
 			unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
 			unit.velocity.y = FixedPoint::ZERO;
 		}
-		
-		unit.velocity.x *= friction;
-		unit.velocity.z *= friction;
 	}
 	
-	// gravity and air resistance.
-	unit.velocity.y -= FixedPoint(35,1000);
-	FixedPoint friction = FixedPoint(995, 1000);
-	unit.velocity.x *= friction;
-	unit.velocity.z *= friction;
 	
-	
+	unit.applyGravity();
 	unit.updateMobility();
 	unit.processInput();
 	
@@ -714,26 +654,11 @@ void World::tickUnit(Unit& unit, Model* model)
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;
 	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
 	FixedPoint y_diff = reference_y - unit.position.y;
-	
 	FixedPoint yy_val = heightDifference2Velocity(y_diff);
 	
-	if(unit.getMobility() == 0)
-	{
-		yy_val = FixedPoint(1);
-	}
-	
-	unit.velocity.z *= yy_val;
-	unit.velocity.x *= yy_val;
-	
-	unit.position += unit.velocity;
-	
+	unit.tick(yy_val);
 	clampToLevelArea(unit);
-	
-	unit.mobility = Unit::MOBILITY_CLEAR_VALUE;
-	unit.position += unit.posCorrection;
-	unit.posCorrection.x = 0;
-	unit.posCorrection.y = 0;
-	unit.posCorrection.z = 0;
+	unit.postTick();
 }
 
 void World::tickProjectile(Projectile& projectile, Model* model)

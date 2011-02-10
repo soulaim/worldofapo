@@ -132,6 +132,13 @@ void Unit::jump()
 
 void Unit::processInput()
 {
+	soundInfo = "";
+	
+	if(getKeyAction(Unit::RELOAD))
+	{
+		weapons[unit.weapon].prepareReload(*this);
+	}
+	
 	if(getKeyAction(Unit::WEAPON1))
 	{
 		switchWeapon(1);
@@ -206,9 +213,96 @@ void Unit::processInput()
 }
 
 
+void Unit::regenerate()
+{
+	int unit_max_hp = getMaxHP();
+	if(hitpoints < unit_max_hp)
+	{
+		int regen = intVals["REGEN"];
+		int missing_hp = unit_max_hp-hitpoints;
+		hitpoints += (regen<missing_hp)?regen:missing_hp;
+	}
+}
+
+void Unit::landingDamage()
+{
+	if(velocity.y < FixedPoint(-12, 10))
+	{
+		strVals["DAMAGED_BY"] = "falling";
+		
+		FixedPoint damage_fp = velocity.y + FixedPoint(12, 10);
+		int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
+		
+		if(damage_int < -500)
+		{
+			// is hitting the ground REALLY HARD. Nothing could possibly survive. Just insta-kill.
+			hitpoints = -1;
+		}
+		else
+		{
+			velocity.x *= FixedPoint(10, 100);
+			velocity.z *= FixedPoint(10, 100);
+			takeDamage(damage_int * damage_int / 500);
+		}
+		
+		// allow deny only after surviving the first hit with ground.
+		// not a deny if thrown down a cliff!
+		if(hitpoints > 0)
+		{
+			last_damage_dealt_by = unit.id;
+		}
+	}
+}
+
+void Unit::applyFriction()
+{
+	FixedPoint friction = FixedPoint(88, 100);
+	velocity.x *= friction;
+	velocity.z *= friction;
+}
+
+void Unit::applyGravity()
+{
+	// gravity
+	velocity.y -= FixedPoint(35,1000);
+	
+	// air resistance
+	FixedPoint friction = FixedPoint(995, 1000);
+	velocity.x *= friction;
+	velocity.z *= friction;
+}
+
+void Unit::postTick()
+{
+	mobility = Unit::MOBILITY_CLEAR_VALUE;
+	position += posCorrection;
+	posCorrection = Location();
+}
+
+void Unit::tick(const FixedPoint& yy_val)
+{
+	if(getMobility() == 0)
+	{
+		position += velocity;
+		return;
+	}
+	
+	velocity.z *= yy_val;
+	velocity.x *= yy_val;
+	position += velocity;
+}
 
 
 
+bool Unit::hasSupportUnderFeet() const
+{
+	return mobility & Unit::MOBILITY_STANDING_ON_GROUND || mobility & Unit::MOBILITY_STANDING_ON_OBJECT;
+}
+
+bool Unit::hasGroundUnderFeet() const
+{
+	return mobility & Unit::MOBILITY_STANDING_ON_GROUND;
+}
 
 
 int Unit::getModifier(const string& attribute) const

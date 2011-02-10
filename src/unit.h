@@ -61,6 +61,15 @@ public:
 	void jump();
 	
 	void processInput();
+	void regenerate();
+	
+	void landingDamage();
+	void applyFriction();
+	bool hasSupportUnderFeet() const;
+	bool hasGroundUnderFeet() const;
+	void applyFriction();
+	void applyGravity();
+	void postTick();
 	
 	void zeroMovement();
 	void setPosition(const Location&);
