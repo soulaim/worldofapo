@@ -60,6 +60,8 @@ public:
 	void leapRight();
 	void jump();
 	
+	void processInput();
+	
 	void zeroMovement();
 	void setPosition(const Location&);
 	const Location& getPosition() const;

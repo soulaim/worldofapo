@@ -130,6 +130,86 @@ void Unit::jump()
 	}
 }
 
+void Unit::processInput()
+{
+	if(getKeyAction(Unit::WEAPON1))
+	{
+		switchWeapon(1);
+	}
+
+	if(getKeyAction(Unit::WEAPON2))
+	{
+		switchWeapon(2);
+	}
+
+	if(getKeyAction(Unit::WEAPON3))
+	{
+		switchWeapon(3);
+	}
+
+	if(getKeyAction(Unit::WEAPON4))
+	{
+		switchWeapon(4);
+	}
+
+	if(getKeyAction(Unit::WEAPON5))
+	{
+		switchWeapon(5);
+	}
+
+
+	if(getKeyAction(Unit::MOVE_FRONT))
+	{
+		accelerateForward();
+	}
+
+	if(getKeyAction(Unit::MOVE_BACK))
+	{
+		accelerateBackward();
+	}
+
+	if(getKeyAction(Unit::MOVE_LEFT))
+	{
+		accelerateLeft();
+	}
+
+	if(getKeyAction(Unit::MOVE_RIGHT))
+	{
+		accelerateRight();
+	}
+
+	if(getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (soundInfo == ""))
+		soundInfo = "walk";
+
+	if(leap_cooldown == 0 && getMobility() > FixedPoint(0))
+	{
+		if(getKeyAction(Unit::LEAP_LEFT))
+		{
+			leapLeft();
+		}
+		if(getKeyAction(Unit::LEAP_RIGHT))
+		{
+			leapRight();
+		}
+	}
+	else if(leap_cooldown > 0)
+	{
+		--leap_cooldown;
+	}
+	
+	if(getKeyAction(Unit::JUMP))
+	{
+		jump();
+	}
+	
+	weapons[weapon].tick(*this);
+}
+
+
+
+
+
+
 
 int Unit::getModifier(const string& attribute) const
 {

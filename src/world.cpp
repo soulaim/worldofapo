@@ -696,75 +696,9 @@ void World::tickUnit(Unit& unit, Model* model)
 	
 	
 	unit.updateMobility();
+	unit.processInput();
 	
-	
-	if(unit.getKeyAction(Unit::WEAPON1))
-	{
-		unit.switchWeapon(1);
-	}
-
-	if(unit.getKeyAction(Unit::WEAPON2))
-	{
-		unit.switchWeapon(2);
-	}
-	
-	if(unit.getKeyAction(Unit::WEAPON3))
-	{
-		unit.switchWeapon(3);
-	}
-	
-	if(unit.getKeyAction(Unit::WEAPON4))
-	{
-		unit.switchWeapon(4);
-	}
-	
-	if(unit.getKeyAction(Unit::WEAPON5))
-	{
-		unit.switchWeapon(5);
-	}
-	
-	
-	if(unit.getKeyAction(Unit::MOVE_FRONT))
-	{
-		unit.accelerateForward();
-	}
-	
-	if(unit.getKeyAction(Unit::MOVE_BACK))
-	{
-		unit.accelerateBackward();
-	}
-
-	if(unit.getKeyAction(Unit::MOVE_LEFT))
-	{
-		unit.accelerateLeft();
-	}
-	if(unit.getKeyAction(Unit::MOVE_RIGHT))
-	{
-		unit.accelerateRight();
-	}
-	
-	if(unit.getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (unit.soundInfo == ""))
-		unit.soundInfo = "walk";
-
-	if(unit.leap_cooldown == 0 && unit.getMobility() > FixedPoint(0))
-	{
-		if(unit.getKeyAction(Unit::LEAP_LEFT))
-		{
-			unit.leapLeft();
-		}
-		if(unit.getKeyAction(Unit::LEAP_RIGHT))
-		{
-			unit.leapRight();
-		}
-	}
-	else if(unit.leap_cooldown > 0)
-	{
-		--unit.leap_cooldown;
-	}
-	
-	unit.weapons[unit.weapon].tick(unit);
-	
-	
+	// weapon activations
 	if(unit.getMouseAction(Unit::MOUSE_LEFT))
 	{
 		unit.weapons[unit.weapon].onActivate(*this, unit);
@@ -787,12 +721,6 @@ void World::tickUnit(Unit& unit, Model* model)
 	{
 		yy_val = FixedPoint(1);
 	}
-
-	if(unit.getKeyAction(Unit::JUMP))
-	{
-		unit.jump();
-	}
-	
 	
 	unit.velocity.z *= yy_val;
 	unit.velocity.x *= yy_val;
