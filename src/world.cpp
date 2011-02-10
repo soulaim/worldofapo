@@ -614,9 +614,12 @@ void World::tickUnit(Unit& unit, Model* model)
 		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	}
 	
+	
+	
 	// some physics & game world information
 	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
+	
 	
 	if(unit.hasSupportUnderFeet())
 	{

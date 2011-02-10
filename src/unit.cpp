@@ -136,7 +136,7 @@ void Unit::processInput()
 	
 	if(getKeyAction(Unit::RELOAD))
 	{
-		weapons[unit.weapon].prepareReload(*this);
+		weapons[weapon].prepareReload(*this);
 	}
 	
 	if(getKeyAction(Unit::WEAPON1))
@@ -249,7 +249,7 @@ void Unit::landingDamage()
 		// not a deny if thrown down a cliff!
 		if(hitpoints > 0)
 		{
-			last_damage_dealt_by = unit.id;
+			last_damage_dealt_by = id;
 		}
 	}
 }

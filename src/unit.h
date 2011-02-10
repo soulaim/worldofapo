@@ -64,12 +64,12 @@ public:
 	void regenerate();
 	
 	void landingDamage();
-	void applyFriction();
 	bool hasSupportUnderFeet() const;
 	bool hasGroundUnderFeet() const;
 	void applyFriction();
 	void applyGravity();
 	void postTick();
+	void tick(const FixedPoint& yy_val);
 	
 	void zeroMovement();
 	void setPosition(const Location&);
