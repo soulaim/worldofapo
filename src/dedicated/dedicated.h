@@ -148,6 +148,7 @@ class DedicatedServer : public HasProperties
 	void send_to_all(const std::string& msg);
 	void acceptConnections();
 
+	void possible_sleep(int milliseconds) const;
 public:
 	DedicatedServer();
 	

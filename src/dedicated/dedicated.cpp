@@ -1,48 +1,22 @@
 #include "dedicated.h"
-
-// #include "graphics/modelfactory.h"
+#include "timer.h"
 
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <ctime>
 
 #include <omp.h>
-
-#ifndef _WIN32
-#include <sys/time.h>
-#endif
 
 #define SLEEP_IF_POSSIBLE
 #define MULTI_THREADED_WORLD_TICKS 0
 
 using namespace std;
 
-namespace
-{
-
-long long time_now()
-{
-#ifdef _WIN32
-	return clock();
-#else
-	timeval t;
-	gettimeofday(&t,NULL);
-	return t.tv_sec * 1000 + t.tv_usec / 1000;
-#endif
-}
-
-void sleep(int milliseconds)
+void DedicatedServer::possible_sleep(int milliseconds) const
 {
 #ifdef SLEEP_IF_POSSIBLE
-#ifdef _WIN32
-			Sleep(milliseconds);
-#else
-			usleep(milliseconds * 1000);
+	Timer::sleep(milliseconds);
 #endif
-#endif
-}
-
 }
 
 int DedicatedServer::nextPlayerID()
@@ -116,7 +90,7 @@ void DedicatedServer::init()
 {
 	visualworld.disable();
 	
-	long long milliseconds = time_now();
+	long long milliseconds = Timer::time_now();
 	fps_world.reset(milliseconds);
 	
 	srand(time(0));
@@ -316,7 +290,7 @@ void DedicatedServer::host_tick()
 		}
 		else
 		{
-			sleep(1);
+			possible_sleep(1);
 			
 			return;
 		}
@@ -328,13 +302,13 @@ void DedicatedServer::host_tick()
 	{
 		// cerr << "waiting ..." << endl;
 		
-		sleep(1);
+		possible_sleep(1);
 		
 		return;
 		
 		simulRules.reset();
 		
-		long long milliseconds = time_now();
+		long long milliseconds = Timer::time_now();
 		fps_world.reset(milliseconds);
 		
 		cerr << "World shutting down." << endl;
@@ -344,7 +318,7 @@ void DedicatedServer::host_tick()
 	
 	processServerMsgs();
 	
-	long long milliseconds = time_now();
+	long long milliseconds = Timer::time_now();
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
 	{
@@ -371,7 +345,7 @@ void DedicatedServer::host_tick()
 	else
 	{
 		// this might not be a good idea in the end, but should show us how much it really uses processing power.
-		sleep(1);
+		possible_sleep(1);
 	}
 }
 
@@ -1054,7 +1028,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 			cerr << "Setting pause state to RUNNING" << endl;
 			pause_state = RUNNING;
 			
-			long long milliseconds = time_now();
+			long long milliseconds = Timer::time_now();
 			fps_world.reset(milliseconds);
 		}
 		else if(cmd == "ALLOW")
@@ -1120,7 +1094,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 			ss >> nopause;
 			pause_state = (nopause ? RUNNING : PAUSED);
 			
-			long long milliseconds = time_now();
+			long long milliseconds = Timer::time_now();
 			fps_world.reset(milliseconds);
 		}
 		else if(cmd == "CHAR_INFO")

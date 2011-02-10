@@ -1,6 +1,7 @@
 #include "editor.h"
 #include "graphics/texturehandler.h"
 #include "graphics/grasscluster.h"
+#include "timer.h"
 
 #include <iostream>
 #include <sstream>
@@ -226,12 +227,12 @@ bool Editor::do_tick()
 
 bool Editor::tick()
 {
-	int ticks = SDL_GetTicks();
-	static int last_tick = -999999;
-	static int world_ticks = 0;
+	long long ticks = Timer::time_now();
+	static long long last_tick = -999999;
+	static long long world_ticks = 0;
 
-	int time_since_last = ticks - last_tick;
-	int time_between_ticks = 1000/50;
+	long long time_since_last = ticks - last_tick;
+	long long time_between_ticks = 1000/50;
 	if(time_since_last >= time_between_ticks)
 	{
 		++world_ticks;
@@ -253,7 +254,7 @@ bool Editor::tick()
 	}
 	else
 	{
-		SDL_Delay(time_between_ticks - time_since_last);
+		Timer::sleep(time_between_ticks - time_since_last);
 		return true;
 	}
 }
