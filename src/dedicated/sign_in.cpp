@@ -39,7 +39,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 		if(dormantPlayers.find(cmd) == dormantPlayers.end())
 		{
 			// could not find the player
-			sockets.write(playerID_val, "NO#");
+			socketWrite(sockets, playerID_val, "NO#");
 		}
 		else
 		{
@@ -50,7 +50,7 @@ void DedicatedServer::handleSignInMessage(int playerID_val, std::string order)
 			ans.append( dormantPlayers[cmd].getDescription() );
 			ans.append("#");
 			
-			sockets.write(playerID_val, ans);
+			socketWrite(sockets, playerID_val, ans);
 		}
 	}
 	else if(cmd == "START")
@@ -85,7 +85,8 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		// transmit player key to client
 		std::stringstream characterKey_msg;
 		characterKey_msg << "-2 CHAR_KEY " << Players[playerID_val].key << "#";
-		sockets.write(playerID_val, characterKey_msg.str());
+		
+		socketWrite(sockets, playerID_val, characterKey_msg.str());
 	}
 	else
 	{
@@ -163,8 +164,10 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	
 	std::cerr << "Sending PLAYER ID" << std::endl;
 	std::stringstream playerID_msg;
+	
 	playerID_msg << "-1 " << (simulRules.currentFrame + simulRules.windowSize) << " 2 " << playerID_val << "#";
-	sockets.write(playerID_val, playerID_msg.str());
+	socketWrite(sockets, playerID_val, playerID_msg.str());
+	
 	
 	std::cerr << "SENDING OTHER PLAYERS" << std::endl;
 	// send the new player some generic info about other players
@@ -176,7 +179,8 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 		if(clientName == "")
 			clientName = "nameless";
 		playerInfo_msg << "2 " << iter->first << " " << iter->second.kills << " " << iter->second.deaths << " " << clientName << "#";
-		sockets.write(playerID_val, playerInfo_msg.str());
+		
+		socketWrite(sockets, playerID_val, playerInfo_msg.str());
 	}
 	
 	
@@ -205,17 +209,19 @@ void DedicatedServer::sendWorldContent(int playerID_val)
 	// send id generator state
 	std::stringstream nextUnit_msg;
 	nextUnit_msg << "-2 NEXT_UNIT_ID " << areas.find(areaName)->second.currentUnitID() << "#";
-	sockets.write(playerID_val, nextUnit_msg.str());
+	socketWrite(sockets, playerID_val, nextUnit_msg.str());
 	
 	
 	// Now that all game info has been sent, can send messages to allow the client to start his own simulation.
 	std::stringstream simulRules_msg;
 	simulRules_msg << "-2 SIMUL " << simulRules.currentFrame << " " << simulRules.windowSize << " " <<  simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << "#";
-	sockets.write(playerID_val, simulRules_msg.str());
+	
+	socketWrite(sockets, playerID_val, simulRules_msg.str());
 	
 	// go!
 	std::stringstream clientState_msg;
 	clientState_msg << "-2 CLIENT_STATE " << 1 << "#";
-	sockets.write(playerID_val, clientState_msg.str());
+	
+	socketWrite(sockets, playerID_val, clientState_msg.str());
 }
 

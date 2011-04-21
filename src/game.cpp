@@ -54,7 +54,7 @@ void Game::init()
 
 void Game::write(int id, const string& msg)
 {
-	clientSocket.write(id, msg);
+	clientSocket.getConnection(id) << msg;
 }
 
 void Game::readConfig()
@@ -106,10 +106,7 @@ bool Game::internetGameGetHeroes(const string& hostname, map<string, CharacterIn
 
 void Game::internetGameSelectHero(const string& hero)
 {
-	stringstream herocommand;
-	herocommand << "START " << hero << "#";
-	clientSocket.write(SERVER_ID, herocommand.str());
-	return;
+	clientSocket.getConnection(SERVER_ID) << "START " << hero << "#";
 }
 
 bool Game::getHeroes(map<string, CharacterInfo>& heroes)
@@ -117,11 +114,9 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 	set<string> keys = KeyManager::readKeys();
 	for(auto i = keys.begin(); i!=keys.end(); i++)
 	{
-		stringstream ss;
-		ss << "OPTION " << (*i) << "#";
 		cerr << "sending query for key " << *i << endl;
-		clientSocket.write(SERVER_ID, ss.str());
-
+		clientSocket.getConnection(SERVER_ID) << "OPTION " << (*i) << "#";
+		
 		bool not_finished = true;
 		while(not_finished)
 		{
@@ -180,11 +175,8 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 	if(myID >= 0)
 	{
 		stringstream inputMsg;
-		string msg;
-		
 		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
-		msg = inputMsg.str();
-		clientSocket.write(SERVER_ID, msg);
+		clientSocket.getConnection(SERVER_ID) << inputMsg.str();
 	}
 }
 
@@ -192,10 +184,7 @@ void Game::send_chat_message(const std::string& clientCommand)
 {
 	stringstream tmp_msg;
 	tmp_msg << "3 " << myID << " " << clientCommand << "#";
-	clientSocket.write(SERVER_ID, tmp_msg.str());
-
-//	Logger log;
-//	log.print("Sent message: +++" + tmp_msg.str() + "+++\n");
+	clientSocket.getConnection(SERVER_ID) << tmp_msg.str();
 }
 
 bool Game::paused() const
@@ -352,7 +341,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 		ss << "2 " << myID << " " << localPlayer.name << "#";
-		clientSocket.write(SERVER_ID, ss.str());
+		clientSocket.getConnection(SERVER_ID) << ss.str();
 
 //		Logger log;
 //		log.print("Sent message: +++" + ss.str() + "+++\n");
@@ -742,12 +731,13 @@ bool Game::check_messages_from_server()
 	}
 	else
 	{
-		vector<string>& msgs = clientSocket.read(SERVER_ID);
-		for(size_t k = 0; k < msgs.size(); ++k)
+		SocketHandler::Connection& conn = clientSocket.getConnection(SERVER_ID);
+		string msg;
+		
+		while(conn >> msg)
 		{
-			clientOrders.insert(msgs[k] + "#"); // TODO: messages are now parsed twice: once in sockethandler and once in clientOrders.
+			clientOrders.insert(msg + "#");
 		}
-		msgs.clear();
 	}
 	return stop;
 }

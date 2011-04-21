@@ -21,7 +21,6 @@
 
 #include <errno.h>
 
-
 class SocketHandler;
 
 class MU_Socket

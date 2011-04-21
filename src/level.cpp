@@ -456,6 +456,7 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
 				updateHeight(i, k, newHeight);
 			}
 		}
+		
 		cerr << endl;
 		
 		if(post_passes < 2)
@@ -464,7 +465,7 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
 		}
 		else
 		{
-			percentage_done = 0.3 + 0.7f * loops / (1.0f - post_passes);
+			percentage_done = 0.3f + 0.71f * (loops + 1.0f) / post_passes;
 		}
 	}
 	cerr << endl;

@@ -158,5 +158,11 @@ public:
 };
 
 
+inline void socketWrite(SocketHandler& sh, int id, const std::string& msg)
+{
+	sh.getConnection(id) << msg;
+}
+
+
 #endif
 

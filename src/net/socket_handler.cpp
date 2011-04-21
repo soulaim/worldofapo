@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <cassert>
 
 using namespace std;
 
@@ -11,15 +12,17 @@ SocketHandler::SocketHandler()
 {
 }
 
+
 bool SocketHandler::accept(int id)
 {
 	if(listen_socket.readyToRead())
 	{
 		Connection conn;
 		listen_socket.accept_connection(conn.socket);
-		if(conn.socket.alive)
+		
+		if(conn.alive())
 		{
-			cerr << "Accepted a new connection :D trololol :D" << endl;
+			cerr << "Accepted a new connection." << endl;
 			sockets[id] = conn;
 			return true;
 		}
@@ -61,6 +64,15 @@ bool SocketHandler::alive(int id)
 	return iter->second.socket.alive;
 }
 
+
+SocketHandler::Connection& SocketHandler::getConnection(int id)
+{
+	auto iter = sockets.find(id);
+	assert(iter != sockets.end() && "SocketHandler: Got a request for a connection ID that does not exist.");
+	return iter->second;
+}
+
+/*
 bool SocketHandler::write(int id, const std::string& msg)
 {
 	auto iter = sockets.find(id);
@@ -69,7 +81,9 @@ bool SocketHandler::write(int id, const std::string& msg)
 	iter->second.write_buffer += msg;
 	return true;
 }
+*/
 
+/*
 std::vector<std::string>& SocketHandler::read(int id)
 {
 	auto iter = sockets.find(id);
@@ -77,6 +91,7 @@ std::vector<std::string>& SocketHandler::read(int id)
 		throw std::string("Trying to read from dead connection");
 	return iter->second.msgs;
 }
+*/
 
 int SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks)
 {
@@ -122,10 +137,11 @@ void SocketHandler::read_and_write(const fd_set& read_socks, const fd_set& write
 			const std::string& read = conn.socket.read();
 			if(read.empty())
 			{
-				cerr << "Socket #" << iter->first << " was marked readable, but still returned empty string? Marking to be erased.." << endl;
+				cerr << "Connection #" << iter->first << " has disconnected." << endl;
 				conn.socket.alive = false;
 			}
-			conn.push_message(read);
+			
+			conn.pushToReadBuffer(read);
 		}
 
 		if(FD_ISSET(conn.socket.sock, &write_socks) && !conn.write_buffer.empty())
@@ -168,17 +184,53 @@ bool SocketHandler::close(int id)
 	}
 }
 
-int SocketHandler::Connection::push_message(const string& msg)
+
+
+bool SocketHandler::Connection::empty()
 {
-	if(!msg.empty() && !read_buffer.empty() && msg[0] == '#')
+	return msgs.empty();
+}
+
+SocketHandler::Connection::Connection()
+{
+	out_marker = 0;
+}
+
+bool SocketHandler::Connection::operator >> (std::string& msg)
+{
+	if(msgs.empty())
+		return false;
+	
+	msg = msgs[out_marker];
+	
+	if(++out_marker == msgs.size())
+	{
+		out_marker = 0;
+		msgs.clear();
+	}
+	
+	return true;
+}
+
+SocketHandler::Connection& SocketHandler::Connection::operator << (const std::string& msg)
+{
+	write_buffer += msg;
+	return *this;
+}
+
+
+SocketHandler::Connection& SocketHandler::Connection::pushToReadBuffer(const std::string& msg, char delimiter)
+{
+	if(!msg.empty() && !read_buffer.empty() && msg[0] == delimiter)
 	{
 		msgs.push_back(read_buffer);
 		read_buffer = "";
 	}
+	
 	size_t msg_start = 0;
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
-		if(msg[i] == '#')
+		if(msg[i] == delimiter)
 		{
 			if(i == msg_start)
 			{
@@ -197,8 +249,8 @@ int SocketHandler::Connection::push_message(const string& msg)
 	{
 		read_buffer += msg.substr(msg_start);
 	}
-
-	return msgs.size();
+	
+	return *this;
 }
 
 

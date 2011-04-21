@@ -109,7 +109,7 @@ void DedicatedServer::send_to_all(const std::string& msg)
 		// dont write to disconnected players
 		if(sockets.alive(it->first) && it->second.connectionState == ConnectionState::GAMEPLAY)
 		{
-			sockets.write(it->first, msg);
+			sockets.getConnection(it->first) << msg;
 		}
 	}
 }
@@ -159,49 +159,54 @@ void DedicatedServer::check_messages_from_clients()
 	{
 		if(!sockets.alive(i->first))
 		{
-//			cerr << "LEAVER: " << i->first << ", lastOrder: " << i->second.last_order << endl;
 			leaver = i->first;
 			continue;
 		}
 		
-		
-		vector<string>& msgs = sockets.read(i->first);
 		int conn_state = Players[i->first].connectionState;
+		SocketHandler::Connection& conn = sockets.getConnection(i->first);
+		string msg;
 		
-		if(conn_state == ConnectionState::SIGN_IN)
+		if(!conn.empty())
 		{
-			for(size_t k=0; k < msgs.size(); k++)
-				handleSignInMessage(i->first, msgs[k]);
-			msgs.clear();
-		}
-		else if(conn_state == ConnectionState::GAMEPLAY)
-		{
-			for(size_t k=0; k < msgs.size(); k++)
+			switch(conn_state)
 			{
-				parseClientMsg(msgs[k], i->first, i->second);
+				case ConnectionState::SIGN_IN:
+				{
+					while(conn >> msg)
+						handleSignInMessage(i->first, msg);
+					break;
+				}
+				
+				case ConnectionState::GAMEPLAY:
+				{
+					while(conn >> msg)
+						parseClientMsg(msg, i->first, i->second);
+					break;
+				}
+				
+				case ConnectionState::WAIT_WORLD_GEN:
+				{
+					// NOTE: duplicate for now, should not be.
+					while(conn >> msg)
+						parseClientMsg(msg, i->first, i->second);
+					break;
+				}
+				
+				case ConnectionState::OBSERVER:
+				{
+					// ..
+					
+					break;
+				}
+				
+				case ConnectionState::ADMIN:
+				{
+					while(conn >> msg)
+						parseAdminMsg(msg, i->first, i->second);
+					break;
+				}
 			}
-			msgs.clear();
-		}
-		else if(conn_state == ConnectionState::WAIT_WORLD_GEN)
-		{
-			// NOTE: duplicate for now, not sure if it will be later though.
-			for(size_t k=0; k < msgs.size(); k++)
-			{
-				parseClientMsg(msgs[k], i->first, i->second);
-			}
-			msgs.clear();
-		}
-		else if(conn_state == ConnectionState::OBSERVER)
-		{
-			
-		}
-		else if(conn_state == ConnectionState::ADMIN)
-		{
-			for(size_t k=0; k<msgs.size(); k++)
-			{
-				parseAdminMsg(msgs[k], i->first, i->second);
-			}
-			msgs.clear();
 		}
 	}
 	

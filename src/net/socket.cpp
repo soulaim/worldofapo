@@ -31,12 +31,11 @@ public:
 
 		if(error != 0 ||  LOBYTE( wsaData.wVersion ) != 2 || HIBYTE( wsaData.wVersion ) != 2)
 		{
-			cerr << "ERROR: winsock initialization failed" << endl;
 			WSACleanup();
+			
+			cerr << "ERROR: winsock initialization failed" << endl;
 			exit(-1);
 		}
-
-		cerr << "WinSock jee" << endl;
 	}
 };
 
@@ -52,7 +51,6 @@ MU_Socket::MU_Socket()
 
 MU_Socket::MU_Socket(const string& ip, int port)
 {
-	//	cerr << "Constructing a new socket and connecting.. " << endl;
 	alive = false;
 	conn_init(ip, port);
 }
@@ -78,7 +76,7 @@ int MU_Socket::readyToRead()
 	{
 		rc = select(sock+1, &fds, NULL, NULL, &timeout);
 	}
-	while(rc < 0 && errno == EINTR);
+	while(rc < 0 && errno == EINTR); // check if INTERRUPT - This is done to allow profiling
 	
 	if(rc == -1)
 	{
@@ -104,7 +102,7 @@ int MU_Socket::setnonblocking()
 	
 	if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)(&nodelay), sizeof(int)) == 0)
 	{
-		cerr << "non blocking state change was successful." << endl;
+		cerr << "Nagle algorithm seems to have been disabled successfully." << endl;
 	}
 	else
 	{
@@ -136,14 +134,14 @@ int MU_Socket::conn_init(const string& host, int port)
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(sock < 0)
 	{
-		cerr << "!!! conn_init() failed, construction of socket failed." << endl;
+		cerr << "!!! ERROR: conn_init() failed, construction of socket failed." << endl;
 		return 0;
 	}
 	
 	hostent* serverMachineInfo = gethostbyname(host.c_str());
 	if(!serverMachineInfo)
 	{
-		cerr << "Zomg, couldn't find the address of \"" << host << "\"" << endl;
+		cerr << "Unable to resolve address of host name \"" << host << "\"" << endl;
 		return 0;
 	}
 	
@@ -151,18 +149,17 @@ int MU_Socket::conn_init(const string& host, int port)
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
 	
-	//	server.sin_addr.s_addr = inet_addr(ip.c_str());
 	server.sin_addr.s_addr = ((struct in_addr*)(serverMachineInfo->h_addr))->s_addr;
 	server.sin_port = htons(port);
 	
 	int conn_result = connect(sock, (struct sockaddr*) (&server), sizeof(server));
 	if(conn_result < 0)
 	{
-		cerr << "!!! conn_init() failed, connecting failed." << endl;
+		cerr << "!!! ERROR: conn_init() failed, connecting failed." << endl;
 		return 0;
 	}
 	
-	cerr << "setting client socket state = ALIVE" << endl;
+	cerr << "Connection successful" << endl;
 	alive = true;
 	
 	return 1;
@@ -173,7 +170,7 @@ int MU_Socket::write(const string& msg)
 //	cerr << "Writing data to socket: " << msg << endl;
 	if(!alive)
 	{
-		cerr << "TRYING TO WRITE TO A DEAD SOCKET!! NOT A GOOD IDEA MAYBE?" << endl;
+		cerr << "WARNING: Attempted to write to an inactive socket." << endl;
 		return -1;
 	}
 	
@@ -230,7 +227,6 @@ string MU_Socket::read()
 		alive = false;
 	}
 	
-//	cerr << "Read: " << SHARED_READ_BUFFER << "\n";
 	return string(SHARED_READ_BUFFER);
 }
 
@@ -278,8 +274,6 @@ int MU_Socket::init_listener(int port)
 
 void MU_Socket::accept_connection(MU_Socket& socket)
 {
-//	cerr << "Accepting connection " << endl;
-
 	socket.sock = accept(sock, 0, 0);
 	if(socket.sock > 0)
 	{
@@ -287,7 +281,7 @@ void MU_Socket::accept_connection(MU_Socket& socket)
 	}
 	else
 	{
-		cerr << "Accept failed??" << endl;
+		cerr << "WARNING: Accepting a connection failed." << endl;
 	}
 }
 
