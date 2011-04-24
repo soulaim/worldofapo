@@ -9,7 +9,7 @@
 #include "item.h"
 #include "hasproperties.h"
 #include "fixed_point.h"
-#include "location.h"
+#include "vec3.h"
 #include "projectile.h"
 #include <iostream>
 

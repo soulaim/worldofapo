@@ -6,14 +6,21 @@
 #include <sstream>
 #include <cassert>
 
-using namespace std;
+using std::cerr;
+using std::endl;
+using std::string;
 
-SocketHandler::SocketHandler()
+Network::SocketHandler::SocketHandler()
 {
+	setDelimiter('#');
 }
 
+void Network::SocketHandler::setDelimiter(char c)
+{
+	delimiter = c;
+}
 
-bool SocketHandler::accept(int id)
+bool Network::SocketHandler::accept(int id)
 {
 	if(listen_socket.readyToRead())
 	{
@@ -35,12 +42,12 @@ bool SocketHandler::accept(int id)
 	return false;
 }
 
-bool SocketHandler::listen(int port)
+bool Network::SocketHandler::listen(int port)
 {
 	return listen_socket.init_listener(port);
 }
 
-bool SocketHandler::open(int id, const std::string& hostname, int port)
+bool Network::SocketHandler::open(int id, const std::string& hostname, int port)
 {
 	Connection conn;
 	conn.socket.conn_init(hostname, port);
@@ -56,7 +63,7 @@ bool SocketHandler::open(int id, const std::string& hostname, int port)
 	}
 }
 
-bool SocketHandler::alive(int id)
+bool Network::SocketHandler::alive(int id)
 {
 	auto iter = sockets.find(id);
 	if(iter == sockets.end())
@@ -65,35 +72,14 @@ bool SocketHandler::alive(int id)
 }
 
 
-SocketHandler::Connection& SocketHandler::getConnection(int id)
+Network::SocketHandler::Connection& Network::SocketHandler::getConnection(int id)
 {
 	auto iter = sockets.find(id);
 	assert(iter != sockets.end() && "SocketHandler: Got a request for a connection ID that does not exist.");
 	return iter->second;
 }
 
-/*
-bool SocketHandler::write(int id, const std::string& msg)
-{
-	auto iter = sockets.find(id);
-	if(iter == sockets.end())
-		return false;
-	iter->second.write_buffer += msg;
-	return true;
-}
-*/
-
-/*
-std::vector<std::string>& SocketHandler::read(int id)
-{
-	auto iter = sockets.find(id);
-	if(iter == sockets.end())
-		throw std::string("Trying to read from dead connection");
-	return iter->second.msgs;
-}
-*/
-
-int SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks)
+int Network::SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks)
 {
 	struct timeval timeout;
 	timeout.tv_sec = 0;
@@ -127,21 +113,21 @@ int SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks)
 	return count;
 }
 
-void SocketHandler::read_and_write(const fd_set& read_socks, const fd_set& write_socks)
+void Network::SocketHandler::read_and_write(const fd_set& read_socks, const fd_set& write_socks)
 {
 	for(auto iter = sockets.begin(); iter != sockets.end(); iter++)
 	{
 		auto& conn = iter->second;
 		if(FD_ISSET(conn.socket.sock, &read_socks))
 		{
-			const std::string& read = conn.socket.read();
+			std::string read = conn.socket.read(); // possibly inefficient?
 			if(read.empty())
 			{
 				cerr << "Connection #" << iter->first << " has disconnected." << endl;
 				conn.socket.alive = false;
 			}
 			
-			conn.pushToReadBuffer(read);
+			conn.pushToReadBuffer(read, delimiter);
 		}
 
 		if(FD_ISSET(conn.socket.sock, &write_socks) && !conn.write_buffer.empty())
@@ -155,7 +141,7 @@ void SocketHandler::read_and_write(const fd_set& read_socks, const fd_set& write
 	}
 }
 
-void SocketHandler::tick()
+void Network::SocketHandler::tick()
 {
 	fd_set read_socks;
 	fd_set write_socks;
@@ -166,7 +152,7 @@ void SocketHandler::tick()
 	}
 }
 
-bool SocketHandler::close(int id)
+bool Network::SocketHandler::close(int id)
 {
 	cerr << "Closing socket " << id << endl;
 	auto iter = sockets.find(id);
@@ -186,17 +172,17 @@ bool SocketHandler::close(int id)
 
 
 
-bool SocketHandler::Connection::empty()
+bool Network::SocketHandler::Connection::empty()
 {
 	return msgs.empty();
 }
 
-SocketHandler::Connection::Connection()
+Network::SocketHandler::Connection::Connection()
 {
 	out_marker = 0;
 }
 
-bool SocketHandler::Connection::operator >> (std::string& msg)
+bool Network::SocketHandler::Connection::operator >> (std::string& msg)
 {
 	if(msgs.empty())
 		return false;
@@ -212,14 +198,14 @@ bool SocketHandler::Connection::operator >> (std::string& msg)
 	return true;
 }
 
-SocketHandler::Connection& SocketHandler::Connection::operator << (const std::string& msg)
+Network::SocketHandler::Connection& Network::SocketHandler::Connection::operator << (const std::string& msg)
 {
 	write_buffer += msg;
 	return *this;
 }
 
 
-SocketHandler::Connection& SocketHandler::Connection::pushToReadBuffer(const std::string& msg, char delimiter)
+Network::SocketHandler::Connection& Network::SocketHandler::Connection::pushToReadBuffer(const std::string& msg, char delimiter)
 {
 	if(!msg.empty() && !read_buffer.empty() && msg[0] == delimiter)
 	{
@@ -252,5 +238,3 @@ SocketHandler::Connection& SocketHandler::Connection::pushToReadBuffer(const std
 	
 	return *this;
 }
-
-

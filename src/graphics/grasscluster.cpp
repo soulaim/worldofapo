@@ -37,7 +37,7 @@ void GrassCluster::preload()
 
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, bushes.size() * sizeof(Vec3), &bushes[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, bushes.size() * sizeof(vec3<float>), &bushes[0], GL_STATIC_DRAW);
 
 	assert(buffer == BUFFERS);
 
@@ -82,9 +82,9 @@ void GrassCluster::draw_old(Shader& shader) const
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < bushes.size(); ++i)
 	{
-		const Vec3& v = /*center +*/ bushes[i];
-//		const Vec3& wind = winds[i];
-		Vec3 wind(0,0,0);
+		const vec3<float>& v = /*center +*/ bushes[i];
+		// const vec3<float>& wind = winds[i];
+		vec3<float> wind(0,0,0);
 		float scale = 1.0;
 
 		glVertexAttrib1f(shader.uniform("scale"), scale);

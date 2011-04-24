@@ -1,6 +1,5 @@
 #include "btt.h"
 #include "fixed_point.h"
-#include "location.h"
 #include "frustum/frustumr.h"
 #include "level.h"
 
@@ -239,7 +238,7 @@ struct BTT_Node
 			// ok, so when do I need to split?
 			
 			// TODO ALERT: heights of points are not zero. need to fix this.
-			Vec3 points[3];
+			vec3<float> points[3];
 			points[0].x = p_left.x * Level::BLOCK_SIZE;
 			points[0].z = p_left.z * Level::BLOCK_SIZE;
 			points[0].y = lvl.getVertexHeight(p_left.x, p_left.z).getFloat();
@@ -252,7 +251,7 @@ struct BTT_Node
 			points[2].z = p_top.z * Level::BLOCK_SIZE;
 			points[2].y = lvl.getVertexHeight(p_top.x, p_top.z).getFloat();
 			
-			Vec3 semiAverage = (points[0] + points[1] + points[2]) / 3.0f;
+			vec3<float> semiAverage = (points[0] + points[1] + points[2]) / 3.0f;
 			float r = (semiAverage - points[0]).length();
 			
 			

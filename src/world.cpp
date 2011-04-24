@@ -1112,7 +1112,9 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
 		units[id]["T"] = -1;
-		units[id].weapon = 2; // currentWorldFrame % (units[id].weapons.size() - 1);
+		
+		units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
+		// all other weapons are ok, but no rocket launcher for enemies!
 	}
 	else
 	{
@@ -1129,7 +1131,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 
 void World::addProjectile(Location& location, int id, size_t model_prototype)
 {
-	Vec3 position;
+	vec3<float> position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();

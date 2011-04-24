@@ -23,7 +23,7 @@ class Editor
 {
 	Window window;
 	UserIO userio;
-	Graphics view;
+	GameView view;
 	Hud hud;
 
 	bool handle_input();
@@ -93,8 +93,8 @@ class Editor
 	size_t current_command;
 
 	size_t selected_dot;
-	Vec3 current_dot;
-	std::vector<Vec3> new_dots;
+	vec3<float> current_dot;
+	std::vector<vec3<float> > new_dots;
 
 	std::string animation_name;
 

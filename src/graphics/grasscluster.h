@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include "opengl.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 #include "frustum/matrix4.h"
 
 class Shader;
@@ -21,9 +21,9 @@ struct GrassCluster
 	void preload();
 	void unload();
 	
-	Vec3 center;
+	vec3<float> center;
 	float radius;
-	std::vector<Vec3> bushes;
+	std::vector<vec3<float> > bushes;
 	
 private:
 	void draw_old(Shader& shader) const;

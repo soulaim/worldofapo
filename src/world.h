@@ -15,6 +15,7 @@
 #include "movable_object.h"
 #include "worldevent.h"
 #include "idgenerator.h"
+#include "vec3.h"
 
 class VisualWorld;
 class Model;

@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 	UserIO userio;
 	Window window;
 	Hud hud;
-	Graphics view(window, hud);
+	GameView view(window, hud);
 	Localplayer master(&view, &userio, &hud, &window);
 	master.init();
 	Menu menu(&view, &userio);

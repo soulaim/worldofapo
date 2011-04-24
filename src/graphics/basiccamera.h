@@ -1,7 +1,7 @@
 #ifndef BASICCAMERA_H
 #define BASICCAMERA_H
 
-#include "frustum/vec3.h"
+#include "vec3.h"
 #include "frustum/matrix4.h"
 
 class BasicCamera
@@ -24,17 +24,18 @@ public:
 	static const float nearP;
 	static const float farP;
 
-	void setTarget(const Vec3& target);
-	virtual void setPosition(const Vec3& position);
+	void setTarget(const vec3<float>& target);
+	virtual void setPosition(const vec3<float>& position);
 
-	virtual Vec3 getTarget() const;
-	virtual Vec3 getPosition() const;
+	virtual vec3<float> getTarget() const;
+	virtual vec3<float> getPosition() const;
 
 	Matrix4 modelview() const;
 	Matrix4 perspective() const;
 
 protected:
-	Vec3 currentPosition;
+	vec3<float> currentPosition;
+	
 private:
 	float static_angle;
 	float static_upangle;

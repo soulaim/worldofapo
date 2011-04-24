@@ -1,7 +1,7 @@
 #ifndef H_OCTREE_OBJECT
 #define H_OCTREE_OBJECT
 
-#include "location.h"
+#include "vec3.h"
 #include "movable_object.h"
 
 #include <algorithm>

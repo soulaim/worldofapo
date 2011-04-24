@@ -18,14 +18,14 @@
 #include <set>
 
 class UserIO;
-class Graphics;
+class GameView;
 class Hud;
 class Window;
 
 class Localplayer: private HasProperties
 {
 public:
-	Localplayer(Graphics*, UserIO*, Hud*, Window* window);
+	Localplayer(GameView*, UserIO*, Hud*, Window* window);
 	
 	bool client_tick();
 	
@@ -65,7 +65,7 @@ private:
 	std::string clientCommand;
 	
 	Hud* hud;
-	Graphics* view;
+	GameView* view;
 	UserIO* userio;
 	Window* window;
 	

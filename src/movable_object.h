@@ -2,7 +2,7 @@
 #ifndef H_MOVABLE_OBJECT
 #define H_MOVABLE_OBJECT
 
-#include "location.h"
+#include "vec3.h"
 
 class MovableObject
 {

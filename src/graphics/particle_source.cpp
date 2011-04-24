@@ -73,22 +73,22 @@ void ParticleSource::tick(std::vector<Particle>& particles)
 	p.max_life = intVals["PLIFE"];
 	p.cur_life = p.max_life;
 	
-	p.pos = position;
-	p.target_pos = position;
+	p.pos = vec3<float>(position.x.getFloat(), position.y.getFloat(), position.z.getFloat());
+	p.target_pos = p.pos;
 	
-	FixedPoint max_var(intVals["PSP_1000"], 1000);
-	FixedPoint fp_life(intVals["CUR_LIFE"], intVals["MAX_LIFE"]);
+	float max_var = intVals["PSP_1000"] / 1000.0f;
+	float fp_life = float(intVals["CUR_LIFE"]) / intVals["MAX_LIFE"];
 	max_var *= fp_life;
 	
-	FixedPoint half_var = max_var / FixedPoint(2);
+	float half_var = max_var * 0.5f;
 	
-	
+	vec3<float> initial_velocity = vec3<float>(velocity.x.getFloat(), velocity.y.getFloat(), velocity.z.getFloat());
 	for(int i=0; i<particlesPerFrame; ++i)
 	{
-		p.vel = velocity;
-		FixedPoint rnd_x = FixedPoint( (semiUniqueNumber * (1 | 16 | 64)) & 127, 127);
-		FixedPoint rnd_y = FixedPoint( (semiUniqueNumber * (2 | 8 | 16))  & 127, 127);
-		FixedPoint rnd_z = FixedPoint( (semiUniqueNumber * (1 | 4 | 32))  & 127, 127);
+		p.vel = initial_velocity;
+		float rnd_x = ((semiUniqueNumber * (1 | 16 | 64)) & 127) / 127.0f;
+		float rnd_y = ((semiUniqueNumber * (2 | 8 | 16))  & 127) / 127.0f;
+		float rnd_z = ((semiUniqueNumber * (1 | 4 | 32))  & 127) / 127.0f;
 		
 		// add variance term
 		p.vel.x += rnd_x * max_var - half_var;

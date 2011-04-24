@@ -5,7 +5,7 @@
 #include <string>
 
 #include "fixed_point.h"
-#include "location.h"
+#include "vec3.h"
 #include "random.h"
 
 struct Level

@@ -68,7 +68,7 @@ void SkeletalModel::calculate_weights()
 {
 	for(size_t i=0; i<vertices.size(); ++i)
 	{
-		const Vec3& v = vertices[i];
+		const vec3<float>& v = vertices[i];
 		
 		map<int, float> weights;
 		
@@ -76,16 +76,16 @@ void SkeletalModel::calculate_weights()
 		{
 			const Bone& bone = bones[k];
 			
-			Vec3 start(bone.start_x, bone.start_y, bone.start_z);
-			Vec3 end(bone.end_x, bone.end_y, bone.end_z);
+			vec3<float> start(bone.start_x, bone.start_y, bone.start_z);
+			vec3<float> end(bone.end_x, bone.end_y, bone.end_z);
 			
-			Vec3 segment = end - start;
+			vec3<float> segment = end - start;
 			
 			weights[k] = .0f;
 			
 			for(int z = 0; z < 100; z++)
 			{
-				Vec3 tmp_point = start + segment * (z / 99.f);
+				vec3<float> tmp_point = start + segment * (z / 99.f);
 				
 				float length = (v - tmp_point).lengthSquared();
 				float tmp_w = 1.0f / (0.01f + length);
@@ -150,8 +150,8 @@ bool SkeletalModel::load(const string& filename)
 	map<int, ColorStruct> colors_map;
 
 	// NOTE2: In order to have per vertex attributes we can make duplicate copies of the vertex coordinates and normals.
-	vector<Vec3> final_vertices;
-	vector<Vec3> final_normals;
+	vector<vec3<float> > final_vertices;
+	vector<vec3<float> > final_normals;
 
 	// TODO: Not all vertices need to be duplicated for all triangles. When adding a new vertex, check if some old vertex has the same coordinates and UV coordinates etc.
 	// TODO: Make this dirty duplicating already in the blender exporter?
@@ -224,8 +224,8 @@ bool SkeletalModel::load(const string& filename)
 		else if(cmd == "VERTEX")
 		{
 			string sub_cmd;
-			Vec3 v;
-			Vec3 n;
+			vec3<float> v;
+			vec3<float> n;
 			
 			while(in >> sub_cmd)
 			{
@@ -268,7 +268,7 @@ bool SkeletalModel::load(const string& filename)
 			string sub_cmd;
 			
 			Triangle triangle;
-			Vec3 triangle_n;
+			vec3<float> triangle_n;
 			float triangle_area = 0.0f;
 			
 			while(in >> sub_cmd)
@@ -551,10 +551,10 @@ void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilig
 		{
 			glColor3f(0.0,0.0,1.0);
 		}
-		Vec3 start(bone.start_x, bone.start_y, bone.start_z);
-		Vec3 end(bone.end_x, bone.end_y, bone.end_z);
-		Vec3 line_start = rotations[i] * start;
-		Vec3 line_end = rotations[i] * end;
+		vec3<float> start(bone.start_x, bone.start_y, bone.start_z);
+		vec3<float> end(bone.end_x, bone.end_y, bone.end_z);
+		vec3<float> line_start = rotations[i] * start;
+		vec3<float> line_end = rotations[i] * end;
 		
 		glVertex3f(line_start.x, line_start.y, line_start.z);
 		glVertex3f(line_end.x, line_end.y, line_end.z);
@@ -600,7 +600,7 @@ void SkeletalModel::old_draw(size_t hilight) const
 //			Bone& bone1 = bones[bone1i];
 //			Bone& bone2 = bones[bone2i];
 
-			Vec3 v = vertices[vi];
+			vec3<float> v = vertices[vi];
 //			v = offset1 * v * weight1 + offset2 * v * weight2; // This is already done in the vertex shader.
 
 			glVertexAttrib2f(bone_index_location, bone1i, bone2i);
@@ -612,6 +612,9 @@ void SkeletalModel::old_draw(size_t hilight) const
 	glEnd();
 }
 
+
+// TODO: This should not be a member of the Model, but of the renderer who takes the SkeletalModel as a parameter.
+//       The renderer could also check whether a model with the name of the given model has already been preloaded or not.
 void SkeletalModel::preload()
 {
 	std::cerr << "Preloading skeletalmodel buffers." << std::endl;
@@ -624,22 +627,22 @@ void SkeletalModel::preload()
 
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
-
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3<float>), &vertices[0], GL_STATIC_DRAW);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
-
+	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_DRAW);
-
+	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, weighted_vertices.size() * sizeof(WeightedVertex), &weighted_vertices[0], GL_STATIC_DRAW);
-
+	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
-
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3<float>), &normals[0], GL_STATIC_DRAW);
+	
 	assert(buffer == BUFFERS);
-
+	
 	buffers_loaded = true;
 }
 
@@ -651,8 +654,8 @@ void SkeletalModel::draw_normals() const
 	glBegin(GL_LINES);
 	for(size_t i = 0; i < vertices.size(); ++i)
 	{
-		Vec3 v = vertices[i] * myScale - currentModelPos;
-		Vec3 n = normals[i];
+		vec3<float> v = vertices[i] * myScale - currentModelPos;
+		vec3<float> n = normals[i];
 
 		glVertex3f(v.x, v.y, v.z);
 		glVertex3f(v.x + n.x, v.y + n.y, v.z + n.z);

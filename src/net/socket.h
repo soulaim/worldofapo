@@ -21,39 +21,66 @@
 
 #include <errno.h>
 
+namespace Network
+{
+
 class SocketHandler;
 
-class MU_Socket
+class TCP_Socket
 {
 	friend class SocketHandler;
 
 	public:
-		MU_Socket();
-		MU_Socket(const std::string& ip, int port);
-
+		TCP_Socket();
+		TCP_Socket(const std::string& ip, int port);
+		
 		int conn_init(const std::string& ip, int port);
 		void closeConnection();
-
+		
 		int write(const std::string& msg);
-
+		
 		int readyToRead();
 		std::string read();
 		
 		int init_listener(int port);
-		void accept_connection(MU_Socket&);
+		void accept_connection(TCP_Socket&);
 		
 		int setnonblocking();
 		
-
 	private:
-
 		int sock;
+		bool alive;
 		struct sockaddr_in cliAddr;
 		struct sockaddr_in servAddr;
-
-		bool alive;
-
 };
+
+
+class UDP_Socket
+{
+	public:
+		UDP_Socket();
+		UDP_Socket(const std::string& ip, int port);
+		
+		int conn_init(const std::string& ip, int port);
+		void closeConnection();
+		
+		int write(const std::string& msg);
+		int readyToRead();
+		std::string read();
+		
+		int init_listener(int port);
+		void accept_connection(UDP_Socket&);
+		
+	private:
+		int sock;
+		
+		struct sockaddr_in cliAddr;
+		struct sockaddr_in servAddr;
+};
+
+
+
+}
 
 #endif
 

@@ -86,7 +86,7 @@ class DedicatedServer : public HasProperties
 	std::map<std::string, World> areas;
 	std::map<std::string, HasProperties> area_settings;
 	
-	SocketHandler sockets;  // children, other processes connected to my hosted game.
+	Network::SocketHandler sockets;  // children, other processes connected to my hosted game.
 	IDGenerator playerIDGenerator;
 	
 	OrderContainer clientOrders;
@@ -158,7 +158,7 @@ public:
 };
 
 
-inline void socketWrite(SocketHandler& sh, int id, const std::string& msg)
+inline void socketWrite(Network::SocketHandler& sh, int id, const std::string& msg)
 {
 	sh.getConnection(id) << msg;
 }

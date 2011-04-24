@@ -31,7 +31,7 @@
 
 using namespace std;
 
-Localplayer::Localplayer(Graphics* g, UserIO* u, Hud* h, Window* w):
+Localplayer::Localplayer(GameView* g, UserIO* u, Hud* h, Window* w):
 	client_input_state(0),
 	hud(h),
 	view(g),
@@ -142,7 +142,7 @@ void Localplayer::init()
 
 struct LoadScreenInfo
 {
-	Graphics* view;
+	GameView* view;
 	World* world;
 	float* percentage;
 	string* task_name;
@@ -605,7 +605,7 @@ bool Localplayer::handleClientLocalInput()
 			if(iter != world.units.end())
 			{
 				Location loc = iter->second.getPosition();
-				Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+				vec3<float> v = vec3<float>(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 				visualworld.camera.unit_id = iter->second.id;
 				visualworld.camera.setMode(Camera::STATIC);
 				visualworld.camera.setTarget(v);

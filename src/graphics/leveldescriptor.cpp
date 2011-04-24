@@ -88,7 +88,7 @@ void LevelDescriptor::drawDebugLevelNormals() const
 {
 	const Level& lvl = *level;
 
-	Vec3 points[3];
+	vec3<float> points[3];
 	
 	glBegin(GL_LINES);
 	for(size_t k=0; k<level_triangles.size(); k++)
@@ -120,7 +120,7 @@ void LevelDescriptor::drawDebugLevelNormals() const
 }
 
 
-void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
+void LevelDescriptor::drawDebugHeightDots(const vec3<float>& location) const
 {
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
@@ -134,7 +134,7 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	glBegin(GL_LINES);
 	for(size_t k=0; k<level_triangles.size(); k++)
 	{
-		Vec3 points[3];
+		vec3<float> points[3];
 		const BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{
@@ -161,7 +161,7 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	{
 		for(FixedPoint z; z < lvl.max_z(); z += 2)
 		{
-			Vec3 v(x.getFloat(), 0, z.getFloat());
+			vec3<float> v(x.getFloat(), 0, z.getFloat());
 			v.y = lvl.getHeight(x,z).getFloat();
 			if((location - v).lengthSquared() < 100.0f * 100.0f)
 			{
@@ -178,7 +178,7 @@ void LevelDescriptor::drawDebugHeightDots(const Vec3& location) const
 	{
 		for(int z = 0; z < lvl.max_block_z(); ++z)
 		{
-			Vec3 v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
+			vec3<float> v(x * Level::BLOCK_SIZE, 0, z * Level::BLOCK_SIZE);
 			v.y = lvl.getVertexHeight(x,z).getFloat();
 			if((location - v).lengthSquared() < 200.0f * 200.0f)
 			{
@@ -231,11 +231,11 @@ void LevelDescriptor::preload()
 	{
 		for(size_t z = 0; z < width; ++z)
 		{
-			Vec3 point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
+			vec3<float> point(x*8, lvl.getVertexHeight(x, z).getFloat(), z*8);
 			vertices.push_back(point);
 			
 			Location normal = lvl.getNormal(x, z);
-			normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+			normals.push_back(vec3<float>(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
 			
 			 // TODO: These coordinates are like :G
 			const int divisions = 25;
@@ -250,7 +250,7 @@ void LevelDescriptor::preload()
 	glGenBuffers(BUFFERS, locations);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vec3), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3<float>), &vertices[0], GL_STATIC_DRAW);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates1.size() * sizeof(TextureCoordinate), &texture_coordinates1[0], GL_STATIC_DRAW);
@@ -259,7 +259,7 @@ void LevelDescriptor::preload()
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates2.size() * sizeof(TextureCoordinate), &texture_coordinates2[0], GL_STATIC_DRAW);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3<float>), &normals[0], GL_STATIC_DRAW);
 	
 	assert(buffer <= BUFFERS);
 
@@ -295,7 +295,7 @@ void LevelDescriptor::drawLevelFR(const Level& lvl, int pass, Shaders& shaders) 
 		indices.clear();
 		for(size_t k = 0; k < level_triangles.size(); ++k)
 		{
-			Vec3 points[3];
+			vec3<float> points[3];
 			const BTT_Triangle& tri = level_triangles[k];
 			for(size_t i = 0; i < 3; ++i)
 			{
@@ -406,11 +406,11 @@ void fill_level_part(VisualLevelPart& part, size_t part_min_x, size_t part_max_x
 	{
 		for(size_t z = part_min_z; z < part_max_z; ++z)
 		{
-			Vec3 point(x * Level::BLOCK_SIZE, lvl.getVertexHeight(x, z).getFloat(), z * Level::BLOCK_SIZE);
+			vec3<float> point(x * Level::BLOCK_SIZE, lvl.getVertexHeight(x, z).getFloat(), z * Level::BLOCK_SIZE);
 			part.vertices.push_back(point);
 			
 			Location normal = lvl.getNormal(x, z);
-			part.normals.push_back(Vec3(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
+			part.normals.push_back(vec3<float>(normal.x.getFloat(), normal.y.getFloat(), normal.z.getFloat()));
 			
 			 // TODO: These coordinates are like :G
 			const int divisions = 25;
@@ -589,7 +589,7 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 	indices.clear();
 	for(size_t k = 0; k < level_triangles.size(); ++k)
 	{
-		Vec3 points[3];
+		vec3<float> points[3];
 		const BTT_Triangle& tri = level_triangles[k];
 		for(size_t i = 0; i < 3; ++i)
 		{

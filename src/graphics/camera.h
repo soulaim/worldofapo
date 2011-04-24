@@ -2,11 +2,9 @@
 #define CAMERA_H
 
 #include "basiccamera.h"
-#include "location.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 #include "frustum/matrix4.h"
 
-class Location;
 class Unit;
 
 class Camera: public BasicCamera
@@ -21,9 +19,9 @@ public:
 	
 	Camera();
 
-	virtual void setPosition(const Vec3& position);
-	virtual Vec3 getTarget() const;
-	virtual Vec3 getPosition() const;
+	virtual void setPosition(const vec3<float>& position);
+	virtual vec3<float> getTarget() const;
+	virtual vec3<float> getPosition() const;
 
 	void tick();
 
@@ -44,14 +42,14 @@ public:
 	Unit* getUnitPointer() const;
 	int unit_id;
 private:
-	void getRelativePos(Vec3&) const;
+	void getRelativePos(vec3<float>&) const;
 	
-	Vec3 default_direction;
-	Vec3 fps_direction;
+	vec3<float> default_direction;
+	vec3<float> fps_direction;
 	
 	// Lagging dudes
-	Vec3 currentRelative;
-	Vec3 currentTarget;
+	vec3<float> currentRelative;
+	vec3<float> currentTarget;
 	
 	float cur_sin;
 	float cur_cos;

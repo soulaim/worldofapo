@@ -174,17 +174,13 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 	
 	if(myID >= 0)
 	{
-		stringstream inputMsg;
-		inputMsg << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
-		clientSocket.getConnection(SERVER_ID) << inputMsg.str();
+		clientSocket.getConnection(SERVER_ID) << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
 	}
 }
 
 void Game::send_chat_message(const std::string& clientCommand)
 {
-	stringstream tmp_msg;
-	tmp_msg << "3 " << myID << " " << clientCommand << "#";
-	clientSocket.getConnection(SERVER_ID) << tmp_msg.str();
+	clientSocket.getConnection(SERVER_ID) << "3 " << myID << " " << clientCommand << "#";
 }
 
 bool Game::paused() const
@@ -333,15 +329,13 @@ void Game::handleServerMessage(const Order& server_msg)
 		world->add_message("^Ggot playerID!");
 		
 		cerr << "MYID: " << myID << ", sending my name now: " << localPlayer.name << endl;
-		stringstream ss;
 		
 		if(localPlayer.name == "")
 		{
 			localPlayer.name = "nameless";
 		}
 		
-		ss << "2 " << myID << " " << localPlayer.name << "#";
-		clientSocket.getConnection(SERVER_ID) << ss.str();
+		clientSocket.getConnection(SERVER_ID) << "2 " << myID << " " << localPlayer.name << "#";
 
 //		Logger log;
 //		log.print("Sent message: +++" + ss.str() + "+++\n");
@@ -676,7 +670,6 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "WORLD_GEN_PARAM")
 			{
-				
 				meta_events.push_back(HasProperties());
 				HasProperties& event = meta_events.back();
 				
@@ -731,7 +724,7 @@ bool Game::check_messages_from_server()
 	}
 	else
 	{
-		SocketHandler::Connection& conn = clientSocket.getConnection(SERVER_ID);
+		Network::SocketHandler::Connection& conn = clientSocket.getConnection(SERVER_ID);
 		string msg;
 		
 		while(conn >> msg)

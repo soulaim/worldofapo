@@ -1,6 +1,7 @@
 
 #include "dedicated.h"
 
+using namespace Network;
 
 std::string generateKey()
 {

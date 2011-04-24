@@ -11,7 +11,7 @@
 #include "model.h"
 #include "frustum/frustumr.h"
 #include "camera.h"
-#include "location.h"
+#include "vec3.h"
 #include "particle.h"
 #include "shaders.h"
 #include "light_object.h"
@@ -29,13 +29,15 @@ class Hud;
 class Octree;
 class Window;
 
-class Graphics: public HasProperties
+
+class GameView: public HasProperties
 {
 	void createWindow();
 	void destroyWindow();
 	
 	void setupCamera(const Camera& camera);
 	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
+	
 	void startDrawing();
 	void applyDeferredLights(const std::map<int, LightObject>& lights);
 	void finishDrawing();
@@ -59,8 +61,8 @@ class Graphics: public HasProperties
 	void renderToBackbuffer();
 	
 	void applyAmbientLight();
-	void applyBlur(int blur, const std::string& input_texture, const Framebuffer& renderTarget);
-	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, const Framebuffer& renderTarget);
+	void applyBlur(int blur, const std::string& input_texture, const Graphics::Framebuffer& renderTarget);
+	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, const Graphics::Framebuffer& renderTarget);
 	
 	void drawDebugLines();
 	void drawDebugStrings();
@@ -76,23 +78,13 @@ class Graphics: public HasProperties
 	GLint MAX_NUM_LIGHTS;
 	GLint MAX_NUM_ACTIVE_LIGHTS;
 	
-	Framebuffer postFBO;
-	Framebuffer particlesDownScaledFBO;
-	Framebuffer particlesUpScaledFBO;
-	
-	Framebuffer deferredFBO;
-	Framebuffer screenFBO;
-//	GLuint screenRB;
-	
 	Window& window;
 	Hud& hud;
 	Shaders shaders;
 	
 	void clear_errors() const;
 	bool check_errors(const char* filename, int line) const;
-//	void check_framebuffer_status(const std::string& fbo_name);
-//	void bind_framebuffer(GLuint framebuffer, int output_buffers) const;
-
+	
 public:
 	void init(Camera&);
 	void reload_shaders();
@@ -125,18 +117,18 @@ public:
 	void toggleWireframeStatus();
 	void toggleFullscreen();
 
-	Vec3 getWorldPosition();
-	Vec3 getWorldPosition(int screen_x, int screen_y);
+	vec3<float> getWorldPosition();
+	vec3<float> getWorldPosition(int screen_x, int screen_y);
 	
 	void zoom_in();
 	void zoom_out();
 	void tick();
 	void world_tick(const std::map<int, LightObject>&);
 	
-	void depthSortParticles(Vec3&, std::vector<Particle>&);
+	void depthSortParticles(vec3<float>&, std::vector<Particle>&);
 	
-	Graphics(Window& window, Hud& hud);
-	~Graphics();
+	GameView(Window& window, Hud& hud);
+	~GameView();
 	FrustumR frustum;
 };
 

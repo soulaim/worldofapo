@@ -25,7 +25,7 @@ Unit* Camera::getUnitPointer() const
 	return unit;
 }
 
-Vec3 Camera::getTarget() const
+vec3<float> Camera::getTarget() const
 {
 	if(mode_ == STATIC)
 	{
@@ -68,7 +68,7 @@ const Location& Camera::getUnitLocation() const
 	return lastPos;
 }
 
-Vec3 Camera::getPosition() const
+vec3<float> Camera::getPosition() const
 {
 	if(mode_ == THIRD_PERSON)
 	{
@@ -82,7 +82,7 @@ Vec3 Camera::getPosition() const
 	return BasicCamera::getPosition();
 }
 
-void Camera::setPosition(const Vec3& position)
+void Camera::setPosition(const vec3<float>& position)
 {
 	if(mode_ == THIRD_PERSON)
 	{
@@ -130,10 +130,10 @@ void Camera::updateInput(int keystate, int x, int y)
 {
 	if(mode_ == STATIC)
 	{
-		Vec3 delta = (getTarget() - currentPosition);
+		vec3<float> delta = (getTarget() - currentPosition);
 		delta.normalize();
 		
-		Vec3 delta_sides = delta * Vec3(0.0f, 1.0f, 0.0f);
+		vec3<float> delta_sides = delta * vec3<float>(0.0f, 1.0f, 0.0f);
 		delta_sides.normalize();
 		
 		float speed = default_direction.length() / 30.0f;
@@ -177,10 +177,10 @@ void Camera::fpsTick()
 	cur_upsin += (upsin - cur_upsin) * 0.2f;;
 	cur_upcos += (upcos - cur_upcos) * 0.2f;
 	
-	Vec3 relative_position;
+	vec3<float> relative_position;
 	getRelativePos(relative_position);
 
-	Vec3 camTarget;
+	vec3<float> camTarget;
 	const Location& unitPos = unit->getPosition();
 	camTarget.x = unitPos.x.getFloat();
 	camTarget.y = unitPos.y.getFloat() + head_level;
@@ -194,7 +194,7 @@ void Camera::fpsTick()
 	fps_direction.z -= relative_position.z;
 }
 
-void Camera::getRelativePos(Vec3& result) const
+void Camera::getRelativePos(vec3<float>& result) const
 {
 	float x = default_direction.x;
 	float y = default_direction.y;
@@ -220,10 +220,10 @@ void Camera::relativeTick()
 	cur_upsin += (upsin - cur_upsin) * 0.2f;;
 	cur_upcos += (upcos - cur_upcos) * 0.2f;
 
-	Vec3 relative_position;
+	vec3<float> relative_position;
 	getRelativePos(relative_position);
 	
-	Vec3 camTarget;
+	vec3<float> camTarget;
 	const Location& unitPos = unit->getPosition();
 	camTarget.x = unitPos.x.getFloat();
 	camTarget.y = unitPos.y.getFloat() + head_level;

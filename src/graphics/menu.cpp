@@ -59,7 +59,7 @@ void Menu::tick_menu_effects()
 	}
 }
 
-Menu::Menu(Graphics* v, UserIO* u):
+Menu::Menu(GameView* v, UserIO* u):
 	view(v),
 	userio(u)
 {

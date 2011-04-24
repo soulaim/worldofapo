@@ -3,7 +3,7 @@
 
 #include "octree_object.h"
 #include "collision.h"
-#include "location.h"
+#include "vec3.h"
 #include <iostream>
 #include <vector>
 #include <memory>

@@ -32,7 +32,7 @@ void interpolate(const Location& A, const Location& B, const Location& C, Locati
 	p = A + direction1 * t_top / t_bot + direction2 * u_top / u_bot;
 }
 
-int light_scissor(const Vec3& lightpos, float r, int screen_width, int screen_height, std::array<int,4>& rect )
+int light_scissor(const vec3<float>& lightpos, float r, int screen_width, int screen_height, std::array<int,4>& rect )
 {
 	rect[0] = 0;
 	rect[1] = 0;
@@ -41,7 +41,7 @@ int light_scissor(const Vec3& lightpos, float r, int screen_width, int screen_he
 
 	float r2 = r*r;
 
-	Vec3 l2 = Vec3(lightpos.x*lightpos.x, lightpos.y*lightpos.y, lightpos.z*lightpos.z);
+	vec3<float> l2 = vec3<float>(lightpos.x*lightpos.x, lightpos.y*lightpos.y, lightpos.z*lightpos.z);
 
 	float aspect_ratio = screen_width / screen_height;
 	
@@ -155,21 +155,21 @@ int light_scissor(const Vec3& lightpos, float r, int screen_width, int screen_he
 	}
 }
 
-float getXangle(const Vec3& vec)
+float getXangle(const vec3<float>& vec)
 {
-	Vec3 v1 = vec;
+	vec3<float> v1 = vec;
 	v1.y = 0.0;
 	v1.normalize();
-	Vec3 v2(-1, 0, 0);
+	vec3<float> v2(-1, 0, 0);
 	float angle = atan2(v2.z, v2.x) - atan2(v1.z, v1.x);
 	return fmod(angle / 3.14159265f * 180.0f + 90.0f, 360.0f);
 }
 
-float getYangle(const Vec3& vec)
+float getYangle(const vec3<float>& vec)
 {
-	Vec3 v = vec;
+	vec3<float> v = vec;
 	v.normalize();
-	float angle = acos(v.innerProduct(Vec3(0,1,0)));
+	float angle = acos(v.dotProduct(vec3<float>(0,1,0)));
 	return -angle / 3.14159265f * 180.0f + 180.0f;
 }
 

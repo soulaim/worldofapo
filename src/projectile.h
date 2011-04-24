@@ -7,7 +7,7 @@
 #include <map>
 
 #include "collision.h"
-#include "location.h"
+#include "vec3.h"
 #include "level.h"
 #include "apomath.h"
 #include "movable_object.h"
@@ -19,7 +19,7 @@ class Projectile : MovableObject, HasProperties
 {
 	friend class Weapon;
 	friend class World;
-	friend class Graphics; // only because of draw debug projectiles
+	friend class GameView; // only because of draw debug projectiles
 	
 	public:
 		Projectile():

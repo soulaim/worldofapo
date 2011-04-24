@@ -6,7 +6,7 @@
 #include <map>
 
 #include "animation.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 #include "model.h"
 #include "primitives.h"
 

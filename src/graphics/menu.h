@@ -10,7 +10,7 @@
 
 // class MenuButton;
 // class MenuParticle;
-class Graphics;
+class GameView;
 class UserIO;
 
 
@@ -21,7 +21,7 @@ public:
 	std::string menu_tick();
 	std::string run_menu(std::vector<MenuButton>& buttons, std::string menu_name);
 	
-	Menu(Graphics*, UserIO*);
+	Menu(GameView*, UserIO*);
 	
 	std::string error_string;
 private:
@@ -41,7 +41,7 @@ private:
 	std::string handleMainMenu(std::vector<MenuButton>& buttons, size_t selected);
 	std::string handleOptionsMenu(std::vector<MenuButton>& buttons, size_t selected);
 	
-	Graphics* view;
+	GameView* view;
 	UserIO* userio;
 };
 

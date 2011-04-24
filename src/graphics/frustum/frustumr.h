@@ -13,14 +13,14 @@ class FrustumR
 {
 public:
 	void setCamInternals(float angle, float radius, float nearD, float farD);
-	void setCamDef(const Vec3& p, const Vec3& l, const Vec3& u);
+	void setCamDef(const vec3<float>& p, const vec3<float>& l, const vec3<float>& u);
 
 	enum FrustumResult { OUTSIDE, INTERSECT, INSIDE };
-	FrustumResult pointInFrustum(const Vec3& p) const;
-	FrustumResult sphereInFrustum(const Vec3& p, float radius) const;
+	FrustumResult pointInFrustum(const vec3<float>& p) const;
+	FrustumResult sphereInFrustum(const vec3<float>& p, float radius) const;
 
-	Vec3 ntl,ntr,nbl,nbr;
-	Vec3 ftl,ftr,fbl,fbr;
+	vec3<float> ntl,ntr,nbl,nbr;
+	vec3<float> ftl,ftr,fbl,fbr;
 private:
 
 	enum
@@ -37,8 +37,8 @@ private:
 
 	Plane plane[6];
 
-	Vec3 X,Y,Z;
-	Vec3 camPos;
+	vec3<float> X,Y,Z;
+	vec3<float> camPos;
 	float near;
 	float far;
 	float ratio;

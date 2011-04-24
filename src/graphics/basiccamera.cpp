@@ -27,29 +27,29 @@ BasicCamera::~BasicCamera()
 {
 }
 
-Vec3 BasicCamera::getPosition() const
+vec3<float> BasicCamera::getPosition() const
 {
 	return currentPosition;
 }
 
-Vec3 BasicCamera::getTarget() const
+vec3<float> BasicCamera::getTarget() const
 {
 	float angle1 = static_angle;
 	float angle2 = static_upangle;
 	Matrix4 rotation1(0.0f, angle1,   0.0f, 0.0f,0.0f,0.0f);
 	Matrix4 rotation2(0.0f,   0.0f, angle2, 0.0f,0.0f,0.0f);
 	
-	return currentPosition + rotation1 * rotation2 * Vec3(-30.0f, 0.0f, 0.0f);
+	return currentPosition + rotation1 * rotation2 * vec3<float>(-30.0f, 0.0f, 0.0f);
 }
 
-void BasicCamera::setPosition(const Vec3& position)
+void BasicCamera::setPosition(const vec3<float>& position)
 {
 	currentPosition = position;
 }
 
-void BasicCamera::setTarget(const Vec3& target)
+void BasicCamera::setTarget(const vec3<float>& target)
 {
-	Vec3 direction = target - currentPosition;
+	vec3<float> direction = target - currentPosition;
 	static_angle = -90.0f + getXangle(direction);
 	static_upangle = 90.0f - getYangle(direction);
 }
@@ -93,21 +93,21 @@ void BasicCamera::zoomDefault()
 
 Matrix4 BasicCamera::modelview() const
 {
-	Vec3 position = getPosition();
-	Vec3 target = getTarget();
-	Vec3 up(0.0, 1.0, 0.0);
+	vec3<float> position = getPosition();
+	vec3<float> target = getTarget();
+	vec3<float> up(0.0, 1.0, 0.0);
 
-	Vec3 forward = target - position;
+	vec3<float> forward = target - position;
 	forward.normalize();
 
-	Vec3 side = forward * up;
+	vec3<float> side = forward * up;
 	side.normalize();
-
+	
 	up = side * forward;
-
+	
 	Matrix4 m(side, up, -forward);
 	Matrix4 t(0,0,0, -position.x, -position.y, -position.z);
-
+	
 	return m * t;
 }
 

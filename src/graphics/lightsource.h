@@ -5,8 +5,7 @@
 #include <vector>
 
 #include "fixed_point.h"
-#include "location.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 
 class LightSource
 {
@@ -49,7 +48,7 @@ public:
 	LifeType lifeType;
 	Behaviour behaviour;
 	
-	Vec3 drawPos;
+	vec3<float> drawPos;
 	
 	// TODO: Copy message for light source information. Structure must retain information about where the light source is tied to.
 	

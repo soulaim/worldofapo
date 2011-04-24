@@ -6,7 +6,7 @@
 #include <map>
 
 #include "animation.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 
 class Model
 {
@@ -15,8 +15,8 @@ public:
 	std::string animation_name;
 	int animation_time;
 
-	Vec3 realUnitPos;
-	Vec3 currentModelPos;
+	vec3<float> realUnitPos;
+	vec3<float> currentModelPos;
 	
 	float myScale;
 	

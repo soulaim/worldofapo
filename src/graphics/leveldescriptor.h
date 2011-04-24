@@ -7,7 +7,7 @@
 #include "btt.h"
 #include "hasproperties.h"
 #include "texturecoordinate.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 
 #include <vector>
 
@@ -24,7 +24,7 @@ public:
 	
 	void drawFR(size_t, Shaders&) const;
 	void drawDeferred(Shaders&) const;
-	void drawDebugHeightDots(const Vec3& location) const;
+	void drawDebugHeightDots(const vec3<float>& location) const;
 	void drawDebugLevelNormals() const;
 	
 	
@@ -49,8 +49,8 @@ private:
 	bool debugMode;
 
 	// Static data.
-	std::vector<Vec3> vertices;
-	std::vector<Vec3> normals;
+	std::vector<vec3<float> > vertices;
+	std::vector<vec3<float> > normals;
 	std::vector<TextureCoordinate> texture_coordinates1;
 	std::vector<TextureCoordinate> texture_coordinates2;
 //	std::vector<TextureCoordinate> texture_coordinates3; // All texture coordinates are actually same, so we'll let shader handle the third.

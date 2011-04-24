@@ -61,7 +61,7 @@ void VisualWorld::decorate(const Level& lvl)
 	}
 
 	cerr << "Decorating world with some grass" << flush;
-	Vec3 wind(0, 0, 0);
+	vec3<float> wind(0, 0, 0);
 //	size_t n = 10;
 	size_t k = 200;
 //	winds.resize(n*k);
@@ -114,11 +114,11 @@ void VisualWorld::decorate(const Level& lvl)
 					continue;
 				}
 				
-				Vec3 v(X + x, y - 0.1f, Z + z);
+				vec3<float> v(X + x, y - 0.1f, Z + z);
 				meadows.back().bushes.push_back(v);
 			}
 			
-			meadows.back().center = Vec3(X, lvl.getHeight(X, Z).getFloat(), Z);
+			meadows.back().center = vec3<float>(X, lvl.getHeight(X, Z).getFloat(), Z);
 			meadows.back().radius = radius;
 			meadows.back().preload();
 		}
@@ -186,7 +186,7 @@ void VisualWorld::createModel(int id, const Location& location, ModelType type, 
 	if(models.find(id) != models.end())
 		delete models[id];
 	
-	Vec3 position;
+	vec3<float> position;
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();

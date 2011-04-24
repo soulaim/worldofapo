@@ -1,5 +1,7 @@
 #include "dedicated.h"
+
 #include "timer.h"
+#include "vec3.h"
 
 #include <iostream>
 #include <sstream>
@@ -11,6 +13,7 @@
 #define MULTI_THREADED_WORLD_TICKS 0
 
 using namespace std;
+using namespace Network;
 
 void DedicatedServer::possible_sleep(int milliseconds) const
 {
@@ -1040,8 +1043,6 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		{
 			int frame;
 			ss >> frame;
-			
-			// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 			simulRules.allowedFrame = frame;
 		}
 		else if(cmd == "GIVE_NAME") // request player name message
@@ -1051,47 +1052,18 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		else if(cmd == "UNIT") // unit copy message
 		{
 			cerr << "server received a unit copy message. makes no sense?" << endl;
-			
-			/*
-			cerr << "Creating a new unit as per instructions" << endl;
-			int unitID;
-			ss >> unitID;
-			world.addUnit(unitID);
-			world.units[unitID].handleCopyOrder(ss);
-			*/
 		}
 		else if(cmd == "PROJECTILE")
 		{
 			cerr << "server received a projectile copy message. makes no sense?" << endl;
-			
-			/*
-			int id;
-			size_t prototype_model;
-			ss >> id >> prototype_model;
-			Location dummy;
-			world.addProjectile(dummy, id, prototype_model);
-			world.projectiles[id].handleCopyOrder(ss);
-			*/
 		}
 		else if(cmd == "NEXT_UNIT_ID")
 		{
 			cerr << "server received next unit id message. makes no sense?" << endl;
-			
-			/*
-			int id = -1;
-			ss >> id;
-			world.setNextUnitID(id);
-			*/
 		}
 		else if(cmd == "SIMUL")
 		{
 			cerr << "server received an order to set simulation rules according to client wishes. ignoring order." << endl;
-			
-			/*
-			cerr << "Set simulRules to instructed state" << endl;
-			ss >> simulRules.currentFrame >> simulRules.windowSize >> simulRules.frameSkip >> simulRules.numPlayers >> simulRules.allowedFrame;
-			cerr << simulRules.currentFrame << " " << simulRules.windowSize << " " << simulRules.frameSkip << " " << simulRules.numPlayers << " " << simulRules.allowedFrame << endl;
-			*/
 		}
 		else if(cmd == "CLIENT_STATE")
 		{
@@ -1124,10 +1096,6 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	else if(order_type == MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message?? makes no sense." << endl;
-		
-		//Order tmp_order;
-		//ss >> tmp_order.frameID >> tmp_order.plr_id >> tmp_order.keyState >> tmp_order.mousex >> tmp_order.mousey >> tmp_order.serverCommand >> tmp_order.mouseButtons;
-		//UnitInput.push_back(tmp_order);
 	}
 	else
 	{

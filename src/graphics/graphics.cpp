@@ -24,26 +24,22 @@
 
 using namespace std;
 
-vector<pair<Vec3,Vec3> > LINES;
-vector<Vec3> DOTS;
-vector<pair<Vec3,string> > STRINGS;
-
 int TRIANGLES_DRAWN_THIS_FRAME = 0;
 int QUADS_DRAWN_THIS_FRAME = 0;
 
 // NOTE: set the y values to be the same. lights that were high above ground were drawn poorly
 // because they were never near the player, although the effect is high.
-bool near(const Camera& camera, const Vec3& position, float dist = 100.0)
+bool near(const Camera& camera, const vec3<float>& position, float dist = 100.0)
 {
-	Vec3 copy1 = camera.getPosition();
-	Vec3 copy2 = position;
+	vec3<float> copy1 = camera.getPosition();
+	vec3<float> copy2 = position;
 	
 	copy1.y = copy2.y;
 	
 	return (copy1 - copy2).lengthSquared() < dist * dist;
 }
 
-void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
+void GameView::depthSortParticles(vec3<float>& d, vector<Particle>& viewParticles)
 {
 	return;
 	for(size_t i = 0; i < viewParticles.size(); ++i)
@@ -53,21 +49,9 @@ void Graphics::depthSortParticles(Vec3& d, vector<Particle>& viewParticles)
 	sort(viewParticles.begin(), viewParticles.end());
 }
 
-void Graphics::toggleWireframeStatus()
-{
-	int wireframe = intVals["DRAW_DEBUG_WIREFRAME"];
-	int level = intVals["DRAW_LEVEL"];
-	intVals["DRAW_DEBUG_WIREFRAME"] = 1 - wireframe;
-	intVals["DRAW_LEVEL"] = 1 - level;
-}
 
-void Graphics::toggleDebugStatus()
-{
-	int old = intVals["DRAW_DEBUG_LINES"];
-	intVals["DRAW_DEBUG_LINES"] = 1 - old;
-}
 
-Graphics::Graphics(Window& w, Hud& h):
+GameView::GameView(Window& w, Hud& h):
 	window(w),
 	hud(h)
 {
@@ -77,12 +61,12 @@ Graphics::Graphics(Window& w, Hud& h):
 	window.createWindow(intVals["RESOLUTION_X"], intVals["RESOLUTION_Y"]);
 }
 
-Graphics::~Graphics()
+GameView::~GameView()
 {
 }
 
 
-void Graphics::drawLoadScreen(const string& message, const string& bg_image, const float& percent_done)
+void GameView::drawLoadScreen(const string& message, const string& bg_image, const float& percent_done)
 {
 	glDisable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -92,7 +76,7 @@ void Graphics::drawLoadScreen(const string& message, const string& bg_image, con
 	float plus  = (percent_done - 0.5f) * 2.0f;
 	float minus = -1.0f;
 	
-	Framebuffer::unbind();
+	Graphics::Framebuffer::unbind();
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -131,9 +115,9 @@ void Graphics::drawLoadScreen(const string& message, const string& bg_image, con
 }
 
 
-void Graphics::init(Camera& camera)
+void GameView::init(Camera& camera)
 {
-	cerr << "Graphics::init()" << endl;
+	cerr << "GameView::init()" << endl;
 
 	intVals["HELP"] = 1;
 	
@@ -143,12 +127,12 @@ void Graphics::init(Camera& camera)
 	camera_p = &camera;
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set the background color.
-	glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
+	glClearDepth(1.0f);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glLoadIdentity();
 	
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	// glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	
 	MAX_NUM_LIGHTS = 71;
 	MAX_NUM_ACTIVE_LIGHTS = 1; // Make sure this is the same number as in the shaders.
@@ -159,31 +143,20 @@ void Graphics::init(Camera& camera)
 	{
 		size_t x = intVals["RESOLUTION_X"];
 		size_t y = intVals["RESOLUTION_Y"];
-		screenFBO = Framebuffer("screenFBO", x, y, true, 1);
-
-		deferredFBO = Framebuffer("deferredFBO", x, y, true, 2);
-//		deferredFBO.add_float_target();
-
-
-		// TODO: Should these use renderbuffer targets instead of textures?
-		postFBO = Framebuffer("postFBO", x, y, false, 1);
-
 		size_t downscale = intVals["PARTICLE_RESOLUTION_DIVISOR"];
-		particlesDownScaledFBO = Framebuffer("particlesDownScaledFBO", x / downscale, y / downscale, false, 1);
-
-		particlesUpScaledFBO = Framebuffer("particlesUpScaledFBO", x, y, false, 1);
+		
+		Graphics::Framebuffer::create("screenFBO", x, y, true, 1);
+		Graphics::Framebuffer::create("deferredFBO", x, y, true, 2);
+		
+		// TODO: Should these use renderbuffer targets instead of textures?
+		Graphics::Framebuffer::create("postFBO", x, y, false, 1);
+		Graphics::Framebuffer::create("particlesDownScaledFBO", x / downscale, y / downscale, false, 1);
+		Graphics::Framebuffer::create("particlesUpScaledFBO", x, y, false, 1);
 	}
 	
-	/*
-	glGenRenderbuffers(1, &screenRB);
-	glBindRenderbuffer(GL_RENDERBUFFER, screenRB);
-	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 800, 600);
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, screenRB);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	*/
-
-	Framebuffer::unbind();
-
+	
+	Graphics::Framebuffer::unbind();
+	
 	TextureHandler::getSingleton().createTexture("font", "data/fonts/font2.png");
 	TextureHandler::getSingleton().createTexture("particle", "data/images/particle.png");
 	TextureHandler::getSingleton().createTexture("help_layer", "data/images/help_overlay_dark.png");
@@ -202,12 +175,12 @@ void Graphics::init(Camera& camera)
 	glEnable(GL_CULL_FACE);
 }
 
-void Graphics::clear_errors() const
+void GameView::clear_errors() const
 {
 	while(glGetError() != GL_NO_ERROR);
 }
 
-bool Graphics::check_errors(const char* filename, int line) const
+bool GameView::check_errors(const char* filename, int line) const
 {
 	bool ret = false;
 	GLenum error;
@@ -219,7 +192,7 @@ bool Graphics::check_errors(const char* filename, int line) const
 	return ret;
 }
 
-void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
+void GameView::updateLights(const std::map<int, LightObject>& lightsContainer)
 {
 //	clear_errors();
 
@@ -257,7 +230,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 //			check_errors(__FILE__, __LINE__);
 
 			const Location& pos = iter->second.getPosition();
-			Vec3 v(pos.x.getFloat(), pos.y.getFloat(), pos.z.getFloat());
+			vec3<float> v(pos.x.getFloat(), pos.y.getFloat(), pos.z.getFloat());
 			v = modelview * v;
 
 			stringstream ss2;
@@ -298,41 +271,7 @@ void Graphics::updateLights(const std::map<int, LightObject>& lightsContainer)
 	}
 }
 
-
-void Graphics::drawDebugLines()
-{
-	glLineWidth(2.0f);
-	glColor3f(1.0f, 1.0f, 0.0f);
-	glBegin(GL_LINES);
-	for(size_t i = 0; i < LINES.size(); ++i)
-	{
-		const Vec3& p1 = LINES[i].first;
-		const Vec3& p2 = LINES[i].second;
-		glVertex3f(p1.x, p1.y, p1.z);
-		glVertex3f(p2.x, p2.y, p2.z);
-	}
-	glEnd();
-	
-	glPointSize(5.0f);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-	for(size_t i = 0; i < DOTS.size(); ++i)
-	{
-		const Vec3& p1 = DOTS[i];
-		glVertex3f(p1.x, p1.y, p1.z);
-	}
-	glEnd();
-}
-
-void Graphics::drawDebugStrings()
-{
-	for(size_t i = 0; i < STRINGS.size(); ++i)
-	{
-		hud.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera_p->getXrot(), camera_p->getYrot());
-	}
-}
-
-void Graphics::drawSkybox()
+void GameView::drawSkybox()
 {
 	Shader& shader = shaders.get_shader("skybox_program");
 	shader.start();
@@ -350,7 +289,7 @@ void Graphics::drawSkybox()
 	glPushMatrix();
 	glLoadIdentity();
 
-	Vec3 ans = camera_p->getTarget() - camera_p->getPosition();
+	vec3<float> ans = camera_p->getTarget() - camera_p->getPosition();
 	gluLookAt(
 			0,0,0,
 			ans.x, ans.y, ans.z,
@@ -415,7 +354,7 @@ void Graphics::drawSkybox()
 	shader.stop();
 }
 
-void Graphics::drawModels(const map<int, Model*>& models, const Camera& camera)
+void GameView::drawModels(const map<int, Model*>& models, const Camera& camera)
 {
 	Shader& shader = shaders.get_shader("unit_program");
 	shader.start();
@@ -446,10 +385,10 @@ void Graphics::drawModels(const map<int, Model*>& models, const Camera& camera)
 	shader.stop();
 }
 
-void Graphics::drawParticles(std::vector<Particle>& viewParticles)
+void GameView::drawParticles(std::vector<Particle>& viewParticles)
 {
-	string depth_texture = (intVals["DEFERRED_RENDERING"] ? deferredFBO.depth_texture() : screenFBO.depth_texture());
-
+	string depth_texture = (intVals["DEFERRED_RENDERING"] ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
+	
 	switch(intVals["DRAW_PARTICLES"])
 	{
 		case 2: drawParticles_vbo(viewParticles, depth_texture); break;
@@ -460,7 +399,7 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles)
 
 // TODO: make this function faster than the current implementation by having the data already in the VBO format.
 // TODO: Now it has to do extra copying.
-void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std::string& depth_texture)
+void GameView::drawParticles_vbo(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
@@ -468,7 +407,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	glUniform1f(shader.uniform("near"), camera_p->nearP);
 	glUniform1f(shader.uniform("far"), camera_p->farP);
 
-	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
+	vec3<float> direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	depthSortParticles(direction_vector, viewParticles);
 	
 	TextureHandler::getSingleton().bindTexture(1, depth_texture);
@@ -481,7 +420,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 	
 	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
-	static vector<Vec3> particles;
+	static vector<vec3<float> > particles;
 	static vector<float> colors;
 	static vector<float> scales;
 	static bool buffers_loaded = false;
@@ -504,7 +443,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		particles[i] = Vec3(viewParticles[i].pos.x.getFloat(), viewParticles[i].pos.y.getFloat(), viewParticles[i].pos.z.getFloat());
+		particles[i] = viewParticles[i].pos;
 
 		viewParticles[i].getColor(&colors[i*4]);
 		colors[i*4 + 3] = viewParticles[i].getAlpha();
@@ -514,7 +453,7 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 
 	int buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, n * sizeof(Vec3), &particles[0], GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, n * sizeof(vec3<float>), &particles[0], GL_STREAM_DRAW);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -540,19 +479,19 @@ void Graphics::drawParticles_vbo(std::vector<Particle>& viewParticles, const std
 
 	TextureHandler::getSingleton().unbindTexture(1);
 	TextureHandler::getSingleton().unbindTexture(0);
-
+	
 	shader.stop();
 }
 
-void Graphics::prepareForParticleRendering(const std::string& depth_texture)
+void GameView::prepareForParticleRendering(const std::string& depth_texture)
 {
-	particlesDownScaledFBO.bind();
+	Graphics::Framebuffer::get("particlesDownScaledFBO").bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
 	
-	// Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
+	// vec3<float> direction_vector = camera_p->getTarget() - camera_p->getPosition();
 	// depthSortParticles(direction_vector, viewParticles);
 	
 	glEnable(GL_BLEND);
@@ -561,7 +500,7 @@ void Graphics::prepareForParticleRendering(const std::string& depth_texture)
 	glDisable(GL_DEPTH_TEST);
 }
 
-void Graphics::renderParticles(std::vector<Particle>& viewParticles)
+void GameView::renderParticles(std::vector<Particle>& viewParticles)
 {
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
@@ -573,9 +512,9 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	glBegin(GL_POINTS);
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
-		float px = viewParticles[i].pos.x.getFloat();
-		float py = viewParticles[i].pos.y.getFloat();
-		float pz = viewParticles[i].pos.z.getFloat();
+		float px = viewParticles[i].pos.x;
+		float py = viewParticles[i].pos.y;
+		float pz = viewParticles[i].pos.z;
 		
 		float color[4];
 		viewParticles[i].getColor(color);
@@ -599,12 +538,12 @@ void Graphics::renderParticles(std::vector<Particle>& viewParticles)
 	shader.stop();
 }
 
-void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
+void GameView::drawParticles(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
 	prepareForParticleRendering(depth_texture);
+	Graphics::Framebuffer& particlesUpScaledFBO = Graphics::Framebuffer::get("particlesUpScaledFBO");
 	
 	// create a downscaled depth texture for particle rendering
-	
 	renderParticles(viewParticles);
 	
 	// upscale particle rendering result
@@ -616,30 +555,28 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	glLoadIdentity();
 	
 	glDisable(GL_BLEND);
-	particlesUpScaledFBO.bind();
+	Graphics::Framebuffer::get("particlesUpScaledFBO").bind();
 
-	TextureHandler::getSingleton().bindTexture(0, particlesDownScaledFBO.texture(0));
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("particlesDownScaledFBO").texture(0));
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// TODO: Could this perhaps be done (faster?) by directly copying from one framebuffer to another?
-	// Perhaps with with glBindFramebuffer(GL_READ_FRAMEBUFFER,...); glBindFramebuffer(GL_DRAW_FRAMEBUFFER,...); glBlitFramebuffer(...);??
+	// Perhaps with with glBindGraphics::Framebuffer(GL_READ_FRAMEBUFFER,...); glBindGraphics::Framebuffer(GL_DRAW_FRAMEBUFFER,...); glBlitGraphics::Framebuffer(...);??
 	drawFullscreenQuad(); // Draw particlesDownScaledFBO_texture to particlesUpScaledFBO_texture (i.e. upscale).
 	
 	// blur upscaled particle texture
 	if(intVals["PARTICLE_BLUR"])
 	{
-//		clear_errors();
 		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
-//		check_errors(__FILE__, __LINE__);
+		
 		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
 		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
-//		check_errors(__FILE__, __LINE__);
 	}
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	screenFBO.bind();
+	Graphics::Framebuffer::get("screenFBO").bind();
 
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
@@ -661,97 +598,10 @@ void Graphics::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	glDisable(GL_BLEND);
 }
 
-// This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
-void Graphics::drawParticles_old(std::vector<Particle>& viewParticles)
-{
-	Vec3 direction_vector = camera_p->getTarget() - camera_p->getPosition();
-	// depthSortParticles(direction_vector, viewParticles);
-	
-	particlesDownScaledFBO.bind();
-	glClear(GL_COLOR_BUFFER_BIT);
-	
-	//TextureHandler::getSingleton().bindTexture(1, depth_texture);
-	TextureHandler::getSingleton().bindTexture(0, "particle");
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glDepthMask(GL_FALSE); // dont write to depth buffer.
 
-	glBegin(GL_QUADS);
-	
-	float x_angle =  camera_p->getXrot();
-	float y_angle = -camera_p->getYrot() - 90.f;
-	Matrix4 m(y_angle, x_angle, 0.f, 0.f, 0.f, 0.f);
-	
-	Vec3 s1(-1.0f, -1.0f, 0.0f);
-	Vec3 s2(+1.0f, -1.0f, 0.0f);
-	Vec3 s3(+1.0f, +1.0f, 0.0f);
-	Vec3 s4(-1.0f, +1.0f, 0.0f);
-	
-	s1 = m * s1;
-	s2 = m * s2;
-	s3 = m * s3;
-	s4 = m * s4;
-	
-	float color[4];
-	
-	for(size_t i = 0; i < viewParticles.size(); ++i)
-	{
-		
-		float px = viewParticles[i].pos.x.getFloat();
-		float py = viewParticles[i].pos.y.getFloat();
-		float pz = viewParticles[i].pos.z.getFloat();
-		
-		viewParticles[i].getColor(color);
-		color[3] = viewParticles[i].getAlpha();
-		glColor4fv(color);
-		
-		float s = viewParticles[i].getScale();
-		glTexCoord2f(0.f, 0.f); glVertex3f(px+s1.x*s, py+s1.y*s, pz+s1.z*s);
-		glTexCoord2f(1.f, 0.f); glVertex3f(px+s2.x*s, py+s2.y*s, pz+s2.z*s);
-		glTexCoord2f(1.f, 1.f); glVertex3f(px+s3.x*s, py+s3.y*s, pz+s3.z*s);
-		glTexCoord2f(0.f, 1.f); glVertex3f(px+s4.x*s, py+s4.y*s, pz+s4.z*s);
-		
-		++QUADS_DRAWN_THIS_FRAME;
-	}
-	
-	glEnd();
-	
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	TextureHandler::getSingleton().unbindTexture(1);
-	
-	screenFBO.bind();
-	
-	TextureHandler::getSingleton().bindTexture(0, particlesDownScaledFBO.texture(0));
-	
-	//glBlendFunc(GL_ONE, GL_ONE);
-	glBlendFunc(GL_SRC_COLOR, GL_ONE);
-	
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	
-	drawFullscreenQuad();
-	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	
-	TextureHandler::getSingleton().unbindTexture(0);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-}
-
-void Graphics::updateCamera(const Level& lvl)
+void GameView::updateCamera(const Level& lvl)
 {
-	Vec3 camStartPos = camera_p->getPosition();
+	vec3<float> camStartPos = camera_p->getPosition();
 	FixedPoint camX = FixedPoint(camStartPos.x);
 	FixedPoint camZ = FixedPoint(camStartPos.z);
 	
@@ -759,11 +609,11 @@ void Graphics::updateCamera(const Level& lvl)
 	camera_p->setAboveGround(cam_min_y);
 }
 
-void Graphics::setupCamera(const Camera& camera)
+void GameView::setupCamera(const Camera& camera)
 {
-	Vec3 camPos = camera.getPosition();
-	Vec3 camTarget = camera.getTarget();
-	Vec3 upVector(0.0, 1.0, 0.0);
+	vec3<float> camPos = camera.getPosition();
+	vec3<float> camTarget = camera.getTarget();
+	vec3<float> upVector(0.0, 1.0, 0.0);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -782,17 +632,17 @@ void Graphics::setupCamera(const Camera& camera)
 	frustum.setCamDef(camPos, camTarget, upVector);
 }
 
-void Graphics::startDrawing()
+void GameView::startDrawing()
 {
 	setupCamera(*this->camera_p);
 
 	if(intVals["DEFERRED_RENDERING"])
 	{
-		deferredFBO.bind();
+		Graphics::Framebuffer::get("deferredFBO").bind();
 	}
 	else
 	{
-		screenFBO.bind();
+		Graphics::Framebuffer::get("screenFBO").bind();
 	}
 
 	glClear(GL_DEPTH_BUFFER_BIT); // Dont clear the color buffer, since we're going to rewrite the color everywhere anyway.
@@ -803,7 +653,7 @@ void Graphics::startDrawing()
 
 
 
-void Graphics::applySSAO(int power, const string& input_texture, const string& depth_texture, const Framebuffer& renderTarget)
+void GameView::applySSAO(int power, const string& input_texture, const string& depth_texture, const Graphics::Framebuffer& renderTarget)
 {
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
@@ -834,7 +684,7 @@ void Graphics::applySSAO(int power, const string& input_texture, const string& d
 }
 
 
-void Graphics::applyBlur(int blur, const string& input_image, const Framebuffer& renderTarget)
+void GameView::applyBlur(int blur, const string& input_image, const Graphics::Framebuffer& renderTarget)
 {
 	blur = min(blur, intVals["MAXIMUM_BLUR"]);
 
@@ -842,7 +692,9 @@ void Graphics::applyBlur(int blur, const string& input_image, const Framebuffer&
 	glDepthMask(GL_FALSE);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
+	Graphics::Framebuffer& postFBO = Graphics::Framebuffer::get("postFBO");
 	postFBO.bind();
+	
 	TextureHandler::getSingleton().bindTexture(0, input_image);
 	{
 		Shader& shader = shaders.get_shader("blur_program1");
@@ -867,16 +719,16 @@ void Graphics::applyBlur(int blur, const string& input_image, const Framebuffer&
 }
 
 
-void Graphics::drawLightsDeferred_single_pass(int lights)
+void GameView::drawLightsDeferred_single_pass(int lights)
 {
 	Shader& shader = shaders.get_shader("deferred_lights_program");
 	shader.start();
 
 	glUniform1f(shader.uniform("light_count"), float(lights));
 
-	Vec3 camera_position = camera_p->getPosition();
+	vec3<float> camera_position = camera_p->getPosition();
 	glUniform3f(shader.uniform("camera_position"), camera_position.x, camera_position.y, camera_position.z);
-	Vec3 camera_target = camera_p->getTarget();
+	vec3<float> camera_target = camera_p->getTarget();
 	glUniform3f(shader.uniform("camera_target"), camera_target.x, camera_target.y, camera_target.z);
 /*
 	cerr << "Camera: " << camera_position << endl;
@@ -885,10 +737,10 @@ void Graphics::drawLightsDeferred_single_pass(int lights)
 	cerr << "TL    : " << frustum.ftl << endl;
 	cerr << "TR    : " << frustum.ftr << endl;
 */
-	TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
-	TextureHandler::getSingleton().bindTexture(1, deferredFBO.texture(1));
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("deferredFBO").texture(0));
+	TextureHandler::getSingleton().bindTexture(1, Graphics::Framebuffer::get("deferredFBO").texture(1));
 //	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
-	TextureHandler::getSingleton().bindTexture(3, deferredFBO.depth_texture());
+	TextureHandler::getSingleton().bindTexture(3, Graphics::Framebuffer::get("deferredFBO").depth_texture());
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	glDepthMask(GL_FALSE);
@@ -921,13 +773,13 @@ void Graphics::drawLightsDeferred_single_pass(int lights)
 	shader.stop();
 }
 
-void Graphics::applyAmbientLight()
+void GameView::applyAmbientLight()
 {
 	Shader& shader = shaders.get_shader("deferred_ambientlight_program");
 	shader.start();
 
-	TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
-	TextureHandler::getSingleton().bindTexture(1, deferredFBO.texture(1));
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("deferredFBO").texture(0));
+	TextureHandler::getSingleton().bindTexture(1, Graphics::Framebuffer::get("deferredFBO").texture(1));
 	float r = intVals["AMBIENT_RED"]   / 255.0f;
 	float g = intVals["AMBIENT_GREEN"] / 255.0f;
 	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
@@ -947,12 +799,12 @@ void Graphics::applyAmbientLight()
 	shader.stop();
 }
 
-Vec3 Graphics::getWorldPosition()
+vec3<float> GameView::getWorldPosition()
 {
 	return getWorldPosition(intVals["RESOLUTION_X"]/2, intVals["RESOLUTION_Y"]/2);
 }
 
-Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
+vec3<float> GameView::getWorldPosition(int screen_x, int screen_y)
 {
 	setupCamera(*camera_p);
 
@@ -970,15 +822,15 @@ Vec3 Graphics::getWorldPosition(int screen_x, int screen_y)
 	winX = (float)screen_x;
 	winY = (float)viewport[3] - (float)screen_y;
 
-	deferredFBO.bind();
+	Graphics::Framebuffer::get("deferredFBO").bind();
 	glReadPixels( screen_x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
 
 	gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
-	return Vec3(posX, posY, posZ);
+	return vec3<float>(posX, posY, posZ);
 }
 
-void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
+void GameView::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
@@ -986,10 +838,10 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	TextureHandler::getSingleton().bindTexture(0, deferredFBO.texture(0));
-	TextureHandler::getSingleton().bindTexture(1, deferredFBO.texture(1));
-//	TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
-	TextureHandler::getSingleton().bindTexture(3, deferredFBO.depth_texture());
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("deferredFBO").texture(0));
+	TextureHandler::getSingleton().bindTexture(1, Graphics::Framebuffer::get("deferredFBO").texture(1));
+	// TextureHandler::getSingleton().bindTexture(2, deferredFBO.texture(2));
+	TextureHandler::getSingleton().bindTexture(3, Graphics::Framebuffer::get("deferredFBO").depth_texture());
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
@@ -1003,7 +855,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 		const LightObject& light = it->second;
 
 		Location loc = light.getPosition();
-		Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+		vec3<float> v = vec3<float>(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 
 		// TODO: intensity doesn't accurately reflect (in worl units) how far the light is actually seen.
 		// light power is linear,
@@ -1046,7 +898,7 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 			const LightObject& light = it->second;
 
 			Location loc = light.getPosition();
-			Vec3 v = Vec3(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
+			vec3<float> v = vec3<float>(loc.x.getFloat(), loc.y.getFloat(), loc.z.getFloat());
 
 			// TODO: same as the todo in previous lights loop
 			float power = light.getIntensity().getFloat();
@@ -1082,9 +934,9 @@ void Graphics::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Graphics::applyDeferredLights(const std::map<int, LightObject>& lights)
+void GameView::applyDeferredLights(const std::map<int, LightObject>& lights)
 {
-	screenFBO.bind();
+	Graphics::Framebuffer::get("screenFBO").bind();
 
 	applyAmbientLight();
 
@@ -1098,7 +950,7 @@ void Graphics::applyDeferredLights(const std::map<int, LightObject>& lights)
 	}
 }
 
-void Graphics::drawSolidGeometry(const VisualWorld& visualworld)
+void GameView::drawSolidGeometry(const VisualWorld& visualworld)
 {
 	if(intVals["DRAW_LEVEL"])
 	{
@@ -1123,16 +975,16 @@ void Graphics::drawSolidGeometry(const VisualWorld& visualworld)
 	}
 }
 
-void Graphics::drawDeferredDepthBuffer(const VisualWorld& visualworld)
+void GameView::drawDeferredDepthBuffer(const VisualWorld& visualworld)
 {
-	deferredFBO.bind(0);
+	Graphics::Framebuffer::get("deferredFBO").bind(0);
 	glColorMask(false, false, false, false);
 	drawSolidGeometry(visualworld);
 	glColorMask(true, true, true, true);
-	deferredFBO.bind();
+	Graphics::Framebuffer::get("deferredFBO").bind();
 }
 
-void Graphics::draw(
+void GameView::draw(
 	const Level& lvl,
 	const VisualWorld& visualworld,
 	const std::shared_ptr<Octree> o, // For debug.
@@ -1187,11 +1039,11 @@ void Graphics::draw(
 		applyDeferredLights(visualworld.lights);
 	}
 	
-	string depth_texture = (deferred_rendering ? deferredFBO.depth_texture() : screenFBO.depth_texture());
+	string depth_texture = (deferred_rendering ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
 
 	if(intVals["SSAO"])
 	{
-		applySSAO(intVals["SSAO_DISTANCE"], screenFBO.texture(0), depth_texture, screenFBO);
+		applySSAO(intVals["SSAO_DISTANCE"], Graphics::Framebuffer::get("screenFBO").texture(0), depth_texture, Graphics::Framebuffer::get("screenFBO"));
 	}
 	
 	if(intVals["DRAW_PARTICLES"])
@@ -1208,7 +1060,7 @@ void Graphics::draw(
 	
 	if(intVals["DAMAGE_BLUR"])
 	{
-		applyBlur(blur, screenFBO.texture(0), screenFBO);
+		applyBlur(blur, Graphics::Framebuffer::get("screenFBO").texture(0), Graphics::Framebuffer::get("screenFBO"));
 	}
 	
 	if(intVals["DRAW_HUD"])
@@ -1219,7 +1071,7 @@ void Graphics::draw(
 	finishDrawing();
 }
 
-void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, Model*>& models)
+void GameView::drawPlayerNames(const std::map<int, Unit>& units, const map<int, Model*>& models)
 {
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
@@ -1230,7 +1082,7 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		}
 		*/
 		const Model& model = *models.find(iter->first)->second;
-		Vec3 posName = model.currentModelPos;
+		vec3<float> posName = model.currentModelPos;
 		posName.y += 5.5f * model.myScale;
 		hud.draw3Dstring(iter->second.name, posName, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
 		
@@ -1242,7 +1094,7 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		}
 		else
 		{
-			Vec3 posHP = model.currentModelPos;
+			vec3<float> posHP = model.currentModelPos;
 			posHP.y += 5.0f * model.myScale;
 			hud.draw3DBar(hp_percent, posHP, camera_p->getXrot(), camera_p->getYrot(), "GREEN", "DARK_RED", 5.0f);
 		}
@@ -1250,46 +1102,11 @@ void Graphics::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 	
 }
 
-void Graphics::drawDebugQuad()
-{
-	string s = strVals["DEBUG_QUAD"];
-	if(s == "NULL")
-	{
-		return;
-	}
-
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	TextureHandler::getSingleton().bindTexture(0, s);
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -0.7f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(-0.2f, -0.7f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(-0.2f, +0.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +0.0f, -1.0f);
-	glEnd();
-
-	TextureHandler::getSingleton().unbindTexture(0);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-}
-
-void Graphics::renderToBackbuffer()
+void GameView::renderToBackbuffer()
 {
 	glDisable(GL_DEPTH_TEST);
-	Framebuffer::unbind();
-	TextureHandler::getSingleton().bindTexture(0, screenFBO.texture(0));
+	Graphics::Framebuffer::unbind();
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("screenFBO").texture(0));
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1312,111 +1129,43 @@ void Graphics::renderToBackbuffer()
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Graphics::finishDrawing()
+void GameView::finishDrawing()
 {
-	STRINGS.clear();
-
 	renderToBackbuffer();
-
+	
 	drawDebugQuad();
-
+	
 	window.swap_buffers();
 }
 
 
-void Graphics::world_tick(const std::map<int, LightObject>& lights)
+void GameView::world_tick(const std::map<int, LightObject>& lights)
 {
 	updateLights(lights);
 }
 
-void Graphics::tick()
+void GameView::tick()
 {
 }
 
-void Graphics::toggleFullscreen()
+void GameView::toggleFullscreen()
 {
 	window.toggle_fullscreen();
 }
 
-void Graphics::zoom_in()
+void GameView::zoom_in()
 {
 	camera_p->zoomIn();
 }
 
-void Graphics::zoom_out()
+void GameView::zoom_out()
 {
 	camera_p->zoomOut();
 }
 
-void Graphics::drawBox(const Location& top, const Location& bot,
-	GLfloat r, GLfloat g, GLfloat b, GLfloat a)
-{
-	glColor4f(r, g, b, a);
-	glLineWidth(1.0f);
-	glBegin(GL_LINES);
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
 
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), top.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
 
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-	glVertex3f(bot.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), bot.z.getFloat());
-	glVertex3f(top.x.getFloat(), bot.y.getFloat(), top.z.getFloat());
-	glEnd();
-}
-
-void Graphics::drawOctree(const std::shared_ptr<Octree>& o)
-{
-	if (o->n > 0)
-		drawBox(o->top, o->bot, 1.0f);
-	if (o->hasChildren) {
-		for (int i = 0; i < 2; ++i)
-			for (int j = 0; j < 2; ++j)
-				for (int k = 0; k < 2; ++k)
-					drawOctree(o->children[i][j][k]);
-	}
-}
-
-void Graphics::drawBoundingBoxes(const std::map<int,Unit>& units)
-{
-	for(auto iter = units.begin(); iter != units.end(); iter++)
-	{
-		drawBox(iter->second.bb_top(), iter->second.bb_bot());
-	}
-}
-
-void Graphics::drawDebugProjectiles(const std::map<int, Projectile>& projectiles)
-{
-	glColor3f(0.3, 0.7, 0.5);
-	glPointSize(4.0f);
-	glBegin(GL_POINTS);
-	for(auto it = projectiles.begin(); it != projectiles.end(); ++it)
-	{
-		const MovableObject& proj = it->second;
-		glVertex3f(proj.position.x.getFloat(), proj.position.y.getFloat(), proj.position.z.getFloat());
-	}
-	glEnd();
-}
-
-void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
+void GameView::drawGrass(const std::vector<GrassCluster>& meadows)
 {
 	Shader& shader = shaders.get_shader("grass_program");
 	shader.start();
@@ -1442,7 +1191,7 @@ void Graphics::drawGrass(const std::vector<GrassCluster>& meadows)
 	shader.stop();
 }
 
-void Graphics::drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const string& color) const
+void GameView::drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const string& color) const
 {
     // render a menu background scene! Falling particles would be awesome.
     for(size_t i = 0;i < menuParticles.size();i++)
@@ -1456,7 +1205,7 @@ void Graphics::drawMenuParticles(const std::vector<MenuParticle>& menuParticles,
     }
 }
 
-void Graphics::drawMenuButtons(const vector<MenuButton>& buttons) const
+void GameView::drawMenuButtons(const vector<MenuButton>& buttons) const
 {
     float button_height = -0.10f;
     float menu_y_offset = 0.2f;
@@ -1483,87 +1232,15 @@ void Graphics::drawMenuButtons(const vector<MenuButton>& buttons) const
             info << "^W";
         }
         float minus = i * button_height;
-        // float plus  = 2.f * (i+1.f) / buttons.size() - 1.f;
-        // TextureHandler::getSingleton().bindTexture(0, buttons[i].name);
-        // void drawString(const std::string&, float pos_x = -1.0f, float pos_y = -1.0f, float scale = 1.0f, bool background = false, float alpha = 1.0f) const;
+
         msg << buttons[i].name;
         info << buttons[i].info;
         hud.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
         hud.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
-        /*
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.f, 0.0f); glVertex3f(-1, minus * menu_height + menu_y_offset, -1);
-		glTexCoord2f(1.f, 0.0f); glVertex3f(+0, minus * menu_height + menu_y_offset, -1);
-		glTexCoord2f(1.f, 1.0f); glVertex3f(+0, plus  * menu_height + menu_y_offset, -1);
-		glTexCoord2f(0.f, 1.0f); glVertex3f(-1, plus  * menu_height + menu_y_offset, -1);
-		glEnd();
-		*/
     }
 }
 
-void Graphics::drawMenuRectangles() const
-{
-	static list<tuple<float, float, float, float, float, float, float> > rects;
-	static int count = 0;
-	if(count == 0)
-	{
-		rects.push_back(make_tuple(0.0f, 0.0f, 0.0f, 0.0f, 0.4f, 0.4f, 0.4f));
-	}
-	if(count++ % 30 == 0)
-	{
-		float r = sin(count / 300.0f) * 0.5 + 0.5;
-		float g = cos(count / 300.0f) * 0.5 + 0.5;
-		float b = (sin(count / 300.0f) + cos(count / 300.0f))/2 * 0.5 + 0.5;
-
-		float x = sin(count / 300.0f) / 5.0f;
-		float y = cos(count / 300.0f) / 5.0f;
-		rects.push_back(make_tuple(x, y, 0.007f, 0.004f, r, g, b));
-	}
-	TextureHandler::getSingleton().unbindTexture(0);
-
-	for(auto it = rects.begin(); it != rects.end(); )
-	{
-		float center_x = std::get<0>(*it);
-		float center_y = std::get<1>(*it);
-		float size_x = std::get<2>(*it);
-		float size_y = std::get<3>(*it);
-		float r = std::get<4>(*it);
-		float g = std::get<5>(*it);
-		float b = std::get<6>(*it);
-
-		float left = center_x - size_x;
-		float right = center_x + size_x;
-		float top = center_y + size_y;
-		float bot = center_y - size_y;
-
-		if(top > 1.0f && bot < -1.0f && left < -1.0f && right > 1.0f)
-		{
-			it = rects.erase(it);
-			continue;
-		}
-		else
-		{
-			std::get<2>(*it) *= 1.03f;
-			std::get<3>(*it) *= 1.03f;
-			++it;
-		}
-
-		glLineWidth(3.0f);
-		glColor3f(r, g, b);
-		glBegin(GL_LINES);
-			glVertex3f(left, top, -1.0f);
-			glVertex3f(right, top, -1.0f);
-			glVertex3f(left, bot, -1.0f);
-			glVertex3f(right, bot, -1.0f);
-			glVertex3f(left, top, -1.0f);
-			glVertex3f(left, bot, -1.0f);
-			glVertex3f(right, top, -1.0f);
-			glVertex3f(right, bot, -1.0f);
-		glEnd();
-	}
-}
-
-void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<MenuParticle>& menuParticles) const
+void GameView::drawMenu(const vector<MenuButton>& buttons, const std::vector<MenuParticle>& menuParticles) const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
@@ -1595,14 +1272,14 @@ void Graphics::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 	window.swap_buffers();
 }
 
-void Graphics::reload_shaders()
+void GameView::reload_shaders()
 {
 	shaders.release();
 	shaders.init();
 	setInitialShaderValues();
 }
 
-void Graphics::setInitialShaderValues()
+void GameView::setInitialShaderValues()
 {
 	{
 		Shader& shader = shaders.get_shader("particle_program");
@@ -1636,4 +1313,3 @@ void Graphics::setInitialShaderValues()
 		shader.stop();
 	}
 }
-

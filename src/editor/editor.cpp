@@ -13,10 +13,10 @@
 
 using namespace std;
 
-extern vector<pair<Vec3,Vec3> > LINES;
-extern vector<Vec3> DOTS;
+extern vector<pair<vec3<float>,vec3<float> > > LINES;
+extern vector<vec3<float> > DOTS;
 GrassCluster meadows;
-Vec3 wind;
+vec3<float> wind;
 
 int r = 50;
 int g = 50;
@@ -71,9 +71,9 @@ Editor::Editor():
 
 //	view.megaFuck();
 
-	LINES.push_back(make_pair(Vec3(100,0,0),Vec3(-100,0,0)));
-	LINES.push_back(make_pair(Vec3(0,100,0),Vec3(0,-100,0)));
-	LINES.push_back(make_pair(Vec3(0,0,100),Vec3(0,0,-100)));
+LINES.push_back(make_pair(vec3<float>(100,0,0),vec3<float>(-100,0,0)));
+LINES.push_back(make_pair(vec3<float>(0,100,0),vec3<float>(0,-100,0)));
+LINES.push_back(make_pair(vec3<float>(0,0,100),vec3<float>(0,0,-100)));
 
 	meadows.preload();
 }
@@ -199,7 +199,7 @@ bool Editor::do_tick()
 	winds.resize(meadows.size());
 	for(size_t i = 0; i < winds.size(); ++i)
 	{
-		Vec3& w = winds[i];
+		vec3<float>& w = winds[i];
 		w.x = wind.x * sin((counter + 20 * meadows[i].z) / 100.0);
 		w.y = wind.y * sin((counter + 20 * (meadows[i].x + meadows[i].y)) / 100.0) * 0.2;
 		w.z = wind.z * sin((counter + 20 * meadows[i].x) / 100.0);
@@ -688,8 +688,8 @@ void Editor::type_helper(const std::string& type)
 	stored_model = edited_model;
 	ApoModel dummy;
 	dummy.root = 0;
-	dummy.currentModelPos = Vec3(0.0f, 0.0f, 0.0f);
-	dummy.realUnitPos = Vec3(0.0f, 0.0f, 0.0f);
+	dummy.currentModelPos = vec3<float>(0.0f, 0.0f, 0.0f);
+	dummy.realUnitPos = vec3<float>(0.0f, 0.0f, 0.0f);
 	dummy.animation_time = 0;
 	ModelNode node;
 	node.name = "dummy";
@@ -887,7 +887,7 @@ void Editor::scale(float scalar)
 	{
 		for(size_t i = 0; i < skeletal_model.vertices.size(); ++i)
 		{
-			Vec3& v = skeletal_model.vertices[i];
+			vec3<float>& v = skeletal_model.vertices[i];
 			v *= scalar;
 		}
 
@@ -1155,7 +1155,7 @@ void Editor::handle_command(const string& command)
 	}
 	else if(word1 == "goto")
 	{
-		Vec3 pos;
+		vec3<float> pos;
 		stringstream ss1(command);
 		ss1 >> word1;
 		ss1 >> pos.x >> pos.y >> pos.z;
@@ -1433,14 +1433,14 @@ void Editor::calculate_nearest_bones()
 {
 	for(size_t j = 0; j < skeletal_model.vertices.size(); ++j)
 	{
-		Vec3& vertex = skeletal_model.vertices[j];
+		vec3<float>& vertex = skeletal_model.vertices[j];
 		// Find out the closest child bone joint.
 		vector<BoneDistance> bone_distances;
 		for(size_t k = 0; k < skeletal_model.bones.size(); ++k)
 		{
 			Bone& bone = skeletal_model.bones[k];
-			Vec3 bone_loc1(bone.start_x, bone.start_y, bone.start_z);
-			Vec3 bone_loc2(bone.end_x, bone.end_y, bone.end_z);
+			vec3<float> bone_loc1(bone.start_x, bone.start_y, bone.start_z);
+			vec3<float> bone_loc2(bone.end_x, bone.end_y, bone.end_z);
 			float distance1 = (vertex - bone_loc2).lengthSquared();
 			float distance2 = (vertex - bone_loc2).lengthSquared();
 			float distance = min(distance1, distance2);
@@ -1545,7 +1545,7 @@ void Editor::swarm_meadows(int X, int Z, int y)
 		{
 			float x = 1*(i-X/2) + 0.7 * rand() / RAND_MAX;
 			float z = 1*(j-Z/2) + 0.7 * rand() / RAND_MAX;
-			meadows.bushes.push_back(Vec3(x, y, z));
+			meadows.bushes.push_back(vec3<float>(x, y, z));
 		}
 	}
 	meadows.unload();

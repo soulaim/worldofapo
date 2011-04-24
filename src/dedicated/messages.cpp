@@ -2,7 +2,7 @@
 #include "dedicated.h"
 
 using namespace std;
-
+using namespace Network;
 
 void DedicatedServer::sendAreaParameters(const string& areaName, int plr_ID)
 {

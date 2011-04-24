@@ -7,15 +7,14 @@
 
 #include "playerinfo.h"
 #include "unit.h"
-#include "location.h"
 #include "viewmessage.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 
 #include "hasproperties.h"
 
 class Hud : public HasProperties
 {
-	friend class Graphics;
+	friend class GameView;
 	
 public:
 	Hud();
@@ -49,8 +48,8 @@ public:
 	void drawAmmo() const;
 	void draw(bool firstPerson);
 
-	void draw3Dstring(const std::string& msg, const Vec3& pos, float x_angle, float y_angle, int team = 0) const;
-	void draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale = 5.0f) const;
+	void draw3Dstring(const std::string& msg, const vec3<float>& pos, float x_angle, float y_angle, int team = 0) const;
+	void draw3DBar(float percentage, const vec3<float>& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale = 5.0f) const;
 	
 	// TODO: make it work with world-tick data also.
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.

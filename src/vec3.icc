@@ -1,0 +1,134 @@
+
+template <class T>
+vec3<T>::vec3():
+	x(T(0)),
+	y(T(0)),
+	z(T(0))
+{
+}
+
+template <class T>
+vec3<T>::vec3(const T& a, const T& b, const T& c):
+	x(a),
+	y(b),
+	z(c)
+{
+}
+
+template <class T>
+vec3<T> vec3<T>::operator*(const T& scalar) const
+{
+	return vec3(*this) *= scalar;
+}
+
+template <class T>
+vec3<T> vec3<T>::operator/(const T& scalar) const
+{
+	return vec3(*this) /= scalar;
+}
+
+template <class T>
+vec3<T>& vec3<T>::operator*=(const T& scalar)
+{
+	x *= scalar;
+	y *= scalar;
+	z *= scalar;
+	return *this;
+}
+
+template <class T>
+vec3<T>& vec3<T>::operator/=(const T& scalar)
+{
+	x /= scalar;
+	y /= scalar;
+	z /= scalar;
+	return *this;
+}
+
+template <class T>
+vec3<T>& vec3<T>::operator+=(const vec3<T>& a)
+{
+	x += a.x;
+	y += a.y;
+	z += a.z;
+	return *this;
+}
+
+template <class T>
+vec3<T>& vec3<T>::operator-=(const vec3<T>& a)
+{
+	x -= a.x;
+	y -= a.y;
+	z -= a.z;
+	return *this;
+}
+
+template <class T>
+vec3<T> vec3<T>::operator+(const vec3<T>& b) const
+{
+	return vec3(*this) += b;
+}
+
+template <class T>
+vec3<T> vec3<T>::operator-(const vec3<T>& b) const
+{
+	return vec3(*this) -= b;
+}
+
+template <class T>
+vec3<T> vec3<T>::operator*(const vec3<T>& t) const
+{
+	return crossProduct(t);
+}
+
+
+template <class T>
+vec3<T>& vec3<T>::set(const T& a, const T& b, const T& c)
+{
+	x = a;
+	y = b;
+	z = c;
+	return *this;
+}
+
+template <class T>
+vec3<T> vec3<T>::crossProduct(const vec3<T>& b) const
+{
+	vec3<T> result;
+	result.x = y * b.z  -  z * b.y;
+	result.y = z * b.x  -  x * b.z;
+	result.z = x * b.y  -  y * b.x;
+	return result;
+}
+
+template <class T>
+T vec3<T>::dotProduct(const vec3<T>& b) const
+{
+	T result;
+	result = x * b.x + y * b.y + z * b.z;
+	return result;
+}
+
+template <class T>
+T vec3<T>::length() const
+{
+	return squareRoot((x * x + y * y + z * z));
+}
+
+template <class T>
+T vec3<T>::lengthSquared() const
+{
+	return (x * x + y * y + z * z);
+}
+
+template <class T>
+T vec3<T>::operator[](int i) const
+{
+	switch(i)
+	{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+		default: return T(1.0f);
+	}
+}

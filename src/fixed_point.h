@@ -139,24 +139,6 @@ public:
 		return (*this) * (*this);
 	}
 	
-	FixedPoint squareRoot() const
-	{
-		if(number < 2)
-		{
-			return FixedPoint(0);
-		}
-		
-		// approximates the square root quite nicely
-		FixedPoint currentVal(*this);
-		currentVal /= FixedPoint(2);
-		for(int i = 0; i < 10; ++i)
-		{
-			currentVal += *this / currentVal;
-			currentVal *= FixedPoint(1, 2);
-		}
-		return currentVal;
-	}
-
 	friend inline std::ostream& operator<<(std::ostream& out, const FixedPoint& point)
 	{
 		return out << point.number;
@@ -174,6 +156,26 @@ public:
 	}
 	
 };
+
+template <class T>
+T squareRoot(const T& t)
+{
+	if(t * 1000 < 1)
+	{
+		return T(0);
+	}
+	
+	// approximates the square root quite nicely
+	T currentVal(t);
+	currentVal /= T(2);
+	for(int i = 0; i < 10; ++i)
+	{
+		currentVal += t / currentVal;
+		currentVal /= T(2);
+	}
+	
+	return currentVal;
+}
 
 #endif
 

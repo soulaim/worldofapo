@@ -2,12 +2,13 @@
 #define H_QUADTREE_TERRAIN
 
 #include "fixed_point.h"
+#include "vec3.h"
+
 #include <iostream>
 #include <vector>
 #include <memory>
 
 class FrustumR;
-class Location;
 class Level;
 
 struct BTT_Point

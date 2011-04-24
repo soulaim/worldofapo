@@ -9,8 +9,10 @@
 #include "opengl.h"
 
 #include "animation.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
+
 #include "frustum/matrix4.h"
+
 #include "texturecoordinate.h"
 #include "model.h"
 
@@ -118,13 +120,13 @@ private:
 	void calculate_weights();
 
 	// These stay constant over different model instances.
-	std::vector<Vec3> vertices;
-	std::vector<Vec3> normals;
+	std::vector<vec3<float> > vertices;
+	std::vector<vec3<float> > normals;
 	std::vector<ColorStruct> colors;
 	std::vector<TextureCoordinate> texture_coordinates;
 	
 	std::vector<Triangle> triangles;
-	std::vector<Vec3> triangle_normals;
+	std::vector<vec3<float> > triangle_normals;
 	std::vector<float> triangle_areas;
 	
 	std::vector<WeightedVertex> weighted_vertices;

@@ -2,8 +2,7 @@
 #ifndef _H_PARTICLE_STUFF
 #define _H_PARTICLE_STUFF
 
-#include "location.h"
-#include "frustum/vec3.h"
+#include "vec3.h"
 
 class Particle
 {
@@ -13,11 +12,10 @@ public:
 	int max_life;
 	int cur_life;
 	
-	// could be used for game state
-	Location pos, target_pos;
-	Location vel;
-	
 	// graphics only
+	vec3<float> pos, target_pos;
+	vec3<float> vel;
+	
 	float depthVal;
 	float scale;
 	float sr, er;
@@ -27,13 +25,13 @@ public:
 	
 	void viewTick()
 	{
-		pos += (target_pos - pos) * FixedPoint(1, 5);
+		pos += (target_pos - pos) * 0.25f;
 	}
 	
 	void tick()
 	{
 		target_pos += vel;
-		vel.y -= FixedPoint(20, 1000);
+		vel.y -= 0.02f;
 		--cur_life;
 	}
 
@@ -71,9 +69,9 @@ public:
 		return cur_life > 0;
 	}
 	
-	void updateDepthVal(Vec3& d)
+	void updateDepthVal(vec3<float>& d)
 	{
-		depthVal = d.x * pos.x.getFloat() + d.y * pos.y.getFloat() + d.z * pos.z.getFloat();
+		depthVal = d.x * pos.x + d.y * pos.y + d.z * pos.z;
 	}
 	
 	bool operator < (const Particle& a) const

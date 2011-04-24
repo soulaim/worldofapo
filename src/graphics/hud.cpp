@@ -376,7 +376,7 @@ void choose_team_color(int team)
 	};
 }
 
-void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float y_angle, int team) const
+void Hud::draw3Dstring(const string& msg, const vec3<float>& pos, float x_angle, float y_angle, int team) const
 {
 	float scale = 50.0f;
 
@@ -470,10 +470,10 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 		
 		lastWidth = currentWidth;
 
-		Vec3 p1 = m * Vec3(x_now , y_bot, 0);
-		Vec3 p2 = m * Vec3(x_next, y_bot, 0);
-		Vec3 p3 = m * Vec3(x_next, y_top, 0);
-		Vec3 p4 = m * Vec3(x_now , y_top, 0);
+		vec3<float> p1 = m * vec3<float>(x_now , y_bot, 0);
+		vec3<float> p2 = m * vec3<float>(x_next, y_bot, 0);
+		vec3<float> p3 = m * vec3<float>(x_next, y_top, 0);
+		vec3<float> p4 = m * vec3<float>(x_now , y_top, 0);
 
 		TextureCoordinates coords = Font::texture_coordinates(next_char);
 		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(p1.x, p1.y, p1.z);
@@ -490,7 +490,7 @@ void Hud::draw3Dstring(const string& msg, const Vec3& pos, float x_angle, float 
 }
 
 
-void Hud::draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale) const
+void Hud::draw3DBar(float percentage, const vec3<float>& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale) const
 {
 	TextureHandler::getSingleton().unbindTexture(0);
 	
@@ -520,10 +520,10 @@ void Hud::draw3DBar(float percentage, const Vec3& pos, float x_angle, float y_an
 	
 	glBegin(GL_QUADS);
 	{
-		Vec3 p1 = m * Vec3(-x_val, -scale * 0.1f, 0);
-		Vec3 p2 = m * Vec3(-x_val, +scale * 0.1f, 0);
-		Vec3 p3 = m * Vec3(+x_val, +scale * 0.1f, 0);
-		Vec3 p4 = m * Vec3(+x_val, -scale * 0.1f, 0);
+		vec3<float> p1 = m * vec3<float>(-x_val, -scale * 0.1f, 0);
+		vec3<float> p2 = m * vec3<float>(-x_val, +scale * 0.1f, 0);
+		vec3<float> p3 = m * vec3<float>(+x_val, +scale * 0.1f, 0);
+		vec3<float> p4 = m * vec3<float>(+x_val, -scale * 0.1f, 0);
 		
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);

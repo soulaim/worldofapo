@@ -109,6 +109,6 @@ float ApoMath::getDegrees(int& angle)
 
 FixedPoint ApoMath::sqrt(const FixedPoint& x)
 {
-	return x.squareRoot();
+	return squareRoot(x);
 }
 

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "weapon.h"
-#include "location.h"
+#include "vec3.h"
 #include "octree_object.h"
 #include "movable_object.h"
 #include "item.h"
@@ -133,7 +133,7 @@ public:
 	Location bb_top() const;
 	Location bb_bot() const;
 	void collides(OctreeObject&);
-
+	
 	void init();
 	void switchWeapon(unsigned);
 	

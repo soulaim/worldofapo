@@ -59,9 +59,9 @@ void FrustumR::setCamInternals(float angle, float ratio, float near, float far)
 }
 
 
-void FrustumR::setCamDef(const Vec3& p, const Vec3& l, const Vec3& u)
+void FrustumR::setCamDef(const vec3<float>& p, const vec3<float>& l, const vec3<float>& u)
 {
-	Vec3 dir,nc,fc;
+	vec3<float> dir,nc,fc;
 
 	camPos = p;
 
@@ -104,7 +104,7 @@ void FrustumR::setCamDef(const Vec3& p, const Vec3& l, const Vec3& u)
 	plane[NEARP].setNormalAndPoint(-Z,nc);
 	plane[FARP].setNormalAndPoint(Z,fc);
 
-	Vec3 aux, normal;
+	vec3<float> aux, normal;
 
 	aux = (nc + Y*nh) - p;
 	normal = aux * X;
@@ -123,26 +123,26 @@ void FrustumR::setCamDef(const Vec3& p, const Vec3& l, const Vec3& u)
 	plane[RIGHT].setNormalAndPoint(normal,nc+X*nw);
 }
 
-FrustumR::FrustumResult FrustumR::pointInFrustum(const Vec3& p) const
+FrustumR::FrustumResult FrustumR::pointInFrustum(const vec3<float>& p) const
 {
 	float pcz,pcx,pcy,aux;
 
 	// compute vector from camera position to p
-	Vec3 v = p-camPos;
+	vec3<float> v = p-camPos;
 
 	// compute and test the Z coordinate
-	pcz = v.innerProduct(-Z);
+	pcz = v.dotProduct(-Z);
 	if(pcz > far || pcz < near)
 		return OUTSIDE;
 
 	// compute and test the Y coordinate
-	pcy = v.innerProduct(Y);
+	pcy = v.dotProduct(Y);
 	aux = pcz * tang;
 	if(pcy > aux || pcy < -aux)
 		return OUTSIDE;
 
 	// compute and test the X coordinate
-	pcx = v.innerProduct(X);
+	pcx = v.dotProduct(X);
 	aux = aux * ratio;
 	if(pcx > aux || pcx < -aux)
 		return OUTSIDE;
@@ -150,25 +150,25 @@ FrustumR::FrustumResult FrustumR::pointInFrustum(const Vec3& p) const
 	return INSIDE;
 }
 
-FrustumR::FrustumResult FrustumR::sphereInFrustum(const Vec3& p, float radius) const
+FrustumR::FrustumResult FrustumR::sphereInFrustum(const vec3<float>& p, float radius) const
 {
 	float d1,d2;
 	float az, ax, ay, zz1, zz2;
 	FrustumResult result = INSIDE;
 
-	Vec3 v = p - camPos;
+	vec3<float> v = p - camPos;
 
-	az = v.innerProduct(-Z);
+	az = v.dotProduct(-Z);
 	if (az > far + radius || az < near-radius)
 		return OUTSIDE;
 
-	ax = v.innerProduct(X);
+	ax = v.dotProduct(X);
 	zz1 = az * tang * ratio;
 	d1 = sphereFactorX * radius;
 	if (ax > zz1+d1 || ax < -zz1-d1)
 		return OUTSIDE;
 
-	ay = v.innerProduct(Y);
+	ay = v.dotProduct(Y);
 	zz2 = az * tang;
 	d2 = sphereFactorY * radius;
 	if (ay > zz2+d2 || ay < -zz2-d2)

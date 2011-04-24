@@ -14,7 +14,10 @@
 const int READ_BUFFER_SIZE = 1024;
 char SHARED_READ_BUFFER[READ_BUFFER_SIZE];
 
-using namespace std;
+using std::string;
+using std::cerr;
+using std::endl;
+
 
 #ifdef _WIN32
 namespace
@@ -44,18 +47,18 @@ SocketInitializer socket_initializer;
 #endif
 
 
-MU_Socket::MU_Socket()
+Network::TCP_Socket::TCP_Socket()
 {
 	alive = false;
 }
 
-MU_Socket::MU_Socket(const string& ip, int port)
+Network::TCP_Socket::TCP_Socket(const string& ip, int port)
 {
 	alive = false;
 	conn_init(ip, port);
 }
 
-int MU_Socket::readyToRead()
+int Network::TCP_Socket::readyToRead()
 {
 	if(!alive)
 		return 0;
@@ -88,7 +91,7 @@ int MU_Socket::readyToRead()
 }
 
 
-int MU_Socket::setnonblocking()
+int Network::TCP_Socket::setnonblocking()
 {
 	if(!alive)
 		return 0;
@@ -128,7 +131,7 @@ int MU_Socket::setnonblocking()
 #endif
 }
 
-int MU_Socket::conn_init(const string& host, int port)
+int Network::TCP_Socket::conn_init(const string& host, int port)
 {
 	//	cerr << "Connecting to server.. " << endl;
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -165,9 +168,8 @@ int MU_Socket::conn_init(const string& host, int port)
 	return 1;
 }
 
-int MU_Socket::write(const string& msg)
+int Network::TCP_Socket::write(const string& msg)
 {
-//	cerr << "Writing data to socket: " << msg << endl;
 	if(!alive)
 	{
 		cerr << "WARNING: Attempted to write to an inactive socket." << endl;
@@ -190,11 +192,11 @@ int MU_Socket::write(const string& msg)
 		
 		if(data_sent == 0)
 		{
-			cerr << "no data was written to socket?? :O  wtf? gonna try again.." << endl;
+			cerr << "WARNING: No data was written to socket. Trying again.." << endl;
 		}
 		else if(data_sent < 0)
 		{
-			cerr << "Network write failed :DD" << endl;
+			cerr << "ERROR: Writing to socket failed." << endl;
 			return -1;
 		}
 		
@@ -205,12 +207,11 @@ int MU_Socket::write(const string& msg)
 	return total_sent;
 }
 
-string MU_Socket::read()
+string Network::TCP_Socket::read()
 {
-//	cerr << "Reading data from socket.. " << endl;
 	SHARED_READ_BUFFER[0] = '\0';
-	
 	int data_received = 0;
+	
 	do
 	{
 		data_received = recv(sock, SHARED_READ_BUFFER, READ_BUFFER_SIZE - 1, 0 );
@@ -230,7 +231,7 @@ string MU_Socket::read()
 	return string(SHARED_READ_BUFFER);
 }
 
-void MU_Socket::closeConnection()
+void Network::TCP_Socket::closeConnection()
 {
 	if(alive)
 	{
@@ -244,7 +245,7 @@ void MU_Socket::closeConnection()
 }
 
 
-int MU_Socket::init_listener(int port)
+int Network::TCP_Socket::init_listener(int port)
 {
 	cerr << "Attempting to listen to port " << port << endl;
 	
@@ -259,20 +260,20 @@ int MU_Socket::init_listener(int port)
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servAddr.sin_port = htons(port);
 	
-	if(bind(sock, (struct sockaddr *) &servAddr, sizeof(servAddr))<0)
+	while(bind(sock, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0)
 	{
-		cerr << "Unable to bind listener to port: " << port << endl << "exiting.." << endl;
-		return 0;
+		cerr << "WARNING: Unable to bind listener to port: " << port << ", attempting to bind to another port" << endl;
+		servAddr.sin_port = htons(++port);
 	}
 	
-	cerr << "great success!" << endl;
+	cerr << "Binding to port: " << port << ", great success!" << endl;
 	listen(sock, port);
 	alive = true;
 	
 	return 1;
 }
 
-void MU_Socket::accept_connection(MU_Socket& socket)
+void Network::TCP_Socket::accept_connection(TCP_Socket& socket)
 {
 	socket.sock = accept(sock, 0, 0);
 	if(socket.sock > 0)

@@ -51,7 +51,7 @@ class Game : public HasProperties
 {
 	World* world;
 
-	SocketHandler clientSocket;
+	Network::SocketHandler clientSocket;
 
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host

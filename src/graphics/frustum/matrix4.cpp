@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Matrix4::Matrix4(const Vec3& row1, const Vec3& row2, const Vec3& row3)
+Matrix4::Matrix4(const vec3<float>& row1, const vec3<float>& row2, const vec3<float>& row3)
 {
 	T[0] = row1.x;
 	T[1] = row1.y;
@@ -98,7 +98,7 @@ Matrix4 Matrix4::operator*(const Matrix4 &v) const
 	return Matrix4(*this) *= v;
 }
 
-Vec3 Matrix4::operator*(const Vec3& v) const
+vec3<float> Matrix4::operator*(const vec3<float>& v) const
 {
 	for(int i = 0; i < 3; ++i)
 	{
@@ -109,7 +109,7 @@ Vec3 Matrix4::operator*(const Vec3& v) const
 		}
 		tmp[i] = sum;
 	}
-	return Vec3(tmp[0], tmp[1], tmp[2]);
+	return vec3<float>(tmp[0], tmp[1], tmp[2]);
 }
 
 std::ostream& operator<<(std::ostream& out, const Matrix4& m)
