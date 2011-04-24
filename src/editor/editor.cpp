@@ -45,7 +45,6 @@ Editor::Editor():
 
 	skybox = false;
 	editing_single_part = false;
-	edited_type = 0;
 	selected_part = 0;
 	selected_dot = 0;
 	userio.init();
@@ -111,12 +110,13 @@ bool Editor::do_tick()
 
 	if(editing_single_part)
 	{
+		/*
 		LINES.resize(3);
 		// TODO: print dx,dy,dz
 		stringstream ss;
 		ss << current_dot;
 		message = "Editing '" + edited_type_name + "': " + ss.str();
-
+		
 		for(size_t i = 0; i < new_dots.size(); ++i)
 		{
 			// Line i -> current.
@@ -130,6 +130,7 @@ bool Editor::do_tick()
 
 		DOTS.clear();
 		DOTS.push_back(current_dot);
+		*/
 	}
 	else
 	{
@@ -142,16 +143,6 @@ bool Editor::do_tick()
 				ss << "'" << bone.name << "' at ("
 					<< fixed << setprecision(2) << bone.start_x << ", " << bone.start_y << ", " << bone.start_z << "), ["
 					<< fixed << setprecision(2) << bone.rotation_x << ", " << bone.rotation_y << ", " << bone.rotation_z << "]";
-			}
-		}
-		else
-		{
-			if(edited_model.parts.size() > selected_part)
-			{
-				const ModelNode& node = edited_model.parts[selected_part];
-				ss << "'" << node.name << "' is " << node.wireframe << " at ("
-					<< fixed << setprecision(2) << node.offset_x << ", " << node.offset_y << ", " << node.offset_z << "), ["
-					<< fixed << setprecision(2) << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "]";
 			}
 		}
 
@@ -178,15 +169,6 @@ bool Editor::do_tick()
 		{
 //			skeletal_model.draw(false, selected_part);
 			models[0] = &skeletal_model;
-			view.drawModels(models, visualworld.camera);
-		}
-	}
-	else
-	{
-		if(drawing_model && edited_model.root >= 0)
-		{
-//			edited_model.draw();
-			models[0] = &edited_model;
 			view.drawModels(models, visualworld.camera);
 		}
 	}
@@ -240,7 +222,7 @@ bool Editor::tick()
 
 		hud.setTime( ticks );
 		view.tick();
-		edited_model.tick(world_ticks);
+		
 		skeletal_model.tick(world_ticks);
 		for(auto it = models.begin(); it != models.end(); ++it)
 		{
@@ -259,13 +241,14 @@ bool Editor::tick()
 	}
 }
 
-bool Editor::type_exists(const std::string& type)
+bool Editor::type_exists(const std::string&)
 {
-	return ApoModel::objects.count(type) > 0;
+	return false;
 }
 
-void Editor::saveModel(const std::string& file)
+void Editor::saveModel(const std::string&)
 {
+	/*
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Saving model to '" + pathed_file + "'");
 	if(edited_model.save(pathed_file))
@@ -278,6 +261,9 @@ void Editor::saveModel(const std::string& file)
 	{
 		hud.pushMessage(red("Fail"));
 	}
+	*/
+	
+	hud.pushMessage(red("Fail"));
 }
 
 void Editor::saveSkeletalModel(const std::string& file)
@@ -296,8 +282,11 @@ void Editor::saveSkeletalModel(const std::string& file)
 	}
 }
 
-void Editor::saveObjects(const std::string& file)
+void Editor::saveObjects(const std::string&)
 {
+	hud.pushMessage("^rApoModels are obsolete. Don't try to save one plz.");
+	
+	/*
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Saving objects to '" + pathed_file + "'");
 	if(ApoModel::saveObjects(pathed_file))
@@ -309,6 +298,7 @@ void Editor::saveObjects(const std::string& file)
 	{
 		hud.pushMessage(red("Fail"));
 	}
+	*/
 }
 
 void Editor::saveAnimations(const std::string& file)
@@ -326,51 +316,14 @@ void Editor::saveAnimations(const std::string& file)
 	}
 }
 
-void Editor::loadObjects(const string& file)
+void Editor::loadObjects(const string&)
 {
-	if(file.empty())
-		return;
-
-	string pathed_file = "models/" + file;
-	hud.pushMessage("Loading objects from '" + pathed_file + "'");
-	if(ApoModel::loadObjects(pathed_file))
-	{
-		hud.pushMessage(green("Success"));
-		objectsFile = file;
-		selected_part = 0;
-		editing_single_part = false;
-	}
-	else
-	{
-		hud.pushMessage(red("Fail"));
-	}
+	hud.pushMessage(red("Fail"));
 }
 
-void Editor::loadModel(const string& file)
+void Editor::loadModel(const string&)
 {
-	if(file.empty())
-		return;
-
-	string pathed_file = "models/" + file;
-	hud.pushMessage("Loading model from '" + pathed_file + "'");
-
-	ApoModel model;
-	bool ok = model.load(pathed_file);
-	if(ok)
-	{
-		release_swarm();
-
-		selected_part = 0;
-		editing_single_part = false;
-		edited_model = model;
-		hud.pushMessage(green("Success"));
-		modelFile = file;
-		skele = false;
-	}
-	else
-	{
-		hud.pushMessage(red("Fail"));
-	}
+	hud.pushMessage(red("Fail"));
 }
 
 void Editor::loadSkeletalModel(const string& file)
@@ -422,197 +375,7 @@ void Editor::loadAnimations(const string& file)
 	}
 }
 
-void Editor::move_dot(double dx, double dy, double dz)
-{
-	current_dot.x += dx;
-	current_dot.y += dy;
-	current_dot.z += dz;
-}
 
-void Editor::move(double dx, double dy, double dz)
-{
-	if(editing_single_part)
-	{
-		move_dot(dx, dy, dz);
-	}
-	else
-	{
-		move_part(dx, dy, dz);
-	}
-}
-
-void Editor::move_part(double dx, double dy, double dz)
-{
-	if(edited_model.parts.size() <= selected_part)
-	{
-		hud.pushMessage("Failed to move part, no selected part");
-		return;
-	}
-
-	ModelNode& modelnode = edited_model.parts[selected_part];
-	modelnode.offset_x += dx;
-	modelnode.offset_y += dy;
-	modelnode.offset_z += dz;
-
-	stringstream ss;
-	ss << "(" << dx << ", " << dy << ", " << dz << ")";
-	hud.pushMessage(green("Moved " + modelnode.name + ss.str()));
-}
-
-void Editor::rotate_part(double dx, double dy, double dz)
-{
-	if(skele)
-	{
-		Bone& bone = skeletal_model.bones[selected_part];
-		bone.rotation_x += dx;
-		bone.rotation_y += dy;
-		bone.rotation_z += dz;
-	}
-	else
-	{
-		if(edited_model.parts.size() <= selected_part)
-		{
-			hud.pushMessage("Failed to rotate part, no selected part");
-			return;
-		}
-		ModelNode& modelnode = edited_model.parts[selected_part];
-		modelnode.rotation_x += dx;
-		modelnode.rotation_y += dy;
-		modelnode.rotation_z += dz;
-
-		stringstream ss;
-		ss << "(" << dx << ", " << dy << ", " << dz << ")";
-		hud.pushMessage(green("Rotated " + modelnode.name + ss.str()));
-	}
-}
-
-void Editor::select_part(const string& part)
-{
-	if(skele)
-	{
-		for(size_t i = 0; i < skeletal_model.bones.size(); ++i)
-		{
-			if(skeletal_model.bones[i].name == part)
-			{
-				selected_part = i;
-				hud.pushMessage(green("Selected part " + part));
-				return;
-			}
-		}
-		hud.pushMessage(red("Failed to select part " + part));
-		return;
-	}
-	for(size_t i = 0; i < edited_model.parts.size(); ++i)
-	{
-		if(edited_model.parts[i].name == part)
-		{
-			if(selected_part < edited_model.parts.size())
-			{
-				edited_model.parts[selected_part].hilight = false;
-			}
-
-			selected_part = i;
-			edited_model.parts[i].hilight = true;
-			hud.pushMessage(green("Selected part " + part));
-			return;
-		}
-	}
-	hud.pushMessage(red("Failed to select part " + part));
-}
-
-void Editor::remove_part()
-{
-	if(edited_model.parts.size() <= selected_part)
-	{
-		hud.pushMessage("Failed to remove part, no selected part");
-		return;
-	}
-	queue<size_t> to_be_removed;
-	vector<bool> removed;
-	vector<size_t> new_indices;
-	removed.resize(edited_model.parts.size(), 0);
-	new_indices.resize(edited_model.parts.size(), UINT_MAX);
-
-	// Find all removed indices.
-	to_be_removed.push(selected_part);
-	while(!to_be_removed.empty())
-	{
-		size_t current = to_be_removed.front();
-		to_be_removed.pop();
-		removed[current] = true;
-		for(size_t i = 0; i < edited_model.parts[current].children.size(); ++i)
-		{
-			to_be_removed.push(edited_model.parts[current].children[i]);
-		}
-	}
-
-	if(removed[edited_model.root])
-	{
-		edited_model.root = -1;
-	}
-
-	// Do actual moving and resizing. Store new indices.
-	size_t next = 0;
-	for(size_t i = 0; i < edited_model.parts.size(); ++i)
-	{
-		if(!removed[i])
-		{
-			std::swap(edited_model.parts[i], edited_model.parts[next]);
-			new_indices[i] = next;
-			++next;
-		}
-	}
-	edited_model.parts.resize(next);
-
-	// Update children's indices.
-	for(size_t i = 0; i < edited_model.parts.size(); ++i)
-	{
-		for(size_t j = 0; j < edited_model.parts[i].children.size(); ++j)
-		{
-			size_t& child = edited_model.parts[i].children[j];
-			child = new_indices[child];
-			if(child == UINT_MAX)
-			{
-				edited_model.parts[i].children.erase(edited_model.parts[i].children.begin() + j);
-				--j;
-			}
-		}
-	}
-	selected_part = 0;
-}
-
-void Editor::add_part(const std::string& part_name, const std::string& type)
-{
-	if(!edited_model.parts.empty() && selected_part >= edited_model.parts.size())
-	{
-		hud.pushMessage(red("Add part failed, select part first"));
-		return;
-	}
-	if(!type_exists(type))
-	{
-		hud.pushMessage(red("Add part failed, type '" + type + "' doesn't exist"));
-		return;
-	}
-	ModelNode new_node;
-	new_node.name = part_name;
-	new_node.wireframe = type;
-	new_node.offset_x = 0.0f;
-	new_node.offset_y = 0.0f;
-	new_node.offset_z = 0.0f;
-	edited_model.parts.push_back(new_node);
-	if(edited_model.parts.size() > 1)
-	{
-		ModelNode& selected_node = edited_model.parts[selected_part];
-		selected_node.children.push_back(edited_model.parts.size()-1);
-		hud.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as child of '" + selected_node.name));
-	}
-	else
-	{
-		hud.pushMessage(green("Added new part '" + part_name + "' of type '" + type + "' as root"));
-		edited_model.root = 1;
-	}
-
-}
 
 void Editor::print_model()
 {
@@ -632,23 +395,8 @@ void Editor::print_model()
 			cerr << "    rotz: " << bone.rotation_z << "\n";
 		}
 	}
-	else
-	{
-		for(size_t i = 0; i < edited_model.parts.size(); ++i)
-		{
-			hud.pushMessage(edited_model.parts[i].name);
-		}
-	}
 }
 
-void Editor::print_types()
-{
-	for(auto it = ApoModel::objects.begin(); it != ApoModel::objects.end(); ++it)
-	{
-		const std::string& name = it->first;
-		hud.pushMessage(name);
-	}
-}
 
 void Editor::print_animations()
 {
@@ -676,134 +424,9 @@ void Editor::print_animations()
 	*/
 }
 
-void Editor::type_helper(const std::string& type)
-{
-	edited_type = &ApoModel::objects[type];
-	edited_type_name = type;
 
-	edited_type->end_x = 0.0f;
-	edited_type->end_y = 0.0f;
-	edited_type->end_z = 0.0f;
 
-	stored_model = edited_model;
-	ApoModel dummy;
-	dummy.root = 0;
-	dummy.currentModelPos = vec3<float>(0.0f, 0.0f, 0.0f);
-	dummy.realUnitPos = vec3<float>(0.0f, 0.0f, 0.0f);
-	dummy.animation_time = 0;
-	ModelNode node;
-	node.name = "dummy";
-	node.wireframe = type;
-	node.offset_x = 0.0f;
-	node.offset_y = 0.0f;
-	node.offset_z = 0.0f;
-	dummy.parts.push_back(node);
-	edited_model = dummy;
 
-	editing_single_part = true;
-	hud.pushMessage("Editing parttype '" + type + "'");
-	selected_dot = edited_type->triangles.size() * 3 - 1;
-}
-
-void Editor::edit_type(const std::string& type)
-{
-	if(!type_exists(type))
-	{
-		hud.pushMessage(red("Edit part failed, type '" + type + "' doesn't exist"));
-		return;
-	}
-	type_helper(type);
-}
-
-void Editor::add_type(const std::string& type)
-{
-	if(type_exists(type))
-	{
-		hud.pushMessage(red("Add part type failed, type '" + type + "' exists already"));
-		return;
-	}
-	type_helper(type);
-}
-
-void Editor::edit_model()
-{
-	if(!editing_single_part)
-	{
-		hud.pushMessage(red("Already editing model."));
-		return;
-	}
-	editing_single_part = false;
-	edited_type = 0;
-	edited_type_name = "";
-
-	edited_model = stored_model;
-}
-
-void Editor::dot()
-{
-	if(!editing_single_part)
-	{
-		hud.pushMessage(red("dot works only when editing part types."));
-		return;
-	}
-	new_dots.push_back(current_dot);
-
-	if(new_dots.size() == 3)
-	{
-		stringstream ss;
-
-		ObjectTri triangle;
-		for(int i = 0; i < 3; ++i)
-		{
-			triangle.x[i] = new_dots[i].x;
-			triangle.y[i] = new_dots[i].y;
-			triangle.z[i] = new_dots[i].z;
-
-			ss << fixed << setprecision(2) << "(" << triangle.x[i] << "," << triangle.y[i] << "," << triangle.z[i] << ")";
-		}
-		edited_type->triangles.push_back(triangle);
-		selected_dot = edited_type->triangles.size() * 3 - 1;
-		new_dots.clear();
-
-		hud.pushMessage(green("Added new triangle: " + ss.str()));
-	}
-}
-
-void Editor::next_dot()
-{
-	if(!editing_single_part)
-	{
-		hud.pushMessage(red("dot works only when editing part types."));
-		return;
-	}
-	if(selected_dot < edited_type->triangles.size() * 3 - 1)
-	{
-		++selected_dot;
-		size_t index = selected_dot / 3;
-		size_t remainder = selected_dot % 3;
-		current_dot.x = edited_type->triangles[index].x[remainder];
-		current_dot.y = edited_type->triangles[index].y[remainder];
-		current_dot.z = edited_type->triangles[index].z[remainder];
-	}
-}
-
-void Editor::prev_dot()
-{
-	if(!editing_single_part)
-	{
-		hud.pushMessage(red("dot works only when editing part types."));
-		return;
-	}
-	if(selected_dot > 0)
-	{
-		--selected_dot;
-		size_t index = selected_dot / 3;
-		size_t remainder = selected_dot % 3;
-		current_dot.x = edited_type->triangles[index].x[remainder];
-		current_dot.y = edited_type->triangles[index].y[remainder];
-		current_dot.z = edited_type->triangles[index].z[remainder];
-	}
-}
 
 void Editor::play_animation(const string& animation)
 {
@@ -811,14 +434,12 @@ void Editor::play_animation(const string& animation)
 	{
 		skeletal_model.animation_name = animation;
 	}
-	else
-	{
-		edited_model.animation_name = animation;
-	}
+
 	for(auto it = models.begin(); it != models.end(); ++it)
 	{
 		it->second->animation_name = animation;
 	}
+	
 	hud.pushMessage(green("Playing " + animation));
 }
 
@@ -842,17 +463,6 @@ void Editor::record_step(size_t time)
 			Animation& animation = Animation::getAnimation(bone.name, animation_name);
 
 			animation.insertAnimationState(time, bone.rotation_x, bone.rotation_y, bone.rotation_z);
-	//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
-		}
-	}
-	else
-	{
-		for(size_t i = 0; i < edited_model.parts.size(); ++i)
-		{
-			ModelNode& node = edited_model.parts[i];
-			Animation& animation = Animation::getAnimation(node.name, animation_name);
-
-			animation.insertAnimationState(time, node.rotation_x, node.rotation_y, node.rotation_z);
 	//		cerr << "Inserted animationstate for " << node.name << ": " << node.rotation_x << ", " << node.rotation_y << ", " << node.rotation_z << "\n";
 		}
 	}
@@ -896,24 +506,6 @@ void Editor::scale(float scalar)
 		hud.pushMessage(green("Scaled to " + ss.str()));
 		return;
 	}
-
-	for(size_t i = 0; i < edited_type->triangles.size(); ++i)
-	{
-		ObjectTri& triangle = edited_type->triangles[i];
-		for(size_t j = 0; j < 3; ++j)
-		{
-			triangle.x[j] *= scalar;
-			triangle.y[j] *= scalar;
-			triangle.z[j] *= scalar;
-		}
-	}
-	edited_type->end_x *= scalar;
-	edited_type->end_y *= scalar;
-	edited_type->end_z *= scalar;
-
-	stringstream ss;
-	ss << scalar;
-	hud.pushMessage(green("Scaled to " + ss.str()));
 }
 
 
@@ -970,63 +562,9 @@ void Editor::handle_command(const string& command)
 			saveAnimations(word3);
 		}
 	}
-	else if(word1 == "move")
-	{
-		stringstream ss(command);
-		ss >> word1;
-		double dx = 0.0;
-		double dy = 0.0;
-		double dz = 0.0;
-		ss >> dx >> dy >> dz;
-		move(dx,dy,dz);
-	}
-	else if(word1 == "rotate")
-	{
-		stringstream ss(command);
-		ss >> word1;
-		double dx = 0.0;
-		double dy = 0.0;
-		double dz = 0.0;
-		ss >> dx >> dy >> dz;
-		rotate_part(dx,dy,dz);
-	}
-	else if(word1 == "select")
-	{
-		select_part(word2);
-	}
-	else if(word1 == "add")
-	{
-		if(word2 == "part")
-		{
-			add_part(word3, word4);
-		}
-		else if(word2 == "type")
-		{
-			add_type(word3);
-		}
-	}
-	else if(word1 == "remove")
-	{
-		remove_part();
-	}
-	else if(word1 == "edit")
-	{
-		if(word2 == "type")
-		{
-			edit_type(word3);
-		}
-		else if(word2 == "model")
-		{
-			edit_model();
-		}
-	}
 	else if(word1 == "print")
 	{
-		if(word2 == "types")
-		{
-			print_types();
-		}
-		else if(word2 == "model")
+		if(word2 == "model")
 		{
 			print_model();
 		}
@@ -1050,18 +588,6 @@ void Editor::handle_command(const string& command)
 		stringstream ss2;
 		ss2 << rotate_speed;
 		hud.pushMessage("Rotate speed set to " + ss2.str());
-	}
-	else if(word1 == "dot")
-	{
-		dot();
-	}
-	else if(word1 == "next")
-	{
-		next_dot();
-	}
-	else if(word1 == "prev")
-	{
-		prev_dot();
 	}
 	else if(word1 == "play")
 	{
@@ -1180,18 +706,7 @@ void Editor::reset()
 		bone.rotation_y = 0.0f;
 		bone.rotation_z = 0.0f;
 	}
-	else
-	{
-		if(edited_model.parts.size() <= selected_part)
-		{
-			return;
-		}
 
-		ModelNode& modelnode = edited_model.parts[selected_part];
-		modelnode.rotation_x = 0.0f;
-		modelnode.rotation_y = 0.0f;
-		modelnode.rotation_z = 0.0f;
-	}
 }
 
 bool Editor::handle_input()
@@ -1325,67 +840,7 @@ bool Editor::handle_input()
 		}
 		else
 		{
-			if(key == "left")
-			{
-				prev_dot();
-			}
-			else if(key == "right")
-			{
-				next_dot();
-			}
-			else if(key == "enter")
-			{
-				dot();
-			}
-			else if(key == "insert")
-			{
-				rotate_part(0, 0, rotate_speed);
-			}
-			else if(key == "delete")
-			{
-				rotate_part(0, 0, -rotate_speed);
-			}
-			else if(key == "home")
-			{
-				rotate_part(rotate_speed, 0, 0);
-			}
-			else if(key == "end")
-			{
-				rotate_part(-rotate_speed, 0, 0);
-			}
-			else if(key == "page up")
-			{
-				rotate_part(0, rotate_speed, 0);
-			}
-			else if(key == "page down")
-			{
-				rotate_part(0, -rotate_speed, 0);
-			}
-			else if(key == "[8]")
-			{
-				move(0, 0, speed);
-			}
-			else if(key == "[5]")
-			{
-				move(0, 0, -speed);
-			}
-			else if(key == "[4]")
-			{
-				move(speed, 0, 0);
-			}
-			else if(key == "[6]")
-			{
-				move(-speed, 0, 0);
-			}
-			else if(key == "[9]")
-			{
-				move(0, speed, 0);
-			}
-			else if(key == "[3]")
-			{
-				move(0, -speed, 0);
-			}
-			else if(key == "return")
+			if(key == "return")
 			{
 				writing = true;
 				hud.setCurrentClientCommand("> " + clientCommand);
@@ -1487,7 +942,7 @@ void Editor::swarm(int X, int Y, int Z)
 		{
 			for(int k = 0; k < Z; ++k)
 			{
-				Model* model = (skele ? (Model*)new SkeletalModel(skeletal_model) : (Model*)new ApoModel(edited_model));
+				Model* model = (Model*)new SkeletalModel(skeletal_model);
 				model->realUnitPos.x = x_scalar * (i - X/2);
 				model->currentModelPos.x = x_scalar * (i - X/2);
 				model->realUnitPos.y = y_scalar * (j - Y/2);

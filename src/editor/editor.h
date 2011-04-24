@@ -2,7 +2,6 @@
 #define EDITOR_H
 
 #include "graphics/model.h"
-#include "graphics/apomodel.h"
 #include "graphics/skeletalmodel.h"
 #include "userio.h"
 #include "graphics/graphics.h"
@@ -37,24 +36,12 @@ class Editor
 	void saveAnimations(const std::string& file);
 	bool type_exists(const std::string& type);
 	void handle_command(const std::string& command);
-	void select_part(const std::string& part);
-	void move_part(double dx, double dy, double dz);
+
 	void move_dot(double dx, double dy, double dz);
-	void move(double dx, double dy, double dz);
-	void rotate_part(double dx, double dy, double dz);
-	void remove_part();
-	void add_part(const std::string& part_name, const std::string& type);
-	void edit_model();
-	void type_helper(const std::string& type);
-	void edit_type(const std::string& type);
-	void add_type(const std::string& type);
-	void print_types();
+
 	void print_model();
 	void print_animations();
-	void dot();
 	void undot();
-	void next_dot();
-	void prev_dot();
 	void play_animation(const std::string& animation);
 	void record_step(size_t time);
 	void record_animation(const std::string& animation);
@@ -76,12 +63,7 @@ class Editor
 
 	bool editing_single_part;
 	size_t selected_part;
-
-	ApoModel edited_model;
-	std::string edited_type_name;
-	ObjectPart* edited_type;
-	ApoModel stored_model;
-
+	
 	bool skele;
 	SkeletalModel skeletal_model;
 	std::map<int, Model*> models;

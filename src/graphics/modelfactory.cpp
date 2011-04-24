@@ -1,6 +1,5 @@
 #include "modelfactory.h"
 #include "logger.h"
-#include "apomodel.h"
 #include "skeletalmodel.h"
 #include "invisiblemodel.h"
 
@@ -12,7 +11,7 @@
 using namespace std;
 
 
-enum Modeltype { NOMODEL, SKELETALMODEL, APOMODEL, INVISIBLEMODEL };
+enum Modeltype { NOMODEL, SKELETALMODEL, INVISIBLEMODEL };
 std::vector<std::shared_ptr<Model> > prototypes;
 std::vector<Modeltype> types;
 
@@ -43,11 +42,6 @@ bool ModelFactory::load(size_t prototype, const std::string& filename, const std
 	{
 		prototypes[prototype].reset(new SkeletalModel);
 		types[prototype] = SKELETALMODEL;
-	}
-	else if(filename.find(".bones") != string::npos)
-	{
-		prototypes[prototype].reset(new ApoModel);
-		types[prototype] = APOMODEL;
 	}
 	else
 	{
@@ -80,9 +74,6 @@ Model* ModelFactory::create(size_t prototype)
 	Model* ret = 0;
 	switch(types[prototype])
 	{
-		case APOMODEL:
-			ret = new ApoModel( *(ApoModel*)model );
-			break;
 		case SKELETALMODEL:
 			ret = new SkeletalModel( *(SkeletalModel*)model );
 			break;

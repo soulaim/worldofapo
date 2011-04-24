@@ -12,7 +12,6 @@
 #include "texturehandler.h"
 #include "animation.h"
 #include "modelfactory.h"
-#include "apomodel.h"
 #include "userio.h"
 #include "graphics.h"
 #include "hud.h"
