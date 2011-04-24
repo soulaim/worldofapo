@@ -253,6 +253,7 @@ World::World(VisualWorld* vw)
 {
 	assert(vw);
 	visualworld = vw;
+	init();
 }
 
 void World::buildTerrain(int n, float& percentage_done)
@@ -272,17 +273,20 @@ string World::generatorMessage()
 void World::createBaseBuildings()
 {
 	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
-	addAIUnit(unitIDgenerator.nextID(), lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^GGreen Stone Beast Of Life", 250, 0, 100000);
-	addAIUnit(unitIDgenerator.nextID(), lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^RRed Stone Beast Of Life",   250, 0, 100000);
+	int id = unitIDgenerator.nextID();
+	addAIUnit(id, lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^GGreen\\sStone\\sBeast\\sOf\\sLife^W", 250, 0, 100000);
+	units[id].staticObject = 1;
+	
+	id = unitIDgenerator.nextID();
+	addAIUnit(id, lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^RRed\\sStone\\sBeast\\sOf\\sLife^W",   250, 0, 100000);
+	units[id].staticObject = 1;
 }
 
 void World::init()
 {
 	cerr << "World::init()" << endl;
 	unitIDgenerator.setNextID(10000);
-	
 	visualworld->init();
-	
 	show_errors = 0;
 }
 
@@ -385,7 +389,9 @@ void World::tickUnit(Unit& unit, Model* model)
 		
 		case Unit::TEAM_CREEP:
 		{
-			AI_TeamCreep(unit);
+			AI_RabidAlien(unit);
+			// AI_TeamCreep(unit);
+			break;
 		}
 		
 		case Unit::INANIMATE_OBJECT:
@@ -520,6 +526,10 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				continue;
 			
 			Unit* u = static_cast<Unit*>(*it);
+			
+			// no collision with dead units
+			if(!u->exists())
+				continue;
 			
 			// Is this actually a good thing?
 			if(u->hitpoints < 1)
@@ -886,6 +896,7 @@ void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelT
 	units[id].id = id;
 	units[id].birthTime = currentWorldFrame;
 	
+	units[id].model_type = model_type;
 	visualworld->createModel(id, units[id].position, model_type, scale.getFloat());
 	
 	// TODO: FIX THIS SHIT
@@ -929,6 +940,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	
 	if(!playerCharacter)
 	{
+		units[id].model_type = VisualWorld::ModelType::ZOMBIE_MODEL;
 		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::ZOMBIE_MODEL, 1.0f);
 		
 		units[id].setDefaultMonsterAttributes();
@@ -944,6 +956,15 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	}
 	else
 	{
+		for(auto it = units.begin(); it != units.end(); ++it)
+		{
+			if(it->second.controllerTypeID == Unit::BASE_BUILDING && it->second["TEAM"] == team)
+			{
+				units[id].position = it->second.position;
+			}
+		}
+		
+		units[id].model_type = VisualWorld::ModelType::PLAYER_MODEL;
 		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
 		
 		units[id].setDefaultPlayerAttributes();

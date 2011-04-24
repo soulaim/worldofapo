@@ -11,6 +11,7 @@
 #include "octree_object.h"
 #include "movable_object.h"
 #include "item.h"
+#include "modeltype.h"
 
 class ApoMath;
 
@@ -67,6 +68,8 @@ public:
 	void regenerate();
 	
 	void landingDamage();
+	
+	bool exists();
 	bool hasSupportUnderFeet() const;
 	bool hasGroundUnderFeet() const;
 	void applyFriction();
@@ -92,6 +95,8 @@ public:
 	
 	int controllerTypeID;
 	int hitpoints;
+	
+	int model_type; // the visual representation's ID
 	
 	int keyState; // what is the unit doing right now, represented as player keyboard input
 	int mouseButtons;

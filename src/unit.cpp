@@ -292,7 +292,10 @@ void Unit::tick(const FixedPoint& yy_val)
 	position += velocity;
 }
 
-
+bool Unit::exists()
+{
+	return ((*this)["RESPAWN"] == 0);
+}
 
 bool Unit::hasSupportUnderFeet() const
 {
@@ -314,7 +317,13 @@ int Unit::getModifier(const string& attribute) const
 		return 0;
 	}
 	
+	if(it->second == -666)
+	{
+		cerr << name << ": " << (*this)("AREA") << ", " << (*this)["TEAM"] << ", has attribute " << attribute << " at value -666" << endl;
+	}
+	
 	assert(it->second != -666);
+	
 	
 	return 6 + it->second;
 }
@@ -426,7 +435,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule >> scale >>
+		id >> weapon >> collision_rule >> staticObject >> model_type >> scale >>
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 	
 	HasProperties::handleCopyOrder(ss);
@@ -444,6 +453,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 string Unit::copyOrder(int ID) const
 {
 	stringstream hero_msg;
+	
 	/*
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
@@ -453,6 +463,7 @@ string Unit::copyOrder(int ID) const
 		<< id << " " << weapon << " " << collision_rule << " " << scale << " "
 		<< mouse_x_minor << " " << mouse_y_minor << " ";
 	*/
+	
 	hero_msg << "-2 UNIT " << ID;
 	hero_msg << " " << angle;
 	hero_msg << " " << upangle;
@@ -468,6 +479,8 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << id;
 	hero_msg << " " << weapon;
 	hero_msg << " " << collision_rule;
+	hero_msg << " " << staticObject;
+	hero_msg << " " << model_type;
 	hero_msg << " " << scale;
 	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val << " ";
 
@@ -517,6 +530,16 @@ Location Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
+	if(!exists())
+		return;
+	
+	if(o.type == UNIT)
+	{
+		Unit* u = static_cast<Unit*>(&o);
+		if(!u->exists())
+			return;
+	}
+	
 	// if one of the objects doesn't want to collide, then don't react.
 	if(!(collision_rule & o.collision_rule))
 		return;

@@ -603,10 +603,9 @@ void Game::processClientMsgs()
 				Unit& unit = world->units.find(unitID)->second;
 				unit.handleCopyOrder(ss);
 				
-				VisualWorld::ModelType type = world->visualworld->getModelType(unit.name);
+				VisualWorld::ModelType type = static_cast<VisualWorld::ModelType>(unit.model_type);
 				float scale = unit.scale.getFloat();
 				world->visualworld->createModel(unitID, unit.position, type, scale);
-				
 				
 				cerr << "COPY OF A UNIT: " << unitID << " / " << unit.id << endl;
 			}

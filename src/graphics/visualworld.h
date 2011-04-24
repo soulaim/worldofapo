@@ -14,6 +14,7 @@
 #include "idgenerator.h"
 
 #include "world_item.h"
+#include "modeltype.h"
 
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld : public HasProperties
@@ -23,7 +24,6 @@ class VisualWorld : public HasProperties
 	
 public:
 	
-	// TODO: move model loading things to config files
 	enum ModelType
 	{
 		INVISIBLE_MODEL,
