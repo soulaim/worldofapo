@@ -11,7 +11,8 @@ struct WorldEvent
 		DEATH_PLAYER,
 		DEATH_ENEMY,
 		CENTER_CAMERA,
-		SET_LOCAL_PROPERTY
+		SET_LOCAL_PROPERTY,
+		GAME_OVER
 	};
 
 	EventType type;

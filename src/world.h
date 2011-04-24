@@ -28,6 +28,7 @@ class World : public HasProperties
 	void AI_BaseBuilding(Unit& unit);
 	
 	void clampToLevelArea(MovableObject&);
+	void findBasePosition(Location& pos, int team);
 	
 	void tickUnit(Unit&, Model*);                 // world frame update
 	void tickProjectile(Projectile&, Model*);     // world frame update
@@ -38,6 +39,7 @@ class World : public HasProperties
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
 	void atDeath(MovableObject&, HasProperties&);
+	void resetGame();
 	
 public:
 

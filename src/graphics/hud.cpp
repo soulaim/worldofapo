@@ -689,6 +689,8 @@ void Hud::drawMinimap() const
 	auto iteratorMyUnit = (*units).find(myID);
 	if(iteratorMyUnit == units->end())
 		return;
+	
+	int my_team = iteratorMyUnit->second["TEAM"];
 
 	TextureHandler::getSingleton().unbindTexture(0);
 	
@@ -747,6 +749,36 @@ void Hud::drawMinimap() const
 			r = 0.0f;
 			g = 1.0f;
 			b = 0.0f;
+		}
+		else if(it->second["TEAM"] == my_team)
+		{
+			if(it->second.human())
+			{
+				r = 0;
+				g = 1;
+				b = 0;
+			}
+			else
+			{
+				r = 173.0f / 255.0f;
+				g = 255.0f / 255.0f;
+				b = 47.0f / 255.0f;
+			}
+		}
+		else
+		{
+			if(it->second.human())
+			{
+				r = 1.0f;
+				g = 0.0f;
+				b = 0.0f;
+			}
+			else
+			{
+				r = 1.0f;
+				g = 0.5f;
+				b = 0.1f;
+			}
 		}
 		
 		const Unit& u = it->second;

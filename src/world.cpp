@@ -159,8 +159,62 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 	}
 }
 
+
+void World::resetGame()
+{
+	cerr << "Reseting world game to a feasible start" << endl;
+	for(auto it = units.begin(); it != units.end(); ++it)
+	{
+		if(!it->second.human())
+		{
+			it->second.hitpoints = -1;
+			it->second("DAMAGED_BY") = "Game\\sreset";
+			it->second["DELETED"] = 1;
+		}
+		else
+		{
+			// restore player hitpoints to maximum values
+			it->second.hitpoints = it->second.getMaxHP();
+			
+			// TODO: reset ammo counts?
+			
+			// TODO: clear world from ammo-items? (if you do - make sure you don't delete the warp point to another world)
+			
+		}
+	}
+	
+	createBaseBuildings();
+	
+	Location red; findBasePosition(red, 1);
+	Location green; findBasePosition(green, 0);
+	
+	for(auto it = units.begin(); it != units.end(); ++it)
+	{
+		if(it->second.human())
+		{
+			if(it->second["TEAM"] == 0)
+			{
+				it->second.position = green;
+			}
+			else if(it->second["TEAM"] == 1)
+			{
+				it->second.position = red;
+			}
+		}
+	}
+}
+
+
 void World::doDeathFor(Unit& unit)
 {
+	
+	// deleted units don't deserve a burial!
+	if(unit["DELETED"] == 1)
+	{
+		deadUnits.push_back(unit.id);
+		return;
+	}
+	
 	stringstream msg;
 	string killer = "an unknown entity";
 	
@@ -233,19 +287,43 @@ void World::doDeathFor(Unit& unit)
 		unit.hitpoints = 1000;
 		
 		// respawn player to random location
-		unit.setPosition(lvl.getRandomLocation(currentWorldFrame));
+		Location pos = lvl.getRandomLocation(currentWorldFrame);
+		findBasePosition(pos, unit["TEAM"]);
+		unit.setPosition(pos);
 		
 		// stop any movement, let the player drop down to the field of battle.
 		unit.zeroMovement();
 	}
 	else
 	{
+		if(unit.controllerTypeID == Unit::BASE_BUILDING)
+		{
+			if(unit["TEAM"] == 0)
+				visualworld->add_message("^RRed^W team has won the match! Next round!");
+			else
+				visualworld->add_message("^GGreen^W team has won the match! Next round!");
+			
+			resetGame();
+		}
+		
 		event.type = WorldEvent::DEATH_ENEMY;
 		deadUnits.push_back(unit.id);
 	}
 	
 	// store the event information for later use.
 	visualworld->add_event(event);
+}
+
+
+void World::findBasePosition(Location& pos, int team)
+{
+	for(auto it = units.begin(); it != units.end(); ++it)
+	{
+		if((it->second.controllerTypeID == Unit::BASE_BUILDING) && (it->second["TEAM"] == team) && (it->second.hitpoints > 0))
+		{
+			pos = it->second.position;
+		}
+	}
 }
 
 
@@ -956,13 +1034,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	}
 	else
 	{
-		for(auto it = units.begin(); it != units.end(); ++it)
-		{
-			if(it->second.controllerTypeID == Unit::BASE_BUILDING && it->second["TEAM"] == team)
-			{
-				units[id].position = it->second.position;
-			}
-		}
+		findBasePosition(units[id].position, units[id]["TEAM"]);
 		
 		units[id].model_type = VisualWorld::ModelType::PLAYER_MODEL;
 		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
