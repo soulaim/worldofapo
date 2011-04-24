@@ -104,6 +104,7 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 		dormantPlayers[choice].unit.init();
 		dormantPlayers[choice].unit.setDefaultPlayerAttributes();
 		dormantPlayers[choice].unit.model_type = VisualWorld::ModelType::PLAYER_MODEL;
+		dormantPlayers[choice].unit["TEAM"] = playerID_val % 2;
 		
 		dormantPlayers[choice].unit.position = world.lvl.getRandomLocation(world.currentWorldFrame);
 		dormantPlayers[choice].unit.strVals["AREA"] = areaName;

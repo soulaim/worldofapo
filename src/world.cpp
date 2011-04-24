@@ -299,10 +299,15 @@ void World::doDeathFor(Unit& unit)
 		if(unit.controllerTypeID == Unit::BASE_BUILDING)
 		{
 			if(unit["TEAM"] == 0)
-				visualworld->add_message("^RRed^W team has won the match! Next round!");
+			{
+				visualworld->add_message("^RRed^W team has won the match!");
+				visualworld->add_message("New round begins!");
+			}
 			else
+			{
 				visualworld->add_message("^GGreen^W team has won the match! Next round!");
-			
+				visualworld->add_message("New round begins!");
+			}
 			resetGame();
 		}
 		
