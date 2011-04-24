@@ -103,6 +103,11 @@ void DedicatedServer::init()
 	{
 		checkSums[area_it->first].resize(checkSumVectorSize); // gives about three seconds to clients.
 	}
+	
+	
+	stringstream createBaseBuildings;
+	createBaseBuildings << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 18#";
+	serverMsgs.push_back(createBaseBuildings.str());
 }
 
 void DedicatedServer::send_to_all(const std::string& msg)
@@ -847,7 +852,14 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		
 		simulRules.numPlayers--;
 	}
-	
+	else if(server_msg.serverCommand == 18) // create base buildings
+	{
+		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
+		{
+			World& world = area_it->second;
+			world.createBaseBuildings();
+		}
+	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
 		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];

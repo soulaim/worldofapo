@@ -617,7 +617,7 @@ void SkeletalModel::old_draw(size_t hilight) const
 //       The renderer could also check whether a model with the name of the given model has already been preloaded or not.
 void SkeletalModel::preload()
 {
-	std::cerr << "Preloading skeletalmodel buffers." << std::endl;
+	std::cerr << "Sending model data to VideoMemory.. " << std::flush;
 
 	assert(vertices.size() == texture_coordinates.size());
 	assert(vertices.size() == weighted_vertices.size());
@@ -644,6 +644,8 @@ void SkeletalModel::preload()
 	assert(buffer == BUFFERS);
 	
 	buffers_loaded = true;
+	
+	std::cerr << "OK" << std::endl;
 }
 
 void SkeletalModel::draw_normals() const

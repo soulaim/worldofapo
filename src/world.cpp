@@ -107,10 +107,10 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 		Location velocity_vector = (pos2 - pos);
 		
 		FixedPoint distance = velocity_vector.length();
-		velocity_vector.normalize();
+		if(distance < FixedPoint(1))
+			distance = FixedPoint(1);
 		
-		if(distance == FixedPoint(0))
-			distance = FixedPoint(1, 10);
+		velocity_vector.normalize();
 		
 		velocity_vector *= power;
 		velocity_vector /= distance;
@@ -127,7 +127,7 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 			u("DAMAGED_BY") = name;
 		}
 		
-		iter->second.velocity += velocity_vector;
+		iter->second.velocity += velocity_vector / FixedPoint(iter->second["MASS"], 1000);
 	}
 	
 	// create some effect or something
@@ -249,232 +249,10 @@ void World::doDeathFor(Unit& unit)
 }
 
 
-
-void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
-{
-	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = target.position - me.position;
-	
-	if(direction.length() == 0)
-	{
-		// wtf, same position as my target? :G
-		return;
-	}
-	
-	direction.normalize();
-	
-	Location myDirection;
-	
-	int hypo_angle = me.angle;
-	int hypo_upangle = me.upangle;
-	bool improved = true;
-	FixedPoint best_error = FixedPoint(1000000);
-	
-	while(improved)
-	{
-		improved = false;
-		hypo_angle += 5;
-		myDirection.z = ApoMath::getSin(hypo_angle);
-		myDirection.x = ApoMath::getCos(hypo_angle);
-		
-		FixedPoint error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
-		if(error < best_error)
-		{
-			best_error = error;
-			improved = true;
-		}
-		else
-		{
-			hypo_angle -= 10;
-			myDirection.z = ApoMath::getSin(hypo_angle);
-			myDirection.x = ApoMath::getCos(hypo_angle);
-			
-			error = (myDirection.x * 100 - direction.x * 100).squared() + (myDirection.z * 100 - direction.z * 100).squared();
-			if(error < best_error)
-			{
-				best_error = error;
-				improved = true;
-			}
-			else
-				hypo_angle += 5;
-		}
-	}
-	
-	best_error = FixedPoint(1000000);
-	improved = true;
-	while(improved)
-	{
-		improved = false;
-		hypo_upangle += 5;
-		myDirection.y = ApoMath::getSin(hypo_upangle);
-		FixedPoint error = (direction.y * 100 + myDirection.y * 100).squared();
-		if(error < best_error)
-		{
-			best_error = error;
-			improved = true;
-		}
-		else
-		{
-			hypo_upangle -= 10;
-			myDirection.y = ApoMath::getSin(hypo_upangle);
-			error = (direction.y * 100 + myDirection.y * 100).squared();
-			if(error < best_error)
-			{
-				best_error = error;
-				improved = true;
-			}
-			else
-				hypo_upangle += 5;
-		}
-	}
-	
-	best_angle = hypo_angle;
-	best_upangle = hypo_upangle;
-}
-
-
-void World::generateInput_RabidAlien(Unit& unit)
-{
-	FixedPoint bestSquaredDistance = FixedPoint(200 * 200);
-	int unitID = -1;
-	int myLeaderID = -1;
-	int my_team = unit["TEAM"];
-	
-	if(unit["L"] == -1)
-		unit["L"] = unit.id;
-	
-	if(unit.intVals[unit.weapons[unit.weapon].strVals["AMMUNITION_TYPE"]] == 0)
-	{
-		if(unit.weapon > 1)
-			unit.weapon--;
-		else
-		{
-			unit.strVals["DAMAGED_BY"] = "voluntary suicide";
-			unit.hitpoints = -1;
-			unit.last_damage_dealt_by = unit.id;
-		}
-	}
-	
-	// find the nearest human controlled unit + some "leader" for my team
-	if( (unit.birthTime + currentWorldFrame) % 70 == 0)
-	{
-		for(map<int, Unit>::iterator it = units.begin(), et = units.end(); it != et; ++it)
-		{
-			if(it->second["TEAM"] != my_team)
-			{
-				FixedPoint tmp_dist = (it->second.position - unit.position).lengthSquared();
-				if( tmp_dist < bestSquaredDistance )
-				{
-					bestSquaredDistance = tmp_dist;
-					unitID = it->first;
-				}
-			}
-			else
-			{
-				if(myLeaderID == -1)
-				{
-					myLeaderID = it->first;
-				}
-			}
-		}
-		
-		unit["T"] = unitID;
-		unit["L"] = myLeaderID;
-		
-		if(unitID == -1)
-		{
-			// try look
-		}
-		
-	}
-	else
-	{
-		unitID = unit["T"];
-		myLeaderID = unit["L"];
-		
-		if(units.find(unitID) == units.end())
-		{
-			unit["T"] = -1;
-			unitID = -1;
-		}
-		
-		// there is always some leader
-		if(units.find(myLeaderID) == units.end())
-		{
-			unit["L"] = -1;
-			myLeaderID = unit.id;
-		}
-	}
-	
-	// if no opponent is near, gather to my leader!
-	if(unitID == -1)
-	{
-		
-		if(myLeaderID == unit.id)
-		{
-			// nothing to do :G
-			unit.updateInput(0, 0, 0, 0);
-		}
-		else
-		{
-			int mousex, mousey;
-			getTurnValues(unit, units[myLeaderID], mousex, mousey);
-			
-			unit.angle = mousex;
-			unit.upangle = mousey;
-			
-			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
-			{
-				unit.updateInput(0, 0, 0, 0);
-			}
-			else
-			{
-				unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
-			}
-		}
-		
-		return;
-	}
-	
-	
-	bestSquaredDistance = (units.find(unitID)->second.position - unit.position).lengthSquared();
-	
-	int best_angle, best_upangle;
-	getTurnValues(unit, units[unitID], best_angle, best_upangle);
-	
-	int keyState = 0;
-	int mousex = 0;
-	int mousey = 0;
-	int mousebutton = 0;
-	unit.angle = best_angle;
-	unit.upangle = best_upangle;
-	
-	if(bestSquaredDistance < FixedPoint(1000))
-		keyState |= Unit::MOVE_BACK | Unit::LEAP_RIGHT;
-	else
-		keyState |= Unit::MOVE_FRONT;
-	
-	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
-	{
-		keyState |= Unit::JUMP;
-	}
-	
-	if( ((currentWorldFrame + unit.birthTime) % 140) > 50 )
-	{
-		// mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
-		mousebutton = 1;
-	}
-	
-	unit.updateInput(keyState, mousex, mousey, mousebutton);
-}
-
-
 World::World(VisualWorld* vw)
 {
 	assert(vw);
 	visualworld = vw;
-
-	init();
 }
 
 void World::buildTerrain(int n, float& percentage_done)
@@ -491,13 +269,20 @@ string World::generatorMessage()
 	return ss.str();
 }
 
+void World::createBaseBuildings()
+{
+	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
+	addAIUnit(unitIDgenerator.nextID(), lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^GGreen Stone Beast Of Life", 250, 0, 100000);
+	addAIUnit(unitIDgenerator.nextID(), lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^RRed Stone Beast Of Life",   250, 0, 100000);
+}
+
 void World::init()
 {
 	cerr << "World::init()" << endl;
-	
 	unitIDgenerator.setNextID(10000);
 	
 	visualworld->init();
+	
 	show_errors = 0;
 }
 
@@ -523,17 +308,6 @@ void World::terminate()
 	visualworld->terminate();
 }
 
-// TODO: Make this more senseful so it works
-// TODO: Put this somewhere where it makes sense
-FixedPoint getSlideAcceleration(const FixedPoint& unit_y, const FixedPoint& reference_y)
-{
-	FixedPoint threshold = FixedPoint(1, 16);
-	FixedPoint tmp_val = (unit_y - reference_y + threshold);
-	if(tmp_val > FixedPoint(0))
-		return FixedPoint (0);
-	return tmp_val;
-}
-
 void World::tickItem(WorldItem& item, Model* model)
 {
 	// wut
@@ -547,8 +321,6 @@ void World::tickItem(WorldItem& item, Model* model)
 	{
 		visualworld->genParticleEmitter(item.position + Location(0, 1, 0), item.velocity + Location(0, 1, 0),
 										3, 1000, 1000, "GREEN", "GREEN", "GREEN", "GREEN", 1000, 5, 100);
-		
-		// 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 	}
 	
 	// some physics & game world information
@@ -597,13 +369,32 @@ void World::tickUnit(Unit& unit, Model* model)
 	if(currentWorldFrame % 50 == 0)
 		unit.regenerate();
 	
-	if(unit.controllerTypeID == Unit::AI_RABID_ALIEN)
+	switch(unit.controllerTypeID)
 	{
-		generateInput_RabidAlien(unit);
-	}
-	else if(unit.controllerTypeID == Unit::INANIMATE_OBJECT)
-	{
-		// hmm?
+		case Unit::AI_RABID_ALIEN:
+		{
+			AI_RabidAlien(unit);
+			break;
+		}
+		
+		case Unit::BASE_BUILDING:
+		{
+			AI_BaseBuilding(unit);
+			break;
+		}
+		
+		case Unit::TEAM_CREEP:
+		{
+			AI_TeamCreep(unit);
+		}
+		
+		case Unit::INANIMATE_OBJECT:
+		{
+			break;
+		}
+		
+		default:
+			break;
 	}
 	
 	// for server it's ok that there are no models sometimes :G
@@ -1082,6 +873,41 @@ void World::worldTick(int tickCount)
 }
 
 
+void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass)
+{
+	if(units.find(id) != units.end())
+		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
+	
+	units[id] = Unit();
+	units[id].init();
+	units[id].scale = scale;
+	
+	units[id].position = pos;
+	units[id].id = id;
+	units[id].birthTime = currentWorldFrame;
+	
+	visualworld->createModel(id, units[id].position, model_type, scale.getFloat());
+	
+	// TODO: FIX THIS SHIT
+	units[id].setDefaultMonsterAttributes();
+	units[id].hitpoints = 500;
+	
+	units[id].name = name;
+	units[id].controllerTypeID = controllerType;
+	
+	units[id]["TEAM"] = team;
+	units[id]["T"] = -1;
+	
+	units[id].intVals["STR"]  = strength;
+	units[id].intVals["DEX"]  = dexterity;
+	units[id].intVals["MASS"] = mass;
+	
+	units[id].hitpoints = units[id].getMaxHP();
+	
+	units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
+	// all other weapons are ok, but no rocket launcher for AI controlled units!
+}
+
 void World::addUnit(int id, bool playerCharacter, int team)
 {
 	if(units.find(id) != units.end())
@@ -1125,7 +951,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		units[id].name = "Unknown\\sPlayer";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
-		units[id]["TEAM"] = id;
+		units[id]["TEAM"] = id % 2;
 	}
 }
 

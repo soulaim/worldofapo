@@ -16,12 +16,16 @@
 #include "worldevent.h"
 #include "idgenerator.h"
 #include "vec3.h"
+#include "visualworld.h"
 
-class VisualWorld;
 class Model;
 
 class World : public HasProperties
 {
+	
+	void AI_TeamCreep(Unit& unit);
+	void AI_RabidAlien(Unit& unit);
+	void AI_BaseBuilding(Unit& unit);
 	
 	void clampToLevelArea(MovableObject&);
 	
@@ -30,7 +34,6 @@ class World : public HasProperties
 	void tickItem(WorldItem& item, Model* model); // world frame update
 	
 	static FixedPoint heightDifference2Velocity(const FixedPoint& h_diff);
-	void generateInput_RabidAlien(Unit& unit);
 	void doDeathFor(Unit& unit);
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
@@ -58,8 +61,12 @@ public:
 	
 	void worldTick(int tickCount);
 	
+	void createBaseBuildings();
 	void addRandomMonster();
+	
+	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);
 	void addUnit(int id, bool player = true, int team = -1);
+	
 	void addProjectile(Location& location, int id, size_t model_prototype);
 	void addItem(const Location& location, const Location& velocity, int id); // TODO: more control over what is spawned
 	

@@ -113,15 +113,10 @@ void Localplayer::init()
 	cerr << "Localplayer::init()" << endl;
 
 	load("configs/localplayer.conf");
-
-	soundsystem.init();
-	game.init();
+	
 	userio->init();
 	view->init(visualworld.camera);
-	
-	hud->setPlayerInfo(&game.Players);
-	hud->setUnitsMap(&world.units);
-	
+	soundsystem.init();
 	
 	// TODO: Should not be done here? FIX
 	// TODO: move model loading things to config files
@@ -132,6 +127,12 @@ void Localplayer::init()
 	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine"); // TODO: Texture
 	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "big_pistol");
 	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
+	
+	game.init();
+	
+	
+	hud->setPlayerInfo(&game.Players);
+	hud->setUnitsMap(&world.units);
 	
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");

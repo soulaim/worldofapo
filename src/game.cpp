@@ -366,6 +366,10 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 	}
+	else if(server_msg.serverCommand == 18) // create base buildings
+	{
+		world->createBaseBuildings();
+	}
 	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
 	{
 		int destroy_ID = server_msg.keyState;
