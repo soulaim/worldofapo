@@ -11,7 +11,6 @@
 #include "octree_object.h"
 #include "movable_object.h"
 #include "item.h"
-#include "modeltype.h"
 
 class ApoMath;
 
