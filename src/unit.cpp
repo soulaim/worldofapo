@@ -9,6 +9,17 @@
 
 using namespace std;
 
+
+Location bump(int x)
+{
+	Location res;
+	res.x = FixedPoint( ((x * 4217) % 200) - 100, 100 );
+	res.y = FixedPoint( ((x * 8423) % 200) - 100, 100 );
+	res.z = FixedPoint( ((x * 2489) % 200) - 100, 100 );
+	return res;
+}
+
+
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(500),
@@ -536,7 +547,7 @@ void Unit::collides(OctreeObject& o)
 	if(o.type == UNIT)
 	{
 		Unit* u = static_cast<Unit*>(&o);
-		if(!u->exists())
+		if(!u->exists()) // to make sure no collisions occur with dead heroes (spawning time)
 			return;
 	}
 	
@@ -547,6 +558,13 @@ void Unit::collides(OctreeObject& o)
 	// if this object doesnt want to be moved by collisions, don't react.
 	if(staticObject)
 		return;
+	
+	
+	if(position == o.position)
+	{
+		velocity += bump(id);
+	}
+	
 	
 	// if my collision rule is STRING_SYSTEM, make changes to myself accordingly.
 	if(collision_rule == CollisionRule::STRING_SYSTEM)
