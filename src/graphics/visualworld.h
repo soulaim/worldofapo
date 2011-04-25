@@ -80,6 +80,7 @@ public:
 	Camera camera;
 	void setCamera(const Camera& camera);
 	void bindCamera(Unit* unit);
+	
 private:
 	IDGenerator lightIDgenerator;
 };

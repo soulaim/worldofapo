@@ -376,12 +376,33 @@ void choose_team_color(int team)
 	};
 }
 
-void Hud::draw3Dstring(const string& msg, const vec3<float>& pos, float x_angle, float y_angle, int team) const
+void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_angle, float y_angle, int team) const
 {
+	string msg;
+	
+	// TODO: This should not be necessary all the time.
+	auto iteratorMyUnit = (*units).find(myID);
+	if(iteratorMyUnit == units->end())
+		return;
+	int my_team = iteratorMyUnit->second["TEAM"];
+	
+	if(team == my_team)
+	{
+		msg = "^G" + message + "^W";
+	}
+	else if((team == 0) || (team == 1))
+	{
+		msg = "^R" + message + "^W";
+	}
+	else
+	{
+		msg = message;
+	}
+	
 	float scale = 50.0f;
-
+	
 	glDisable(GL_DEPTH_TEST);
-
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	

@@ -26,6 +26,7 @@ class World : public HasProperties
 	void AI_TeamCreep(Unit& unit);
 	void AI_RabidAlien(Unit& unit);
 	void AI_BaseBuilding(Unit& unit);
+	void AI_TowerBuilding(Unit& unit);
 	
 	void clampToLevelArea(MovableObject&);
 	void findBasePosition(Location& pos, int team);
@@ -40,6 +41,9 @@ class World : public HasProperties
 	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
 	void atDeath(MovableObject&, HasProperties&);
 	void resetGame();
+	
+	int getLocalTeam();
+	std::string getTeamColour(Unit&);
 	
 public:
 
@@ -58,6 +62,7 @@ public:
 	
 	Level lvl;
 	
+	void setLocalPlayerID(int);
 	int getZombies();
 	std::vector<Location> humanPositions() const;
 	
@@ -92,6 +97,7 @@ public:
 	std::string generatorMessage();
 	
 private:
+	int localPlayerID;
 	std::vector<int> deadUnits;
 	ApoMath apomath;
 	

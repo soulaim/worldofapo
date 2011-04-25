@@ -205,8 +205,39 @@ void World::resetGame()
 }
 
 
+std::string World::getTeamColour(Unit& u)
+{
+	if(localPlayerID == -1)
+		return "";
+	
+	auto it = units.find(localPlayerID);
+	if(it == units.end())
+		return "";
+	
+	if(it->second["TEAM"] == u["TEAM"])
+		return "^G";
+	if((it->second["TEAM"] ^ u["TEAM"]) == 1)
+		return "^R";
+	return "^W";
+}
+
+int World::getLocalTeam()
+{
+	if(localPlayerID == -1)
+		return -1;
+	
+	auto it = units.find(localPlayerID);
+	if(it == units.end())
+		return -1;
+	
+	return it->second["TEAM"];
+}
+
 void World::doDeathFor(Unit& unit)
 {
+	
+	string target_colour = getTeamColour(unit);
+	string killer_colour;
 	
 	// deleted units don't deserve a burial!
 	if(unit["DELETED"] == 1)
@@ -228,6 +259,7 @@ void World::doDeathFor(Unit& unit)
 	auto killer_it = units.find(causeOfDeath);
 	if(killer_it != units.end())
 	{
+		killer_colour = getTeamColour(killer_it->second);
 		killer = killer_it->second.name;
 		actor_id = killer_it->second.id;
 	}
@@ -256,24 +288,24 @@ void World::doDeathFor(Unit& unit)
 	
 	if(actor_id != -1)
 	{
-		event.a_position = units.find(actor_id)->second.position;
+		auto it = units.find(actor_id);
+		event.a_position = it->second.position;
 		event.a_position.y += FixedPoint(2);
-		event.a_velocity = units.find(actor_id)->second.velocity;
+		event.a_velocity = it->second.velocity;
 	}
 	
 	if(actor_id != target_id)
 	{
 		event.actor_id  = actor_id;
-		
 		int i = currentWorldFrame % killWords.size();
-		msg << killer << killWords[i] << unit.name << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
+		msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
 		visualworld->add_message(msg.str());
 	}
 	else
 	{
 		event.actor_id  = -1; // For a suicide, no points are to be awarded.
 		
-		msg << killer << " has committed suicide by ^g" << unit("DAMAGED_BY");
+		msg << target_colour << killer << " ^Whas committed suicide by ^g" << unit("DAMAGED_BY");
 		visualworld->add_message(msg.str());
 	}
 
@@ -298,16 +330,38 @@ void World::doDeathFor(Unit& unit)
 	{
 		if(unit.controllerTypeID == Unit::BASE_BUILDING)
 		{
-			if(unit["TEAM"] == 0)
+			int local_team = getLocalTeam();
+			
+			switch(local_team)
 			{
-				visualworld->add_message("^RRed^W team has won the match!");
-				visualworld->add_message("New round begins!");
+				case -1:
+					if(unit["TEAM"] == 0)
+					{
+						visualworld->add_message("^GGreen team won the match!");
+						visualworld->add_message("^gNew round begins!");
+					}
+					else
+					{
+						visualworld->add_message("^RRed team won the match!");
+						visualworld->add_message("^gNew round begins!");
+					}
+					break;
+					
+				case 0:
+				case 1:
+					if(unit["TEAM"] == local_team)
+					{
+						visualworld->add_message("YOU HAVE ^RLOST^W THE MATCH!");
+						visualworld->add_message("^gNew round begins!");
+					}
+					else
+					{
+						visualworld->add_message("YOU HAVE ^GWON^W THE MATCH!");
+						visualworld->add_message("^gNew round begins!");
+					}
+					break;
 			}
-			else
-			{
-				visualworld->add_message("^GGreen^W team has won the match! Next round!");
-				visualworld->add_message("New round begins!");
-			}
+			
 			resetGame();
 		}
 		
@@ -331,9 +385,18 @@ void World::findBasePosition(Location& pos, int team)
 	}
 }
 
+void World::setLocalPlayerID(int id)
+{
+	if(units.find(id) != units.end())
+	{
+		localPlayerID = id;
+	}
+}
 
 World::World(VisualWorld* vw)
 {
+	localPlayerID = -1; // default value.
+	
 	assert(vw);
 	visualworld = vw;
 	init();
@@ -357,11 +420,11 @@ void World::createBaseBuildings()
 {
 	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
 	int id = unitIDgenerator.nextID();
-	addAIUnit(id, lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^GGreen\\sStone\\sBeast\\sOf\\sLife^W", 250, 0, 100000);
+	addAIUnit(id, lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000);
 	units[id].staticObject = 1;
 	
 	id = unitIDgenerator.nextID();
-	addAIUnit(id, lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "^RRed\\sStone\\sBeast\\sOf\\sLife^W",   250, 0, 100000);
+	addAIUnit(id, lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000);
 	units[id].staticObject = 1;
 }
 

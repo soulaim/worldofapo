@@ -327,6 +327,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		world->add_message("^Ggot playerID!");
+		world->setLocalPlayerID(myID);
 		
 		cerr << "MYID: " << myID << ", sending my name now: " << localPlayer.name << endl;
 		
