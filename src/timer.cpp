@@ -20,7 +20,7 @@ long long Timer::time_now()
 void Timer::sleep(int milliseconds)
 {
 #ifdef _WIN32
-	Sleep(milliseconds);
+	sleep(milliseconds);
 #else
 	timespec duration = { 0, 1000000 * milliseconds };
 	nanosleep(&duration, 0);

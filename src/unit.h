@@ -44,6 +44,7 @@ public:
 		INANIMATE_OBJECT = 2,
 		BASE_BUILDING    = 3,
 		TEAM_CREEP       = 4,
+		TOWER_BUILDING   = 5,
 		
 		
 		MOBILITY_CLEAR_VALUE = 0,
@@ -142,6 +143,7 @@ public:
 	void collides(OctreeObject&);
 	
 	void init();
+	void resetAmmoCount();
 	void switchWeapon(unsigned);
 	
 	bool operator<(const Unit& u) const;

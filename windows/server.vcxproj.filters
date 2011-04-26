@@ -44,9 +44,6 @@
     <ClCompile Include="..\src\graphics\animation.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\apomodel.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\graphics\btt.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
     <ClCompile Include="..\src\graphics\frustum\plane.cpp">
       <Filter>Source Files\graphics\frustum</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\frustum\vec3.cpp">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\net\socket.cpp">
       <Filter>Source Files\net</Filter>
     </ClCompile>
@@ -168,9 +162,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\location.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\logger.cpp">
@@ -212,15 +203,21 @@
     <ClCompile Include="..\src\world_item.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graphics\graphics_debug.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ai_behaviours.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\dedicated\dedicated.h">
       <Filter>Source Files\dedicated</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\animation.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\apomodel.h">
       <Filter>Source Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\btt.h">
@@ -325,9 +322,6 @@
     <ClInclude Include="..\src\graphics\frustum\plane.h">
       <Filter>Source Files\graphics\frustum</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics\frustum\vec3.h">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\net\socket.h">
       <Filter>Source Files\net</Filter>
     </ClInclude>
@@ -371,9 +365,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\level.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\location.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\logger.h">
@@ -424,5 +415,16 @@
     <ClInclude Include="..\src\game_data\character_info.h">
       <Filter>Source Files\gamedata</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\vec3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\vec3.icc">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

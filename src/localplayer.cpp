@@ -643,7 +643,7 @@ void Localplayer::handleWorldEvents()
 		hud->setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
 	}
 
-	hud->setZombiesLeft(world.getZombies());
+	hud->setZombiesLeft(world.getUnitCount());
 	
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < visualworld.worldMessages.size(); ++i)

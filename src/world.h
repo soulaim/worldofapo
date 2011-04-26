@@ -40,10 +40,11 @@ class World : public HasProperties
 	
 	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
 	void atDeath(MovableObject&, HasProperties&);
-	void resetGame();
 	
 	int getLocalTeam();
 	std::string getTeamColour(Unit&);
+	
+	void createBaseBuildings();
 	
 public:
 
@@ -62,13 +63,15 @@ public:
 	
 	Level lvl;
 	
+	void resetGame();
 	void setLocalPlayerID(int);
-	int getZombies();
+	
+	
+	int getUnitCount(); // TODO: Maybe it's about time to change this..
 	std::vector<Location> humanPositions() const;
 	
 	void worldTick(int tickCount);
 	
-	void createBaseBuildings();
 	void addRandomMonster();
 	
 	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);

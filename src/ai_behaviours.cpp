@@ -378,7 +378,16 @@ void World::AI_TeamCreep(Unit& unit)
 
 
 
-
+void World::AI_TowerBuilding(Unit& unit)
+{
+	AI_RabidAlien(unit);
+	unit.resetAmmoCount(); // towers never run out of ammo.
+	
+	if(unit["T"] != -1)
+		unit.updateInput(0, 0, 0, 1); // towers can shoot all the fucking time.
+	else
+		unit.updateInput(0, 0, 0, 0);
+}
 
 
 

@@ -98,6 +98,9 @@
     <None Include="..\bin\world.conf">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\src\vec3.icc">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\net\socket.cpp">
@@ -110,9 +113,6 @@
       <Filter>Source Files\main</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\animation.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\apomodel.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\btt.cpp">
@@ -199,9 +199,6 @@
     <ClCompile Include="..\src\graphics\frustum\plane.cpp">
       <Filter>Source Files\graphics\frustum</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\frustum\vec3.cpp">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\algorithms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -233,9 +230,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\localplayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\location.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\logger.cpp">
@@ -280,6 +274,15 @@
     <ClCompile Include="..\src\graphics\basiccamera.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ai_behaviours.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\graphics_debug.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\net\socket.h">
@@ -289,9 +292,6 @@
       <Filter>Source Files\net</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\animation.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\apomodel.h">
       <Filter>Source Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\btt.h">
@@ -396,9 +396,6 @@
     <ClInclude Include="..\src\graphics\frustum\plane.h">
       <Filter>Source Files\graphics\frustum</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics\frustum\vec3.h">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\worldevent.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -439,9 +436,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\localplayer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\location.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\logger.h">
@@ -494,6 +488,12 @@
     </ClInclude>
     <ClInclude Include="..\src\graphics\basiccamera.h">
       <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vec3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\timer.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -184,7 +184,7 @@ void Hud::drawAmmo() const
 void Hud::drawZombiesLeft() const
 {
 	stringstream zz;
-	zz << "Zombies left: " << zombieCount;
+	zz << "Units: " << zombieCount;
 	drawString(zz.str(), 0.2, 0.9, 1.5, true);
 }
 

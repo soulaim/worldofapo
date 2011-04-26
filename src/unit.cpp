@@ -660,12 +660,16 @@ void Unit::init()
 	weapons.push_back(Weapon("data/items/weapon_railgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_rocket.dat"));
 	
+	resetAmmoCount();
+	weapon = 2;
+}
+
+void Unit::resetAmmoCount()
+{
 	for(size_t i=0; i<weapons.size(); i++)
 	{
 		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 2000 / weapons[i].intVals["AMMO_VALUE"];
 	}
-	
-	weapon = 2;
 }
 
 void Unit::switchWeapon(unsigned x)

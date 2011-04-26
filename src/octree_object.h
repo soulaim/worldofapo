@@ -50,6 +50,9 @@ struct OctreeObjectPairLess
 {
 	bool operator()(const std::pair<OctreeObject*, OctreeObject*> pair1, const std::pair<OctreeObject*, OctreeObject*> pair2) const
 	{
+#ifdef _WIN32
+#undef min
+#endif
 		FixedPoint a_min_top = std::min(pair1.first->bb_top().y, pair1.second->bb_top().y);
 		FixedPoint b_min_top = std::min(pair2.first->bb_top().y, pair2.second->bb_top().y);
 

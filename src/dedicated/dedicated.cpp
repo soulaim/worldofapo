@@ -96,7 +96,7 @@ void DedicatedServer::init()
 	long long milliseconds = Timer::time_now();
 	fps_world.reset(milliseconds);
 	
-	srand(time(0));
+	// srand(time(0));
 	
 	// init checksums
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -857,7 +857,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
 			World& world = area_it->second;
-			world.createBaseBuildings();
+			world.resetGame();
 		}
 	}
 	else if(server_msg.serverCommand == 1) // ADDHERO message

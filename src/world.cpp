@@ -160,6 +160,67 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 }
 
 
+void World::createBaseBuildings()
+{
+	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
+	
+	int id = unitIDgenerator.nextID();
+	// Location green_base_location = lvl.getRandomLocation(200);
+	Location green_base_location = Location(168, 0, 525);
+	addAIUnit(id, green_base_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000);
+	units[id].staticObject = 1;
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	Location green_tower_location = Location(200, 0, 525);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	green_tower_location = Location(161, 0, 567);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	green_tower_location = Location(264, 0, 600);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+	
+	
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	Location red_base_location = Location(702, 0, 527);
+	addAIUnit(id, red_base_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000);
+	units[id].staticObject = 1;
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	Location red_tower_location = Location(672, 0, 527);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	red_tower_location = Location(666, 0, 561);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+	
+	id = unitIDgenerator.nextID();
+	// Location red_base_location = lvl.getRandomLocation(103);
+	red_tower_location = Location(433, 0, 631);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
+	units[id].staticObject = 1;
+	units[id].weapon = 1; // shoots with machineguns
+}
+
 void World::resetGame()
 {
 	cerr << "Reseting world game to a feasible start" << endl;
@@ -416,18 +477,6 @@ string World::generatorMessage()
 	return ss.str();
 }
 
-void World::createBaseBuildings()
-{
-	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
-	int id = unitIDgenerator.nextID();
-	addAIUnit(id, lvl.getRandomLocation(200), 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000);
-	units[id].staticObject = 1;
-	
-	id = unitIDgenerator.nextID();
-	addAIUnit(id, lvl.getRandomLocation(100), 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000);
-	units[id].staticObject = 1;
-}
-
 void World::init()
 {
 	cerr << "World::init()" << endl;
@@ -537,6 +586,12 @@ void World::tickUnit(Unit& unit, Model* model)
 		{
 			AI_RabidAlien(unit);
 			// AI_TeamCreep(unit);
+			break;
+		}
+		
+		case Unit::TOWER_BUILDING:
+		{
+			AI_TowerBuilding(unit);
 			break;
 		}
 		
@@ -766,7 +821,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 
 void World::addRandomMonster()
 {
-	int enemies = getZombies();
+	int enemies = getUnitCount();
 	
 	if(enemies >= intVals["MON_CAP"])
 		return;
@@ -1157,15 +1212,17 @@ void World::removeUnit(int id)
 	visualworld->removeUnit(id);
 }
 
-int World::getZombies()
+int World::getUnitCount()
 {
+	/*
 	int count = 0;
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		if (!iter->second.human())
 			count++;
 	}
-	return count;
+	*/
+	return units.size();
 }
 
 std::vector<Location> World::humanPositions() const

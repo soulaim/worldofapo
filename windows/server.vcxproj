@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\ai_behaviours.cpp" />
     <ClCompile Include="..\src\algorithms.cpp" />
     <ClCompile Include="..\src\apomath.cpp" />
     <ClCompile Include="..\src\collision.cpp" />
@@ -22,7 +23,6 @@
     <ClCompile Include="..\src\fps_manager.cpp" />
     <ClCompile Include="..\src\game.cpp" />
     <ClCompile Include="..\src\graphics\animation.cpp" />
-    <ClCompile Include="..\src\graphics\apomodel.cpp" />
     <ClCompile Include="..\src\graphics\basiccamera.cpp" />
     <ClCompile Include="..\src\graphics\btt.cpp" />
     <ClCompile Include="..\src\graphics\camera.cpp" />
@@ -31,8 +31,8 @@
     <ClCompile Include="..\src\graphics\frustum\frustumr.cpp" />
     <ClCompile Include="..\src\graphics\frustum\matrix4.cpp" />
     <ClCompile Include="..\src\graphics\frustum\plane.cpp" />
-    <ClCompile Include="..\src\graphics\frustum\vec3.cpp" />
     <ClCompile Include="..\src\graphics\graphics.cpp" />
+    <ClCompile Include="..\src\graphics\graphics_debug.cpp" />
     <ClCompile Include="..\src\graphics\graphics_helper.cpp" />
     <ClCompile Include="..\src\graphics\grasscluster.cpp" />
     <ClCompile Include="..\src\graphics\hud.cpp" />
@@ -56,7 +56,6 @@
     <ClCompile Include="..\src\hasproperties.cpp" />
     <ClCompile Include="..\src\keymanager.cpp" />
     <ClCompile Include="..\src\level.cpp" />
-    <ClCompile Include="..\src\location.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\movable_object.cpp" />
     <ClCompile Include="..\src\net\socket.cpp" />
@@ -67,6 +66,7 @@
     <ClCompile Include="..\src\playerinfo.cpp" />
     <ClCompile Include="..\src\projectile.cpp" />
     <ClCompile Include="..\src\random.cpp" />
+    <ClCompile Include="..\src\timer.cpp" />
     <ClCompile Include="..\src\unit.cpp" />
     <ClCompile Include="..\src\userio.cpp" />
     <ClCompile Include="..\src\weapon.cpp" />
@@ -83,7 +83,6 @@
     <ClInclude Include="..\src\game.h" />
     <ClInclude Include="..\src\game_data\character_info.h" />
     <ClInclude Include="..\src\graphics\animation.h" />
-    <ClInclude Include="..\src\graphics\apomodel.h" />
     <ClInclude Include="..\src\graphics\basiccamera.h" />
     <ClInclude Include="..\src\graphics\btt.h" />
     <ClInclude Include="..\src\graphics\camera.h" />
@@ -92,7 +91,6 @@
     <ClInclude Include="..\src\graphics\frustum\frustumr.h" />
     <ClInclude Include="..\src\graphics\frustum\matrix4.h" />
     <ClInclude Include="..\src\graphics\frustum\plane.h" />
-    <ClInclude Include="..\src\graphics\frustum\vec3.h" />
     <ClInclude Include="..\src\graphics\graphics.h" />
     <ClInclude Include="..\src\graphics\graphics_helper.h" />
     <ClInclude Include="..\src\graphics\grasscluster.h" />
@@ -125,7 +123,6 @@
     <ClInclude Include="..\src\item.h" />
     <ClInclude Include="..\src\keymanager.h" />
     <ClInclude Include="..\src\level.h" />
-    <ClInclude Include="..\src\location.h" />
     <ClInclude Include="..\src\logger.h" />
     <ClInclude Include="..\src\movable_object.h" />
     <ClInclude Include="..\src\net\socket.h" />
@@ -138,12 +135,17 @@
     <ClInclude Include="..\src\projectile.h" />
     <ClInclude Include="..\src\random.h" />
     <ClInclude Include="..\src\stringsystem.h" />
+    <ClInclude Include="..\src\timer.h" />
     <ClInclude Include="..\src\unit.h" />
     <ClInclude Include="..\src\userio.h" />
+    <ClInclude Include="..\src\vec3.h" />
     <ClInclude Include="..\src\weapon.h" />
     <ClInclude Include="..\src\world.h" />
     <ClInclude Include="..\src\worldevent.h" />
     <ClInclude Include="..\src\world_item.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\vec3.icc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D44DCB0A-3D9B-4CB8-AB50-BDE1C9BC6A28}</ProjectGuid>
