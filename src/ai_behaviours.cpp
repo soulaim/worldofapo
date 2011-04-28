@@ -10,7 +10,7 @@ using namespace std;
 void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 {
 	// turn towards the human unit until facing him. then RUSH FORWARD!
-	Location direction = target.position - me.position;
+	Location direction = target.getEyePosition() - me.getEyePosition();
 	
 	if(direction.length() == 0)
 	{

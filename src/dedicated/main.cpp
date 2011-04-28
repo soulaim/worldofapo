@@ -38,6 +38,7 @@ int main()
 	}
 
 	signal(SIGINT, stop_server);
+	cerr << "entering main loop" << endl;
 	
 	while(running)
 	{

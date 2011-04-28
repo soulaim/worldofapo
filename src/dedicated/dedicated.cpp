@@ -245,9 +245,8 @@ void DedicatedServer::host_tick()
 	sockets.tick();
 
 	acceptConnections();
-
 	check_messages_from_clients();
-	
+
 	unsigned minAllowed = UINT_MAX;
 	if(server_no_wait)
 		--minAllowed;
@@ -277,7 +276,7 @@ void DedicatedServer::host_tick()
 			serverMsgs.push_back(allowSimulation_msg.str());
 		}
 	}
-	
+
 	// transmit serverMsgs to players
 	for(size_t k = 0; k < serverMsgs.size(); ++k)
 	{
@@ -289,7 +288,6 @@ void DedicatedServer::host_tick()
 	
 	// prepare to update game world.
 	processClientMsgs();
-	
 	
 	if(pause_state != RUNNING)
 	{
@@ -303,12 +301,12 @@ void DedicatedServer::host_tick()
 		}
 		else
 		{
-			possible_sleep(1);
+			possible_sleep(10);
 			
 			return;
 		}
 	}
-	
+
 	// TODO: THIS DOESNT ACTUALLY WORK (I THINK). THE ONLY REASON THE SERVER WORKS, IS THAT THIS CODE IS _NEVER_ EXECUTED
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
@@ -330,7 +328,7 @@ void DedicatedServer::host_tick()
 	}
 	
 	processServerMsgs();
-	
+
 	long long milliseconds = Timer::time_now();
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
@@ -360,6 +358,7 @@ void DedicatedServer::host_tick()
 		// this might not be a good idea in the end, but should show us how much it really uses processing power.
 		possible_sleep(1);
 	}
+
 }
 
 

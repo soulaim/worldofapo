@@ -224,6 +224,12 @@ void Unit::processInput()
 }
 
 
+Location Unit::getEyePosition()
+{
+	return Location(position.x, position.y + (bb_top().y - position.y) * FixedPoint(3, 4), position.z);
+}
+
+
 void Unit::regenerate()
 {
 	int unit_max_hp = getMaxHP();
@@ -420,10 +426,10 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons
 	upangle += ApoMath::DEGREES_180; // Prevent going full circles when moving camera up or down.
 	upangle -= y_major_change;
 	
-	if(upangle < ApoMath::DEGREES_180+5)
-		upangle = ApoMath::DEGREES_180+5;
-	if(upangle > ApoMath::DEGREES_360-6)
-		upangle = ApoMath::DEGREES_360-6;
+	if(upangle < ApoMath::DEGREES_180 + 25)
+		upangle = ApoMath::DEGREES_180 + 25;
+	if(upangle > ApoMath::DEGREES_360 - 25)
+		upangle = ApoMath::DEGREES_360 - 25;
 	upangle -= ApoMath::DEGREES_180;
 }
 

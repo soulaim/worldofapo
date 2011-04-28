@@ -5,7 +5,7 @@ MovableObject::MovableObject():
 	flags(0),
 	dead(false),
 	angle(0),
-	upangle(0)
+	upangle(ApoMath::DEGREES_90)
 {
 }
 

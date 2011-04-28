@@ -64,6 +64,8 @@ public:
 	void leapRight();
 	void jump();
 	
+	Location getEyePosition();
+
 	void processInput();
 	void regenerate();
 	

@@ -2,6 +2,8 @@
 
 #ifndef _WIN32
 #include <sys/time.h>
+#else
+#include <windows.h>
 #endif
 
 #include <ctime>
@@ -20,7 +22,7 @@ long long Timer::time_now()
 void Timer::sleep(int milliseconds)
 {
 #ifdef _WIN32
-	sleep(milliseconds);
+	Sleep(milliseconds);
 #else
 	timespec duration = { 0, 1000000 * milliseconds };
 	nanosleep(&duration, 0);

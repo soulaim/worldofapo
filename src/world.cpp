@@ -749,7 +749,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 				else
 				{
 					// distance test
-					Location distance_vector = projectile.position + Location(0, 2, 0) - u->position; // TODO: Point to point distance is maybe not ideal.
+					Location distance_vector = projectile.position - u->getEyePosition(); // TODO: Point to point distance is maybe not ideal.
 					FixedPoint real_distance = distance_vector.length();
 					FixedPoint max_distance = FixedPoint(projectile["DISTANCE_MAX"], 1000);
 					

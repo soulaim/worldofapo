@@ -4,8 +4,6 @@
 #include "apomath.h"
 #include "algorithms.h"
 
-const double head_level = 4.5;
-
 Camera::Camera():
 	BasicCamera(),
 	default_direction(-30.0f, 0.0f, 0.0f),
@@ -181,9 +179,10 @@ void Camera::fpsTick()
 	getRelativePos(relative_position);
 
 	vec3<float> camTarget;
-	const Location& unitPos = unit->getPosition();
+	const Location& unitPos = unit->getEyePosition();
+	
 	camTarget.x = unitPos.x.getFloat();
-	camTarget.y = unitPos.y.getFloat() + head_level;
+	camTarget.y = unitPos.y.getFloat();
 	camTarget.z = unitPos.z.getFloat();
 	
 	currentPosition += (camTarget - currentPosition) * 0.2f;
@@ -224,9 +223,9 @@ void Camera::relativeTick()
 	getRelativePos(relative_position);
 	
 	vec3<float> camTarget;
-	const Location& unitPos = unit->getPosition();
+	const Location& unitPos = unit->getEyePosition();
 	camTarget.x = unitPos.x.getFloat();
-	camTarget.y = unitPos.y.getFloat() + head_level;
+	camTarget.y = unitPos.y.getFloat();
 	camTarget.z = unitPos.z.getFloat();
 	
 	float multiplier = 0.04f;
