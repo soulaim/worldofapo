@@ -2,7 +2,7 @@
 #ifndef H_MOVABLE_OBJECT
 #define H_MOVABLE_OBJECT
 
-#include "vec3.h"
+#include "misc/vec3.h"
 
 class MovableObject
 {

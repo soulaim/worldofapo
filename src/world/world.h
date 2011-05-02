@@ -6,17 +6,18 @@
 #include <string>
 #include <memory>
 
-#include "world_item.h"
-#include "unit.h"
-#include "projectile.h"
-#include "level.h"
-#include "apomath.h"
-#include "octree.h"
-#include "movable_object.h"
-#include "worldevent.h"
-#include "idgenerator.h"
-#include "vec3.h"
-#include "visualworld.h"
+#include "graphics/visualworld.h"
+
+#include "world/world_item.h"
+#include "world/unit.h"
+#include "world/projectile.h"
+#include "world/level.h"
+#include "world/worldevent.h"
+#include "physics/octree.h"
+#include "physics/movable_object.h"
+#include "misc/idgenerator.h"
+#include "misc/vec3.h"
+#include "misc/apomath.h"
 
 class Model;
 
@@ -93,8 +94,8 @@ public:
 	
 	void checksum(std::vector<World::CheckSumType>&) const;
 	
+	// TODO: this could now be done with messaging system.
 	void add_message(const std::string& message) const;
-	void add_event(const WorldEvent& event) const;
 	
 	void buildTerrain(int n, float&);
 	std::string generatorMessage();

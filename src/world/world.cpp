@@ -2,6 +2,7 @@
 #include "world.h"
 #include "graphics/modelfactory.h"
 #include "graphics/visualworld.h"
+#include "misc/messaging_system.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -339,48 +340,52 @@ void World::doDeathFor(Unit& unit)
 	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
 	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
 	
-	WorldEvent event;
-	event.target_id = target_id;
-	event.t_position = unit.getPosition();
-	event.t_position.y += FixedPoint(2);
 	
-	event.t_velocity = unit.velocity;
-	event.t_velocity.y += FixedPoint(200,1000);
+	Location t_position = unit.getEyePosition();
+	Location t_velocity = unit.velocity; t_velocity.y += FixedPoint(200,1000);
+	Location a_position;
+	Location a_velocity;
 	
 	if(actor_id != -1)
 	{
 		auto it = units.find(actor_id);
-		event.a_position = it->second.position;
-		event.a_position.y += FixedPoint(2);
-		event.a_velocity = it->second.velocity;
+		a_position = it->second.getEyePosition();
+		a_velocity = it->second.velocity;
 	}
 	
 	if(actor_id != target_id)
 	{
-		event.actor_id  = actor_id;
 		int i = currentWorldFrame % killWords.size();
 		msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
 		visualworld->add_message(msg.str());
 	}
 	else
 	{
-		event.actor_id  = -1; // For a suicide, no points are to be awarded.
-		
+		actor_id  = -1; // For a suicide, no points are to be awarded.
 		msg << target_colour << killer << " ^Whas committed suicide by ^g" << unit("DAMAGED_BY");
 		visualworld->add_message(msg.str());
 	}
-
+	
 	// visualworld->addLight(nextUnitID(), event.t_position);
 	
 	if(unit.human())
 	{
-		event.type = WorldEvent::DEATH_PLAYER;
+		{
+			DeathPlayerEvent event;
+			event.t_position = t_position;
+			event.t_velocity = t_velocity;
+			event.a_position = a_position;
+			event.a_velocity = a_velocity;
+			event.actor_id = actor_id;
+			event.target_id = target_id;
+			queueMessage(event);
+		}
 		
 		// reset player hitpoints
-		unit.hitpoints = 1000;
+		unit.hitpoints = unit.getMaxHP();
 		
-		// respawn player to random location
-		Location pos = lvl.getRandomLocation(currentWorldFrame);
+		// respawn player back in base
+		Location pos;
 		findBasePosition(pos, unit["TEAM"]);
 		unit.setPosition(pos);
 		
@@ -392,6 +397,9 @@ void World::doDeathFor(Unit& unit)
 		if(unit.controllerTypeID == Unit::BASE_BUILDING)
 		{
 			int local_team = getLocalTeam();
+			
+			GameOver event;
+			event.win = 0;
 			
 			switch(local_team)
 			{
@@ -412,26 +420,37 @@ void World::doDeathFor(Unit& unit)
 				case 1:
 					if(unit["TEAM"] == local_team)
 					{
+						event.win = 0;
 						visualworld->add_message("YOU HAVE ^RLOST^W THE MATCH!");
 						visualworld->add_message("^gNew round begins!");
 					}
 					else
 					{
+						event.win = 1;
 						visualworld->add_message("YOU HAVE ^GWON^W THE MATCH!");
 						visualworld->add_message("^gNew round begins!");
 					}
 					break;
 			}
 			
+			queueMessage(event);
+			
 			resetGame();
 		}
 		
-		event.type = WorldEvent::DEATH_ENEMY;
+		{
+			DeathNPCEvent event;
+			event.t_position = t_position;
+			event.t_velocity = t_velocity;
+			event.a_position = a_position;
+			event.a_velocity = a_velocity;
+			event.actor_id = actor_id;
+			event.target_id = target_id;
+			queueMessage(event);
+		}
+		
 		deadUnits.push_back(unit.id);
 	}
-	
-	// store the event information for later use.
-	visualworld->add_event(event);
 }
 
 
@@ -765,17 +784,15 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			// boolean test, hits or doesnt hit
 			if(projectile["COLLISION_TEST"] && projectile.collides(*u))
 			{
-				// save this information for later use.
-				WorldEvent event;
-				event.type = WorldEvent::DAMAGE_BULLET;
-				event.t_position = u->position;
-				event.t_position.y += FixedPoint(2);
-				event.t_velocity = u->velocity;
+				{
+					BulletHitEvent event;
+					event.t_position = u->getEyePosition();
+					event.t_velocity = u->velocity;
+					event.a_position = projectile.position;
+					event.a_velocity = projectile.velocity * projectile["TPF"];
+					queueMessage(event);
+				}
 				
-				event.a_position = projectile.position;
-				event.a_velocity = projectile.velocity * projectile["TPF"];
-				
-				visualworld->add_event(event);
 				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000) / FixedPoint(u->intVals["MASS"], 1000);
 				
 				if(!friendly_fire && ((*u)["TEAM"] == team))
@@ -1245,9 +1262,3 @@ void World::add_message(const std::string& message) const
 {
 	visualworld->add_message(message);
 }
-
-void World::add_event(const WorldEvent& event) const
-{
-	visualworld->add_event(event);
-}
-

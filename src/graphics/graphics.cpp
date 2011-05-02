@@ -1,15 +1,17 @@
-#include "graphics.h"
 
-#include "texturehandler.h"
-#include "level.h"
-#include "shaders.h"
-#include "hud.h"
-#include "frustum/matrix4.h"
-#include "octree.h"
-#include "texturecoordinate.h"
-#include "window.h"
-#include "menubutton.h"
+#include "graphics/graphics.h"
+#include "graphics/texturehandler.h"
+#include "graphics/shaders.h"
+#include "graphics/hud.h"
+#include "graphics/frustum/matrix4.h"
+#include "graphics/texturecoordinate.h"
+#include "graphics/window.h"
+#include "graphics/menubutton.h"
+
+#include "physics/octree.h"
+#include "world/level.h"
 #include "algorithms.h"
+
 
 #include <iostream>
 #include <iomanip>

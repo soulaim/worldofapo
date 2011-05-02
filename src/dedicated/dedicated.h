@@ -1,18 +1,20 @@
 #ifndef DEDICATEDSERVER_H
 #define DEDICATEDSERVER_H
 
-#include "../world.h"
+#include "world/world.h"
+#include "world/ordercontainer.h"
+#include "world/order.h"
+#include "world/playerinfo.h"
+
 #include "graphics/visualworld.h"
-#include "../ordercontainer.h"
-#include "../fps_manager.h"
-#include "../order.h"
-#include "../playerinfo.h"
 
-#include "../net/socket.h"
-#include "../net/socket_handler.h"
+#include "net/socket.h"
+#include "net/socket_handler.h"
 
-#include "../hasproperties.h"
-#include "../idgenerator.h"
+#include "misc/hasproperties.h"
+#include "misc/idgenerator.h"
+#include "misc/fps_manager.h"
+#include "misc/messaging_system.h"
 
 #include <string>
 #include <vector>
@@ -50,7 +52,7 @@ struct StateInfo
 };
 
 
-class DedicatedServer : public HasProperties
+class DedicatedServer : public HasProperties, public MessagingSystem<BulletHitEvent>, public MessagingSystem<DevourEvent>, public MessagingSystem<DeathPlayerEvent>, public MessagingSystem<DeathNPCEvent>, public MessagingSystem<GameOver>
 {
 	enum { SERVER_ID = -1 };
 	
@@ -109,6 +111,9 @@ class DedicatedServer : public HasProperties
 	// player id handling
 	int nextPlayerID();
 	
+	// in-system message delivery. has nothing to do with network connections.
+	void deliverMessages();
+	
 	// sign-in handling
 	void playerStartingChoice(int, std::string);
 	void handleSignInMessage(int, std::string);
@@ -135,7 +140,6 @@ class DedicatedServer : public HasProperties
 	void parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo& admin);
 	void parseClientMsg(const std::string& msg, int player_id, PlayerInfo& player);
 	
-	void handleWorldEvents();
 	void simulateWorldFrame();
 
 	void ServerHandleServerMessage(const Order&);
@@ -149,8 +153,17 @@ class DedicatedServer : public HasProperties
 	void acceptConnections();
 
 	void possible_sleep(int milliseconds) const;
+
 public:
 	DedicatedServer();
+	
+	void handle(const BulletHitEvent& event);
+	void handle(const DevourEvent& event);
+	
+	void handle(const DeathPlayerEvent& event);
+	void handle(const DeathNPCEvent& event);
+	void handle(const GameOver& event);
+	
 	
 	bool start(int port);
 	void host_tick();

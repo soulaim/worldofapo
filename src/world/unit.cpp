@@ -1,6 +1,5 @@
-#include "unit.h"
-
-#include "apomath.h"
+#include "world/unit.h"
+#include "misc/apomath.h"
 
 #include <iostream>
 #include <sstream>

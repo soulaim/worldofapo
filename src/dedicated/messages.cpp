@@ -1,5 +1,5 @@
 
-#include "dedicated.h"
+#include "dedicated/dedicated.h"
 
 using namespace std;
 using namespace Network;

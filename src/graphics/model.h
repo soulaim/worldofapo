@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 
-#include "animation.h"
-#include "vec3.h"
+#include "graphics/animation.h"
+#include "misc/vec3.h"
 
 class Model
 {

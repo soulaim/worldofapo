@@ -1,5 +1,5 @@
-DIRS = src src/net src/graphics src/graphics/frustum
-INCLUDE_DIRS = -I src -I src/graphics
+DIRS = src src/net src/graphics src/graphics/frustum src/world src/misc src/local_machine src/physics
+INCLUDE_DIRS = -I src
 OPENMP   = -fopenmp
 
 PACKAGES = sdl gl glu libpng

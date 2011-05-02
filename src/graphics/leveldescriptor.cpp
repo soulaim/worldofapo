@@ -1,10 +1,10 @@
 
 
-#include "graphics.h"
-#include "texturehandler.h"
-#include "texturecoordinate.h"
-#include "level.h"
-#include "frustum/frustumr.h"
+#include "graphics/graphics.h"
+#include "graphics/texturehandler.h"
+#include "graphics/texturecoordinate.h"
+#include "world/level.h"
+#include "graphics/frustum/frustumr.h"
 
 #include <numeric>
 #include <iostream>

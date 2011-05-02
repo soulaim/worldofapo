@@ -1,7 +1,8 @@
-#include "camera.h"
-#include "unit.h"
-#include "frustum/matrix4.h"
-#include "apomath.h"
+
+#include "graphics/frustum/matrix4.h"
+#include "graphics/camera.h"
+#include "world/unit.h"
+#include "misc/apomath.h"
 #include "algorithms.h"
 
 Camera::Camera():

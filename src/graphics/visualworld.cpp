@@ -1,7 +1,7 @@
-#include "world.h"
-#include "modelfactory.h"
-#include "visualworld.h"
-#include "random.h"
+#include "world/world.h"
+#include "graphics/modelfactory.h"
+#include "graphics/visualworld.h"
+#include "world/random.h"
 
 #include <iostream>
 
@@ -153,7 +153,6 @@ void VisualWorld::terminate()
 
 	lights.clear();
 	worldMessages.clear();
-	events.clear();
 	
 	psources.clear();
 	particles.clear();
@@ -499,16 +498,6 @@ void VisualWorld::removeUnit(int id)
 		ModelFactory::destroy(it->second);
 		models.erase(it);
 	}
-}
-
-void VisualWorld::add_event(const WorldEvent& event)
-{
-	/*
-	if(active == 0)
-		return;
-	*/
-	
-	events.push_back(event);
 }
 
 void VisualWorld::enable()

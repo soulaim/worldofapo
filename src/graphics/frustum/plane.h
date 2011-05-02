@@ -1,7 +1,7 @@
 #ifndef PLANE_H
 #define PLANE_H
 
-#include "vec3.h"
+#include "misc/vec3.h"
 
 class Plane
 {

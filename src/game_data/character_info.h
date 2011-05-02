@@ -1,6 +1,6 @@
 
-#include "../playerinfo.h"
-#include "../unit.h"
+#include "world/playerinfo.h"
+#include "world/unit.h"
 
 #include <sstream>
 

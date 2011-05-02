@@ -1,12 +1,10 @@
-#include "texturehandler.h"
-
-#include "opengl.h"
+#include "graphics/texturehandler.h"
+#include "graphics/opengl.h"
+#include "misc/logger.h"
 
 #include <iostream>
 #include <cassert>
 #include <fstream>
-
-#include "logger.h"
 
 using namespace std;
 

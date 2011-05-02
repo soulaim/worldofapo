@@ -2,16 +2,16 @@
 #ifndef H_WEAPON
 #define H_WEAPON
 
+#include "world/item.h"
+#include "misc/hasproperties.h"
+#include "misc/fixed_point.h"
+#include "misc/vec3.h"
+#include "world/projectile.h"
+
+#include <iostream>
 #include <string>
 #include <map>
 #include <fstream>
-
-#include "item.h"
-#include "hasproperties.h"
-#include "fixed_point.h"
-#include "vec3.h"
-#include "projectile.h"
-#include <iostream>
 
 class World;
 class Unit;

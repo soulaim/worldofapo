@@ -1,9 +1,10 @@
 #ifndef OCTREE_H
 #define OCTREE_H
 
-#include "octree_object.h"
-#include "collision.h"
-#include "vec3.h"
+#include "physics/octree_object.h"
+#include "physics/collision.h"
+#include "misc/vec3.h"
+
 #include <iostream>
 #include <vector>
 #include <memory>

@@ -4,9 +4,9 @@
 #include <vector>
 #include <string>
 
-#include "fixed_point.h"
-#include "vec3.h"
-#include "random.h"
+#include "misc/fixed_point.h"
+#include "misc/vec3.h"
+#include "world/random.h"
 
 struct Level
 {

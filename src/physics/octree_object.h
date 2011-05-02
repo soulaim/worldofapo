@@ -1,8 +1,8 @@
 #ifndef H_OCTREE_OBJECT
 #define H_OCTREE_OBJECT
 
-#include "vec3.h"
-#include "movable_object.h"
+#include "misc/vec3.h"
+#include "physics/movable_object.h"
 
 #include <algorithm>
 

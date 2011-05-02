@@ -1,7 +1,8 @@
-#include <iostream>
 
-#include "editor.h"
-#include "../logger.h"
+#include "editor/editor.h"
+#include "misc/logger.h"
+
+#include <iostream>
 
 using namespace std;
 

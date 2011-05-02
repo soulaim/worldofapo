@@ -1,8 +1,8 @@
 #ifndef BASICCAMERA_H
 #define BASICCAMERA_H
 
-#include "vec3.h"
-#include "frustum/matrix4.h"
+#include "misc/vec3.h"
+#include "graphics/frustum/matrix4.h"
 
 class BasicCamera
 {

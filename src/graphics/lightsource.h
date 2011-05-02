@@ -2,10 +2,10 @@
 #ifndef H_LIGHTSOURCE
 #define H_LIGHTSOURCE
 
-#include <vector>
+#include "misc/fixed_point.h"
+#include "misc/vec3.h"
 
-#include "fixed_point.h"
-#include "vec3.h"
+#include <vector>
 
 class LightSource
 {

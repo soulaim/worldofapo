@@ -1,16 +1,15 @@
 #ifndef HUD_H
 #define HUD_H
 
+#include "world/playerinfo.h"
+#include "world/unit.h"
+#include "graphics/viewmessage.h"
+#include "misc/vec3.h"
+#include "misc/hasproperties.h"
+
 #include <string>
 #include <vector>
 #include <map>
-
-#include "playerinfo.h"
-#include "unit.h"
-#include "viewmessage.h"
-#include "vec3.h"
-
-#include "hasproperties.h"
 
 class Hud : public HasProperties
 {

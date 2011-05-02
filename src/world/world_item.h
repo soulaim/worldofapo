@@ -4,8 +4,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "octree_object.h"
-#include "hasproperties.h"
+
+#include "physics/octree_object.h"
+#include "misc/hasproperties.h"
 
 // item that is not being carried by anyone
 class WorldItem: public OctreeObject, public HasProperties

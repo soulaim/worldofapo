@@ -1,17 +1,17 @@
 #ifndef PROJECTILE_H
 #define PROJECTILE_H
 
+#include "physics/collision.h"
+#include "misc/vec3.h"
+#include "world/level.h"
+#include "misc/apomath.h"
+#include "physics/movable_object.h"
+#include "misc/hasproperties.h"
+
 #include <vector>
 #include <string>
 #include <sstream>
 #include <map>
-
-#include "collision.h"
-#include "vec3.h"
-#include "level.h"
-#include "apomath.h"
-#include "movable_object.h"
-#include "hasproperties.h"
 
 class Unit;
 

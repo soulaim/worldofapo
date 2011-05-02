@@ -1,14 +1,14 @@
 #ifndef GRASSCLUSTER_H
 #define GRASSCLUSTER_H
 
+#include "graphics/opengl.h"
+#include "misc/vec3.h"
+#include "graphics/frustum/matrix4.h"
+
 #include <string>
 #include <vector>
 #include <map>
 #include <cassert>
-
-#include "opengl.h"
-#include "vec3.h"
-#include "frustum/matrix4.h"
 
 class Shader;
 

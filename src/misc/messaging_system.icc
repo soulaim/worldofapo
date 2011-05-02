@@ -1,0 +1,56 @@
+
+template <class T> std::vector<T> MessagingSystem<T>::messages;
+template <class T> std::set<MessagingSystem<T>*> MessagingSystem<T>::listeners;
+
+template <class T>
+MessagingSystem<T>::MessagingSystem()
+{
+	listeners.insert(this);
+}
+
+template <class T>
+MessagingSystem<T>::~MessagingSystem()
+{
+	listeners.erase(this);
+}
+
+template <class T>
+void MessagingSystem<T>::sendMessage(const T& t)
+{
+	for(auto it = listeners.begin(); it != listeners.end(); ++it)
+		(*it)->handle(t);
+}
+
+template <class T>
+void MessagingSystem<T>::queueMessage(const T& t)
+{
+	messages.push_back(t);
+}
+
+template <class T>
+void MessagingSystem<T>::deliverMessages()
+{
+	for(auto it = listeners.begin(); it != listeners.end(); ++it)
+	{
+		for(size_t t=0; t<messages.size(); ++t)
+		{
+			(*it)->handle(messages[t]);
+		}
+	}
+	messages.clear();
+}
+
+
+
+
+template <class T>
+void sendMessage(const T& t)
+{
+	MessagingSystem<T>::sendMessage(t);
+}
+
+template <class T>
+void queueMessage(const T& t)
+{
+	MessagingSystem<T>::queueMessage(t);
+}

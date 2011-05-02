@@ -1,16 +1,16 @@
 #ifndef UNIT_H
 #define UNIT_H
 
+#include "world/weapon.h"
+#include "world/item.h"
+#include "misc/vec3.h"
+#include "physics/octree_object.h"
+#include "physics/movable_object.h"
+
 #include <vector>
 #include <string>
 #include <sstream>
 #include <memory>
-
-#include "weapon.h"
-#include "vec3.h"
-#include "octree_object.h"
-#include "movable_object.h"
-#include "item.h"
 
 class ApoMath;
 

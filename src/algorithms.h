@@ -1,7 +1,7 @@
 #ifndef H_ALGORITHMS
 #define H_ALGORITHMS
 
-#include "vec3.h"
+#include "misc/vec3.h"
 
 #include <array>
 

@@ -1,8 +1,10 @@
-#include "game.h"
-#include "logger.h"
-#include "worldevent.h"
-#include "visualworld.h"
-#include "world.h"
+
+#include "local_machine/game.h"
+#include "graphics/visualworld.h"
+#include "world/worldevent.h"
+#include "world/world.h"
+#include "misc/logger.h"
+#include "misc/messaging_system.h"
 
 #include <iostream>
 #include <sstream>
@@ -344,11 +346,11 @@ void Game::handleServerMessage(const Order& server_msg)
 		
 		if(world->units.find(myID) != world->units.end())
 		{
-			WorldEvent event;
-			event.type = WorldEvent::CENTER_CAMERA;
-			event.actor_id = myID;
-			world->add_event(event);
-			cerr << "Creating event to bind camera to unit " << myID << "\n";
+			CenterCamera event;
+			event.plr_id = myID;
+			
+			cerr << "Sending event to bind camera to unit " << myID << "\n";
+			sendMessage(event);
 		}
 		else
 		{
@@ -521,12 +523,9 @@ void Game::processClientMsgs()
 				string line;
 				getline(ss, line);
 				
-				// not the cleanest way to do this, but i really want to react to this message in LocalPlayer
-				WorldEvent event;
-				event.type = WorldEvent::SET_LOCAL_PROPERTY;
+				SetLocalProperty event;
 				event.cmd = line;
-				
-				world->add_event(event);
+				sendMessage(event);
 			}
 			else if(cmd == "CLEAR_WORLD_PROPERTIES")
 			{

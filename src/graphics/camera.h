@@ -1,9 +1,9 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "basiccamera.h"
-#include "vec3.h"
-#include "frustum/matrix4.h"
+#include "graphics/basiccamera.h"
+#include "graphics/frustum/matrix4.h"
+#include "misc/vec3.h"
 
 class Unit;
 

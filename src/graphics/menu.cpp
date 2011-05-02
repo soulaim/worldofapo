@@ -1,10 +1,10 @@
-#include "menu.h"
+#include "graphics/menu.h"
+#include "graphics/graphics.h"
+#include "graphics/image.h"
+#include "graphics/menubutton.h"
 
-#include "graphics.h"
-#include "userio.h"
-#include "game.h"
-#include "image.h"
-#include "menubutton.h"
+#include "local_machine/userio.h"
+#include "local_machine/game.h"
 
 #include <vector>
 #include <csignal>

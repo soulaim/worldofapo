@@ -1,7 +1,7 @@
 #ifndef FRUSTUMR_H
 #define FRUSTUMR_H
 
-#include "vec3.h"
+#include "misc/vec3.h"
 #include "plane.h"
 
 #ifdef _WIN32

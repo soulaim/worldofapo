@@ -2,7 +2,7 @@
 #ifndef _H_PARTICLE_STUFF
 #define _H_PARTICLE_STUFF
 
-#include "vec3.h"
+#include "misc/vec3.h"
 
 class Particle
 {

@@ -1,7 +1,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 
-#include "vec3.h"
+#include "misc/vec3.h"
 
 class Collision {
 public:

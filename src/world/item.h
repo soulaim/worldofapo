@@ -5,8 +5,8 @@
 class World;
 class Unit;
 
-#include "octree_object.h"
-#include "hasproperties.h"
+#include "physics/octree_object.h"
+#include "misc/hasproperties.h"
 
 // TODO: Items are not octree objects all the time?
 class Item : public HasProperties

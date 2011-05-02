@@ -3,9 +3,9 @@
 
 #include "graphics/model.h"
 #include "graphics/skeletalmodel.h"
-#include "userio.h"
+#include "local_machine/userio.h"
 #include "graphics/graphics.h"
-#include "unit.h"
+#include "world/unit.h"
 #include "graphics/hud.h"
 #include "graphics/particle.h"
 #include "graphics/particle_source.h"

@@ -1,7 +1,8 @@
-#include "modelfactory.h"
-#include "logger.h"
-#include "skeletalmodel.h"
-#include "invisiblemodel.h"
+#include "graphics/modelfactory.h"
+#include "graphics/skeletalmodel.h"
+#include "graphics/invisiblemodel.h"
+
+#include "misc/logger.h"
 
 #include <iostream>
 #include <memory>

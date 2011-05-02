@@ -4,12 +4,12 @@
 #include <string>
 #include <fstream>
 
-#include "../localplayer.h"
+#include "local_machine/localplayer.h"
 #include "graphics/menu.h"
 #include "graphics/graphics.h"
-#include "../userio.h"
+#include "local_machine/userio.h"
 #include "graphics/hud.h"
-#include "../logger.h"
+#include "misc/logger.h"
 #include "graphics/window.h"
 
 using namespace std;

@@ -1,7 +1,7 @@
-#include "btt.h"
-#include "fixed_point.h"
-#include "frustum/frustumr.h"
-#include "level.h"
+#include "graphics/btt.h"
+#include "graphics/frustum/frustumr.h"
+#include "misc/fixed_point.h"
+#include "world/level.h"
 
 #include <iostream>
 #include <vector>

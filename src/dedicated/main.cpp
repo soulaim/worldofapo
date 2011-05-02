@@ -4,8 +4,8 @@
 #include <fstream>
 #include <csignal>
 
-#include "dedicated.h"
-#include "../logger.h"
+#include "dedicated/dedicated.h"
+#include "misc/logger.h"
 
 using namespace std;
 

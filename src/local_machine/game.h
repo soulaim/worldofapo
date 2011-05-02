@@ -1,12 +1,12 @@
 #ifndef H_GAME_
 #define H_GAME_
 
-#include "ordercontainer.h"
-#include "fps_manager.h"
-#include "order.h"
-#include "playerinfo.h"
-#include "keymanager.h"
-#include "hasproperties.h"
+#include "world/ordercontainer.h"
+#include "misc/fps_manager.h"
+#include "world/order.h"
+#include "world/playerinfo.h"
+#include "misc/keymanager.h"
+#include "misc/hasproperties.h"
 
 #include "net/socket_handler.h"
 #include "game_data/character_info.h"

@@ -2,10 +2,9 @@
 #ifndef PARTICLE_SOURCE_H
 #define PARTICLE_SOURCE_H
 
-#include "movable_object.h"
-#include "hasproperties.h"
-
-#include "particle.h"
+#include "physics/movable_object.h"
+#include "misc/hasproperties.h"
+#include "graphics/particle.h"
 
 class ParticleSource: public MovableObject, public HasProperties
 {

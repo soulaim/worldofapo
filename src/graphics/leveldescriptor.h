@@ -2,12 +2,11 @@
 #ifndef H_LEVEL_DESCRIPTOR
 #define H_LEVEL_DESCRIPTOR
 
-#include "opengl.h"
-
-#include "btt.h"
-#include "hasproperties.h"
-#include "texturecoordinate.h"
-#include "vec3.h"
+#include "graphics/opengl.h"
+#include "graphics/btt.h"
+#include "graphics/texturecoordinate.h"
+#include "misc/hasproperties.h"
+#include "misc/vec3.h"
 
 #include <vector>
 

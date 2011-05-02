@@ -1,15 +1,16 @@
 #ifndef LOCALPLAYER_H
 #define LOCALPLAYER_H
 
-#include "game.h"
-#include "world.h"
-#include "visualworld.h"
-#include "ordercontainer.h"
-#include "fps_manager.h"
-#include "order.h"
-#include "playerinfo.h"
+#include "local_machine/game.h"
+#include "world/world.h"
+#include "world/order.h"
+#include "world/playerinfo.h"
+#include "world/ordercontainer.h"
+#include "graphics/visualworld.h"
+#include "misc/fps_manager.h"
+#include "misc/hasproperties.h"
+#include "misc/messaging_system.h"
 #include "gamesound.h"
-#include "hasproperties.h"
 
 #include <string>
 #include <vector>
@@ -22,10 +23,19 @@ class GameView;
 class Hud;
 class Window;
 
-class Localplayer: private HasProperties
+class Localplayer: private HasProperties, public MessagingSystem<BulletHitEvent>, public MessagingSystem<DevourEvent>, public MessagingSystem<DeathPlayerEvent>, public MessagingSystem<DeathNPCEvent>, public MessagingSystem<CenterCamera>, public MessagingSystem<SetLocalProperty>, public MessagingSystem<GameOver>
 {
 public:
 	Localplayer(GameView*, UserIO*, Hud*, Window* window);
+	
+	void handle(const BulletHitEvent& event);
+	void handle(const DevourEvent& event);
+	void handle(const DeathPlayerEvent& event);
+	void handle(const DeathNPCEvent& event);
+	void handle(const CenterCamera& event);
+	void handle(const SetLocalProperty& event);
+	void handle(const GameOver& event);
+	void deliverMessages();
 	
 	bool client_tick();
 	

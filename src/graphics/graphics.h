@@ -6,20 +6,19 @@
 #include <string>
 #include <memory>
 
-#include "opengl.h"
-
-#include "model.h"
-#include "frustum/frustumr.h"
-#include "camera.h"
-#include "vec3.h"
-#include "particle.h"
-#include "shaders.h"
-#include "light_object.h"
-#include "projectile.h"
-#include "visualworld.h"
-#include "framebuffer.h"
-#include "graphics_helper.h"
-#include "hasproperties.h"
+#include "graphics/opengl.h"
+#include "graphics/model.h"
+#include "graphics/frustum/frustumr.h"
+#include "graphics/camera.h"
+#include "graphics/particle.h"
+#include "graphics/shaders.h"
+#include "graphics/light_object.h"
+#include "graphics/visualworld.h"
+#include "graphics/framebuffer.h"
+#include "graphics/graphics_helper.h"
+#include "world/projectile.h"
+#include "misc/hasproperties.h"
+#include "misc/vec3.h"
 
 struct Level;
 struct MenuButton;

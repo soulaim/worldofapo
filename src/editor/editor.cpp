@@ -1,7 +1,7 @@
-#include "editor.h"
+#include "editor/editor.h"
 #include "graphics/texturehandler.h"
 #include "graphics/grasscluster.h"
-#include "timer.h"
+#include "misc/timer.h"
 
 #include <iostream>
 #include <sstream>

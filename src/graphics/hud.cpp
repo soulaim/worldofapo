@@ -1,11 +1,12 @@
-#include "hud.h"
-#include "graphics.h"
-#include "texturehandler.h"
-#include "apomath.h"
-#include "font.h"
-#include "frustum/matrix4.h"
-#include "string2rgb.h"
-#include "timer.h"
+#include "graphics/hud.h"
+#include "graphics/graphics.h"
+#include "graphics/texturehandler.h"
+#include "graphics/font.h"
+#include "graphics/frustum/matrix4.h"
+#include "graphics/string2rgb.h"
+
+#include "misc/timer.h"
+#include "misc/apomath.h"
 
 #include <string>
 #include <sstream>

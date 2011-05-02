@@ -1,7 +1,8 @@
-#include "dedicated.h"
 
-#include "timer.h"
-#include "vec3.h"
+#include "dedicated/dedicated.h"
+
+#include "misc/timer.h"
+#include "misc/vec3.h"
 
 #include <iostream>
 #include <sstream>
@@ -496,7 +497,7 @@ void DedicatedServer::simulateWorldFrame()
 	}
 #endif
 	
-	handleWorldEvents();
+	deliverMessages();
 	
 	int current = simulRules.currentFrame % checkSumVectorSize;
 	for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
@@ -509,6 +510,17 @@ void DedicatedServer::simulateWorldFrame()
 }
 
 
+
+void DedicatedServer::deliverMessages()
+{
+	MessagingSystem<BulletHitEvent>::deliverMessages();
+	MessagingSystem<DevourEvent>::deliverMessages();
+	MessagingSystem<DeathPlayerEvent>::deliverMessages();
+	MessagingSystem<DeathNPCEvent>::deliverMessages();
+	MessagingSystem<CenterCamera>::deliverMessages();
+	MessagingSystem<SetLocalProperty>::deliverMessages();
+	MessagingSystem<GameOver>::deliverMessages();
+}
 
 
 
@@ -1114,39 +1126,4 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 }
 
-
-void DedicatedServer::handleWorldEvents()
-{
-	// output events to show the server is still in sync.
-	for(size_t i = 0; i < visualworld.events.size(); ++i)
-	{
-		WorldEvent& event = visualworld.events[i];
-		
-		if(event.type == WorldEvent::DEATH_ENEMY)
-		{
-			if( (Players.find(event.actor_id) != Players.end()) )
-			{
-				Players[event.actor_id].kills++;
-				cerr << Players[event.actor_id].name << " has killed" << endl;
-			}
-		}
-		
-		if(event.type == WorldEvent::DEATH_PLAYER)
-		{
-			if( (Players.find(event.actor_id) != Players.end()) )
-			{
-				Players[event.actor_id].kills++;
-				cerr << Players[event.actor_id].name << " has killed" << endl;
-			}
-			
-			if( (Players.find(event.target_id) != Players.end()) )
-			{
-				Players[event.target_id].deaths++;
-				cerr << Players[event.target_id].name << " has died" << endl;
-			}
-		}
-	}
-	
-	visualworld.events.clear();
-}
 

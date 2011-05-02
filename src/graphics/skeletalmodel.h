@@ -1,20 +1,17 @@
 #ifndef SKELETALMODEL_H
 #define SKELETALMODEL_H
 
+#include "graphics/opengl.h"
+#include "graphics/animation.h"
+#include "misc/vec3.h"
+#include "graphics/frustum/matrix4.h"
+#include "graphics/texturecoordinate.h"
+#include "graphics/model.h"
+
 #include <string>
 #include <vector>
 #include <map>
 #include <cassert>
-
-#include "opengl.h"
-
-#include "animation.h"
-#include "vec3.h"
-
-#include "frustum/matrix4.h"
-
-#include "texturecoordinate.h"
-#include "model.h"
 
 struct Bone
 {

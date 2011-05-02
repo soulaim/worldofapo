@@ -1,6 +1,6 @@
 
-#include "world.h"
-#include "visualworld.h"
+#include "world/world.h"
+#include "graphics/visualworld.h"
 
 #include <map>
 

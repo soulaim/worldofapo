@@ -1,12 +1,12 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "misc/hasproperties.h"
+#include "world/random.h"
+#include "graphics/menubutton.h"
+
 #include <string>
 #include <vector>
-
-#include "hasproperties.h"
-#include "random.h"
-#include "menubutton.h"
 
 // class MenuButton;
 // class MenuParticle;

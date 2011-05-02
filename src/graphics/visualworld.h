@@ -1,19 +1,21 @@
 #ifndef VISUALWORLD_H
 #define VISUALWORLD_H
 
-#include "model.h"
-#include "light_object.h"
-#include "particle_source.h"
-#include "worldevent.h"
-#include "level.h"
-#include "grasscluster.h"
-#include "leveldescriptor.h"
+#include "graphics/model.h"
+#include "graphics/light_object.h"
+#include "graphics/particle_source.h"
+#include "graphics/grasscluster.h"
+#include "graphics/leveldescriptor.h"
+#include "graphics/camera.h"
 
-#include "camera.h"
-#include "hasproperties.h"
-#include "idgenerator.h"
+#include "misc/hasproperties.h"
+#include "misc/idgenerator.h"
 
-#include "world_item.h"
+#include "world/worldevent.h"
+#include "world/world_item.h"
+#include "world/level.h"
+
+class Projectile;
 
 // TODO: perhaps this could be a base class with a draw() function, then dedicated server and client could have different implementations of this class.
 class VisualWorld : public HasProperties
@@ -56,7 +58,6 @@ public:
 	void removeUnit(int id);
 
 	void add_message(const std::string& message);
-	void add_event(const WorldEvent& event);
 	
 	bool isActive();
 	void disable();
@@ -67,10 +68,10 @@ public:
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
-	std::vector<std::string> worldMessages;
-	LevelDescriptor levelDesc;
 	
-	std::vector<WorldEvent> events; // TODO: why is this here
+	std::vector<std::string> worldMessages;
+	
+	LevelDescriptor levelDesc;
 	
 	std::vector<ParticleSource> psources;
 	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
