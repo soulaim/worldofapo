@@ -8,10 +8,12 @@
 #include <sstream>
 #include <algorithm>
 
-#include <omp.h>
-
 #define SLEEP_IF_POSSIBLE
 #define MULTI_THREADED_WORLD_TICKS 0
+
+#if MULTI_THREADED_WORLD_TICKS > 0
+#include <omp.h>
+#endif
 
 using namespace std;
 using namespace Network;
