@@ -2,7 +2,6 @@
 #include "world.h"
 #include "graphics/modelfactory.h"
 #include "graphics/visualworld.h"
-#include "misc/messaging_system.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -378,7 +377,7 @@ void World::doDeathFor(Unit& unit)
 			event.a_velocity = a_velocity;
 			event.actor_id = actor_id;
 			event.target_id = target_id;
-			queueMessage(event);
+			queueMsg(event);
 		}
 		
 		// reset player hitpoints
@@ -433,8 +432,7 @@ void World::doDeathFor(Unit& unit)
 					break;
 			}
 			
-			queueMessage(event);
-			
+			sendMsg(event);
 			resetGame();
 		}
 		
@@ -446,7 +444,7 @@ void World::doDeathFor(Unit& unit)
 			event.a_velocity = a_velocity;
 			event.actor_id = actor_id;
 			event.target_id = target_id;
-			queueMessage(event);
+			queueMsg(event);
 		}
 		
 		deadUnits.push_back(unit.id);
@@ -462,14 +460,6 @@ void World::findBasePosition(Location& pos, int team)
 		{
 			pos = it->second.position;
 		}
-	}
-}
-
-void World::setLocalPlayerID(int id)
-{
-	if(units.find(id) != units.end())
-	{
-		localPlayerID = id;
 	}
 }
 
@@ -790,7 +780,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					event.t_velocity = u->velocity;
 					event.a_position = projectile.position;
 					event.a_velocity = projectile.velocity * projectile["TPF"];
-					queueMessage(event);
+					queueMsg(event);
 				}
 				
 				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000) / FixedPoint(u->intVals["MASS"], 1000);
@@ -1256,6 +1246,11 @@ std::vector<Location> World::humanPositions() const
 void World::setNextUnitID(int id)
 {
 	unitIDgenerator.setNextID(id);
+}
+
+void World::handle(const GotPlayerID& event)
+{
+	localPlayerID = event.myID;
 }
 
 void World::add_message(const std::string& message) const

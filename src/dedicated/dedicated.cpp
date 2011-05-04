@@ -248,34 +248,20 @@ void DedicatedServer::host_tick()
 	acceptConnections();
 	check_messages_from_clients();
 
-	unsigned minAllowed = UINT_MAX;
-	if(server_no_wait)
-		--minAllowed;
-	
-	for(auto it = Players.begin(); it != Players.end(); ++it)
-	{
-		if(it->second.connectionState == ConnectionState::GAMEPLAY && (it->second.last_order < minAllowed))
-			minAllowed = it->second.last_order;
-	}
+	unsigned minAllowed = simulRules.currentFrame;
 	
 	if(minAllowed < simulRules.windowSize)
 		minAllowed = simulRules.windowSize;
 	
-	if(minAllowed != UINT_MAX)
+	simulRules.allowedFrame = minAllowed;
+	
+	if( pause_state == RUNNING && (minAllowed > serverAllow) )
 	{
-		simulRules.allowedFrame = minAllowed;
+		stringstream allowSimulation_msg;
+		allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
 		
-		if(minAllowed > simulRules.currentFrame)
-			minAllowed = simulRules.currentFrame;
-		
-		if( pause_state == RUNNING && (minAllowed > serverAllow) )
-		{
-			stringstream allowSimulation_msg;
-			allowSimulation_msg << "-2 ALLOW " << minAllowed << "#";
-			
-			serverAllow = minAllowed;
-			serverMsgs.push_back(allowSimulation_msg.str());
-		}
+		serverAllow = minAllowed;
+		serverMsgs.push_back(allowSimulation_msg.str());
 	}
 
 	// transmit serverMsgs to players
@@ -312,18 +298,18 @@ void DedicatedServer::host_tick()
 	// the level can kind of shut down when there's no one there.
 	if( Players.empty() && UnitInput.empty() )
 	{
-		// cerr << "waiting ..." << endl;
 		
-		possible_sleep(1);
-		
+		possible_sleep(10);
 		return;
 		
 		simulRules.reset();
 		
+		/*
 		long long milliseconds = Timer::time_now();
 		fps_world.reset(milliseconds);
+		*/
 		
-		cerr << "World shutting down." << endl;
+		cerr << "Server going dormant.." << endl;
 		pause_state = WAITING_PLAYERS;
 		return;
 	}
@@ -332,7 +318,7 @@ void DedicatedServer::host_tick()
 
 	long long milliseconds = Timer::time_now();
 	
-	if( (simulRules.currentFrame < simulRules.allowedFrame) && fps_world.need_to_draw(milliseconds) )
+	if( /* (simulRules.currentFrame < simulRules.allowedFrame) && */ fps_world.need_to_draw(milliseconds) )
 	{
 		simulateWorldFrame();
 		
@@ -461,7 +447,20 @@ void DedicatedServer::simulateWorldFrame()
 			
 			if(it != world.units.end())
 			{
-				it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+				switch(tmp.cmd_type)
+				{
+					case NetworkMessage::KEYSTATE_MESSAGE_ID:
+						it->second.updateKeyState(tmp.keyState);
+						break;
+						
+					case NetworkMessage::MOUSEPRESS_MESSAGE_ID:
+						it->second.updateMousePress(tmp.mouseButtons);
+						break;
+						
+					case NetworkMessage::MOUSEMOVE_MESSAGE_ID:
+						it->second.updateMouseMove(tmp.mousex, tmp.mousey);
+						break;
+				}
 			}
 		}
 	}
@@ -545,7 +544,9 @@ bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_
 			serverMsgs.push_back(chat_msg.str());
 			
 			unit_it->second.strVals["NEXT_AREA"] = next_area;
-			unit_it->second.updateInput(0, 0, 0, 0);
+			
+			unit_it->second.updateMousePress(0);
+			unit_it->second.updateKeyState(0);
 			
 			// send area change kill message
 			stringstream area_change_msg;
@@ -563,7 +564,7 @@ bool DedicatedServer::startPlayerAreaChange(const string& next_area, int player_
 }
 
 
-void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo& admin)
+void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, PlayerInfo&)
 {
 	string new_message = msg + "#";
 	stringstream ss(new_message);
@@ -579,7 +580,6 @@ void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, Player
 			
 			// to make it compile..
 			admin_id++;
-			admin.last_order++;
 			
 			break;
 		}
@@ -600,7 +600,8 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	int orderType;
 	ss >> orderType;
 	
-	if(orderType == MessageType::PLAYER_INPUT)
+	
+	if(orderType == NetworkMessage::KEYSTATE_MESSAGE_ID)
 	{
 		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
@@ -608,46 +609,79 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			return;
 		}
 		
-		if(server_no_wait)
-		{
-			// recreate the message
-			Order tmp_order;
-			ss >> tmp_order.plr_id;
-			ss >> tmp_order.frameID;
-			ss >> tmp_order.keyState;
-			ss >> tmp_order.mousex >> tmp_order.mousey;
-			ss >> tmp_order.mouseButtons;
-			
-			if(player.last_order < simulRules.currentFrame + 5)
-			{
-				// increasing player's order frameskip to compensate for lag.
-				player.last_order = simulRules.currentFrame + 5;
-			}
-			
-			tmp_order.frameID = ++player.last_order;
-			
-			stringstream order_msg;
-			order_msg << "1 " << tmp_order.plr_id << " " << tmp_order.frameID << " " << 
-			tmp_order.keyState << " " << tmp_order.mousex << " " << tmp_order.mousey << " " << tmp_order.mouseButtons << "#";
-			
-			new_message = order_msg.str();
-		}
+		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::KEYSTATE_MESSAGE_ID;
+		
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
+		ss >> tmp_order.keyState;
+		
+		
+		if(player.last_keyState < simulRules.currentFrame + 1)
+			tmp_order.frameID = simulRules.currentFrame + 1;
 		else
+			tmp_order.frameID = player.last_keyState + 1;
+		player.last_keyState = tmp_order.frameID;
+		
+		stringstream order_msg;
+		order_msg << static_cast<int>(NetworkMessage::KEYSTATE_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.keyState << "#";
+		
+		new_message = order_msg.str();
+	}
+	else if(orderType == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
+	{
+		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
-			int plr_id;
-			unsigned frameID;
-			
-			ss >> plr_id >> frameID;
-			
-			// ignore order if it's in the past.
-			if(frameID <= simulRules.currentFrame)
-			{
-				cerr << "WARNING: Server intentionally skipping an order, it arrived too late!" << endl;
-				return;
-			}
-			
-			player.last_order = frameID;
+			cerr << "WARNING: Ignoring a player input command. Arrived from a source with a wrong connectionstate." << endl;
+			return;
 		}
+		
+		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::MOUSEMOVE_MESSAGE_ID;
+		
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
+		ss >> tmp_order.mousex;
+		ss >> tmp_order.mousey;
+		
+		if(player.last_mouseMove < simulRules.currentFrame + 1)
+			tmp_order.frameID = simulRules.currentFrame + 1;
+		else
+			tmp_order.frameID = player.last_mouseMove + 1;
+		player.last_mouseMove = tmp_order.frameID;
+		
+		stringstream order_msg;
+		order_msg << static_cast<int>(NetworkMessage::MOUSEMOVE_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.mousex << " " << tmp_order.mousey << "#";
+		
+		new_message = order_msg.str();
+		
+	}
+	else if(orderType == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
+	{
+		if(player.connectionState != ConnectionState::GAMEPLAY)
+		{
+			cerr << "WARNING: Ignoring a player input command. Arrived from a source with a wrong connectionstate." << endl;
+			return;
+		}
+		
+		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::MOUSEPRESS_MESSAGE_ID;
+		
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
+		ss >> tmp_order.mouseButtons;
+		
+		
+		if(player.last_mousePress < simulRules.currentFrame + 1)
+			tmp_order.frameID = simulRules.currentFrame + 1;
+		else
+			tmp_order.frameID = player.last_mousePress + 1;
+		player.last_mousePress = tmp_order.frameID;
+		
+		stringstream order_msg;
+		order_msg << static_cast<int>(NetworkMessage::MOUSEPRESS_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.mouseButtons << "#";
+		
+		new_message = order_msg.str();
 	}
 	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
 	{
@@ -894,7 +928,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		
 		
 		Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
-		Players[server_msg.keyState].last_order = simulRules.currentFrame + simulRules.windowSize;
+		Players[server_msg.keyState].setInputBegin(simulRules.currentFrame + simulRules.windowSize);
 		
 		SpawningHeroes.erase(server_msg.keyState);
 		
@@ -998,13 +1032,36 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	int order_type;
 	ss >> order_type;
 	
-	if(order_type == MessageType::PLAYER_INPUT) // ordinary input order
+	if(order_type == NetworkMessage::KEYSTATE_MESSAGE_ID)
 	{
 		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::KEYSTATE_MESSAGE_ID;
+		
 		ss >> tmp_order.plr_id;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.keyState;
-		ss >> tmp_order.mousex >> tmp_order.mousey;
+		
+		UnitInput.push_back(tmp_order);
+	}
+	else if(order_type == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
+	{
+		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::MOUSEMOVE_MESSAGE_ID;
+		
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
+		ss >> tmp_order.mousex;
+		ss >> tmp_order.mousey;
+		
+		UnitInput.push_back(tmp_order);
+	}
+	else if(order_type == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
+	{
+		Order tmp_order;
+		tmp_order.cmd_type = NetworkMessage::MOUSEPRESS_MESSAGE_ID;
+		
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
 		ss >> tmp_order.mouseButtons;
 		
 		UnitInput.push_back(tmp_order);

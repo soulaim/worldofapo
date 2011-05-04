@@ -31,6 +31,16 @@ struct WorldEvent
 };
 */
 
+struct GotMyName
+{
+	std::string name;
+};
+
+struct GotPlayerID
+{
+	int myID;
+};
+
 struct BulletHitEvent
 {
 	Location t_position;

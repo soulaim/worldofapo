@@ -7,7 +7,7 @@
 class PlayerInfo {
 
 public:
-	PlayerInfo(): kills(0), deaths(0), last_order(0), connectionState(0) {}
+	PlayerInfo(): kills(0), deaths(0), last_keyState(0), last_mouseMove(0), last_mousePress(0), connectionState(0) {}
 	
 	const PlayerInfo& operator = (const PlayerInfo& a)
 	{
@@ -20,11 +20,22 @@ public:
 		return *this;
 	}
 	
+	void setInputBegin(unsigned frame)
+	{
+		last_keyState   = frame;
+		last_mouseMove  = frame;
+		last_mousePress = frame;
+	}
+	
 	std::string name;
 	int kills;
 	int deaths;
 	
-	unsigned last_order;
+	unsigned last_keyState;
+	unsigned last_mouseMove;
+	unsigned last_mousePress;
+	
+	
 	int connectionState;
 	std::string key;
 	

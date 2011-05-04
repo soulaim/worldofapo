@@ -5,6 +5,7 @@
 #include "world/world.h"
 #include "misc/logger.h"
 #include "misc/messaging_system.h"
+#include "local_machine/networkmessage.h"
 
 #include <iostream>
 #include <sstream>
@@ -100,15 +101,12 @@ bool Game::internetGameGetHeroes(const string& hostname, map<string, CharacterIn
 	
 	if(!getHeroes(heroes))
 		return false;
-	
-	// need to enter a menu at this point, showing the user which options he has
-	// Game does not have access to graphics, so we must return now, and let others handle it.
 	return true;
 }
 
-void Game::internetGameSelectHero(const string& hero)
+void Game::internetGameSelectHero(const string& hero_key)
 {
-	clientSocket.getConnection(SERVER_ID) << "START " << hero << "#";
+	clientSocket.getConnection(SERVER_ID) << "START " << hero_key << "#";
 }
 
 bool Game::getHeroes(map<string, CharacterInfo>& heroes)
@@ -170,15 +168,50 @@ void Game::endGame()
 	reset();
 }
 
+/*
 void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 {
-	int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
+	// int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
+	int frame = 0;
 	
-	if(myID >= 0)
-	{
-		clientSocket.getConnection(SERVER_ID) << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
-	}
+	clientSocket.getConnection(SERVER_ID) << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
 }
+*/
+
+bool Game::hasID()
+{
+	return myID >= 0;
+}
+
+Network::SocketHandler::Connection& Game::getServerConnection()
+{
+	return clientSocket.getConnection(SERVER_ID);
+}
+
+void Game::sendKeyState(int keyState)
+{
+	if(!hasID())
+		return;
+	
+	NetworkMessage::sendKeyState(getServerConnection(), myID, keyState);
+}
+
+void Game::sendMouseMove(int x, int y)
+{
+	if(!hasID())
+		return;
+	
+	NetworkMessage::sendMouseMove(getServerConnection(), myID, x, y);
+}
+
+void Game::sendMousePress(int mousePress)
+{
+	if(!hasID())
+		return;
+	
+	NetworkMessage::sendMousePress(getServerConnection(), myID, mousePress);
+}
+
 
 void Game::send_chat_message(const std::string& clientCommand)
 {
@@ -243,11 +276,26 @@ void Game::process_received_game_input()
 		
 		if(it != world->units.end())
 		{
-			it->second.updateInput(tmp.keyState, tmp.mousex, tmp.mousey, tmp.mouseButtons);
+			switch(tmp.cmd_type)
+			{
+				case NetworkMessage::KEYSTATE_MESSAGE_ID:
+					it->second.updateKeyState(tmp.keyState);
+					break;
+				
+				case NetworkMessage::MOUSEPRESS_MESSAGE_ID:
+					it->second.updateMousePress(tmp.mouseButtons);
+					break;
+				
+				case NetworkMessage::MOUSEMOVE_MESSAGE_ID:
+					it->second.updateMouseMove(tmp.mousex, tmp.mousey);
+					break;
+			}
 		}
 	}
 }
 
+
+// TODO: THIS COULD BE IMPLEMENTED IN A SINGLE CLASS WHICH HAS ACCESS TO REQUIRED ELEMENTS
 // server messages read from the network
 void Game::handleServerMessage(const Order& server_msg)
 {
@@ -329,7 +377,10 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		world->add_message("^Ggot playerID!");
-		world->setLocalPlayerID(myID);
+		
+		GotPlayerID event;
+		event.myID = myID;
+		sendMsg(event);
 		
 		cerr << "MYID: " << myID << ", sending my name now: " << localPlayer.name << endl;
 		
@@ -339,10 +390,6 @@ void Game::handleServerMessage(const Order& server_msg)
 		}
 		
 		clientSocket.getConnection(SERVER_ID) << "2 " << myID << " " << localPlayer.name << "#";
-
-//		Logger log;
-//		log.print("Sent message: +++" + ss.str() + "+++\n");
-		
 		
 		if(world->units.find(myID) != world->units.end())
 		{
@@ -350,7 +397,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			event.plr_id = myID;
 			
 			cerr << "Sending event to bind camera to unit " << myID << "\n";
-			sendMessage(event);
+			sendMsg(event);
 		}
 		else
 		{
@@ -394,7 +441,7 @@ void Game::handleServerMessage(const Order& server_msg)
 }
 
 
-
+// TODO: THIS COULD BE IMPLEMENTED IN A SINGLE CLASS WITH ACCESS TO REQUIRED ELEMENTS
 // client messages read from the network
 void Game::processClientMsgs()
 {
@@ -411,23 +458,39 @@ void Game::processClientMsgs()
 		int order_type;
 		ss >> order_type;
 		
-		if(order_type == 1) // ordinary input order
+		if(order_type == NetworkMessage::KEYSTATE_MESSAGE_ID)
 		{
-			if(paused_state == PAUSED)
-			{
-				cerr << "RECEIVED GAME COMMAND ALTHOUGH IM IN PAUSE MODE! NOT GOING TO PROCESS IT" << endl;
-			}
-			else
-			{
-				Order tmp_order;
-				ss >> tmp_order.plr_id;
-				ss >> tmp_order.frameID;
-				ss >> tmp_order.keyState;
-				ss >> tmp_order.mousex >> tmp_order.mousey;
-				ss >> tmp_order.mouseButtons;
-				
-				UnitInput.push_back(tmp_order);
-			}
+			Order tmp_order;
+			tmp_order.cmd_type = NetworkMessage::KEYSTATE_MESSAGE_ID;
+			
+			ss >> tmp_order.plr_id;
+			ss >> tmp_order.frameID;
+			ss >> tmp_order.keyState;
+			
+			UnitInput.push_back(tmp_order);
+		}
+		else if(order_type == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
+		{
+			Order tmp_order;
+			tmp_order.cmd_type = NetworkMessage::MOUSEMOVE_MESSAGE_ID;
+			
+			ss >> tmp_order.plr_id;
+			ss >> tmp_order.frameID;
+			ss >> tmp_order.mousex;
+			ss >> tmp_order.mousey;
+			
+			UnitInput.push_back(tmp_order);
+		}
+		else if(order_type == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
+		{
+			Order tmp_order;
+			tmp_order.cmd_type = NetworkMessage::MOUSEPRESS_MESSAGE_ID;
+			
+			ss >> tmp_order.plr_id;
+			ss >> tmp_order.frameID;
+			ss >> tmp_order.mouseButtons;
+			
+			UnitInput.push_back(tmp_order);
 		}
 		else if(order_type == 3) // chat message
 		{
@@ -465,6 +528,13 @@ void Game::processClientMsgs()
 				Players[plrID].name = name;
 				Players[plrID].kills = kills;
 				Players[plrID].deaths = deaths;
+				
+				if(plrID == myID)
+				{
+					GotMyName event;
+					event.name = name;
+					sendMsg(event);
+				}
 				
 				cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
 				
@@ -525,7 +595,7 @@ void Game::processClientMsgs()
 				
 				SetLocalProperty event;
 				event.cmd = line;
-				sendMessage(event);
+				sendMsg(event);
 			}
 			else if(cmd == "CLEAR_WORLD_PROPERTIES")
 			{

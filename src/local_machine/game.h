@@ -52,7 +52,8 @@ class Game : public HasProperties
 	World* world;
 
 	Network::SocketHandler clientSocket;
-
+	Network::SocketHandler::Connection& getServerConnection();
+	
 	OrderContainer clientOrders;
 	std::vector<std::string> serverMsgs; // messages to be sent by the host
 	std::vector<Order> UnitInput;
@@ -89,7 +90,13 @@ public:
 	
 	int myID; // TODO: make private and getter?
 
-	void set_current_frame_input(int keystate, int x, int y, int mousepress);
+	// void set_current_frame_input(int keystate, int x, int y, int mousepress);
+	
+	void sendKeyState(int keyState);
+	void sendMouseMove(int x, int y);
+	void sendMousePress(int mousePress);
+	bool hasID();
+	
 	void send_chat_message(const std::string&);
 	void endGame();
 

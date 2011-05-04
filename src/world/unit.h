@@ -121,7 +121,10 @@ public:
 	
 	void setName(const std::string&);
 	
-	void updateInput(int, int, int, int);
+	void updateKeyState(int);
+	void updateMouseMove(int, int);
+	void updateMousePress(int);
+	
 	int getKeyAction(int type) const;
 	int getMouseAction(int type) const;
 	bool human() const;

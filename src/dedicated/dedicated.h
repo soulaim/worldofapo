@@ -16,6 +16,8 @@
 #include "misc/fps_manager.h"
 #include "misc/messaging_system.h"
 
+#include "local_machine/networkmessage.h"
+
 #include <string>
 #include <vector>
 #include <queue>

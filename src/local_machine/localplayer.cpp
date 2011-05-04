@@ -380,13 +380,16 @@ void Localplayer::camera_handling()
 
 void Localplayer::process_sent_game_input()
 {
+	static int prevMousePress = -1;
+	static int prevKeyState = -1;
+	
 	int keyState = userio->getGameInput();
 	if (client_input_state & 2)
 		keyState = 0;
 	int x, y;
 	
 	userio->getMouseChange(x, y);
-	int mousepress = userio->getMousePress();
+	int mousePress = userio->getMousePress();
 	
 	int& no_input = world.intVals["NO_INPUT"];
 	if((no_input > 0) || (world.units.find(game.myID) == world.units.end()))
@@ -394,7 +397,7 @@ void Localplayer::process_sent_game_input()
 		keyState = 0;
 		x = 0;
 		y = 0;
-		mousepress = 0;
+		mousePress = 0;
 		
 		if(no_input < 1000)
 			--no_input;
@@ -405,8 +408,16 @@ void Localplayer::process_sent_game_input()
 
 	x *= intVals["sensitivity"];
 	y *= intVals["sensitivity"];
-
-	game.set_current_frame_input(keyState, x, y, mousepress);
+	
+	if(keyState != prevKeyState)
+		game.sendKeyState(keyState);
+	if(x != 0 || y != 0)
+		game.sendMouseMove(x, y);
+	if(mousePress != prevMousePress)
+		game.sendMousePress(mousePress);
+	
+	prevMousePress = mousePress;
+	prevKeyState = keyState;
 }
 
 bool setVariable(HasProperties& properties, string var_name, string word, int val)
@@ -689,6 +700,9 @@ void Localplayer::handle(const DeathPlayerEvent& event)
 	{
 		game.Players[event.target_id].deaths++;
 	}
+	
+	hud->setLocalPlayerKills(game.Players[game.myID].kills);
+	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
 
 void Localplayer::handle(const DeathNPCEvent& event)
@@ -705,6 +719,9 @@ void Localplayer::handle(const DeathNPCEvent& event)
 	{
 		game.Players[event.actor_id].kills++;
 	}
+	
+	hud->setLocalPlayerKills(game.Players[game.myID].kills);
+	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
 
 void Localplayer::handle(const CenterCamera& event)
@@ -741,15 +758,23 @@ void Localplayer::handle(const GameOver& event)
 	}
 }
 
+void Localplayer::handle(const GotPlayerID& event)
+{
+	hud->setLocalPlayerID(event.myID);
+}
+
+void Localplayer::handle(const GotMyName& event)
+{
+	hud->setLocalPlayerName(event.name);
+}
+
+
 void Localplayer::deliverMessages()
 {
 	MessagingSystem<BulletHitEvent>::deliverMessages();
 	MessagingSystem<DevourEvent>::deliverMessages();
 	MessagingSystem<DeathPlayerEvent>::deliverMessages();
 	MessagingSystem<DeathNPCEvent>::deliverMessages();
-	MessagingSystem<CenterCamera>::deliverMessages();
-	MessagingSystem<SetLocalProperty>::deliverMessages();
-	MessagingSystem<GameOver>::deliverMessages();
 }
 
 // TODO: Replace this stuff with messaging system completely.
@@ -758,14 +783,12 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID >= 0)
 	{
-		// TODO: this doesn't need to be done every frame. Could now be replaced with messaging system.
-		hud->setLocalPlayerID(game.myID);
-		hud->setLocalPlayerName(game.Players[game.myID].name);
 		hud->setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
 	}
 	
 	hud->setZombiesLeft(world.getUnitCount());
 	
+	// TODO: THIS MAKES NO FUCKING SENSE!! USE THE MESSAGE SENDING SYSTEM INSTEAD
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < visualworld.worldMessages.size(); ++i)
 	{
@@ -775,9 +798,7 @@ void Localplayer::handleWorldEvents()
 	
 	deliverMessages();
 	
-	hud->setLocalPlayerKills(game.Players[game.myID].kills);
-	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
-
+	// TODO: This could also be implemented with message passing.
 	for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 	{
 		playSound(iter->second.soundInfo, iter->second.getPosition());

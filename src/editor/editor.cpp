@@ -869,7 +869,7 @@ bool Editor::handle_input()
 	int sensitivity = 1000;
 	x *= sensitivity;
 	y *= sensitivity;
-	dummy.updateInput(0, x, y, 0);
+	dummy.updateMouseMove(x, y);
 	return true;
 }
 

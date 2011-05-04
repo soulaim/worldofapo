@@ -174,7 +174,8 @@ void World::AI_RabidAlien(Unit& unit)
 		if(myLeaderID == unit.id)
 		{
 			// nothing to do :G
-			unit.updateInput(0, 0, 0, 0);
+			unit.updateKeyState(0);
+			unit.updateMousePress(0);
 		}
 		else
 		{
@@ -186,11 +187,13 @@ void World::AI_RabidAlien(Unit& unit)
 			
 			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
 			{
-				unit.updateInput(0, 0, 0, 0);
+				unit.updateKeyState(0);
+				unit.updateMousePress(0);
 			}
 			else
 			{
-				unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
+				unit.updateKeyState(Unit::MOVE_FRONT);
+				unit.updateMousePress(0);
 			}
 		}
 		
@@ -204,8 +207,6 @@ void World::AI_RabidAlien(Unit& unit)
 	getTurnValues(unit, units[unitID], best_angle, best_upangle);
 	
 	int keyState = 0;
-	int mousex = 0;
-	int mousey = 0;
 	int mousebutton = 0;
 	unit.angle = best_angle;
 	unit.upangle = best_upangle;
@@ -226,7 +227,8 @@ void World::AI_RabidAlien(Unit& unit)
 		mousebutton = 1;
 	}
 	
-	unit.updateInput(keyState, mousex, mousey, mousebutton);
+	unit.updateKeyState(keyState);
+	unit.updateMousePress(mousebutton);
 }
 
 
@@ -320,7 +322,8 @@ void World::AI_TeamCreep(Unit& unit)
 		if(myLeaderID == unit.id)
 		{
 			// nothing to do :G
-			unit.updateInput(0, 0, 0, 0);
+			unit.updateKeyState(0);
+			unit.updateMousePress(0);
 		}
 		else
 		{
@@ -332,11 +335,13 @@ void World::AI_TeamCreep(Unit& unit)
 			
 			if( (units.find(myLeaderID)->second.position - unit.position).lengthSquared() < FixedPoint(1000) )
 			{
-				unit.updateInput(0, 0, 0, 0);
+				unit.updateKeyState(0);
+				unit.updateMousePress(0);
 			}
 			else
 			{
-				unit.updateInput(Unit::MOVE_FRONT, 0, 0, 0);
+				unit.updateKeyState(Unit::MOVE_FRONT);
+				unit.updateMousePress(0);
 			}
 		}
 		
@@ -350,8 +355,6 @@ void World::AI_TeamCreep(Unit& unit)
 	getTurnValues(unit, units[unitID], best_angle, best_upangle);
 	
 	int keyState = 0;
-	int mousex = 0;
-	int mousey = 0;
 	int mousebutton = 0;
 	unit.angle = best_angle;
 	unit.upangle = best_upangle;
@@ -372,7 +375,8 @@ void World::AI_TeamCreep(Unit& unit)
 		mousebutton = 1;
 	}
 	
-	unit.updateInput(keyState, mousex, mousey, mousebutton);
+	unit.updateKeyState(keyState);
+	unit.updateMousePress(mousebutton);
 }
 
 
@@ -384,9 +388,15 @@ void World::AI_TowerBuilding(Unit& unit)
 	unit.resetAmmoCount(); // towers never run out of ammo.
 	
 	if(unit["T"] != -1)
-		unit.updateInput(0, 0, 0, 1); // towers can shoot all the fucking time.
+	{
+		unit.updateKeyState(0);
+		unit.updateMousePress(1);
+	}
 	else
-		unit.updateInput(0, 0, 0, 0);
+	{
+		unit.updateKeyState(0);
+		unit.updateMousePress(0);
+	}
 }
 
 

@@ -18,10 +18,11 @@
 #include "misc/idgenerator.h"
 #include "misc/vec3.h"
 #include "misc/apomath.h"
+#include "misc/messaging_system.h"
 
 class Model;
 
-class World : public HasProperties
+class World : public HasProperties, public MessagingSystem<GotPlayerID>
 {
 	
 	void AI_TeamCreep(Unit& unit);
@@ -65,8 +66,7 @@ public:
 	Level lvl;
 	
 	void resetGame();
-	void setLocalPlayerID(int);
-	
+	void handle(const GotPlayerID& event);
 	
 	int getUnitCount(); // TODO: Maybe it's about time to change this..
 	std::vector<Location> humanPositions() const;

@@ -399,7 +399,7 @@ float Unit::getAngle()
 	return ApoMath::getDegrees(angle);
 }
 
-void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons_)
+void Unit::updateMouseMove(int mousex_, int mousey_)
 {
 	int changey = mousey_;
 	int changex = mousex_;
@@ -418,8 +418,6 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons
 	x_major_change += xmc2;
 	y_major_change += ymc2;
 	
-	keyState = keyState_;
-	mouseButtons = mouseButtons_;
 	angle -= x_major_change;
 	
 	upangle += ApoMath::DEGREES_180; // Prevent going full circles when moving camera up or down.
@@ -430,6 +428,16 @@ void Unit::updateInput(int keyState_, int mousex_, int mousey_, int mouseButtons
 	if(upangle > ApoMath::DEGREES_360 - 25)
 		upangle = ApoMath::DEGREES_360 - 25;
 	upangle -= ApoMath::DEGREES_180;
+}
+
+void Unit::updateMousePress(int mouseButtons_)
+{
+	mouseButtons = mouseButtons_;
+}
+
+void Unit::updateKeyState(int keyState_)
+{
+	keyState = keyState_;
 }
 
 
