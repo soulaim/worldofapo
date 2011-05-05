@@ -413,13 +413,12 @@ void VisualWorld::addLight(const Location& location, Location direction)
 	
 	int id = lightIDgenerator.nextID();
 	
-	// cerr << "Adding light " << id << " at " << location << endl;
 	LightObject& light = lights[id];
 	light.setDiffuse(5.3f, 5.3f, 5.3f);
 	light.setSpecular(0.f, 0.f, 0.f);
-	light.setLife(270); // Some frames of LIGHT!
-	light.setPower(5); // this doesnt actually do anything yet, but lets set it anyway.
-	light.activateLight(); // ACTIVATE :D
+	light.setLife(470);
+	light.setPower(5);
+	light.activateLight();
 	light.lifeType = LightSource::MORTAL;
 	light.position = location;
 	light.position.y += FixedPoint(3, 2);

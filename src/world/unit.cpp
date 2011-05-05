@@ -13,7 +13,7 @@ Location bump(int x)
 {
 	Location res;
 	res.x = FixedPoint( ((x * 4217) % 200) - 100, 100 );
-	res.y = FixedPoint( ((x * 8423) % 200) - 100, 100 );
+	res.y = 0; // FixedPoint( ((x * 8423) % 200) - 100, 100 );
 	res.z = FixedPoint( ((x * 2489) % 200) - 100, 100 );
 	return res;
 }
@@ -668,8 +668,8 @@ void Unit::init()
 {
 	weapons.clear();
 	weapons.push_back(Weapon("data/items/weapon_shotgun.dat"));
-	weapons.push_back(Weapon("data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_flame.dat"));
+	weapons.push_back(Weapon("data/items/weapon_mgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_railgun.dat"));
 	weapons.push_back(Weapon("data/items/weapon_rocket.dat"));
 	

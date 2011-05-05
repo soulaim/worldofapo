@@ -263,7 +263,7 @@ void World::AI_TeamCreep(Unit& unit)
 		{
 			if(it->second["TEAM"] != my_team)
 			{
-				if(it->second.controllerTypeID == Unit::BASE_BUILDING)
+				if(myLeaderID == -1 || it->second.controllerTypeID == Unit::BASE_BUILDING)
 				{
 					myLeaderID = it->first;
 				}
@@ -318,7 +318,11 @@ void World::AI_TeamCreep(Unit& unit)
 	// if no opponent is near, gather to my leader!
 	if(unitID == -1)
 	{
-		
+		if(units.find(myLeaderID) == units.end())
+		{
+			unit.updateKeyState(0);
+			unit.updateMousePress(0);
+		}
 		if(myLeaderID == unit.id)
 		{
 			// nothing to do :G
@@ -342,6 +346,9 @@ void World::AI_TeamCreep(Unit& unit)
 			{
 				unit.updateKeyState(Unit::MOVE_FRONT);
 				unit.updateMousePress(0);
+				
+				if( ((currentWorldFrame + (unit.id * 1837) % 131) % 130) == 0 )
+					unit.updateKeyState(Unit::LEAP_LEFT);
 			}
 		}
 		
@@ -404,16 +411,37 @@ void World::AI_TowerBuilding(Unit& unit)
 
 void World::AI_BaseBuilding(Unit& u)
 {
-	if(currentWorldFrame % 500 == 10)
+	if(currentWorldFrame % 200 == 10)
 	{
 		int num = (currentWorldFrame % 1731) % 5;
 		Location spawn_pos = u.position + Location(num - 3, ((num + 2) % 5) - 3, ((num + 4) % 5) - 3);
 		
-		// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
+		std::vector<std::string> creepNames;
+		creepNames.push_back("Noob");
+		creepNames.push_back("Trainee");
+		creepNames.push_back("Expert");
+		creepNames.push_back("Champion");
+		
 		int team = u["TEAM"];
-		if(team == 0)
+		if(team == 0 || team == 1)
+		{
+			int limit = (teams[team].level < 4)?teams[team].level:4;
+			
+			for(int how_many = 0; how_many < 2; ++how_many)
+			for(int i=0; i<limit; ++i)
+			{
+				addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), creepNames[limit-1], limit*4,  limit*1, limit*500, limit-1);
+			}
+		}
+		
+		/*
+		else if(team == 1)
+		{
 			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
-		else
 			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
+			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
+			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
+		}
+		*/
 	}
 }

@@ -25,6 +25,16 @@ class Model;
 class World : public HasProperties, public MessagingSystem<GotPlayerID>
 {
 	
+	struct Team
+	{
+		Team();
+		void reset();
+		
+		int level;
+	};
+	
+	Team teams[2];
+	
 	void AI_TeamCreep(Unit& unit);
 	void AI_RabidAlien(Unit& unit);
 	void AI_BaseBuilding(Unit& unit);
@@ -75,7 +85,7 @@ public:
 	
 	void addRandomMonster();
 	
-	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);
+	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass, int default_weapon);
 	void addUnit(int id, bool player = true, int team = -1);
 	
 	void addProjectile(Location& location, int id, size_t model_prototype);

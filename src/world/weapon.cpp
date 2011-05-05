@@ -140,7 +140,7 @@ void Weapon::fire(World& world, Unit& user)
 	Location projectile_direction = user.getLookDirection();
 	
 	weapon_position.y += FixedPoint(intVals["Y_OFFSET"], 1000);
-	user.velocity -= projectile_direction * FixedPoint(intVals["FIRE_KICK"], 1000) / FixedPoint(user.intVals["MASS"], 1000);
+	user.velocity -= projectile_direction * FixedPoint(intVals["FIRE_KICK"], 1000) / FixedPoint(user.intVals["MASS"] + 1, 1000);
 	
 	size_t model_prototype = proto_projectile.prototype_model;
 	

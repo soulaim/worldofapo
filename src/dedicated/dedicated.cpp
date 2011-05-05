@@ -376,18 +376,20 @@ bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumT
 			{
 				if(checksum_vector[i] != plr_cs[i])
 				{
+					
+					if(simulRules.currentFrame - frameID >= checkSumVectorSize)
+					{
+						cerr << Players[plrID].name << "behind schedule!" << endl;
+						break;
+					}
+					
 					vector<string> reasons;
 					reasons.push_back("unit positions and ids");
 					reasons.push_back("unit hitpoints");
 					reasons.push_back("item positions");
 					reasons.push_back("projectile positions");
 					
-					if(simulRules.currentFrame - frameID >= checkSumVectorSize)
-					{
-						cerr << "WARNING: Player behind schedule!" << endl;
-					}
-					
-					cerr << "out of sync! reason: \"" << reasons[i] << "\", player frame: " << frameID << ", server frame: " << simulRules.currentFrame << ", client cs: " << plr_cs[i] << ", server cs: " << checksum_vector[i] << endl;
+					// cerr << "out of sync! reason: \"" << reasons[i] << "\", player frame: " << frameID << ", server frame: " << simulRules.currentFrame << ", client cs: " << plr_cs[i] << ", server cs: " << checksum_vector[i] << endl;
 					
 					stringstream chat_msg;
 					chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: " << reasons[i] << "#";
@@ -617,23 +619,11 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 		Order tmp_order;
-		tmp_order.cmd_type = NetworkMessage::KEYSTATE_MESSAGE_ID;
-		
 		ss >> tmp_order.plr_id;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.keyState;
-		
-		
-		if(player.last_keyState < simulRules.currentFrame + 1)
-			tmp_order.frameID = simulRules.currentFrame + 1;
-		else
-			tmp_order.frameID = player.last_keyState + 1;
-		player.last_keyState = tmp_order.frameID;
-		
-		stringstream order_msg;
-		order_msg << static_cast<int>(NetworkMessage::KEYSTATE_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.keyState << "#";
-		
-		new_message = order_msg.str();
+		tmp_order.frameID = player.getFrameForKeyPress(simulRules.currentFrame);
+		new_message = NetworkMessage::getKeyState(tmp_order.plr_id, tmp_order.frameID, tmp_order.keyState);
 	}
 	else if(orderType == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
 	{
@@ -644,24 +634,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 		Order tmp_order;
-		tmp_order.cmd_type = NetworkMessage::MOUSEMOVE_MESSAGE_ID;
-		
 		ss >> tmp_order.plr_id;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.mousex;
 		ss >> tmp_order.mousey;
-		
-		if(player.last_mouseMove < simulRules.currentFrame + 1)
-			tmp_order.frameID = simulRules.currentFrame + 1;
-		else
-			tmp_order.frameID = player.last_mouseMove + 1;
-		player.last_mouseMove = tmp_order.frameID;
-		
-		stringstream order_msg;
-		order_msg << static_cast<int>(NetworkMessage::MOUSEMOVE_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.mousex << " " << tmp_order.mousey << "#";
-		
-		new_message = order_msg.str();
-		
+		tmp_order.frameID = player.getFrameForMouseMove(simulRules.currentFrame);
+		new_message = NetworkMessage::getMouseMove(tmp_order.plr_id, tmp_order.frameID, tmp_order.mousex, tmp_order.mousey);
 	}
 	else if(orderType == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
 	{
@@ -678,17 +656,8 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.mouseButtons;
 		
-		
-		if(player.last_mousePress < simulRules.currentFrame + 1)
-			tmp_order.frameID = simulRules.currentFrame + 1;
-		else
-			tmp_order.frameID = player.last_mousePress + 1;
-		player.last_mousePress = tmp_order.frameID;
-		
-		stringstream order_msg;
-		order_msg << static_cast<int>(NetworkMessage::MOUSEPRESS_MESSAGE_ID) << " " << tmp_order.plr_id << " "  << tmp_order.frameID << " " << tmp_order.mouseButtons << "#";
-		
-		new_message = order_msg.str();
+		tmp_order.frameID = player.getFrameForMousePress(simulRules.currentFrame);
+		new_message = NetworkMessage::getMousePress(tmp_order.plr_id, tmp_order.frameID, tmp_order.mouseButtons);
 	}
 	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
 	{
@@ -1183,6 +1152,10 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	else if(order_type == MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message?? makes no sense." << endl;
+	}
+	else if(order_type == 3)
+	{
+		// ignore chat messages
 	}
 	else
 	{

@@ -193,7 +193,7 @@ void Game::sendKeyState(int keyState)
 	if(!hasID())
 		return;
 	
-	NetworkMessage::sendKeyState(getServerConnection(), myID, keyState);
+	getServerConnection() << NetworkMessage::getKeyState(myID, 0, keyState);
 }
 
 void Game::sendMouseMove(int x, int y)
@@ -201,7 +201,7 @@ void Game::sendMouseMove(int x, int y)
 	if(!hasID())
 		return;
 	
-	NetworkMessage::sendMouseMove(getServerConnection(), myID, x, y);
+	getServerConnection() << NetworkMessage::getMouseMove(myID, 0, x, y);
 }
 
 void Game::sendMousePress(int mousePress)
@@ -209,7 +209,7 @@ void Game::sendMousePress(int mousePress)
 	if(!hasID())
 		return;
 	
-	NetworkMessage::sendMousePress(getServerConnection(), myID, mousePress);
+	getServerConnection() << NetworkMessage::getMousePress(myID, 0, mousePress);
 }
 
 
@@ -238,8 +238,16 @@ bool Game::client_tick_local()
 	
 	if( (simulRules.currentFrame < simulRules.allowedFrame) )
 	{
-		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID != simulRules.currentFrame) )
+		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID < simulRules.currentFrame) )
+		{
 			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+			UnitInput.pop_back();
+		}
+		else if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID > simulRules.currentFrame) )
+		{
+			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
+		}
+		
 		return true;
 	}
 

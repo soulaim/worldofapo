@@ -2,7 +2,7 @@
 #ifndef H_NETWORKMESSAGE
 #define H_NETWORKMESSAGE
 
-#include "net/socket_handler.h"
+#include <string>
 
 class NetworkMessage
 {
@@ -14,9 +14,9 @@ public:
 		MOUSEMOVE_MESSAGE_ID  = 8
 	};
 	
-	static void sendKeyState(Network::SocketHandler::Connection& conn, int myID, int keystate);
-	static void sendMousePress(Network::SocketHandler::Connection& conn, int myID, int mousePress);
-	static void sendMouseMove(Network::SocketHandler::Connection& conn, int myID, int x, int y);
+	static std::string getKeyState(int myID, int frame, int keystate);
+	static std::string getMousePress(int myID, int frame, int mousePress);
+	static std::string getMouseMove(int myID, int frame, int x, int y);
 };
 
 #endif
