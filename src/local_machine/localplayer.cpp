@@ -310,18 +310,10 @@ void Localplayer::draw()
 	{
 		visualworld.viewTick(world.units, world.projectiles, world.items, world.currentWorldFrame);
 		view->tick();
-
-		int& fps_sync = intVals["SYNC_FPS_AND_TPS"];
-		bool have_time_to_draw = !need_to_tick_world || fps_sync;
-		float fps = hud->getFPS();
 		
-		if( (fps < 1.0f) || (have_time_to_draw && window->active()) )
+		float fps = hud->getFPS();
+		if( (fps < 5.0f) || (!need_to_tick_world && window->active()) )
 		{
-			if( (fps_sync > 0) && (fps_sync < 10) )
-			{
-				--fps_sync;
-			}
-			
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
 				blur = 0;
