@@ -19,16 +19,40 @@ using namespace std;
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 extern int QUADS_DRAWN_THIS_FRAME;
 
+
+Hud::PerformanceData::PerformanceData()
+{
+	reset();
+}
+
+void Hud::PerformanceData::reset()
+{
+	last_time = Timer::time_now();
+	fps = 0;
+	world_fps = 0;
+	frames = 0;
+	world_ticks = 0;
+}
+
+float Hud::getFPS()
+{
+	return perfData.fps;
+}
+
 Hud::Hud():
 	showStats(false),
 	currentTime(0),
-	world_ticks(0),
 	zombieCount(0)
 {
 	cerr << "Loading config file for HUD.." << endl;
 	load("configs/hud.conf");
 	
 	area_name = "World of Apo";
+}
+
+void Hud::reset()
+{
+	perfData.reset();
 }
 
 void Hud::setAreaName(const string& areaName)
@@ -91,7 +115,13 @@ void Hud::setCurrentClientCommand(const string& cmd)
 
 void Hud::world_tick()
 {
-	++world_ticks;
+	++perfData.world_ticks;
+	
+	long long time_now = Timer::time_now();
+	long long time_since_last = time_now - perfData.last_time;
+	
+	perfData.fps = 1000.0f * perfData.frames / time_since_last;
+	perfData.world_fps = 1000.0f * perfData.world_ticks/ time_since_last;
 }
 
 void Hud::setUnitsMap(std::map<int, Unit>* _units)
@@ -223,29 +253,27 @@ void Hud::drawMessages()
 
 void Hud::drawFPS()
 {
-	static long long last_time = Timer::time_now();
-	static double fps = 0;
-	static double world_fps = 0;
-	static int frames = 0;
-	++frames;
+	
+	++perfData.frames;
 	long long time_now = Timer::time_now();
-	long long time_since_last = time_now - last_time;
+	long long time_since_last = time_now - perfData.last_time;
+	
 	if(time_since_last > 500)
 	{
-		fps = 1000.0 * frames / time_since_last;
-		world_fps = 1000.0 * world_ticks/ time_since_last;
-		frames = 0;
-		world_ticks = 0;
-		last_time = time_now;
+		perfData.fps = 1000.0f * perfData.frames / time_since_last;
+		perfData.world_fps = 1000.0f * perfData.world_ticks/ time_since_last;
+		perfData.frames = 1;
+		perfData.world_ticks = 1;
+		perfData.last_time = time_now;
 	}
 	
 	// TODO: these should probably not be set here.
 	stringstream ss0;
-	ss0 << "FPS: " << fixed << setprecision(2) << fps;
+	ss0 << "FPS: " << fixed << setprecision(2) << perfData.fps;
 	stringstream ss1;
-	ss1 << "SPF: " << fixed << setprecision(3) << 1.0/fps;
+	ss1 << "SPF: " << fixed << setprecision(3) << 1.0/perfData.fps;
 	stringstream ss2;
-	ss2 << "TPS: " << fixed << setprecision(2) << world_fps;
+	ss2 << "TPS: " << fixed << setprecision(2) << perfData.world_fps;
 	stringstream ss3;
 	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
 	stringstream ss4;

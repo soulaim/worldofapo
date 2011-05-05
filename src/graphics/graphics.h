@@ -128,6 +128,7 @@ public:
 	
 	GameView(Window& window, Hud& hud);
 	~GameView();
+	
 	FrustumR frustum;
 };
 

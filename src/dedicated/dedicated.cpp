@@ -382,7 +382,12 @@ bool DedicatedServer::checkSumOK(int plrID, int frameID, vector<World::CheckSumT
 					reasons.push_back("item positions");
 					reasons.push_back("projectile positions");
 					
-					cerr << "out of sync! reason: \"" << reasons[i] << "\", frame: " << frameID << ", server cs: " << checksum_vector[i] << ", client cs: " << plr_cs[i] << endl;
+					if(simulRules.currentFrame - frameID >= checkSumVectorSize)
+					{
+						cerr << "WARNING: Player behind schedule!" << endl;
+					}
+					
+					cerr << "out of sync! reason: \"" << reasons[i] << "\", player frame: " << frameID << ", server frame: " << simulRules.currentFrame << ", client cs: " << plr_cs[i] << ", server cs: " << checksum_vector[i] << endl;
 					
 					stringstream chat_msg;
 					chat_msg << "3 -1 ^G" << Players[plrID].name << " ^Rout of sync: " << reasons[i] << "#";

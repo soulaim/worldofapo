@@ -351,7 +351,9 @@ int Unit::getMaxHP() const
 
 void Unit::levelUp()
 {
+	intVals["STR"]++;
 	intVals["DEX"]++;
+	hitpoints = getMaxHP();
 }
 
 void Unit::takeDamage(int damage)
@@ -389,9 +391,7 @@ void Unit::setName(const string& newName)
 
 bool Unit::human() const
 {
-	if(controllerTypeID == HUMAN_INPUT)
-		return true;
-	return false;
+	return controllerTypeID == HUMAN_INPUT;
 }
 
 float Unit::getAngle()

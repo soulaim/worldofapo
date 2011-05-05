@@ -313,7 +313,9 @@ void Localplayer::draw()
 
 		int& fps_sync = intVals["SYNC_FPS_AND_TPS"];
 		bool have_time_to_draw = !need_to_tick_world || fps_sync;
-		if(have_time_to_draw && window->active())
+		float fps = hud->getFPS();
+		
+		if( (fps < 1.0f) || (have_time_to_draw && window->active()) )
 		{
 			if( (fps_sync > 0) && (fps_sync < 10) )
 			{
@@ -552,8 +554,10 @@ bool Localplayer::handleClientLocalInput()
 		}
 		else if(key == "escape")
 		{
+			// could send a message instead :)
 			game.endGame();
 			world.terminate();
+			hud->reset();
 			
 			// then proceed with local shutdown.
 			std::cerr << "User pressed ESC, shutting down." << std::endl;
@@ -642,7 +646,6 @@ bool Localplayer::handleClientLocalInput()
 	}
 	return true;
 }
-
 
 
 

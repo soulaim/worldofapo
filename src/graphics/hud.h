@@ -18,6 +18,7 @@ class Hud : public HasProperties
 public:
 	Hud();
 
+	void reset();
 	void setAreaName(const std::string&);
 	void setLocalPlayerName(const std::string&);
 	void setLocalPlayerHP(const int);
@@ -54,6 +55,8 @@ public:
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.
 	void clearDebugStrings();
 	
+	float getFPS();
+	
 private:
 	FixedPoint level_max_z;
 	FixedPoint level_max_x;
@@ -70,9 +73,23 @@ private:
 	bool showStats;
 	int plr_ID;
 	
+	struct PerformanceData
+	{
+		PerformanceData();
+		void reset();
+		
+		long long last_time;
+		float fps;
+		float world_fps;
+		int frames;
+		int world_ticks;
+	};
+	
+	PerformanceData perfData;
+	
 	Location unit_location;
 	unsigned currentTime;
-	int world_ticks;
+	
 	int zombieCount;
 
 	std::map<int, PlayerInfo>* Players;
