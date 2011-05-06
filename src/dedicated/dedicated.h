@@ -67,18 +67,6 @@ class DedicatedServer : public HasProperties, public MessagingSystem<BulletHitEv
 		OBSERVER = 4
 	};
 	
-	enum MessageType
-	{
-		COPY_ORDER_MESSAGE = -4,
-		INSTANT_REACTION = -2,
-		SERVER_ORDER = -1,
-		PLAYER_INPUT = 1,
-		PLAYERINFO_MESSAGE = 2,
-		CHAT_MESSAGE = 3,
-		
-		ADMIN_ORDER_MESSAGE = 4
-	};
-	
 	
 	std::map<std::string, std::vector< std::vector<World::CheckSumType> > > checkSums;
 	const unsigned checkSumVectorSize;

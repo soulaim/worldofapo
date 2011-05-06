@@ -84,14 +84,14 @@ void DedicatedServer::sendWorldCopy(const string& areaName, int plr_ID)
 	}
 	
 	stringstream welcome_message;
-	welcome_message << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " You have appeared in ^G" << areaName << "#";
+	welcome_message << NetworkMessage::MessageType::CHAT_MESSAGE << " " << SERVER_ID << " You have appeared in ^G" << areaName << "#";
 	socketWrite(sockets, plr_ID, welcome_message.str());
 }
 
 void DedicatedServer::serverSendMonsterSpawn()
 {
 	stringstream tmp_msg;
-	tmp_msg << MessageType::SERVER_ORDER << " " << (serverAllow+10) << " 10#";
+	tmp_msg << NetworkMessage::MessageType::SERVER_ORDER << " " << (serverAllow+10) << " 10#";
 	serverMsgs.push_back(tmp_msg.str());
 }
 

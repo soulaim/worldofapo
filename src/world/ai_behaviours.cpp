@@ -430,7 +430,7 @@ void World::AI_BaseBuilding(Unit& u)
 			for(int how_many = 0; how_many < 2; ++how_many)
 			for(int i=0; i<limit; ++i)
 			{
-				addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), creepNames[limit-1], limit*4,  limit*1, limit*500, limit-1);
+				addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(2 + limit, 2), creepNames[limit-1], limit*4,  limit*1, limit*500, limit-1);
 			}
 		}
 		

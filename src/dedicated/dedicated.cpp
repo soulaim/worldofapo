@@ -109,7 +109,7 @@ void DedicatedServer::init()
 	
 	
 	stringstream createBaseBuildings;
-	createBaseBuildings << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 18#";
+	createBaseBuildings << NetworkMessage::MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 18#";
 	serverMsgs.push_back(createBaseBuildings.str());
 }
 
@@ -458,15 +458,15 @@ void DedicatedServer::simulateWorldFrame()
 			{
 				switch(tmp.cmd_type)
 				{
-					case NetworkMessage::KEYSTATE_MESSAGE_ID:
+					case NetworkMessage::InputMessageType::KEYSTATE_MESSAGE_ID:
 						it->second.updateKeyState(tmp.keyState);
 						break;
 						
-					case NetworkMessage::MOUSEPRESS_MESSAGE_ID:
+					case NetworkMessage::InputMessageType::MOUSEPRESS_MESSAGE_ID:
 						it->second.updateMousePress(tmp.mouseButtons);
 						break;
 						
-					case NetworkMessage::MOUSEMOVE_MESSAGE_ID:
+					case NetworkMessage::InputMessageType::MOUSEMOVE_MESSAGE_ID:
 						it->second.updateMouseMove(tmp.mousex, tmp.mousey);
 						break;
 				}
@@ -583,7 +583,7 @@ void DedicatedServer::parseAdminMsg(const std::string& msg, int admin_id, Player
 	
 	switch(orderType)
 	{
-		case MessageType::ADMIN_ORDER_MESSAGE:
+		case NetworkMessage::MessageType::ADMIN_ORDER_MESSAGE:
 		{
 			// ...
 			
@@ -610,7 +610,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	ss >> orderType;
 	
 	
-	if(orderType == NetworkMessage::KEYSTATE_MESSAGE_ID)
+	if(orderType == NetworkMessage::InputMessageType::KEYSTATE_MESSAGE_ID)
 	{
 		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
@@ -625,7 +625,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		tmp_order.frameID = player.getFrameForKeyPress(simulRules.currentFrame);
 		new_message = NetworkMessage::getKeyState(tmp_order.plr_id, tmp_order.frameID, tmp_order.keyState);
 	}
-	else if(orderType == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
+	else if(orderType == NetworkMessage::InputMessageType::MOUSEMOVE_MESSAGE_ID)
 	{
 		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
@@ -641,7 +641,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		tmp_order.frameID = player.getFrameForMouseMove(simulRules.currentFrame);
 		new_message = NetworkMessage::getMouseMove(tmp_order.plr_id, tmp_order.frameID, tmp_order.mousex, tmp_order.mousey);
 	}
-	else if(orderType == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
+	else if(orderType == NetworkMessage::InputMessageType::MOUSEPRESS_MESSAGE_ID)
 	{
 		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
@@ -650,8 +650,6 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 		Order tmp_order;
-		tmp_order.cmd_type = NetworkMessage::MOUSEPRESS_MESSAGE_ID;
-		
 		ss >> tmp_order.plr_id;
 		ss >> tmp_order.frameID;
 		ss >> tmp_order.mouseButtons;
@@ -659,7 +657,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		tmp_order.frameID = player.getFrameForMousePress(simulRules.currentFrame);
 		new_message = NetworkMessage::getMousePress(tmp_order.plr_id, tmp_order.frameID, tmp_order.mouseButtons);
 	}
-	else if(orderType == MessageType::PLAYERINFO_MESSAGE)
+	else if(orderType == NetworkMessage::MessageType::PLAYERINFO_MESSAGE)
 	{
 		int id;
 		string introductionName;
@@ -677,12 +675,12 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 				player.name = introductionName;
 			
 			// create a better message and distribute that to players.
-			new_message_ss << MessageType::PLAYERINFO_MESSAGE << " " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
+			new_message_ss << NetworkMessage::MessageType::PLAYERINFO_MESSAGE << " " << id << " " << Players[id].kills << " " << Players[id].deaths << " " << Players[id].name << "#";
 
 			new_message = new_message_ss.str();
 		}
 	}
-	else if(orderType == MessageType::CHAT_MESSAGE) // chat message!
+	else if(orderType == NetworkMessage::MessageType::CHAT_MESSAGE) // chat message!
 	{
 		string id;
 		string cmd;
@@ -703,7 +701,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			serverSendMonsterSpawn(n, team);
 			
 			stringstream chatmsg;
-			chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
+			chatmsg << NetworkMessage::MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << "^w has performed a dark ritual.. the ^rswarm ^wis anigh..#";
 			serverMsgs.push_back(chatmsg.str());
 			
 			return;
@@ -716,7 +714,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> property >> value;
 			
 			stringstream property_msg;
-			property_msg << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 24 " << id << "#";
+			property_msg << NetworkMessage::MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 24 " << id << "#";
 			serverMsgs.push_back(property_msg.str());
 			
 			return;
@@ -727,14 +725,14 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 			ss >> new_team;
 			
 			stringstream team_change;
-			team_change << MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
+			team_change << NetworkMessage::MessageType::SERVER_ORDER << " " << (serverAllow + 10) << " 11 " << id << " " << new_team << "#";
 			serverMsgs.push_back(team_change.str());
 			return;
 		}
 		else if(cmd == "AUTO_SPAWN")
 		{
 			stringstream autospawn;
-			autospawn << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^YAutospawn functionality is ^RDEPRECATED#";
+			autospawn << NetworkMessage::MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^YAutospawn functionality is ^RDEPRECATED#";
 			serverMsgs.push_back(autospawn.str());
 			return;
 		}
@@ -751,7 +749,7 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		}
 		
 	}
-	else if(orderType == MessageType::SERVER_ORDER)
+	else if(orderType == NetworkMessage::MessageType::SERVER_ORDER)
 	{
 		// WTF?? Someone is trying to impersonate GOD (that's me). Maybe I should lay some thunder on his ass?
 		cerr << "SOMEONE IS IMPERSONATING GOD!! :" << msg << endl;
@@ -761,10 +759,10 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 		disconnect(player_id);
 		
 		stringstream chatmsg;
-		chatmsg << MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
+		chatmsg << NetworkMessage::MessageType::CHAT_MESSAGE << " " << SERVER_ID << " ^r" << player.name << " ^w has attempted to impersonate ^GME ^w .. --> ^Rdisconnected#";
 		serverMsgs.push_back(chatmsg.str());
 	}
-	else if(orderType == MessageType::INSTANT_REACTION) // instant reaction message from client
+	else if(orderType == NetworkMessage::MessageType::INSTANT_REACTION) // instant reaction message from client
 	{
 		string cmd;
 		ss >> cmd;
@@ -819,13 +817,12 @@ void DedicatedServer::acceptConnections()
 // server messages read from the network
 void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 {
-	if(server_msg.serverCommand == 3) // pause!
+	if(server_msg.serverCommand == NetworkMessage::ServerMessageType::PAUSE_MESSAGE_ID)
 	{
 		pause_state = PAUSED;
 		cerr << "SERVER: Pausing the game at frame " << simulRules.currentFrame << endl;
 	}
-	
-	else if(server_msg.serverCommand == 10) // spawn monster to team -1
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::SPAWN_MONSTER_MESSAGE_ID)
 	{
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
@@ -833,7 +830,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			world.addUnit(world.nextUnitID(), false);
 		}
 	}
-	else if(server_msg.serverCommand == 11) // change team message
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::CHANGE_TEAM_MESSAGE_ID)
 	{
 		int unitID     = server_msg.keyState;
 		int new_teamID = server_msg.mousex;
@@ -850,7 +847,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			}
 		}
 	}
-	else if(server_msg.serverCommand == 15) // spawn monster to a specific team
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::SPAWN_MONSTER_TO_TEAM_MESSAGE_ID)
 	{
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
@@ -858,7 +855,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			world.addUnit(world.nextUnitID(), false, server_msg.keyState);
 		}
 	}
-	else if(server_msg.serverCommand == 100) // SOME PLAYER HAS DISCONNECTED
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::PLAYER_HAS_DISCONNECTED_MESSAGE_ID)
 	{
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
@@ -873,7 +870,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		
 		simulRules.numPlayers--;
 	}
-	else if(server_msg.serverCommand == 18) // create base buildings
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::CREATE_BASE_BUILDINGS_MESSAGE_ID)
 	{
 		for(auto area_it = areas.begin(); area_it != areas.end(); area_it++)
 		{
@@ -881,7 +878,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 			world.resetGame();
 		}
 	}
-	else if(server_msg.serverCommand == 1) // ADDHERO message
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::ADD_HERO_MESSAGE_ID)
 	{
 		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
 		World& world = areas.find(areaName)->second;
@@ -913,11 +910,11 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		sort(UnitInput.begin(), UnitInput.end());
 		serverSendRequestPlayerNameMessage(server_msg.keyState);
 	}
-	else if(server_msg.serverCommand == 2) // "set playerID" message
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::SET_PLAYER_ID_MESSAGE_ID)
 	{
 		cerr << "SERVER HAS NO ID, CAN NOT CHANGE IT" << endl;
 	}
-	else if(server_msg.serverCommand == 24) // toggle god-mode
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::TOGGLE_GOD_MODE_MESSAGE_ID)
 	{
 		int id = server_msg.keyState;
 		
@@ -933,7 +930,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		}
 		
 	}
-	else if(server_msg.serverCommand == 7) // destroy hero, for area change -message
+	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::AREA_CHANGE_HERO_DESTROY_MESSAGE_ID)
 	{
 		// so what we actually want to do, is save the hero into dormantPlayers, then removeUnit,
 		// (by now the unit's NEXT_AREA strVal should have been set to it's new value, move this to AREA)
@@ -1042,7 +1039,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		
 		UnitInput.push_back(tmp_order);
 	}
-	else if(order_type == MessageType::PLAYERINFO_MESSAGE) // playerInfo message
+	else if(order_type == NetworkMessage::MessageType::PLAYERINFO_MESSAGE) // playerInfo message
 	{
 		cerr << "SERVER Got playerInfo message!" << endl;
 		int plrID, kills, deaths;
@@ -1070,7 +1067,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 	}
 	
-	else if(order_type == MessageType::SERVER_ORDER) // A COMMAND message from GOD (server)
+	else if(order_type == NetworkMessage::MessageType::SERVER_ORDER) // A COMMAND message from GOD (server)
 	{
 		
 		Order tmp_order;
@@ -1083,7 +1080,7 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 	}
 	
 	
-	else if(order_type == MessageType::INSTANT_REACTION) // instant reaction message from GOD
+	else if(order_type == NetworkMessage::MessageType::INSTANT_REACTION) // instant reaction message from GOD
 	{
 		string cmd;
 		ss >> cmd;
@@ -1149,11 +1146,11 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 		}
 		
 	}
-	else if(order_type == MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
+	else if(order_type == NetworkMessage::MessageType::COPY_ORDER_MESSAGE) // copy of an existing order
 	{
 		cerr << "Server got a copy of an old message?? makes no sense." << endl;
 	}
-	else if(order_type == 3)
+	else if(order_type == NetworkMessage::MessageType::CHAT_MESSAGE)
 	{
 		// ignore chat messages
 	}
