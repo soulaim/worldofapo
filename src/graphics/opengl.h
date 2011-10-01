@@ -20,6 +20,8 @@ class OpenGL
 {
 public:
 	OpenGL();
+        bool& getGL3bit();
+        void init();
 };
 
 #endif

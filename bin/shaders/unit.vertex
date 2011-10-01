@@ -5,7 +5,7 @@ varying vec3 eyeNormal;
 attribute vec2 bone_index;
 attribute vec2 bone_weight;
 
-uniform mat4 bones[22];  // Array of bones that are computed (animated) on the CPU and given to the shader
+uniform mat4 bones[22];
 uniform bool active;
 uniform vec3 unit_location;
 uniform float scale;
@@ -16,7 +16,7 @@ void main()
 	eyeNormal = gl_Normal;
 
 	int index;
-	
+
 	// The new position of the vertex is the weighted mean of the rotations and translations done by each bone.
 	index = int(bone_index.x);
 	vertex_position = (bones[index] * gl_Vertex) * bone_weight.x;
@@ -28,7 +28,7 @@ void main()
 
 	vertex_position.xyz *= scale;
 	vertex_position.xyz += unit_location;
-	
+
 	gl_Position = gl_ModelViewProjectionMatrix * vec4(vertex_position.xyz, 1);
 	eyeNormal = vec3(gl_ModelViewMatrix * vec4(eyeNormal, 0));
 	varTexCoord = vec2(gl_MultiTexCoord0);

@@ -24,7 +24,7 @@ SkeletalModel::SkeletalModel():
 	{
 		locations[i] = -1;
 	}
-	
+
 	myScale = 1.0f; // default size
 }
 
@@ -48,7 +48,7 @@ SkeletalModel::SkeletalModel(const SkeletalModel& model):
 		vertices = model.vertices;
 		texture_coordinates = model.texture_coordinates;
 		triangles = model.triangles;
-		
+
 		weighted_vertices = model.weighted_vertices;
 	}
 }
@@ -69,39 +69,39 @@ void SkeletalModel::calculate_weights()
 	for(size_t i=0; i<vertices.size(); ++i)
 	{
 		const vec3<float>& v = vertices[i];
-		
+
 		map<int, float> weights;
-		
+
 		for(size_t k=0; k<bones.size(); ++k)
 		{
 			const Bone& bone = bones[k];
-			
+
 			vec3<float> start(bone.start_x, bone.start_y, bone.start_z);
 			vec3<float> end(bone.end_x, bone.end_y, bone.end_z);
-			
+
 			vec3<float> segment = end - start;
-			
+
 			weights[k] = .0f;
-			
+
 			for(int z = 0; z < 100; z++)
 			{
 				vec3<float> tmp_point = start + segment * (z / 99.f);
-				
+
 				float length = (v - tmp_point).lengthSquared();
 				float tmp_w = 1.0f / (0.01f + length);
 				if(tmp_w > weights[k])
 					weights[k] = tmp_w;
 			}
 		}
-		
+
 		// we want 2 bones
 		WeightedVertex vw;
-		
+
 		for(int z = 0; z < 2; z++)
 		{
 			int best_index = 0;
 			float best_weight = 0.f;
-			
+
 			for(auto it = weights.begin(); it != weights.end(); it++)
 			{
 				if(it->second > best_weight)
@@ -110,27 +110,27 @@ void SkeletalModel::calculate_weights()
 					best_weight = it->second;
 				}
 			}
-			
+
 			if(z == 0)
 			{
 				vw.bone1 = best_index;
 				vw.weight1 = best_weight;
 			}
-			
+
 			if(z == 1)
 			{
 				vw.bone2 = best_index;
 				vw.weight2 = best_weight;
 			}
-			
+
 			weights.erase(best_index); // don't select same bone twice.
 		}
-		
+
 		// normalise weights
 		float sum = vw.weight1 + vw.weight2;
 		vw.weight1 /= sum;
 		vw.weight2 /= sum;
-		
+
 		weighted_vertices.push_back(vw);
 	}
 }
@@ -159,7 +159,7 @@ bool SkeletalModel::load(const string& filename)
 	string cmd;
 	while(in >> cmd)
 	{
-		
+
 		if(cmd == "MODEL")
 		{
 			vertices.clear();
@@ -167,13 +167,13 @@ bool SkeletalModel::load(const string& filename)
 			texture_coordinates.clear();
 			normals.clear();
 			colors.clear();
-			
+
 			bones.clear();
 			triangles.clear();
 			triangle_normals.clear();
 			triangle_areas.clear();
 		}
-		
+
 		else if(cmd == "MESH" || cmd == "END_MESH")
 		{
 			// ...
@@ -182,9 +182,9 @@ bool SkeletalModel::load(const string& filename)
 		{
 			Bone bone;
 			in >> bone.name;
-			
+
 			string sub_cmd;
-			
+
 			while(in >> sub_cmd)
 			{
 				if(sub_cmd == "START_POS")
@@ -218,7 +218,7 @@ bool SkeletalModel::load(const string& filename)
 					throw std::logic_error(string("Skeletal Model could not be loaded, bone parameter unrecognized: ") + sub_cmd);
 				}
 			}
-			
+
 			bones.push_back(bone);
 		}
 		else if(cmd == "VERTEX")
@@ -226,7 +226,7 @@ bool SkeletalModel::load(const string& filename)
 			string sub_cmd;
 			vec3<float> v;
 			vec3<float> n;
-			
+
 			while(in >> sub_cmd)
 			{
 				if(sub_cmd == "COORDINATE")
@@ -248,10 +248,10 @@ bool SkeletalModel::load(const string& filename)
 					throw std::logic_error(string("Skeletal Model could not be loaded, vertex parameter unrecognized: ") + sub_cmd);
 				}
 			}
-			
+
 			if(v.length() > 10)
 				cerr << "DUBIOUS: post-check: vertex length " << v.length() << endl;
-			
+
 			const unsigned MAX_VERTICES = (1 << (sizeof(unsigned short)*8));
 			if(vertices.size() < MAX_VERTICES)
 			{
@@ -266,11 +266,11 @@ bool SkeletalModel::load(const string& filename)
 		else if(cmd == "FACE")
 		{
 			string sub_cmd;
-			
+
 			Triangle triangle;
 			vec3<float> triangle_n;
 			float triangle_area = 0.0f;
-			
+
 			while(in >> sub_cmd)
 			{
 				if(sub_cmd == "TRIANGLE")
@@ -278,13 +278,13 @@ bool SkeletalModel::load(const string& filename)
 					for(size_t i = 0; i < 3; ++i)
 					{
 						in >> triangle.vertices[i];
-						
+
 						if(triangle.vertices[i] >= vertices.size())
 						{
 							cerr << triangle.vertices[i] << " >= " << vertices.size() << endl;
 							throw std::logic_error(string("SkeletalModel triangle's vertex index out of bounds."));
 						}
-						
+
 						final_vertices.push_back(vertices.at(triangle.vertices[i]));
 						final_normals.push_back(normals.at(triangle.vertices[i]));
 						triangle.vertices[i] = final_vertices.size() - 1;
@@ -324,9 +324,9 @@ bool SkeletalModel::load(const string& filename)
 				{
 					throw std::logic_error(string("Skeletal Model could not be loaded, face parameter unrecognized: ") + sub_cmd);
 				}
-				
+
 			}
-			
+
 			for(size_t i = 0; i < 3; ++i)
 			{
 //				if(triangle.vertices[i] >= vertices.size())
@@ -336,7 +336,7 @@ bool SkeletalModel::load(const string& filename)
 					throw std::logic_error(string("SkeletalModel at post-check: triangle's vertex index out of bounds."));
 				}
 			}
-			
+
 			triangles.push_back(triangle);
 			triangle_normals.push_back(triangle_n);
 			triangle_areas.push_back(triangle_area);
@@ -346,7 +346,7 @@ bool SkeletalModel::load(const string& filename)
 			throw std::logic_error(string("SkeletalModel could not be loaded, unknown field: ") + cmd);
 		}
 	}
-	
+
 	assert(final_normals.size() == final_vertices.size());
 //	assert(tex_coords_map.size() == final_vertices.size());
 //	assert(colors_map.size() == final_vertices.size());
@@ -358,19 +358,19 @@ bool SkeletalModel::load(const string& filename)
 	{
 		texture_coordinates.push_back(it->second);
 	}
-	
+
 	// get colors
 	for(auto it = colors_map.begin(); it != colors_map.end(); it++)
 	{
 		colors.push_back(it->second);
 	}
-	
+
 	if(bones.size() < 2)
 	{
 		throw std::logic_error(string("SkeletalModel has less than two bones: ") + filename);
 	}
-	
-	
+
+
 	// resolve bone dependencies
 	for(size_t i=0; i<bones.size(); i++)
 	{
@@ -384,13 +384,13 @@ bool SkeletalModel::load(const string& filename)
 				}
 			}
 		}
-		
+
 		// free the memory required by storing bone children names.
 		bones[i].children_names.clear();
 	}
-	
+
 	calculate_weights();
-	
+
 	cerr << "Loaded model '" << filename << "' with " << vertices.size() << " vertices, " << weighted_vertices.size()
 		<< " weighted vertices, " << texture_coordinates.size() << " texture coordinates, " << triangles.size()
 		<< " triangles, and " << bones.size() << " bones." << endl;
@@ -420,7 +420,7 @@ bool SkeletalModel::save(const string& filename) const
 {
 	// TODO: this doesnt do it.
 	return false;
-	
+
 	ofstream out(filename.c_str());
 	if(!out)
 	{
@@ -471,17 +471,17 @@ bool SkeletalModel::save(const string& filename) const
 		}
 		out << endl;
 	}
-	
+
 	return bool(out);
 }
 
 void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state) const
 {
 	const Bone& bone = bones[current_bone];
-	
+
 	Animation* p_animation;
 	Animation& try_animation = Animation::getAnimation(bone.name, animation_name);
-	
+
 	if(try_animation.totalTime() == 0)
 	{
 		// lalala...
@@ -495,9 +495,9 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 	}
 	else
 		p_animation = &try_animation;
-	
+
 	Animation& animation = *p_animation;
-	
+
 	// left and right sides of the body are in polarized animation_name states
 	int ani_addition = 0;
 	if(bone.name.substr(0, 4) == "LEFT")
@@ -555,7 +555,7 @@ void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilig
 		vec3<float> end(bone.end_x, bone.end_y, bone.end_z);
 		vec3<float> line_start = rotations[i] * start;
 		vec3<float> line_end = rotations[i] * end;
-		
+
 		glVertex3f(line_start.x, line_start.y, line_start.z);
 		glVertex3f(line_end.x, line_end.y, line_end.z);
 	}
@@ -628,23 +628,23 @@ void SkeletalModel::preload()
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3<float>), &vertices[0], GL_STATIC_DRAW);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(TextureCoordinate), &texture_coordinates[0], GL_STATIC_DRAW);
-	
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0], GL_STATIC_DRAW);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, weighted_vertices.size() * sizeof(WeightedVertex), &weighted_vertices[0], GL_STATIC_DRAW);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3<float>), &normals[0], GL_STATIC_DRAW);
-	
+
 	assert(buffer == BUFFERS);
-	
+
 	buffers_loaded = true;
-	
+
 	std::cerr << "OK" << std::endl;
 }
 
@@ -668,26 +668,26 @@ void SkeletalModel::draw_normals() const
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 {
 	assert(weighted_vertices.size() == vertices.size());
-	
+
 	draw_normals();
-	
+
 	glUniform1f(model_scale_location, myScale);
-	
+
 	vector<Matrix4> rotations;
 	rotations.resize(bones.size());
-	
+
 	for(size_t i=0; i<bones.size(); i++)
 	{
 		if(bones[i].root)
 			calcMatrices(i, rotations, Matrix4(), animation_name, animation_time);
 	}
-	
+
 	if(draw_only_skeleton)
 	{
 		draw_skeleton(rotations, hilight);
 		return;
 	}
-	
+
 	if(TextureHandler::getSingleton().getCurrentTexture(0) != texture_name)
 	{
 		if(texture_name.empty())
@@ -703,8 +703,8 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 	assert(rotations.size() < 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
 
-//	old_draw(hilight);
-//	return;
+	//old_draw(hilight);
+	//return;
 
 	draw_buffers();
 }
@@ -712,7 +712,7 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 void SkeletalModel::draw_buffers() const
 {
 	assert(buffers_loaded);
-	
+
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);

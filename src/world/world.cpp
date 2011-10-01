@@ -23,7 +23,7 @@ FixedPoint World::heightDifference2Velocity(const FixedPoint& h_diff)
 void World::checksum(vector<World::CheckSumType>& checksums) const
 {
 	CheckSumType hash = 5381;
-	
+
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{
 		int id = it->first;
@@ -34,14 +34,14 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
 	checksums.push_back(hash);
-	
+
 	hash = 5381;
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{
 		hash = ((hash << 5) + hash) + it->second.hitpoints;
 	}
 	checksums.push_back(hash);
-	
+
 	hash = 5381;
 	for(auto it = items.begin(); it != items.end(); it++)
 	{
@@ -53,7 +53,7 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
 	}
 	checksums.push_back(hash);
-	
+
 	hash = 5381;
 	for(auto it = projectiles.begin(); it != projectiles.end(); it++)
 	{
@@ -94,6 +94,10 @@ void World::clampToLevelArea(MovableObject& object)
 		if(object.velocity.z > 0)
 			object.velocity.z = 0;
 	}
+    if(object.position.y > 10) {
+        object.position.y = 10;
+        object.velocity.y = FixedPoint(-1, 10);
+    }
 }
 
 
@@ -105,19 +109,19 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 	{
 		const Location& pos2 = iter->second.getPosition();
 		Location velocity_vector = (pos2 - pos);
-		
+
 		FixedPoint distance = velocity_vector.length();
 		if(distance < FixedPoint(1))
 			distance = FixedPoint(1);
-		
+
 		velocity_vector.normalize();
-		
+
 		velocity_vector *= power;
 		velocity_vector /= distance;
-		
+
 		FixedPoint force = velocity_vector.length();
 		FixedPoint damage = force * force * FixedPoint(100);
-		
+
 		int int_damage = damage.getInteger();
 		if(int_damage > 0)
 		{
@@ -126,10 +130,10 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 			u.last_damage_dealt_by = owner;
 			u("DAMAGED_BY") = name;
 		}
-		
+
 		iter->second.velocity += velocity_vector / FixedPoint(iter->second["MASS"], 1000);
 	}
-	
+
 	// create some effect or something
 	Location zero; zero.y = FixedPoint(1, 2);
 	visualworld->explosion(pos, zero);
@@ -139,16 +143,16 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 {
 	if(properties.strVals.find("AT_DEATH") == properties.strVals.end())
 		return;
-	
+
 	if(properties.strVals["AT_DEATH"] == "")
 		properties.strVals["AT_DEATH"] = "NOTHING";
-	
+
 	// this way can only store one event to be executed at death :( should maybe reconcider that.
 	if(properties("AT_DEATH") == "EXPLODE")
 	{
 		FixedPoint explode_power(properties["EXPLODE_POWER"]);
 		const Location& pos = object.position;
-		
+
 		instantForceOutwards(explode_power, pos, properties("NAME"), properties["OWNER"]);
 	}
 	else if(properties("AT_DEATH") == "PUFF")
@@ -162,52 +166,53 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 
 void World::createBaseBuildings()
 {
+    return;
 	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
-	
+
 	int id = unitIDgenerator.nextID();
 	// Location green_base_location = lvl.getRandomLocation(200);
 	Location green_base_location = Location(168, 0, 525);
 	addAIUnit(id, green_base_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000, 0);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location green_tower_location = Location(200, 0, 525);
 	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	green_tower_location = Location(161, 0, 567);
 	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	green_tower_location = Location(264, 0, 600);
 	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000, 2);
 	units[id].staticObject = 1;
-	
-	
-	
+
+
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location red_base_location = Location(702, 0, 527);
 	addAIUnit(id, red_base_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000, 0);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location red_tower_location = Location(672, 0, 527);
 	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	red_tower_location = Location(666, 0, 561);
 	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
 	units[id].staticObject = 1;
-	
+
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	red_tower_location = Location(433, 0, 631);
@@ -230,21 +235,21 @@ void World::resetGame()
 		{
 			// restore player hitpoints to maximum values
 			it->second.hitpoints = it->second.getMaxHP();
-			
+
 			// TODO: reset ammo counts?
-			
+
 			// TODO: clear world from ammo-items? (if you do - make sure you don't delete the warp point to another world)
-			
+
 		}
 	}
-	
+
 	createBaseBuildings();
 	teams[0].reset();
 	teams[1].reset();
-	
+
 	Location red; findBasePosition(red, 1);
 	Location green; findBasePosition(green, 0);
-	
+
 	for(auto it = units.begin(); it != units.end(); ++it)
 	{
 		if(it->second.human())
@@ -266,11 +271,11 @@ std::string World::getTeamColour(Unit& u)
 {
 	if(localPlayerID == -1)
 		return "";
-	
+
 	auto it = units.find(localPlayerID);
 	if(it == units.end())
 		return "";
-	
+
 	if(it->second["TEAM"] == u["TEAM"])
 		return "^G";
 	if((it->second["TEAM"] ^ u["TEAM"]) == 1)
@@ -282,37 +287,37 @@ int World::getLocalTeam()
 {
 	if(localPlayerID == -1)
 		return -1;
-	
+
 	auto it = units.find(localPlayerID);
 	if(it == units.end())
 		return -1;
-	
+
 	return it->second["TEAM"];
 }
 
 void World::doDeathFor(Unit& unit)
 {
-	
+
 	string target_colour = getTeamColour(unit);
 	string killer_colour;
-	
+
 	// deleted units don't deserve a burial!
 	if(unit["DELETED"] == 1)
 	{
 		deadUnits.push_back(unit.id);
 		return;
 	}
-	
+
 	stringstream msg;
 	string killer = "an unknown entity";
-	
+
 	int causeOfDeath = unit.last_damage_dealt_by;
-	
+
 	int actor_id  = -1;
 	int target_id = -1;
-	
+
 	target_id = unit.id;
-	
+
 	auto killer_it = units.find(causeOfDeath);
 	if(killer_it != units.end())
 	{
@@ -320,7 +325,7 @@ void World::doDeathFor(Unit& unit)
 		killer = killer_it->second.name;
 		actor_id = killer_it->second.id;
 	}
-	
+
 	vector<string> killWords;
 	vector<string> afterWords;
 	killWords.push_back(" slaughtered "); afterWords.push_back("!");
@@ -334,15 +339,15 @@ void World::doDeathFor(Unit& unit)
 	killWords.push_back(" defiled "); afterWords.push_back("'s remains!");
 	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
 	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
-	
-	
+
+
 	Location t_position = unit.getEyePosition();
 	Location t_velocity = unit.velocity; t_velocity.y += FixedPoint(200,1000);
 	Location a_position;
 	Location a_velocity;
-	
+
 	bool verbose = false;
-	
+
 	if(actor_id != -1)
 	{
 		auto it = units.find(actor_id);
@@ -350,13 +355,13 @@ void World::doDeathFor(Unit& unit)
 		a_velocity = it->second.velocity;
 		verbose = it->second.human();
 	}
-	
+
 	verbose = verbose || unit.human();
-	
+
 	if(actor_id != target_id)
 	{
 		int i = currentWorldFrame % killWords.size();
-		
+
 		if(verbose)
 		{
 			msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
@@ -372,9 +377,9 @@ void World::doDeathFor(Unit& unit)
 			visualworld->add_message(msg.str());
 		}
 	}
-	
+
 	// visualworld->addLight(nextUnitID(), event.t_position);
-	
+
 	if(unit.human())
 	{
 		{
@@ -387,15 +392,15 @@ void World::doDeathFor(Unit& unit)
 			event.target_id = target_id;
 			queueMsg(event);
 		}
-		
+
 		// reset player hitpoints
 		unit.hitpoints = unit.getMaxHP();
-		
+
 		// respawn player back in base
 		Location pos;
 		findBasePosition(pos, unit["TEAM"]);
 		unit.setPosition(pos);
-		
+
 		// stop any movement, let the player drop down to the field of battle.
 		unit.zeroMovement();
 	}
@@ -404,10 +409,10 @@ void World::doDeathFor(Unit& unit)
 		if(unit.controllerTypeID == Unit::BASE_BUILDING)
 		{
 			int local_team = getLocalTeam();
-			
+
 			GameOver event;
 			event.win = 0;
-			
+
 			switch(local_team)
 			{
 				case -1:
@@ -422,7 +427,7 @@ void World::doDeathFor(Unit& unit)
 						visualworld->add_message("^gNew round begins!");
 					}
 					break;
-					
+
 				case 0:
 				case 1:
 					if(unit["TEAM"] == local_team)
@@ -439,27 +444,27 @@ void World::doDeathFor(Unit& unit)
 					}
 					break;
 			}
-			
+
 			sendMsg(event);
 			resetGame();
 		}
 		else if(unit.controllerTypeID == Unit::TOWER_BUILDING)
 		{
 			int local_team = getLocalTeam();
-			
+
 			int team = unit["TEAM"];
 			if(team == 1 || team == 0)
 			{
 				++teams[team ^ 1].level;
-				
+
 				if(local_team == team)
 					visualworld->add_message("^REnemy creeps have grown stronger!");
 				else
 					visualworld->add_message("^GFriendly creeps have grown stronger!");
 			}
 		}
-			
-		
+
+
 		{
 			DeathNPCEvent event;
 			event.t_position = t_position;
@@ -470,7 +475,7 @@ void World::doDeathFor(Unit& unit)
 			event.target_id = target_id;
 			queueMsg(event);
 		}
-		
+
 		deadUnits.push_back(unit.id);
 	}
 }
@@ -490,7 +495,7 @@ void World::findBasePosition(Location& pos, int team)
 World::World(VisualWorld* vw)
 {
 	localPlayerID = -1; // default value.
-	
+
 	assert(vw);
 	visualworld = vw;
 	init();
@@ -521,22 +526,22 @@ void World::init()
 void World::terminate()
 {
 	cerr << "World::terminate()" << endl;
-	
+
 	cerr << "  clearing units" << endl;
 	units.clear();
-	
+
 	cerr << "  clearing projectiles" << endl;
 	projectiles.clear();
-	
+
 	cerr << "  clearing items" << endl;
 	items.clear();
-	
+
 	cerr << "  clearing deadUnits" << endl;
 	deadUnits.clear(); // redundant?
-	
+
 	// currentWorldFrame = -1;
 	// unitIDgenerator.setNextID(10000);
-	
+
 	visualworld->terminate();
 }
 
@@ -548,59 +553,59 @@ void World::tickItem(WorldItem& item, Model* model)
 		assert(model && "item model does not exist");
 		model->updatePosition(item.position.x.getFloat(), item.position.y.getFloat(), item.position.z.getFloat());
 	}
-	
+
 	if(item.intVals["AREA_CHANGE"])
 	{
 		visualworld->genParticleEmitter(item.position + Location(0, 1, 0), item.velocity + Location(0, 1, 0),
 										3, 1000, 1000, "GREEN", "GREEN", "GREEN", "GREEN", 1000, 5, 100);
 	}
-	
+
 	// some physics & game world information
 	if( (item.velocity.y + item.position.y - FixedPoint(1, 20)) <= lvl.getHeight(item.position.x, item.position.z) )
 	{
 		// colliding with terrain right now
 		FixedPoint friction = FixedPoint(88, 100);
-		
+
 		item.position.y = lvl.getHeight(item.position.x, item.position.z);
-		
+
 		item.velocity.y += FixedPoint(50, 1000); // no clue if this makes any sense
 		item.velocity.x *= friction;
 		item.velocity.z *= friction;
 	}
-	
+
 	auto& potColl = octree->nearObjects(item.position);
-	
+
 	for(auto iter = potColl.begin(); iter != potColl.end(); ++iter)
 	{
 		// handle only unit collisions
 		if ((*iter)->type != OctreeObject::UNIT)
 			continue;
-		
+
 		Unit* u = static_cast<Unit*>(*iter);
-		
+
 		// now did they collide or not?
 		if( (item.position - u->position).lengthSquared() < FixedPoint(16) )
 		{
 			item.collides(*u);
 		}
 	}
-	
+
 	// gravity
 	item.velocity.y -= FixedPoint(35,1000);
-	
+
 	// apply motion
 	item.position += item.velocity;
-	
+
 	clampToLevelArea(item);
 }
 
 void World::tickUnit(Unit& unit, Model* model)
 {
 	unit.intVals["D"] *= 0.95;
-	
+
 	if(currentWorldFrame % 50 == 0)
 		unit.regenerate();
-	
+
 	switch(unit.controllerTypeID)
 	{
 		case Unit::AI_RABID_ALIEN:
@@ -608,35 +613,35 @@ void World::tickUnit(Unit& unit, Model* model)
 			AI_RabidAlien(unit);
 			break;
 		}
-		
+
 		case Unit::BASE_BUILDING:
 		{
 			AI_BaseBuilding(unit);
 			break;
 		}
-		
+
 		case Unit::TEAM_CREEP:
 		{
 			AI_TeamCreep(unit);
 			// AI_TeamCreep(unit);
 			break;
 		}
-		
+
 		case Unit::TOWER_BUILDING:
 		{
 			AI_TowerBuilding(unit);
 			break;
 		}
-		
+
 		case Unit::INANIMATE_OBJECT:
 		{
 			break;
 		}
-		
+
 		default:
 			break;
 	}
-	
+
 	// for server it's ok that there are no models sometimes :G
 	if(visualworld->isActive())
 	{
@@ -644,52 +649,52 @@ void World::tickUnit(Unit& unit, Model* model)
 		model->rotate_y(unit.getAngle());
 		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	}
-	
-	
-	
+
+
+
 	// some physics & game world information
 	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
-	
-	
+
+
 	if(unit.hasSupportUnderFeet())
 	{
 		if(unit.velocity.y < FixedPoint(-7, 10))
 			unit.soundInfo = "jump_land";
-		
+
 		unit.landingDamage();
 		unit.applyFriction();
-		
+
 		if(unit.hasGroundUnderFeet())
 		{
 			unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
 			unit.velocity.y = FixedPoint::ZERO;
 		}
 	}
-	
-	
+
+
 	unit.applyGravity();
 	unit.updateMobility();
 	unit.processInput();
-	
+
 	// weapon activations
 	if(unit.getMouseAction(Unit::MOUSE_LEFT))
 	{
 		unit.weapons[unit.weapon].onActivate(*this, unit);
 	}
-	
+
 	if(unit.getMouseAction(Unit::MOUSE_RIGHT))
 	{
 		unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
 	}
-	
-	
+
+
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
 	FixedPoint reference_z = unit.position.z + unit.velocity.z;
 	FixedPoint reference_y = lvl.getHeight(reference_x, reference_z);
 	FixedPoint y_diff = reference_y - unit.position.y;
 	FixedPoint yy_val = heightDifference2Velocity(y_diff);
-	
+
 	unit.tick(yy_val);
 	clampToLevelArea(unit);
 	unit.postTick();
@@ -698,14 +703,14 @@ void World::tickUnit(Unit& unit, Model* model)
 void World::tickProjectile(Projectile& projectile, Model* model)
 {
 	int ticks = projectile["TPF"]; assert(ticks > 0);
-	
+
 	int num_particles      = projectile["PARTICLES_PER_FRAME"];
 	int death_at_collision = projectile["DEATH_IF_HITS_UNIT"];
 	int projectile_owner   = projectile["OWNER"];
 	string& projectile_name = projectile("NAME");
-	
+
 	static ParticleSource ps;
-	
+
 	if(num_particles > 0)
 	{
 		ps.getIntProperty("MAX_LIFE") = 10;
@@ -714,21 +719,21 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 		ps.getIntProperty("PPF") = num_particles;
 		ps.getIntProperty("PLIFE") = projectile["PARTICLE_LIFE"];
 		ps.getIntProperty("SCALE") = projectile["PARTICLE_SCALE"];
-		
+
 		ps.setColors(projectile("START_COLOR_START"), projectile("START_COLOR_END"), projectile("END_COLOR_START"), projectile("END_COLOR_END"));
 	}
-	
+
 	int team = -1;
 	auto owner_unit_iter = units.find(projectile_owner);
 	if(owner_unit_iter != units.end())
 	{
 		team = owner_unit_iter->second["TEAM"];
 	}
-	
+
 	for(int i=0; i<ticks; i++)
 	{
 		int lifetime = projectile["LIFETIME"];
-		
+
 		if(lifetime <= 0 || projectile.destroyAfterFrame)
 		{
 			projectile.destroyAfterFrame = true;
@@ -742,38 +747,38 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			ps.position = projectile.position;
 			ps.tick(visualworld->particles);
 		}
-		
+
 		projectile.tick();
-		
+
 		if(projectile.collidesTerrain(lvl))
 		{
 			// behaviour here should be defined by the projectile..
-			
+
 			projectile.destroyAfterFrame = true;
 			// intentional continue of execution
 		}
-		
+
 		auto& potColl = octree->nearObjects(projectile.position);
 		for(auto it = potColl.begin(); it != potColl.end(); ++it)
 		{
 			if ((*it)->type != OctreeObject::UNIT)
 				continue;
-			
+
 			Unit* u = static_cast<Unit*>(*it);
-			
+
 			// no collision with dead units
 			if(!u->exists())
 				continue;
-			
+
 			// Is this actually a good thing?
 			if(u->hitpoints < 1)
 				continue; // don't hit dead units
-			
+
 			// if the target unit is already dead, just continue.
 			if(u->hitpoints <= 0)
 				continue;
-			
-			
+
+
 			if(projectile["DISTANCE_TEST"])
 			{
 				if(!friendly_fire && ((*u)["TEAM"] == team))
@@ -785,7 +790,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					Location distance_vector = projectile.position - u->getEyePosition(); // TODO: Point to point distance is maybe not ideal.
 					FixedPoint real_distance = distance_vector.length();
 					FixedPoint max_distance = FixedPoint(projectile["DISTANCE_MAX"], 1000);
-					
+
 					if(real_distance < max_distance)
 					{
 						u->takeDamage( ((max_distance - real_distance) / max_distance * projectile["DISTANCE_DAMAGE"]).getInteger() );
@@ -794,8 +799,8 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					}
 				}
 			}
-			
-			// boolean test, hits or doesnt hit
+
+			// boolean test, hits or doesn't hit
 			if(projectile["COLLISION_TEST"] && projectile.collides(*u))
 			{
 				{
@@ -806,9 +811,9 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					event.a_velocity = projectile.velocity * projectile["TPF"];
 					queueMsg(event);
 				}
-				
+
 				u->velocity += projectile.velocity * FixedPoint(projectile["MASS"], 1000) / FixedPoint(u->intVals["MASS"], 1000);
-				
+
 				if(!friendly_fire && ((*u)["TEAM"] == team))
 				{
 				}
@@ -818,7 +823,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 					u->last_damage_dealt_by = projectile_owner;
 					(*u)("DAMAGED_BY") = projectile_name;
 				}
-				
+
 				// blood is blood is blood
 				auto string_property_it = projectile.strVals.find("AT_DEATH");
 				if(string_property_it != projectile.strVals.end())
@@ -828,18 +833,18 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 						projectile.strVals.erase("AT_DEATH");
 					}
 				}
-				
+
 				projectile.destroyAfterFrame |= death_at_collision;
 			}
 		}
 	}
-	
+
 	if(visualworld->isActive())
 	{
 		assert(model && "projectile model does not exist");
 		model->updatePosition(projectile.position.x.getFloat(), projectile.position.y.getFloat(), projectile.position.z.getFloat());
 	}
-	
+
 	// as a post frame update, update values of the projectile
 	if(projectile["AIR_RESISTANCE"])
 	{
@@ -853,34 +858,34 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 void World::addRandomMonster()
 {
 	int enemies = getUnitCount();
-	
+
 	if(enemies >= intVals["MON_CAP"])
 		return;
-	
+
 	vector<string> options;
 	if(intVals.find("_CAVE") != intVals.end())
 	{
 		options.push_back("_CAVE");
 	}
-	
+
 	if(intVals.find("_GRASS") != intVals.end())
 	{
 		options.push_back("_GRASS");
 	}
-	
+
 	if(intVals.find("_MOUNTAIN") != intVals.end())
 	{
 		options.push_back("_MOUNTAIN");
 	}
-	
+
 	string monster_home = options[currentWorldFrame % options.size()];
 	int id = unitIDgenerator.nextID();
-	
+
 	if(monster_home == "_CAVE")
 	{
 		addUnit(id, false, -1);
 		units[id].name = "Stone\\sbeast";
-		
+
 		int stonebeast_size = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"]  = 4 + 3 * stonebeast_size;
 		units[id].intVals["DEX"]  = 4 - stonebeast_size;
@@ -890,7 +895,7 @@ void World::addRandomMonster()
 	{
 		addUnit(id, false, -1);
 		units[id].name = "Troll";
-		
+
 		int troll_size = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"] = 4 + troll_size;
 		units[id].intVals["DEX"] = 4;
@@ -900,7 +905,7 @@ void World::addRandomMonster()
 	{
 		addUnit(id, false, -1);
 		units[id].name = "Moogle";
-		
+
 		int moogle_age = (currentWorldFrame % 4) + 3;
 		units[id].intVals["STR"] = 4;
 		units[id].intVals["DEX"] = 4 + 2 * moogle_age;
@@ -910,27 +915,27 @@ void World::addRandomMonster()
 	{
 		throw std::logic_error("Adding random monster failed.\nUnknown monster home terrain type: " + monster_home);
 	}
-	
+
 	units[id].scale     = FixedPoint(units[id].getModifier("STR"), 10);
 	units[id].hitpoints = units[id].getMaxHP();
-	
+
 	VisualWorld::ModelType type = visualworld->getModelType(units[id].name);
 	float scale = units[id].scale.getFloat();
 	visualworld->createModel(id, units[id].position, type, scale);
-	
+
 	return;
 }
 
 
 void World::worldTick(int tickCount)
 {
-	
+
 	currentWorldFrame = tickCount;
-	
+
 	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
-	
+
 	friendly_fire = (intVals["FRIENDLY_FIRE"] == 1);
-	
+
 	// if this area has monsters autospawning
 	if(intVals["MON_SPAWN"])
 	{
@@ -938,37 +943,37 @@ void World::worldTick(int tickCount)
 		if(tickCount % freq == 0)
 		{
 			// TODO: Possibility to spawn monster groups.
-			
+
 			// it's time to create a monster!
 			addRandomMonster();
-			
+
 		}
 	}
-	
-	
+
+
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Build octree + do collisions    \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
-	
+
 	octree.reset(new Octree(Location(0, 0, 0), Location(lvl.max_x(), FixedPoint(400), lvl.max_z())));
-	
+
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		octree->insertObject(&(iter->second));
 	}
-	
+
 	octree->doCollisions();
-	
-	
+
+
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Tick units and projectiles      \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
-	
+
 #if LAZY_UPDATE > 0
 	bool players_present = (units.begin()->first < 10000);
-	
+
 	// shut down AI units if there are no players present.
 	if(players_present)
 	{
@@ -985,14 +990,14 @@ void World::worldTick(int tickCount)
 		tickUnit(iter->second, model);
 	}
 #endif
-	
+
 	// ticking projectiles even without players is ok, since projectiles will die with time.
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		Model* model = visualworld->getModel(iter->first);
 		tickProjectile(iter->second, model);
 	}
-	
+
 #if LAZY_UPDATE > 0
 	// don't waste time on moving items either, if no players are there.
 	if(players_present)
@@ -1010,12 +1015,12 @@ void World::worldTick(int tickCount)
 		tickItem(iter->second, model);
 	}
 #endif
-	
+
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
-	
+
 	for(auto iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		Projectile& projectile = iter->second;
@@ -1025,7 +1030,7 @@ void World::worldTick(int tickCount)
 			deadUnits.push_back(iter->first);
 		}
 	}
-	
+
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
 		Unit& unit = iter->second;
@@ -1036,70 +1041,70 @@ void World::worldTick(int tickCount)
 				unit.hitpoints = 1000;
 				continue;
 			}
-			
+
 			// every time a unit dies, spawn some replenishment stuff
 			Location gear_pos = unit.position + Location(0, 1, 0);
 			Location gear_vel = unit.velocity + Location(0, 1, 0);
-			
+
 			if(gear_vel.lengthSquared() > FixedPoint(1))
 			{
 				gear_vel.normalize();
 			}
-			
+
 			// add some ammunition into the world.
 			FixedPoint half = FixedPoint(1, 2);
 			int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(half, 0, half), id1);
 			items[id1].intVals["AMMO_BOOST"] = 1;
 			items[id1].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
 			visualworld->createModel(id1, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
-			
-			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(0, half, -half), id2); 
+
+			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(0, half, -half), id2);
 			items[id2].intVals["AMMO_BOOST"] = 1;
 			items[id2].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
 			visualworld->createModel(id2, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
-			
-			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(-half, -half, 0), id3); 
+
+			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(-half, -half, 0), id3);
 			items[id3].intVals["AMMO_BOOST"] = 1;
 			items[id3].intVals["MODEL_TYPE"] = VisualWorld::ModelType::WEAPON_MODEL;
 			visualworld->createModel(id3, gear_pos, VisualWorld::ModelType::WEAPON_MODEL, 2.0f);
-			
+
 			// then do the more important death processing
 			doDeathFor(unit);
 			atDeath(unit, unit);
 		}
 	}
-	
+
 	for(auto iter = items.begin(); iter != items.end(); ++iter)
 	{
 		WorldItem& item = iter->second;
 		if(item.dead)
 		{
 			deadUnits.push_back(iter->first);
-			
+
 			/*
 			atDeath(item, item); // hmm? collection is not the same as death though.
 			*/
 		}
 	}
-	
+
 	for(size_t i = 0; i < deadUnits.size(); ++i)
 	{
 		removeUnit(deadUnits[i]);
 	}
 	deadUnits.clear();
-	
-	
+
+
 	// Graphical things.
 	visualworld->tickParticles();
 	visualworld->tickLights(units);
-	
-	
+
+
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Debug stuff                     \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
-	
-	
+
+
 	if(show_errors && (currentWorldFrame % 200) == 0)
 	{
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
@@ -1119,34 +1124,34 @@ void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelT
 {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
-	
+
 	units[id] = Unit();
 	units[id].init();
 	units[id].scale = scale;
-	
+
 	units[id].position = pos;
 	units[id].id = id;
 	units[id].birthTime = currentWorldFrame;
-	
+
 	units[id].model_type = model_type;
 	visualworld->createModel(id, units[id].position, model_type, scale.getFloat());
-	
+
 	// TODO: FIX THIS SHIT
 	units[id].setDefaultMonsterAttributes();
 	units[id].hitpoints = 500;
-	
+
 	units[id].name = name;
 	units[id].controllerTypeID = controllerType;
-	
+
 	units[id]["TEAM"] = team;
 	units[id]["T"] = -1;
-	
+
 	units[id].intVals["STR"]  = strength;
 	units[id].intVals["DEX"]  = dexterity;
 	units[id].intVals["MASS"] = mass;
-	
+
 	units[id].hitpoints = units[id].getMaxHP();
-	
+
 	units[id].weapon = default_weapon;
 	// all other weapons are ok, but no rocket launcher for AI controlled units!
 }
@@ -1155,46 +1160,46 @@ void World::addUnit(int id, bool playerCharacter, int team)
 {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
-	
+
 	units[id] = Unit();
 	units[id].init();
-	
+
 	int r_seed = team + 7;
 	if(playerCharacter)
 	{
 		r_seed += 17;
 	}
-	
+
 	units[id].position = lvl.getRandomLocation(currentWorldFrame + r_seed);
 	units[id].id = id;
-	
+
 	units[id].birthTime = currentWorldFrame;
-	
+
 	if(!playerCharacter)
 	{
 		units[id].model_type = VisualWorld::ModelType::ZOMBIE_MODEL;
 		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::ZOMBIE_MODEL, 1.0f);
-		
+
 		units[id].setDefaultMonsterAttributes();
-		
+
 		units[id].name = "Alien\\smonster";
 		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
 		units[id]["T"] = -1;
-		
+
 		units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
 		// all other weapons are ok, but no rocket launcher for enemies!
 	}
 	else
 	{
 		findBasePosition(units[id].position, units[id]["TEAM"]);
-		
+
 		units[id].model_type = VisualWorld::ModelType::PLAYER_MODEL;
 		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
-		
+
 		units[id].setDefaultPlayerAttributes();
-		
+
 		units[id].name = "Unknown\\sPlayer";
 		units[id].controllerTypeID = Unit::HUMAN_INPUT;
 		units[id].hitpoints = 1000;
@@ -1208,8 +1213,8 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 	position.x = location.x.getFloat();
 	position.y = location.y.getFloat();
 	position.z = location.z.getFloat();
-	
-	
+
+
 	visualworld->createModel(id, location, VisualWorld::ModelType(model_prototype), 0.4f);
 	projectiles[id].position = location;
 	projectiles[id].prototype_model = model_prototype;
@@ -1219,7 +1224,7 @@ void World::addItem(const Location& location, const Location& velocity, int id)
 {
 	// NOTE: We don't know what kind of an item it is here, so let's not decide on the model here either.
 	// visualworld->createModel(id, location, VisualWorld::ITEM_MODEL, 1.0f);
-	
+
 	items[id].position = location;
 	items[id].velocity = velocity;
 }

@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -17,8 +18,8 @@ Level::Level()
 	unitVectorUp.x = FixedPoint(0);
 	unitVectorUp.y = FixedPoint(1);
 	unitVectorUp.z = FixedPoint(0);
-	
-	
+
+
 	pointheight_info.resize(level_x_size);
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 	{
@@ -28,11 +29,11 @@ Level::Level()
 			pointheight_info[i][k] = FixedPoint(3);
 		}
 	}
-	
+
 	normals.resize(pointheight_info.size());
 	for(size_t i = 0; i < normals.size(); ++i)
 		normals[i].resize(pointheight_info[i].size(), Location());
-	
+
 	h_diff.resize(pointheight_info.size());
 	for(size_t i = 0; i < normals.size(); ++i)
 		h_diff[i].resize(pointheight_info[i].size(), FixedPoint(0));
@@ -49,7 +50,7 @@ Location Level::getRandomLocation(int seed) const
 
 void Level::updateHeight(int x, int z, FixedPoint h)
 {
-	
+
 	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 1)
 	{
 		return;
@@ -58,9 +59,9 @@ void Level::updateHeight(int x, int z, FixedPoint h)
 	{
 		return;
 	}
-	
+
 	pointheight_info[x][z] = h;
-	
+
 	updateNormal(x, z);
 	updateNormal(x+1, z);
 	updateNormal(x-1, z);
@@ -70,7 +71,7 @@ void Level::updateHeight(int x, int z, FixedPoint h)
 	updateNormal(x-1, z+1);
 	updateNormal(x+1, z-1);
 	updateNormal(x-1, z-1);
-	
+
 	updateHeightDifference(x, z);
 	updateHeightDifference(x+1, z);
 	updateHeightDifference(x-1, z);
@@ -86,14 +87,14 @@ void Level::updateNormal(int x, int z)
 {
 	Location result;
 	result.y = 1;
-	
+
 	if(x < 0 || x > static_cast<int>(pointheight_info.size()) - 1)
 		return;
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 1)
 		return;
-	
+
 	normals[x][z] = estimateNormal(x, z) + estimateNormal(x-1, z) + estimateNormal(x+1, z) + estimateNormal(x, z-1) + estimateNormal(x, z+1); // + estimateNormal(x+1, z+1) + estimateNormal(x-1, z+1) + estimateNormal(x+1, z-1) + estimateNormal(x-1, z-1);
-	
+
 	if(normals[x][z].length() == FixedPoint(0))
 	{
 		cerr << "update normal trying to normalize length 0 vector" << endl;
@@ -109,22 +110,22 @@ Location Level::estimateNormal(int x, int z)
 		return result;
 	if(z < 0 || z > static_cast<int>(pointheight_info[x].size()) - 2)
 		return result;
-	
+
 	Location a;
 	a.x = x*BLOCK_SIZE;
 	a.z = z*BLOCK_SIZE;
 	a.y = pointheight_info[x][z];
-	
+
 	Location b;
 	b.x = x*BLOCK_SIZE;
 	b.z = z*BLOCK_SIZE+BLOCK_SIZE;
 	b.y = pointheight_info[x][z+1];
-	
+
 	Location c;
 	c.x = x*BLOCK_SIZE+BLOCK_SIZE;
 	c.z = z*BLOCK_SIZE;
 	c.y = pointheight_info[x+1][z];
-	
+
 	result = (b-a).crossProduct(c-a);
 	if(result.length() == FixedPoint(0))
 	{
@@ -132,7 +133,7 @@ Location Level::estimateNormal(int x, int z)
 	}
 	else
 		result.normalize();
-	
+
 	return result;
 }
 
@@ -149,30 +150,30 @@ FixedPoint Level::estimateHeightDifference(int x, int y) const
 {
 	FixedPoint min = 10000000;
 	FixedPoint max = 0;
-	
+
 	if(pointheight_info[x][y] < min)
 		min = pointheight_info[x][y];
 	if(pointheight_info[x][y] > max)
 		max = pointheight_info[x][y];
-	
+
 	x++;
 	if(pointheight_info[x][y] < min)
 		min = pointheight_info[x][y];
 	if(pointheight_info[x][y] > max)
 		max = pointheight_info[x][y];
-	
+
 	y++;
 	if(pointheight_info[x][y] < min)
 		min = pointheight_info[x][y];
 	if(pointheight_info[x][y] > max)
 		max = pointheight_info[x][y];
-	
+
 	x--;
 	if(pointheight_info[x][y] < min)
 		min = pointheight_info[x][y];
 	if(pointheight_info[x][y] > max)
 		max = pointheight_info[x][y];
-	
+
 	return max - min;
 }
 
@@ -182,13 +183,13 @@ const FixedPoint& Level::getHeightDifference(FixedPoint& x, FixedPoint& z) const
 {
 	int x_index = x.getInteger() / BLOCK_SIZE;
 	int z_index = z.getInteger() / BLOCK_SIZE;
-	
+
 	// These checks should not have to be necessary
 	if(x_index < 0 || x_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint::ZERO;
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint::ZERO;
-	
+
 	return h_diff[x_index][z_index];
 }
 
@@ -229,13 +230,13 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 		return FixedPoint(1);
 	if(z_index < 0 || z_index > static_cast<int>(pointheight_info.size()) - 2)
 		return FixedPoint(1);
-	
+
 	FixedPoint x_desimal = (x - x_index * BLOCK_SIZE) / BLOCK_SIZE;
 	FixedPoint z_desimal = (z - z_index * BLOCK_SIZE) / BLOCK_SIZE;
-	
+
 	const FixedPoint& A = pointheight_info[x_index][z_index];
 	const FixedPoint& B = pointheight_info[x_index+1][z_index];
-	
+
 	const FixedPoint& C = pointheight_info[x_index][z_index+1];
 	const FixedPoint& D = pointheight_info[x_index+1][z_index+1];
 
@@ -243,11 +244,11 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 	Location pB(BLOCK_SIZE*(x_index+1), B, BLOCK_SIZE*z_index);
 	Location pC(BLOCK_SIZE*x_index,     C, BLOCK_SIZE*(z_index+1));
 	Location pD(BLOCK_SIZE*(x_index+1), D, BLOCK_SIZE*(z_index+1));
-	
+
 	const Location* p1 = 0;
 	const Location* p2 = 0;
 	const Location* p3 = 0;
-	
+
 	if( ((z_index + x_index) & 1) == 0)
 	{
 		p1 = &pD;
@@ -278,7 +279,7 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 			p3 = &pA;
 		}
 	}
-	
+
 	Location p(x, 0, z);
 	interpolate(*p1, *p2, *p3, p);
 	return p.y;
@@ -289,186 +290,35 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 void Level::generate(int seed, int post_passes, float& percentage_done)
 {
+    // lol.
+    ++post_passes;
+
 	randomer.setSeed(seed);
-	
+
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 			updateHeight(i, k, FixedPoint(20));
-	
-	
-	
-	// create long walls
-	for(int i=0; i<350; i++)
-	{
-		percentage_done = float(i) / 3500.f;
-		
-		int x_p = randomer.getInt() % pointheight_info.size();
-		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(55);
-		
-		for(int k=0; k<15; k++)
-		{
-			height += FixedPoint(1);
-			updateHeight(x_p, y_p, height);
-			
-			int x_size = pointheight_info.size() - 2;
-			int y_size = pointheight_info[0].size() - 2;
-			
-			if(x_p > 0 && x_p < x_size)
-			if(y_p > 0 && y_p < y_size)
-			{
-				updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
-				updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
-				updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
-				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
-			}
-			
-			x_p += (randomer.getInt() % 3) - 1;
-			y_p += (randomer.getInt() % 3) - 1;
-		}
-	}
-	
-	// create some valleys
-	for(int i=0; i<150; i++)
-	{
-		percentage_done = 0.1f + float(i) / 3500.f;
-		
-		int x_p = randomer.getInt() % pointheight_info.size();
-		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(10);
-		
-		for(int k=0; k<20; k++)
-		{
-			height -= FixedPoint(1, 2);
-			
-			updateHeight(x_p, y_p, height);
-			
-			int x_size = pointheight_info.size() - 2;
-			int y_size = pointheight_info[0].size() - 2;
-			
-			if(x_p > 0 && x_p < x_size)
-			if(y_p > 0 && y_p < y_size)
-			{
-				updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
-				updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
-				updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
-				updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
-			}
-			
-			x_p += (randomer.getInt() % 3) - 1;
-			y_p += (randomer.getInt() % 3) - 1;
-		}
-	}
-	
-	
-	// create some semihigh-ground
-	for(int i=0; i<150; i++)
-	{
-		percentage_done = 0.2f + float(i) / 3500.f;
-		
-		int x_p = randomer.getInt() % pointheight_info.size();
-		int y_p = randomer.getInt() % pointheight_info[x_p].size();
-		FixedPoint height = FixedPoint(20);
-		
-		for(int k=0; k<20; k++)
-		{
-			height += FixedPoint(2, 5);
-			
-			updateHeight(x_p, y_p, height);
-			
-			int x_size = pointheight_info.size() - 2;
-			int y_size = pointheight_info[0].size() - 2;
-			
-			if(x_p > 0 && x_p < x_size)
-				if(y_p > 0 && y_p < y_size)
-				{
-					updateHeight(x_p-1, y_p, (height + getHeight(x_p-1, y_p)) / FixedPoint(2));
-					updateHeight(x_p+1, y_p, (height + getHeight(x_p+1, y_p)) / FixedPoint(2));
-					updateHeight(x_p, y_p+1, (height + getHeight(x_p, y_p+1)) / FixedPoint(2));
-					updateHeight(x_p, y_p-1, (height + getHeight(x_p, y_p-1)) / FixedPoint(2));
-				}
-				
-				x_p += (randomer.getInt() % 3) - 1;
-			y_p += (randomer.getInt() % 3) - 1;
-		}
-	}
-	
-	
-	// post process the ground to get rid of some discontinuities
-	cerr << "post-processing terrain" << flush;
-	size_t x_size = pointheight_info.size();
-	for(int loops = 0; loops < post_passes; loops++)
-	{
-		for(size_t i = 0; i < x_size; ++i)
-		{
-			size_t y_size = pointheight_info[i].size();
-			
-			cerr << "." << flush;
-			for(size_t k = 0; k < y_size; ++k)
-			{
-				FixedPoint currentHeight;
-				FixedPoint divisor;
-				
-				/*
-				for(int x = int(i) - 5; x < int(i)+5; x++)
-				{
-					for(int y = int(k) - 5; y < int(k)+5; y++)
-					{
-						if(x < 0 || x >= int(x_size))
-							continue;
-						if(y < 0 || y >= int(y_size))
-							continue;
-						
-						currentHeight += pointheight_info[x][y];
-						divisor += FixedPoint(100, 1 + (x-i)*(x-i) + (y-k)*(y-k));
-					}
-				}
-				*/
-				
-				
-				for(int x = int(i) - 4; x < int(i)+5; x++)
-				{
-					if(x < 0 || x >= int(x_size))
-						continue;
-					if(x == int(i))
-						continue;
-					
-					FixedPoint multiplier = FixedPoint(1, (x-int(i) > 0)?x-int(i):-x+int(i));
-					
-					currentHeight +=  multiplier * pointheight_info[x][k];
-					divisor += multiplier;
-				}
-				
-				for(int y = int(k) - 4; y < int(k)+5; y++)
-				{
-					if(y < 0 || y >= int(y_size))
-						continue;
-					if(y == int(k))
-						continue;
-					
-					FixedPoint multiplier = FixedPoint(1, (y-int(k) > 0)?y-int(k):-y+int(k));
-					
-					currentHeight +=  multiplier * pointheight_info[i][y];
-					divisor += multiplier;
-				}
-				
-				FixedPoint newHeight = pointheight_info[i][k] + (currentHeight / divisor - pointheight_info[i][k]) * FixedPoint(1, 8);
-				updateHeight(i, k, newHeight);
-			}
-		}
-		
-		cerr << endl;
-		
-		if(post_passes < 2)
-		{
-			percentage_done = 203529.f;
-		}
-		else
-		{
-			percentage_done = 0.3f + 0.71f * (loops + 1.0f) / post_passes;
-		}
-	}
-	cerr << endl;
+
+        ifstream inFile("data/levels/level1.dat");
+        string line;
+        int lineCounter = 0;
+        while(inFile >> line) {
+            percentage_done = lineCounter / 129.0f;
+            for(unsigned i=0; i<line.size(); ++i) {
+                if(line[i] == 'x')
+                    updateHeight(i, lineCounter, FixedPoint(20));
+                if(line[i] == '.')
+                    updateHeight(i, lineCounter, FixedPoint(0));
+                if(line[i] == ',')
+                    updateHeight(i, lineCounter, FixedPoint(2));
+                if(line[i] == ';')
+                    updateHeight(i, lineCounter, FixedPoint(4));
+                if(line[i] == ':')
+                    updateHeight(i, lineCounter, FixedPoint(6));
+            }
+
+            ++lineCounter;
+        }
 }
 
 
