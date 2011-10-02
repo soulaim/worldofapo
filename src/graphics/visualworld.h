@@ -4,8 +4,8 @@
 #include "graphics/models/model.h"
 #include "graphics/light_object.h"
 #include "graphics/particles/particle_source.h"
-#include "graphics/grasscluster.h"
-#include "graphics/leveldescriptor.h"
+#include "graphics/terrain/grasscluster.h"
+#include "graphics/terrain/leveldescriptor.h"
 #include "graphics/camera.h"
 
 #include "misc/hasproperties.h"

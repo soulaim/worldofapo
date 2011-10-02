@@ -1,6 +1,6 @@
 #include "editor/editor.h"
 #include "graphics/texturehandler.h"
-#include "graphics/grasscluster.h"
+#include "graphics/terrain/grasscluster.h"
 #include "misc/timer.h"
 
 #include <iostream>

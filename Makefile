@@ -1,4 +1,4 @@
-DIRS = src src/net src/graphics src/graphics/menus src/graphics/models src/graphics/skybox src/graphics/particles src/graphics/frustum src/world src/misc src/local_machine src/physics
+DIRS = src src/net src/graphics src/graphics/menus src/graphics/terrain src/graphics/models src/graphics/skybox src/graphics/particles src/graphics/frustum src/world src/misc src/local_machine src/physics
 INCLUDE_DIRS = -I src
 OPENMP   = -fopenmp
 

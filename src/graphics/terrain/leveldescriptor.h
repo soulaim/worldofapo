@@ -3,7 +3,7 @@
 #define H_LEVEL_DESCRIPTOR
 
 #include "graphics/opengl.h"
-#include "graphics/btt.h"
+#include "graphics/terrain/btt.h"
 #include "graphics/texturecoordinate.h"
 #include "misc/hasproperties.h"
 #include "misc/vec3.h"
@@ -18,15 +18,15 @@ class LevelDescriptor: public HasProperties
 {
 public:
 	LevelDescriptor();
-	
+
 	void setLevel(Level* lvl);
-	
+
 	void drawFR(size_t, Shaders&) const;
 	void drawDeferred(Shaders&) const;
 	void drawDebugHeightDots(const vec3<float>& location) const;
 	void drawDebugLevelNormals() const;
-	
-	
+
+
 	void world_tick(FrustumR& frustum);
 
 	void preload();
@@ -44,7 +44,7 @@ private:
 	void drawBuffers() const;
 
 	Level* level;
-	
+
 	bool debugMode;
 
 	// Static data.

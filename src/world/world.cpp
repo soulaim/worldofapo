@@ -672,6 +672,14 @@ void World::tickUnit(Unit& unit, Model* model)
 		}
 	}
 
+    Location tmp;
+    for(int i=0; i<this->apomath.DEGREES_360; i+=this->apomath.DEGREES_360/32) {
+        FixedPoint& tmp_x = this->apomath.getCos(i);
+        FixedPoint& tmp_z = this->apomath.getSin(i);
+        if(this->lvl.getHeight(unit.position.x + tmp_x, unit.position.z + tmp_z) > 8) {
+            unit.position += Location(-tmp_x * FixedPoint(2, 20), 0, -tmp_z * FixedPoint(2, 20));
+        }
+    }
 
 	unit.applyGravity();
 	unit.updateMobility();

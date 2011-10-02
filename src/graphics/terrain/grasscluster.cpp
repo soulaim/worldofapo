@@ -1,14 +1,13 @@
-#include "grasscluster.h"
-#include "frustum/matrix4.h"
-#include "texturehandler.h"
+#include "graphics/terrain/grasscluster.h"
+#include "graphics/frustum/matrix4.h"
+#include "graphics/texturehandler.h"
+#include "graphics/shader.h"
 
 #include <fstream>
 #include <queue>
 #include <iomanip>
 #include <iostream>
 #include <cassert>
-
-#include "shader.h"
 
 using namespace std;
 
