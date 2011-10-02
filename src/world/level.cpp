@@ -48,6 +48,11 @@ Location Level::getRandomLocation(int seed) const
 	return result;
 }
 
+const Location& Level::getStartLocation() const
+{
+    return startPosition;
+}
+
 void Level::updateHeight(int x, int z, FixedPoint h)
 {
 
@@ -315,6 +320,13 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
                     updateHeight(i, lineCounter, FixedPoint(4));
                 if(line[i] == ':')
                     updateHeight(i, lineCounter, FixedPoint(6));
+                if(line[i] == 's')
+                {
+                    updateHeight(i, lineCounter, FixedPoint(0));
+                    startPosition.x = 8 * i;
+                    startPosition.z = 8 * lineCounter;
+                    startPosition.y = 4;
+                }
             }
 
             ++lineCounter;

@@ -56,7 +56,7 @@ Editor::Editor():
 //	view.toggleLightingStatus();
 
 	TextureHandler::getSingleton().createTextures("data/textures.txt");
-	
+
 
 //	handle_command("load objects model.parts");
 //	handle_command("load model model.bones");
@@ -100,7 +100,7 @@ Editor::~Editor()
 bool Editor::do_tick()
 {
 	view.intVals["HELP"] = 0;
-	
+
 	if(!handle_input())
 	{
 		return false;
@@ -116,7 +116,7 @@ bool Editor::do_tick()
 		stringstream ss;
 		ss << current_dot;
 		message = "Editing '" + edited_type_name + "': " + ss.str();
-		
+
 		for(size_t i = 0; i < new_dots.size(); ++i)
 		{
 			// Line i -> current.
@@ -152,7 +152,7 @@ bool Editor::do_tick()
 	view.startDrawing();
 	if(skybox)
 	{
-		view.drawSkybox();
+		// view.drawSkybox();
 	}
 	else
 	{
@@ -174,7 +174,7 @@ bool Editor::do_tick()
 	}
 
 	view.drawDebugLines();
-	
+
 	/*
 	static int counter = 0;
 	++counter;
@@ -222,13 +222,13 @@ bool Editor::tick()
 
 		hud.setTime( ticks );
 		view.tick();
-		
+
 		skeletal_model.tick(world_ticks);
 		for(auto it = models.begin(); it != models.end(); ++it)
 		{
 			it->second->tick(it->second->animation_time + 1);
 		}
-	
+
 		visualworld.camera.tick();
 		visualworld.tickParticles();
 
@@ -262,7 +262,7 @@ void Editor::saveModel(const std::string&)
 		hud.pushMessage(red("Fail"));
 	}
 	*/
-	
+
 	hud.pushMessage(red("Fail"));
 }
 
@@ -285,7 +285,7 @@ void Editor::saveSkeletalModel(const std::string& file)
 void Editor::saveObjects(const std::string&)
 {
 	hud.pushMessage("^rApoModels are obsolete. Don't try to save one plz.");
-	
+
 	/*
 	string pathed_file = "models/" + file;
 	hud.pushMessage("Saving objects to '" + pathed_file + "'");
@@ -439,7 +439,7 @@ void Editor::play_animation(const string& animation)
 	{
 		it->second->animation_name = animation;
 	}
-	
+
 	hud.pushMessage(green("Playing " + animation));
 }
 
@@ -492,7 +492,7 @@ void Editor::scale(float scalar)
 		hud.pushMessage(red("Scale works only when editing part types or skeletal models."));
 		return;
 	}
-	
+
 	if(skele)
 	{
 		for(size_t i = 0; i < skeletal_model.vertices.size(); ++i)
@@ -777,11 +777,11 @@ bool Editor::handle_input()
 			}
 			grabbed = !grabbed;
 		}
-		
+
 		if(writing)
 		{
 			string nick = ">";
-			
+
 			if(key.size() == 1)
 			{
 				clientCommand.append(key);
@@ -917,7 +917,7 @@ void Editor::calculate_nearest_bones()
 			weight2 = 0.0;
 			cerr << "Separated " << skeletal_model.bones[index1].name << " and " << skeletal_model.bones[index2].name << endl;
 		}
-	
+
 		WeightedVertex& wv = skeletal_model.weighted_vertices[j];
 
 		wv.bone1 = index1;

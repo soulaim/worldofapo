@@ -4,8 +4,8 @@
 
 #include "graphics/graphics.h"
 #include "graphics/texturehandler.h"
-#include "graphics/animation.h"
-#include "graphics/modelfactory.h"
+#include "graphics/models/animation.h"
+#include "graphics/models/modelfactory.h"
 #include "graphics/graphics.h"
 #include "graphics/hud.h"
 #include "graphics/window.h"
@@ -42,21 +42,21 @@ Localplayer::Localplayer(GameView* g, UserIO* u, Hud* h, Window* w):
 	world(&visualworld)
 {
 	cerr << "Localplayer(...)" << endl;
-	
+
 	// to fix cases where no drawing happens
 	// Note the changes to how the sync variable is handled, this syncs fps and tps for the first 5 frames.
 	intVals["SYNC_FPS_AND_TPS"] = 5;
-	
+
 	hud->setLevelSize(world.lvl.max_x(), world.lvl.max_z());
 	need_to_tick_world = false;
-	
+
 	visualworld.levelDesc.setLevel(&world.lvl);
 }
 
 void Localplayer::reload_confs()
 {
 	cerr << "Reloading conf files.." << endl;
-	
+
 	world.load("configs/world.conf");
 	visualworld.load("configs/visualworld.conf");
 	game.readConfig();
@@ -115,11 +115,11 @@ void Localplayer::init()
 	cerr << "Localplayer::init()" << endl;
 
 	load("configs/localplayer.conf");
-	
+
 	userio->init();
 	view->init(visualworld.camera);
 	soundsystem.init();
-	
+
 	// TODO: Should not be done here? FIX
 	// TODO: move model loading things to config files
 	ModelFactory::load(VisualWorld::ModelType::ITEM_MODEL, "models/item_bag.sm2", "itembag");
@@ -129,13 +129,13 @@ void Localplayer::init()
 	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine"); // TODO: Texture
 	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "big_pistol");
 	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
-	
+
 	game.init();
-	
-	
+
+
 	hud->setPlayerInfo(&game.Players);
 	hud->setUnitsMap(&world.units);
-	
+
 	Animation::load("models/model.animation");
 	Animation::load("models/skeleani.animation");
 
@@ -154,17 +154,17 @@ struct LoadScreenInfo
 void* generateTerrain(void* loadScreenInfo)
 {
 	LoadScreenInfo* lsi = static_cast<LoadScreenInfo*>(loadScreenInfo);
-	
+
 	float& worldGenPercent = *(lsi->percentage);
 	string& taskName       = *(lsi->task_name);
-	
+
 	worldGenPercent = 0.0f;
 	taskName = "^GGenerating terrain..";
-	
+
 	lsi->world->buildTerrain(lsi->world_seed, worldGenPercent);
-	
+
 	worldGenPercent = 1.1f;
-	
+
 	return 0;
 }
 
@@ -174,31 +174,31 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 	{
 		int world_seed   = event.intVals["WORLD_GEN_SEED"];
 		string area_name = event.strVals["WORLD_NAME"];
-		
+
 		world.strVals["AREA_NAME"] = area_name;
-		
+
 		world.terminate();
-		
+
 		// shared memory for processes to determine how far terrain generation has progressed.
 		float done_percent = 0.0f;
 		float prev_done_percent = -1.0f;
 		string task_name = "Preparing to load world..";
-		
+
 		LoadScreenInfo info;
 		info.view = view;
 		info.world = &world;
 		info.percentage = &done_percent;
 		info.task_name = &task_name;
 		info.world_seed = world_seed;
-		
-		
+
+
 		pthread_t worldGen;
-		
+
 		int  iret1;
 		iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
-		
+
 		string bg_image;
-		
+
 		if(rand() % 2)
 		{
 			bg_image = "loading2";
@@ -207,37 +207,37 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 		{
 			bg_image = "loading1";
 		}
-		
+
 		while(true)
 		{
 			if(done_percent > 1.0f)
 				break;
-			
+
 			// if(done_percent > prev_done_percent)
 			{
 				view->drawLoadScreen(task_name, bg_image, done_percent);
 				prev_done_percent = done_percent;
 			}
-			
+
 #ifndef _WIN32
 			usleep(1000);
 #else
 			// sleep(10);
 #endif
 		}
-		
+
 		task_name = "Decorating terrain..";
 		visualworld.decorate(world.lvl);
-		
-		
+
+
 		// and then send WORLD_GEN_READY message!
 		stringstream ss_world_gen_ready;
 		ss_world_gen_ready << "-2 WORLD_GEN_READY #";
 		game.write(Game::SERVER_ID, ss_world_gen_ready.str());
-		
+
 		// wait until game starts for me..
 		cerr << "world gen finished, waiting for game content.." << endl;
-		
+
 	}
 	else
 	{
@@ -249,15 +249,15 @@ void Localplayer::sendCheckSumMessage()
 {
 	stringstream checksum_msg;
 	checksum_msg << "-2 CSMSG " << (world.currentWorldFrame);
-	
+
 	vector<World::CheckSumType> checksums;
 	world.checksum(checksums);
-	
+
 	for(size_t k = 0; k < checksums.size(); k++)
 	{
 		checksum_msg << " " << checksums[k];
 	}
-	
+
 	checksum_msg << "#";
 	game.write(Game::SERVER_ID, checksum_msg.str());
 }
@@ -270,7 +270,7 @@ bool Localplayer::client_tick()
 		handleMetaEvent(event);
 	}
 	game.meta_events.clear();
-	
+
 	bool stop = game.check_messages_from_server();
 	game.processClientMsgs();
 
@@ -281,18 +281,18 @@ bool Localplayer::client_tick()
 		if(game.client_tick_local())
 		{
 			need_to_tick_world = true;
-			
+
 			process_sent_game_input();
 			game.process_received_game_input();
-			
+
 			game.TICK();
 			handleWorldEvents();
-			
+
 			hud->world_tick();
 			view->world_tick(visualworld.lights);
-			
+
 			visualworld.levelDesc.world_tick(view->frustum);
-			
+
 			sendCheckSumMessage();
 		}
 		else
@@ -310,17 +310,17 @@ void Localplayer::draw()
 	{
 		visualworld.viewTick(world.units, world.projectiles, world.items, world.currentWorldFrame);
 		view->tick();
-		
+
 		float fps = hud->getFPS();
 		if( (fps < 5.0f) || (!need_to_tick_world && window->active()) )
 		{
 			int blur = world.units.find(game.myID)->second["D"];
 			if(visualworld.camera.mode() == Camera::STATIC)
 				blur = 0;
-			
+
 			// TODO: kinda silly to call this every frame, but what the hell..
 			hud->setAreaName(world.strVals["AREA_NAME"]);
-			
+
 			// if we didn't need to tick the world right now, then there should be time to draw the scene.
 			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units, blur);
 		}
@@ -333,13 +333,13 @@ void Localplayer::playSound(const std::string& name, const Location& position)
 	if(game.myID >= 0)
 	{
 		const Location& reference_point = world.units.find(game.myID)->second.getPosition();
-		
+
 		FixedPoint distance = (reference_point - position).length();
-		
+
 		if(distance < FixedPoint(1))
 			distance = FixedPoint(1);
-		
-		
+
+
 		// play local player's unit's sound effect
 		if(name == "walk")
 		{
@@ -376,15 +376,15 @@ void Localplayer::process_sent_game_input()
 {
 	static int prevMousePress = -1;
 	static int prevKeyState = -1;
-	
+
 	int keyState = userio->getGameInput();
 	if (client_input_state & 2)
 		keyState = 0;
 	int x, y;
-	
+
 	userio->getMouseChange(x, y);
 	int mousePress = userio->getMousePress();
-	
+
 	int& no_input = world.intVals["NO_INPUT"];
 	if((no_input > 0) || (world.units.find(game.myID) == world.units.end()))
 	{
@@ -392,24 +392,24 @@ void Localplayer::process_sent_game_input()
 		x = 0;
 		y = 0;
 		mousePress = 0;
-		
+
 		if(no_input < 1000)
 			--no_input;
 	}
-	
+
 	visualworld.camera.updateInput(keyState, x, y); // Make only "small" local changes like change the camera angle.
 	hud->setShowStats(keyState & (1 << 31));
 
 	x *= intVals["sensitivity"];
 	y *= intVals["sensitivity"];
-	
+
 	if(keyState != prevKeyState)
 		game.sendKeyState(keyState);
 	if(x != 0 || y != 0)
 		game.sendMouseMove(x, y);
 	if(mousePress != prevMousePress)
 		game.sendMousePress(mousePress);
-	
+
 	prevMousePress = mousePress;
 	prevKeyState = keyState;
 }
@@ -421,13 +421,13 @@ bool setVariable(HasProperties& properties, string var_name, string word, int va
 		properties.intVals[var_name] = val;
 		return true;
 	}
-	
+
 	if(properties.strVals.find(var_name) != properties.strVals.end())
 	{
 		properties.strVals[var_name] = word;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -437,11 +437,11 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 	string word1;
 	string word2;
 	msg_ss >> word1 >> word2;
-	
+
 	int value = -1;
 	stringstream word2_ss(word2);
 	word2_ss >> value;
-	
+
 	if(!setVariable(world, word1, word2, value))
 	if(!setVariable(*view, word1, word2, value))
 	if(!setVariable(*this, word1, word2, value))
@@ -461,7 +461,7 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 			return false;
 		}
 	}
-	
+
 	world.add_message("^Gvalue set");
 	return true;
 }
@@ -469,12 +469,12 @@ bool Localplayer::set_local_variable(const std::string& clientCommand)
 bool Localplayer::handleClientLocalInput()
 {
 	camera_handling();
-	
+
 	std::string key = userio->getSingleKey();
-	
+
 	if(key.size() == 0)
 		return true;
-	
+
 	if(key == "return")
 		client_input_state ^= 2;
 	else if(key == "f1")
@@ -498,21 +498,21 @@ bool Localplayer::handleClientLocalInput()
 		std::cerr << "RELOADING SHADERS" << std::endl;
 		view->reload_shaders();
 	}
-	
+
 	if(client_input_state & 2) // chat message
 	{
 		std::string nick;
 		nick.append("<");
 		nick.append(game.Players[game.myID].name);
 		nick.append("> ");
-		
+
 		if(key.size() == 1)
 		{
 			clientCommand.append(key);
 		}
 		else if(key == "backspace" && clientCommand.size() > 0)
 			clientCommand.resize(clientCommand.size()-1);
-		
+
 		else if(key == "escape")
 		{
 			client_input_state ^= 2;
@@ -521,7 +521,7 @@ bool Localplayer::handleClientLocalInput()
 		}
 		else if(key == "space")
 			clientCommand.append(" ");
-		
+
 		nick.append(clientCommand);
 		hud->setCurrentClientCommand(nick);
 	}
@@ -540,7 +540,7 @@ bool Localplayer::handleClientLocalInput()
 					game.send_chat_message(clientCommand);
 				}
 			}
-			
+
 			clientCommand = "";
 			hud->setCurrentClientCommand(clientCommand);
 		}
@@ -550,7 +550,7 @@ bool Localplayer::handleClientLocalInput()
 			game.endGame();
 			world.terminate();
 			hud->reset();
-			
+
 			// then proceed with local shutdown.
 			std::cerr << "User pressed ESC, shutting down." << std::endl;
 			return false;
@@ -578,7 +578,7 @@ bool Localplayer::handleClientLocalInput()
 				if(iter == world.units.end())
 					iter = world.units.begin();
 			}
-			
+
 			if(iter != world.units.end())
 			{
 				visualworld.bindCamera(&iter->second);
@@ -610,7 +610,7 @@ bool Localplayer::handleClientLocalInput()
 				if(iter == world.units.end())
 					iter = world.units.begin();
 			}
-			
+
 			if(iter != world.units.end())
 			{
 				Location loc = iter->second.getPosition();
@@ -634,7 +634,7 @@ bool Localplayer::handleClientLocalInput()
 			ss << "Camera is looking at " << view->getWorldPosition();
 			world.add_message(ss.str());
 		}
-		
+
 	}
 	return true;
 }
@@ -645,15 +645,15 @@ void Localplayer::handle(const BulletHitEvent& event)
 {
 	int scale = 1000;
 	int max_rand = 500;
-	
+
 	std::stringstream ss;
 	int x = (rand() % 4);
 	ss << "hit" << x;
 	playSound(ss.str(), event.t_position);
-	
+
 	Location bulletDirection = event.a_velocity;
 	bulletDirection.normalize();
-	
+
 	visualworld.genParticleEmitter(event.a_position, bulletDirection, 5, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED");
 }
 
@@ -661,7 +661,7 @@ void Localplayer::handle(const DevourEvent& event)
 {
 	int scale = 1000;
 	int max_rand = 500;
-	
+
 	playSound("hit0", event.t_position);
 	visualworld.genParticleEmitter(event.t_position, event.t_velocity, 5, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED");
 }
@@ -671,7 +671,7 @@ void Localplayer::handle(const DeathPlayerEvent& event)
 {
 	int scale = 1000;
 	int max_rand = 500;
-	
+
 	if(event.target_id == game.myID)
 	{
 		// we want the player who dies to always hear his own screams
@@ -681,21 +681,21 @@ void Localplayer::handle(const DeathPlayerEvent& event)
 	{
 		playSound("player_death", event.t_position);
 	}
-	
+
 	visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
-	
+
 	auto unit_it = world.units.find(event.actor_id);
 	if( (unit_it != world.units.end()) && unit_it->second.human())
 	{
 		game.Players[event.actor_id].kills++;
 	}
-	
+
 	auto target_it = world.units.find(event.target_id);
 	if( (target_it != world.units.end()) && target_it->second.human() )
 	{
 		game.Players[event.target_id].deaths++;
 	}
-	
+
 	hud->setLocalPlayerKills(game.Players[game.myID].kills);
 	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
@@ -704,17 +704,17 @@ void Localplayer::handle(const DeathNPCEvent& event)
 {
 	int scale = 1000;
 	int max_rand = 500;
-	
+
 	playSound("alien_death", event.t_position);
-	
+
 	visualworld.genParticleEmitter(event.t_position, event.t_velocity, 15, max_rand, scale, "DARK_RED", "DARK_RED", "DARK_RED", "DARK_RED", 2000, 25);
-	
+
 	auto unit_it = world.units.find(event.actor_id);
 	if( (unit_it != world.units.end()) && unit_it->second.human())
 	{
 		game.Players[event.actor_id].kills++;
 	}
-	
+
 	hud->setLocalPlayerKills(game.Players[game.myID].kills);
 	hud->setLocalPlayerDeaths(game.Players[game.myID].deaths);
 }
@@ -780,9 +780,9 @@ void Localplayer::handleWorldEvents()
 	{
 		hud->setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
 	}
-	
+
 	hud->setZombiesLeft(world.getUnitCount());
-	
+
 	// TODO: THIS MAKES NO FUCKING SENSE!! USE THE MESSAGE SENDING SYSTEM INSTEAD
 	// deliver any world message events to graphics structure, and erase them from world data.
 	for(size_t i = 0; i < visualworld.worldMessages.size(); ++i)
@@ -790,9 +790,9 @@ void Localplayer::handleWorldEvents()
 		hud->pushMessage(visualworld.worldMessages[i]);
 	}
 	visualworld.worldMessages.clear();
-	
+
 	deliverMessages();
-	
+
 	// TODO: This could also be implemented with message passing.
 	for(auto iter = world.units.begin(); iter != world.units.end(); iter++)
 	{

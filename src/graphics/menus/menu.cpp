@@ -1,7 +1,7 @@
-#include "graphics/menu.h"
+#include "graphics/menus/menu.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
-#include "graphics/menubutton.h"
+#include "graphics/menus/menubutton.h"
 
 #include "local_machine/userio.h"
 #include "local_machine/game.h"
@@ -37,13 +37,13 @@ void server_killer()
 
 void Menu::tick_menu_effects()
 {
-	
+
 	for(int i=0; i < 1; i++)
 	{
 		menu_particles.push_back(MenuParticle());
 		menu_particles.back().reset();
 	}
-	
+
 	for(size_t i=0; i<menu_particles.size(); i++)
 	{
 		if(!menu_particles[i].alive())
@@ -51,10 +51,10 @@ void Menu::tick_menu_effects()
 			menu_particles[i] = menu_particles.back();
 			menu_particles.pop_back();
 			i--;
-			
+
 			continue;
 		}
-		
+
 		menu_particles[i].tick();
 	}
 }
@@ -65,13 +65,13 @@ Menu::Menu(GameView* v, UserIO* u):
 {
 	options_files.push_back("configs/user.conf");
 	options_files.push_back("configs/localplayer.conf");
-	
+
 	for(size_t i=0; i<options_files.size(); i++)
 	{
 		options.push_back(HasProperties());
 		options.back().load(options_files[i]);
 	}
-	
+
 	menu_particles.resize(1);
 	for(size_t i=0; i<menu_particles.size(); i++)
 		menu_particles[i].reset();
@@ -114,7 +114,7 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 	{
 		// hmm.
 		vector<MenuButton> options_buttons;
-		
+
 		for(size_t i=0; i<options.size(); i++)
 		{
 			for(auto iter = options[i].intVals.begin(); iter != options[i].intVals.end(); iter++)
@@ -123,7 +123,7 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 				if(islower(iter->first[0]))
 					options_buttons.push_back(MenuButton(iter->first, dummy, iter->second));
 			}
-			
+
 			for(auto iter = options[i].strVals.begin(); iter != options[i].strVals.end(); iter++)
 			{
 				int dummy = -1;
@@ -131,7 +131,7 @@ std::string Menu::handleMainMenu(vector<MenuButton>& buttons, size_t selected)
 					options_buttons.push_back(MenuButton(iter->first, iter->second, dummy));
 			}
 		}
-		
+
 		run_menu(options_buttons, "options");
 		return "";
 	}
@@ -164,16 +164,16 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 	size_t selected = 0;
 	int dont_exit = 1;
 	buttons[selected].selected = 1;
-	
+
 	string ret;
-	
+
 	while(dont_exit)
 	{
 		tick_menu_effects();
 		view->drawMenu(buttons, menu_particles);
-		
+
 		string key = userio->getSingleKey();
-		
+
 		if(key == "")
 		{
 			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
@@ -220,10 +220,10 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 				error_string = "unrecognized menu: ";
 				error_string.append(menu_name);
 			}
-			
+
 			if(ans == "")
 				continue;
-			
+
 			ret = ans;
 			dont_exit = false;
 		}
@@ -233,9 +233,9 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 			dont_exit = false;
 		}
 	}
-	
+
 	cerr << "returning from menu." << endl;
-	
+
 	if(menu_name == "options")
 	{
 		for(size_t k = 0; k < buttons.size(); k++)
@@ -252,13 +252,13 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 				}
 			}
 		}
-		
+
 		for(size_t i = 0; i < options.size(); i++)
 		{
 			options[i].save(options_files[i]);
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -266,10 +266,10 @@ std::string Menu::menu_tick()
 {
 	// load images & create textures
 	vector<MenuButton> buttons;
-	
+
 	int dummy = -1;
 	string conTarget;
-	
+
 	// hosting functionality not available on windows
 	#ifndef _WIN32
 	buttons.push_back(MenuButton("host", conTarget, dummy));
@@ -277,9 +277,9 @@ std::string Menu::menu_tick()
 	buttons.push_back(MenuButton("connect", conTarget, dummy));
 	buttons.push_back(MenuButton("options", conTarget, dummy));
 	buttons.push_back(MenuButton("exit", conTarget, dummy));
-	
+
 	return run_menu(buttons, "main");
-	
+
 }
 
 
@@ -288,14 +288,14 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 	buttons[i].reserve();
 	buttons[i].info.append("_");
 	string& hostName = buttons[i].info;
-	
+
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
-		
+
 		tick_menu_effects();
 		view->drawMenu(buttons, menu_particles);
-		
+
 		if(key_hostname == "")
 		{
 			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
@@ -325,22 +325,22 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 		else if(key_hostname == "return")
 		{
 			buttons[i].info.resize(buttons[i].info.size() - 1);
-			
+
 			// don't allow empty values;
 			if(buttons[i].info.size() == 0)
 			{
 				buttons[i].info = "0";
 			}
-			
+
 			buttons[i].release();
 			stringstream ss_int(buttons[i].info);
 			ss_int >> buttons[i].value;
 			return buttons[i].value;
 		}
 	}
-	
+
 	buttons[i].release();
-	
+
 	// good idea?
 	buttons[i].info.resize(buttons[i].info.size() - 1);
 	stringstream ss(buttons[i].info);
@@ -352,16 +352,16 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 {
 	buttons[i].reserve();
-	
+
 	buttons[i].info.append("_");
 	string& hostName = buttons[i].info;
-	
+
 	while(true)
 	{
 		string key_hostname = userio->getSingleKey();
 		tick_menu_effects();
 		view->drawMenu(buttons, menu_particles);
-		
+
 		if(key_hostname == "")
 		{
 			SDL_Delay(10); // sleep a bit. don't need anything intensive done anyway.
@@ -382,13 +382,13 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 		{
 			// good idea?
 			buttons[i].info.resize(buttons[i].info.size() - 1);
-			
+
 			// don't allow empty values
 			if(buttons[i].info.size() == 0)
 			{
 				buttons[i].info = "empty";
 			}
-			
+
 			buttons[i].release();
 			return "";
 		}
@@ -418,18 +418,18 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 			break;
 		}
 	}
-	
+
 	// good idea?
 	buttons[i].info.resize(buttons[i].info.size() - 1);
-	
+
 	// don't allow empty values
 	if(buttons[i].info.size() == 0)
 	{
 		buttons[i].info = "empty";
 	}
-	
+
 	buttons[i].release();
-	
+
 	return buttons[i].info;
 }
 

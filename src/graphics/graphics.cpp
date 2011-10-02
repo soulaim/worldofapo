@@ -6,7 +6,7 @@
 #include "graphics/frustum/matrix4.h"
 #include "graphics/texturecoordinate.h"
 #include "graphics/window.h"
-#include "graphics/menubutton.h"
+#include "graphics/menus/menubutton.h"
 
 #include "physics/octree.h"
 #include "world/level.h"
@@ -457,7 +457,7 @@ void GameView::draw(
 
 	if(intVals["DRAW_SKYBOX"])
 	{
-		drawSkybox();
+        skybox.draw(shaders.get_shader("skybox_program"), camera_p);
 	}
 
 	if(intVals["DRAW_DEBUG_LINES"])

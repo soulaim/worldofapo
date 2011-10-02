@@ -2,11 +2,12 @@
 #define SKELETALMODEL_H
 
 #include "graphics/opengl.h"
-#include "graphics/animation.h"
+#include "graphics/models/animation.h"
+#include "graphics/models/model.h"
 #include "misc/vec3.h"
 #include "graphics/frustum/matrix4.h"
 #include "graphics/texturecoordinate.h"
-#include "graphics/model.h"
+
 
 #include <string>
 #include <vector>
@@ -96,12 +97,12 @@ struct SkeletalModel: public Model
 	virtual bool save(const std::string& filename) const;
 	virtual void draw() const;
 	virtual void viewTick();
-	
+
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1) const;
 	void preload();
-	
+
 private:
 	void old_draw(size_t hilight) const;
 	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight) const;
@@ -121,13 +122,13 @@ private:
 	std::vector<vec3<float> > normals;
 	std::vector<ColorStruct> colors;
 	std::vector<TextureCoordinate> texture_coordinates;
-	
+
 	std::vector<Triangle> triangles;
 	std::vector<vec3<float> > triangle_normals;
 	std::vector<float> triangle_areas;
-	
+
 	std::vector<WeightedVertex> weighted_vertices;
-	
+
 	// These change with animations.
 	std::vector<Bone> bones;
 

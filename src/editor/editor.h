@@ -1,14 +1,14 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "graphics/model.h"
-#include "graphics/skeletalmodel.h"
+#include "graphics/models/model.h"
+#include "graphics/models/skeletalmodel.h"
 #include "local_machine/userio.h"
 #include "graphics/graphics.h"
 #include "world/unit.h"
 #include "graphics/hud.h"
-#include "graphics/particle.h"
-#include "graphics/particle_source.h"
+#include "graphics/particles/particle.h"
+#include "graphics/particles/particle_source.h"
 #include "graphics/visualworld.h"
 #include "graphics/window.h"
 
@@ -63,7 +63,7 @@ class Editor
 
 	bool editing_single_part;
 	size_t selected_part;
-	
+
 	bool skele;
 	SkeletalModel skeletal_model;
 	std::map<int, Model*> models;

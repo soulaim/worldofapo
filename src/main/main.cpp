@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "local_machine/localplayer.h"
-#include "graphics/menu.h"
+#include "graphics/menus/menu.h"
 #include "graphics/graphics.h"
 #include "local_machine/userio.h"
 #include "graphics/hud.h"
@@ -17,18 +17,18 @@ using namespace std;
 string select_hero(Menu& menu, map<string, CharacterInfo>& heroes)
 {
 	cerr << "Obtained heroes list.. should have a menu here" << endl;
-	
+
 	vector<MenuButton> menuButtons;
-	
+
 	int dummy_val = -1;
 	string dummy_str;
 	for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
 		menuButtons.push_back(MenuButton(iter->second.playerInfo.name, dummy_str, dummy_val));
-	
+
 	string selected_character = menu.run_menu(menuButtons, "Character selection");
 	string key = "NEW";
 	bool character_found = false;
-	
+
 	for(auto iter = heroes.begin(); iter != heroes.end(); iter++)
 	{
 		if(iter->second.playerInfo.name == selected_character)
@@ -38,7 +38,7 @@ string select_hero(Menu& menu, map<string, CharacterInfo>& heroes)
 			break;
 		}
 	}
-	
+
 	if(character_found)
 	{
 		cerr << "Selected hero OK" << endl;
@@ -47,7 +47,7 @@ string select_hero(Menu& menu, map<string, CharacterInfo>& heroes)
 	{
 		cerr << "Selected hero NOT OK" << endl;
 	}
-	
+
 	// without an actual menu, just select the first option
 	cerr << "Selecting hero: " << selected_character << " with key " << key << endl;
 
@@ -58,7 +58,7 @@ bool make_menu_choice(Localplayer& master, Menu& menu, HasProperties& menuOption
 {
 	master.endMusic();
 	master.startMusic(menuOptions.strVals["GAME_MUSIC"]);
-	
+
 	map<string, CharacterInfo> heroes;
 	if(!master.internetGameGetHeroes(choice, heroes))
 	{
@@ -82,12 +82,12 @@ bool main_loop(Localplayer& master, Menu& menu, HasProperties& menuOptions, Wind
 	{
 		if(master.client_tick())
 		{
-			
+
 			window.disable_grab();
-			
+
 			in_menu = true;
 			master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
-			
+
 			// at least if server disconnects us, this is the only place where reset is called.
 			master.reset();
 		}
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 	cerr << "starting logger" << endl;
 	Logger log;
 	log.open("gamelog.log");
-	
+
 	cerr << "creating game object" << endl;
 	UserIO userio;
 	Window window;
@@ -124,18 +124,18 @@ int main(int argc, char* argv[])
 	Localplayer master(&view, &userio, &hud, &window);
 	master.init();
 	Menu menu(&view, &userio);
-	
+
 	HasProperties menuOptions;
 	menuOptions.load("configs/menu.conf");
-	
+
 	// start music in menu
 	master.startMusic(menuOptions.strVals["MENU_MUSIC"]);
-	
+
 	while(main_loop(master, menu, menuOptions, window))
 	{
 		master.draw(); // draws if possible
 	}
-	
+
 	cerr << "Exiting client now." << endl;
 	return 0;
 }

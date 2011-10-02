@@ -15,6 +15,7 @@ meadow6 data/images/meadow6.png
 
 grimmnight data/grimmnight.png
 interstellar data/interstellar.png
+skyboxspace data/images/skyboxspace.png
 
 crosshair data/images/crosshair.png
 

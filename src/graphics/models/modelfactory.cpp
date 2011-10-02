@@ -1,6 +1,6 @@
-#include "graphics/modelfactory.h"
-#include "graphics/skeletalmodel.h"
-#include "graphics/invisiblemodel.h"
+#include "graphics/models/modelfactory.h"
+#include "graphics/models/skeletalmodel.h"
+#include "graphics/models/invisiblemodel.h"
 
 #include "misc/logger.h"
 

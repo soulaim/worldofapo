@@ -1,26 +1,20 @@
 
-#include "graphics/graphics.h"
 #include "graphics/texturehandler.h"
 #include "graphics/shaders.h"
-#include "graphics/hud.h"
-#include "graphics/frustum/matrix4.h"
-#include "graphics/texturecoordinate.h"
-#include "graphics/window.h"
-#include "graphics/menubutton.h"
+#include "graphics/skybox/skybox.h"
+#include "misc/vec3.h"
+#include "graphics/camera.h"
 
-void GameView::drawSkybox()
+Skybox::Skybox(): space("skyboxspace"), sky("interstellar"), night("grimmnight")
 {
-	Shader& shader = shaders.get_shader("skybox_program");
+    skyboxTexture = space;
+}
+
+void Skybox::draw(Shader& shader, Camera* camera_p)
+{
 	shader.start();
 
-	if(intVals["DRAW_DEBUG_LINES"])
-	{
-		TextureHandler::getSingleton().bindTexture(0, "chessboard");
-	}
-	else
-	{
-		TextureHandler::getSingleton().bindTexture(0, strVals["SKYBOX"]);
-	}
+    TextureHandler::getSingleton().bindTexture(0, skyboxTexture);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -36,7 +30,8 @@ void GameView::drawSkybox()
 	glDisable(GL_BLEND);
 	glDisable(GL_NORMALIZE);
 	glDisable(GL_RESCALE_NORMAL);
-	glColor3f(1.0f, 1.0f, 1.0f);
+
+    glColor3f(1.0f, 1.0f, 1.0f);
 	glNormal3f(0.0f, 0.0f, 0.0f);
 
 	double minus = -20.0;

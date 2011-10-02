@@ -1,6 +1,6 @@
-#include "skeletalmodel.h"
-#include "frustum/matrix4.h"
-#include "texturehandler.h"
+#include "graphics/models/skeletalmodel.h"
+#include "graphics/frustum/matrix4.h"
+#include "graphics/texturehandler.h"
 
 #include <fstream>
 #include <queue>
@@ -9,7 +9,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "shaders.h"
+#include "graphics/shaders.h"
 
 using namespace std;
 

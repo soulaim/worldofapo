@@ -1,6 +1,6 @@
 
 #include "world.h"
-#include "graphics/modelfactory.h"
+#include "graphics/models/modelfactory.h"
 #include "graphics/visualworld.h"
 
 #include <iostream>

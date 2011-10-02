@@ -26,22 +26,22 @@ Game::Game(World* w):
 void Game::reset()
 {
 	Players[SERVER_ID].name = "GOD";
-	
+
 	clientOrders.clear();
 	serverMsgs.clear();
 	UnitInput.clear();
 	SpawningHeroes.clear();
 	Players.clear();
-	
+
 	paused_state = PAUSED;
 	simulRules = StateInfo();
-	
+
 	// need to erase localPlayer data? possible?
 	localPlayer = PlayerInfo();
-	
+
 	cerr << "Reseting client state." << endl;
 	myID = NO_ID;
-	
+
 	UnitInput.clear();
 	world->terminate();
 	world->init();
@@ -50,7 +50,7 @@ void Game::reset()
 void Game::init()
 {
 	ApoMath::init(3000);
-	
+
 	reset();
 	readConfig();
 }
@@ -63,12 +63,12 @@ void Game::write(int id, const string& msg)
 void Game::readConfig()
 {
 	load("configs/user.conf");
-	
+
 	//ifstream configFile("config.cfg");
 	//configFile >> localPlayer.name;
-	
+
 	string name = strVals["player\\sname"];
-	
+
 	if(name == "")
 	{
 		char *e = getenv("USER");
@@ -76,11 +76,11 @@ void Game::readConfig()
 			name.assign(e);
 		else
 			name = "Player5";
-		
+
 		ofstream ofs("configs/user.conf");
 		ofs << "STRING player\\sname " << name << endl;
 	}
-	
+
 	localPlayer.name = name;
 }
 
@@ -88,7 +88,7 @@ bool Game::internetGameGetHeroes(const string& hostname, map<string, CharacterIn
 {
 	myID = NO_ID;
 	int port = 12345;
-	
+
 	while(!clientSocket.open(SERVER_ID, hostname, port))
 	{
 		port--;
@@ -98,7 +98,7 @@ bool Game::internetGameGetHeroes(const string& hostname, map<string, CharacterIn
 			return false;
 		}
 	}
-	
+
 	if(!getHeroes(heroes))
 		return false;
 	return true;
@@ -116,7 +116,7 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 	{
 		cerr << "sending query for key " << *i << endl;
 		clientSocket.getConnection(SERVER_ID) << "OPTION " << (*i) << "#";
-		
+
 		bool not_finished = true;
 		while(not_finished)
 		{
@@ -126,21 +126,21 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 				clientOrders.orders.clear();
 				return false;
 			}
-			
+
 			for(size_t k=0; k<clientOrders.orders.size(); k++)
 			{
 //				Logger log;
 //				log.print("Got handshake message: ---" + clientOrders.orders[k] + "---\n");
-				
+
 				not_finished = false;
 				string cmd;
 				stringstream ss(clientOrders.orders[k]);
 				ss >> cmd;
-				
+
 				if(cmd == "YES")
 				{
 					getline(ss, cmd);
-					
+
 					// build a character info out of string cmd
 					heroes[*i] = CharacterInfo();
 					heroes[*i].readDescription(cmd);
@@ -150,14 +150,14 @@ bool Game::getHeroes(map<string, CharacterInfo>& heroes)
 					// no reaction.
 				}
 			}
-			
+
 			clientOrders.orders.clear();
 		}
 	}
-	
+
 	CharacterInfo& ci = heroes["NEW"];
 	ci.playerInfo.name = "New\\sCharacter";
-	
+
 	clientOrders.orders.clear();
 	return true;
 }
@@ -173,7 +173,7 @@ void Game::set_current_frame_input(int keystate, int x, int y, int mousepress)
 {
 	// int frame = simulRules.currentFrame + simulRules.frameSkip * simulRules.windowSize;
 	int frame = 0;
-	
+
 	clientSocket.getConnection(SERVER_ID) << "1 " << myID << " " << frame << " " << keystate << " " << x << " " << y << " " << mousepress << "#";
 }
 */
@@ -192,7 +192,7 @@ void Game::sendKeyState(int keyState)
 {
 	if(!hasID())
 		return;
-	
+
 	getServerConnection() << NetworkMessage::getKeyState(myID, 0, keyState);
 }
 
@@ -200,7 +200,7 @@ void Game::sendMouseMove(int x, int y)
 {
 	if(!hasID())
 		return;
-	
+
 	getServerConnection() << NetworkMessage::getMouseMove(myID, 0, x, y);
 }
 
@@ -208,7 +208,7 @@ void Game::sendMousePress(int mousePress)
 {
 	if(!hasID())
 		return;
-	
+
 	getServerConnection() << NetworkMessage::getMousePress(myID, 0, mousePress);
 }
 
@@ -227,7 +227,7 @@ bool Game::client_tick_local()
 {
 	// this is acceptable because the size is guaranteed to be insignificantly small
 	sort(UnitInput.begin(), UnitInput.end());
-	
+
 	// handle any server commands intended for this frame
 	while((UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID == simulRules.currentFrame))
 	{
@@ -235,7 +235,7 @@ bool Game::client_tick_local()
 		UnitInput.pop_back();
 		handleServerMessage(server_command);
 	}
-	
+
 	if( (simulRules.currentFrame < simulRules.allowedFrame) )
 	{
 		if( (UnitInput.back().plr_id == SERVER_ID) && (UnitInput.back().frameID < simulRules.currentFrame) )
@@ -247,7 +247,7 @@ bool Game::client_tick_local()
 		{
 			cerr << "WARNING: ServerCommand for frame " << UnitInput.back().frameID << " encountered at frame " << simulRules.currentFrame << endl;
 		}
-		
+
 		return true;
 	}
 
@@ -259,29 +259,29 @@ void Game::process_received_game_input()
 {
 	if(UnitInput.empty())
 		return;
-	
+
 	sort(UnitInput.begin(), UnitInput.end());
-	
+
 	while(UnitInput.back().frameID < simulRules.currentFrame)
 	{
 		cerr << "WARNING: Client skipped an order for frame " << UnitInput.back().frameID << ", current frame = " << simulRules.currentFrame << endl;
 		UnitInput.pop_back();
 	}
-	
+
 	// update commands of player controlled characters
 	while(UnitInput.back().frameID == simulRules.currentFrame)
 	{
 		Order tmp = UnitInput.back();
 		UnitInput.pop_back();
-		
+
 		if(tmp.plr_id == SERVER_ID)
 		{
 			cerr << "WARNING: Someone claims to be server. This should never happen." << endl;
 			continue;
 		}
-		
+
 		auto it = world->units.find(tmp.plr_id);
-		
+
 		if(it != world->units.end())
 		{
 			switch(tmp.cmd_type)
@@ -289,11 +289,11 @@ void Game::process_received_game_input()
 				case NetworkMessage::KEYSTATE_MESSAGE_ID:
 					it->second.updateKeyState(tmp.keyState);
 					break;
-				
+
 				case NetworkMessage::MOUSEPRESS_MESSAGE_ID:
 					it->second.updateMousePress(tmp.mouseButtons);
 					break;
-				
+
 				case NetworkMessage::MOUSEMOVE_MESSAGE_ID:
 					it->second.updateMouseMove(tmp.mousex, tmp.mousey);
 					break;
@@ -320,10 +320,10 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		int unitID     = server_msg.keyState;
 		int new_teamID = server_msg.mousex;
-		
+
 		Unit& u = world->units.find(unitID)->second;
 		u["TEAM"] = new_teamID;
-		
+
 		stringstream newViewMessage;
 		newViewMessage << "^R" << u.name << " ^Wchanged team ID to ^G" << new_teamID << "!";
 		world->add_message(newViewMessage.str());
@@ -338,7 +338,7 @@ void Game::handleServerMessage(const Order& server_msg)
 		message.append(Players[server_msg.keyState].name);
 		message.append("] has disconnected!");
 		world->add_message(message);
-		
+
 		world->removeUnit(server_msg.keyState);
 		Players.erase(server_msg.keyState);
 		simulRules.numPlayers--;
@@ -347,33 +347,35 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 1) // ADDHERO message
 	{
 		string areaName = SpawningHeroes[server_msg.keyState].unit.strVals["AREA"];
-		
+
 		if(world->strVals["AREA_NAME"] == areaName)
 		{
 			world->addUnit(server_msg.keyState);
 			simulRules.numPlayers++;
-			
+
 			cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world->units.size() << ", myID = " << myID << endl;
-			
+
 			// the new way
 			if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
 			{
 				SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
 				SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
 			}
-			
+
 			SpawningHeroes[server_msg.keyState].unit.birthTime = world->units[server_msg.keyState].birthTime;
 			SpawningHeroes[server_msg.keyState].unit.id = server_msg.keyState;
-			
+
 			Unit& unit = world->units.find(server_msg.keyState)->second;
 			unit = SpawningHeroes[server_msg.keyState].unit;
+            unit.position = world->lvl.getStartLocation();
+
 			world->intVals["NO_INPUT"] = 10; // NOTE: to prevent de-sync!
-			
+
 			Players[server_msg.keyState] = SpawningHeroes[server_msg.keyState].playerInfo;
 			SpawningHeroes.erase(server_msg.keyState);
-			
+
 			world->add_message("^GHero created!");
-			
+
 			sort(UnitInput.begin(), UnitInput.end());
 		}
 		else
@@ -385,25 +387,25 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		myID = server_msg.keyState; // trololol. nice place to store the info.
 		world->add_message("^Ggot playerID!");
-		
+
 		GotPlayerID event;
 		event.myID = myID;
 		sendMsg(event);
-		
+
 		cerr << "MYID: " << myID << ", sending my name now: " << localPlayer.name << endl;
-		
+
 		if(localPlayer.name == "")
 		{
 			localPlayer.name = "nameless";
 		}
-		
+
 		clientSocket.getConnection(SERVER_ID) << "2 " << myID << " " << localPlayer.name << "#";
-		
+
 		if(world->units.find(myID) != world->units.end())
 		{
 			CenterCamera event;
 			event.plr_id = myID;
-			
+
 			cerr << "Sending event to bind camera to unit " << myID << "\n";
 			sendMsg(event);
 		}
@@ -415,14 +417,14 @@ void Game::handleServerMessage(const Order& server_msg)
 	else if(server_msg.serverCommand == 24) // toggle god-mode
 	{
 		int id = server_msg.keyState;
-		
+
 		auto unit_it = world->units.find(id);
 		if(unit_it != world->units.end())
 		{
 			world->add_message(unit_it->second.name + " toggled god-mode!");
 			unit_it->second.intVals["GOD_MODE"] ^= 1;
 		}
-		
+
 	}
 	else if(server_msg.serverCommand == 18) // start game
 	{
@@ -432,7 +434,7 @@ void Game::handleServerMessage(const Order& server_msg)
 	{
 		int destroy_ID = server_msg.keyState;
 		world->removeUnit(destroy_ID);
-		
+
 		if(destroy_ID == myID)
 		{
 			myID = NO_ID;
@@ -462,54 +464,54 @@ void Game::processClientMsgs()
 //		log.print("Got message: ---" + clientOrders.orders[i] + "---\n");
 
 		stringstream ss(clientOrders.orders[i]);
-		
+
 		int order_type;
 		ss >> order_type;
-		
+
 		if(order_type == NetworkMessage::KEYSTATE_MESSAGE_ID)
 		{
 			Order tmp_order;
 			tmp_order.cmd_type = NetworkMessage::KEYSTATE_MESSAGE_ID;
-			
+
 			ss >> tmp_order.plr_id;
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.keyState;
-			
+
 			UnitInput.push_back(tmp_order);
 		}
 		else if(order_type == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
 		{
 			Order tmp_order;
 			tmp_order.cmd_type = NetworkMessage::MOUSEMOVE_MESSAGE_ID;
-			
+
 			ss >> tmp_order.plr_id;
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.mousex;
 			ss >> tmp_order.mousey;
-			
+
 			UnitInput.push_back(tmp_order);
 		}
 		else if(order_type == NetworkMessage::MOUSEPRESS_MESSAGE_ID)
 		{
 			Order tmp_order;
 			tmp_order.cmd_type = NetworkMessage::MOUSEPRESS_MESSAGE_ID;
-			
+
 			ss >> tmp_order.plr_id;
 			ss >> tmp_order.frameID;
 			ss >> tmp_order.mouseButtons;
-			
+
 			UnitInput.push_back(tmp_order);
 		}
 		else if(order_type == 3) // chat message
 		{
 			cerr << "ORDER: " << clientOrders.orders[i] << endl;
-			
+
 			int plrID;
 			string line;
-			
+
 			ss >> plrID;
 			getline(ss, line);
-			
+
 			stringstream chatMsg;
 			chatMsg << "^y<" << Players[plrID].name << "> ^w" << line;
 			world->add_message(chatMsg.str());
@@ -518,7 +520,7 @@ void Game::processClientMsgs()
 		else if(order_type == 2) // playerInfo message
 		{
 			cerr << "ORDER: \"" << clientOrders.orders[i] << "\"" << endl;
-			
+
 			if(clientOrders.orders[i].size() < 4) // less than four long, it can't hold all the necessary data.
 			{
 				cerr << "This message seems to be full of shit :/ I'll just ignore it or something.." << endl;
@@ -529,27 +531,27 @@ void Game::processClientMsgs()
 				int plrID, kills, deaths;
 				string name;
 				ss >> plrID >> kills >> deaths;
-				
+
 				ss.ignore(); // eat away the extra space delimiter
 				getline(ss, name);
-				
+
 				Players[plrID].name = name;
 				Players[plrID].kills = kills;
 				Players[plrID].deaths = deaths;
-				
+
 				if(plrID == myID)
 				{
 					GotMyName event;
 					event.name = name;
 					sendMsg(event);
 				}
-				
+
 				cerr << plrID << " " << name << " (" << kills << "/" << deaths << ")" << endl;
-				
+
 				stringstream message;
 				message << "^g" << Players[plrID].name << "^r has connected!" << endl;
 				world->add_message(message.str());
-				
+
 				// set unit's name to match the players
 				if(world->units.find(plrID) == world->units.end())
 				{
@@ -562,8 +564,8 @@ void Game::processClientMsgs()
 				}
 			}
 		}
-		
-		
+
+
 		else if(order_type == -1) // A COMMAND message from GOD (server)
 		{
 			Order tmp_order;
@@ -574,19 +576,19 @@ void Game::processClientMsgs()
 			ss >> tmp_order.mousex >> tmp_order.mousey; // use these as more storage space
 			UnitInput.push_back(tmp_order);
 		}
-		
-		
+
+
 		else if(order_type == -2) // instant reaction message from GOD
 		{
 			string cmd;
 			ss >> cmd;
-			
+
 			// allow messages handled first, since they are coming in all the time
 			if(cmd == "ALLOW")
 			{
 				int frame;
 				ss >> frame;
-				
+
 				// cerr << "SERVER ALLOWED SIMULATION UP TO FRAME: " << frame << endl;
 				simulRules.allowedFrame = frame;
 			}
@@ -595,12 +597,12 @@ void Game::processClientMsgs()
 				cerr << "Setting client state to UNPAUSED" << endl;
 				paused_state = GO;
 			}
-			
+
 			else if(cmd == "CHANGE_PROPERTY")
 			{
 				string line;
 				getline(ss, line);
-				
+
 				SetLocalProperty event;
 				event.cmd = line;
 				sendMsg(event);
@@ -614,7 +616,7 @@ void Game::processClientMsgs()
 			{
 				char type;
 				ss >> type;
-				
+
 				if(type == 'S')
 				{
 					string name;
@@ -634,8 +636,8 @@ void Game::processClientMsgs()
 					throw std::logic_error("WORLD_PROPERTY MESSAGE BROKEN");
 				}
 			}
-			
-			
+
+
 			else if(cmd == "GIVE_NAME") // request player name message
 			{
 				// hmm
@@ -648,22 +650,22 @@ void Game::processClientMsgs()
 			}
 			else if(cmd == "UNIT") // unit copy message
 			{
-				
+
 				cerr << "Copy unit: " << clientOrders.orders[i] << endl;
-				
+
 				int unitID;
 				ss >> unitID;
-				
+
 				Logger log;
 				log << "ORDER: create unit " << unitID << "\n";
-				
-				
+
+
 				// ALERT TODO: THIS IS BUBBLEGUM TO CREATE THE CORRECT MODEL FOR THE UNIT
 				/*
 				Unit tmp_unit;
 				tmp_unit.init();
 				tmp_unit.handleCopyOrder(ss);
-				
+
 				if(tmp_unit.human())
 				{
 					world->addUnit(unitID);
@@ -672,29 +674,29 @@ void Game::processClientMsgs()
 				{
 					world->addUnit(unitID, false);
 				}
-				
+
 				world->units.find(unitID)->second = tmp_unit;
 				*/
 				// END OF ALERT TODO
-				
+
 				world->addUnit(unitID);
 				Unit& unit = world->units.find(unitID)->second;
 				unit.handleCopyOrder(ss);
-				
+
 				VisualWorld::ModelType type = static_cast<VisualWorld::ModelType>(unit.model_type);
 				float scale = unit.scale.getFloat();
 				world->visualworld->createModel(unitID, unit.position, type, scale);
-				
+
 				cerr << "COPY OF A UNIT: " << unitID << " / " << unit.id << endl;
 			}
 			else if(cmd == "ITEM")
 			{
 				int itemID;
 				ss >> itemID;
-				
+
 				Logger log;
 				log << "ORDER: create item " << itemID << "\n";
-				
+
 				Location dummy;
 				world->addItem(dummy, dummy, itemID);
 				auto item_it = world->items.find(itemID);
@@ -727,7 +729,7 @@ void Game::processClientMsgs()
 				int nopause = 0;
 				ss >> nopause;
 				paused_state = (nopause ? GO : PAUSED);
-				
+
 				if(paused_state == GO)
 				{
 					sort(UnitInput.begin(), UnitInput.end());
@@ -740,45 +742,45 @@ void Game::processClientMsgs()
 			{
 				int future_player_id;
 				ss >> future_player_id;
-				
+
 				string line;
 				getline(ss, line);
-				
+
 				CharacterInfo ci;
 				ci.readDescription(line);
-				
+
 				SpawningHeroes[future_player_id] = ci;
 			}
 			else if(cmd == "WORLD_GEN_PARAM")
 			{
 				meta_events.push_back(HasProperties());
 				HasProperties& event = meta_events.back();
-				
+
 				int param;
 				string area_name;
-				
+
 				ss >> param >> area_name;
-				
+
 				event.strVals["EVENT_TYPE"] = "WORLD_GEN_PARAM";
 				event.intVals["WORLD_GEN_SEED"] = param;
 				event.strVals["WORLD_NAME"] = area_name;
-				
+
 				// set local simulation on pause
 				cerr << "Pausing game simulation.." << endl;
 				paused_state = PAUSED;
-				
+
 			}
 			else
 			{
 				cerr << "Unrecognized instant order: \"" << clientOrders.orders[i] << "\"" << endl;
 			}
-			
+
 		}
-		
+
 		else if(order_type == -4) // copy of an existing order
 		{
 			cerr << "ORDER: " << clientOrders.orders[i] << endl;
-			
+
 			cerr << "Got a copy of an old message" << endl;
 			Order tmp_order;
 			tmp_order.handleCopyOrder(ss);
@@ -807,7 +809,7 @@ bool Game::check_messages_from_server()
 	{
 		Network::SocketHandler::Connection& conn = clientSocket.getConnection(SERVER_ID);
 		string msg;
-		
+
 		while(conn >> msg)
 		{
 			clientOrders.insert(msg + "#");

@@ -6,7 +6,7 @@
 #include "graphics/frustum/matrix4.h"
 #include "graphics/texturecoordinate.h"
 #include "graphics/window.h"
-#include "graphics/menubutton.h"
+#include "graphics/menus/menubutton.h"
 
 #include <string>
 #include <vector>
