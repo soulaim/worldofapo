@@ -11,6 +11,7 @@
 #include "physics/octree.h"
 #include "world/level.h"
 #include "algorithms.h"
+#include "terrain/roof_renderer.h"
 
 
 #include <iostream>
@@ -424,11 +425,14 @@ void GameView::drawSolidGeometry(const VisualWorld& visualworld)
 		drawModels(visualworld.models, *camera_p);
 	}
 
-        OpenGL gl;
+    OpenGL gl;
 	if(intVals["DRAW_GRASS"] && gl.getGL3bit())
 	{
 		drawGrass(visualworld.meadows);
 	}
+
+
+    roofRenderer.draw(visualworld.levelDesc.getLevel());
 }
 
 void GameView::drawDeferredDepthBuffer(const VisualWorld& visualworld)
@@ -738,17 +742,16 @@ void GameView::reload_shaders()
 void GameView::setInitialShaderValues()
 {
 	{
-            OpenGL gl;
-            if(gl.getGL3bit()) {
+        cout << "setting initial values for particle program" << endl;
 		Shader& shader = shaders.get_shader("particle_program");
 		shader.start();
 		glUniform1f(shader.uniform("screen_width"),  intVals["RESOLUTION_X"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"] / intVals["PARTICLE_RESOLUTION_DIVISOR"]);
 		shader.stop();
-            }
 	}
 
 	{
+        cout << "setting initial values for ssao program" << endl;
 		Shader& shader = shaders.get_shader("ssao_program");
 		shader.start();
 		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
@@ -757,17 +760,17 @@ void GameView::setInitialShaderValues()
 	}
 
 	{
-            OpenGL gl;
-            if(gl.getGL3bit()) {
+        /*
 		Shader& shader = shaders.get_shader("partitioned_deferred_lights_program");
 		shader.start();
 		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);
 		glUniform1f(shader.uniform("screen_height"), intVals["RESOLUTION_Y"]);
 		shader.stop();
-            }
+        */
 	}
 
 	{
+        cout << "setting initial values for deferred lights 2 program" << endl;
 		Shader& shader = shaders.get_shader("partitioned_deferred_lights_program2");
 		shader.start();
 		glUniform1f(shader.uniform("screen_width"), intVals["RESOLUTION_X"]);

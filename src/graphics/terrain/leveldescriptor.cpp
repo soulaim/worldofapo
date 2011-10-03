@@ -13,6 +13,9 @@ using namespace std;
 
 extern int TRIANGLES_DRAWN_THIS_FRAME;
 
+Level* LevelDescriptor::getLevel() const {
+    return level;
+}
 
 LevelDescriptor::LevelDescriptor():
 	btt(4, 4)

@@ -686,13 +686,11 @@ void World::tickUnit(Unit& unit, Model* model)
 	unit.processInput();
 
 	// weapon activations
-	if(unit.getMouseAction(Unit::MOUSE_LEFT))
-	{
+	if(unit.getMouseAction(Unit::MOUSE_LEFT)) {
 		unit.weapons[unit.weapon].onActivate(*this, unit);
 	}
 
-	if(unit.getMouseAction(Unit::MOUSE_RIGHT))
-	{
+	if(unit.getMouseAction(Unit::MOUSE_RIGHT)) {
 		unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
 	}
 

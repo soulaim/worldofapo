@@ -25,7 +25,7 @@ public:
 	void drawDeferred(Shaders&) const;
 	void drawDebugHeightDots(const vec3<float>& location) const;
 	void drawDebugLevelNormals() const;
-
+    Level* getLevel() const;
 
 	void world_tick(FrustumR& frustum);
 

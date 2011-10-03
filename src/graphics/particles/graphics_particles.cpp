@@ -16,10 +16,6 @@ using std::string;
 
 void GameView::drawParticles(std::vector<Particle>& viewParticles)
 {
-    OpenGL gl;
-    if(!gl.getGL3bit())
-        return;
-
     string depth_texture = (intVals["DEFERRED_RENDERING"] ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
 
     switch(intVals["DRAW_PARTICLES"])
@@ -132,35 +128,97 @@ void GameView::prepareForParticleRendering(const std::string& depth_texture)
 	glDisable(GL_DEPTH_TEST);
 }
 
+void transmitParticlesPoints(std::vector<Particle>& viewParticles, Shader& shader) {
+
+    GLint scale_location = shader.attribute("particleScale");
+
+    // The geometry shader transforms the points into quads.
+    glBegin(GL_POINTS);
+    for(size_t i = 0; i < viewParticles.size(); ++i)
+    {
+        float px = viewParticles[i].pos.x;
+        float py = viewParticles[i].pos.y;
+        float pz = viewParticles[i].pos.z;
+
+        float color[4];
+        viewParticles[i].getColor(color);
+        color[3] = viewParticles[i].getAlpha();
+
+        // cerr << color[0] << " " << color[1] << " " << color[2] << " " << color[3] << "\n";
+
+        float scale = viewParticles[i].getScale();
+
+        glVertexAttrib1f(scale_location, scale);
+        glColor4fv(color);
+        glVertex3f(px, py, pz);
+    }
+    glEnd();
+}
+
+void transmitParticlesTriangles(std::vector<Particle>& viewParticles, Shader& shader, Camera* camera_p) {
+
+    vec3<float> direction = camera_p->getTarget() - camera_p->getPosition();
+    vec3<float> up = vec3<float>(0, 1, 0);
+    vec3<float> hz = direction.crossProduct(up);
+    vec3<float> vr = direction.crossProduct(hz);
+
+    hz.normalize(); hz *= 5;
+    vr.normalize(); vr *= 5;
+
+    GLint scale_location = shader.attribute("particleScale");
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+    // there is no geometry shader, have to send triangles
+    glBegin(GL_TRIANGLES);
+    for(size_t i = 0; i < viewParticles.size(); ++i)
+    {
+        float px = viewParticles[i].pos.x;
+        float py = viewParticles[i].pos.y;
+        float pz = viewParticles[i].pos.z;
+
+        float color[4];
+        viewParticles[i].getColor(color);
+        color[3] = viewParticles[i].getAlpha();
+
+        float scale = viewParticles[i].getScale();
+
+
+        glColor4fv(color);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(0, 0); glVertex3f(px - hz.x - vr.x, py - hz.y - vr.y, pz - hz.z - vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(1, 0); glVertex3f(px + hz.x - vr.x, py + hz.y - vr.y, pz + hz.z - vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(1, 1); glVertex3f(px + hz.x + vr.x, py + hz.y + vr.y, pz + hz.z + vr.z);
+
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(0, 0); glVertex3f(px - hz.x - vr.x, py - hz.y - vr.y, pz - hz.z - vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(1, 1); glVertex3f(px + hz.x + vr.x, py + hz.y + vr.y, pz + hz.z + vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(0, 1); glVertex3f(px - hz.x + vr.x, py - hz.y + vr.y, pz - hz.z + vr.z);
+
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(0, 1); glVertex3f(px - hz.x + vr.x, py - hz.y + vr.y, pz - hz.z + vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(1, 1); glVertex3f(px + hz.x + vr.x, py + hz.y + vr.y, pz + hz.z + vr.z);
+        glVertexAttrib1f(scale_location, scale); glTexCoord2f(0, 0); glVertex3f(px - hz.x - vr.x, py - hz.y - vr.y, pz - hz.z - vr.z);
+
+    }
+    glEnd();
+}
+
 void GameView::renderParticles(std::vector<Particle>& viewParticles)
 {
 	Shader& shader = shaders.get_shader("particle_program");
 	shader.start();
-	GLint scale_location = shader.attribute("particleScale");
+
 	glUniform1f(shader.uniform("near"), camera_p->nearP);
 	glUniform1f(shader.uniform("far"), camera_p->farP);
 
-	// The geometry shader transforms the points into quads.
-	glBegin(GL_POINTS);
-	for(size_t i = 0; i < viewParticles.size(); ++i)
-	{
-		float px = viewParticles[i].pos.x;
-		float py = viewParticles[i].pos.y;
-		float pz = viewParticles[i].pos.z;
-
-		float color[4];
-		viewParticles[i].getColor(color);
-		color[3] = viewParticles[i].getAlpha();
-
-		// cerr << color[0] << " " << color[1] << " " << color[2] << " " << color[3] << "\n";
-
-		float scale = viewParticles[i].getScale();
-
-		glVertexAttrib1f(scale_location, scale);
-		glColor4fv(color);
-		glVertex3f(px, py, pz);
-	}
-	glEnd();
+    OpenGL gl;
+    if(gl.getGL3bit())
+    {
+        transmitParticlesPoints(viewParticles, shader);
+    }
+    else
+    {
+        transmitParticlesTriangles(viewParticles, shader, camera_p);
+    }
 
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	TextureHandler::getSingleton().unbindTexture(1);
@@ -174,9 +232,9 @@ void GameView::drawParticles(std::vector<Particle>& viewParticles, const std::st
 	Graphics::Framebuffer& particlesUpScaledFBO = Graphics::Framebuffer::get("particlesUpScaledFBO");
 
 	// create a downscaled depth texture for particle rendering
-	renderParticles(viewParticles);
+    renderParticles(viewParticles);
 
-	// upscale particle rendering result
+    // upscale particle rendering result
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();

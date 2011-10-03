@@ -20,6 +20,7 @@
 #include "misc/hasproperties.h"
 #include "misc/vec3.h"
 #include "graphics/skybox/skybox.h"
+#include "graphics/terrain/roof_renderer.h"
 
 struct Level;
 struct MenuButton;
@@ -81,6 +82,7 @@ class GameView: public HasProperties
 	Shaders shaders;
 
     Skybox skybox;
+    RoofRenderer roofRenderer;
 
 	void clear_errors() const;
 	bool check_errors(const char* filename, int line) const;
