@@ -430,7 +430,6 @@ void GameView::drawSolidGeometry(const VisualWorld& visualworld)
 		drawGrass(visualworld.meadows);
 	}
 
-
     roofRenderer.draw(visualworld.levelDesc.getLevel());
 }
 

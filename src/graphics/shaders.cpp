@@ -33,12 +33,12 @@ void Shaders::init()
     if(gl.getGL3bit()) {
             shaders["grass_program"]    = shared_ptr<Shader>(new Shader("shaders/grass.vertex", "shaders/grass.fragment", "shaders/grass.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 3*4));
             shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
-            shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment", "shaders/particle.geometry", GL_POINTS, GL_TRIANGLE_STRIP, 4));
     } else {
         shaders["grass_program"]    = shared_ptr<Shader>(new Shader("shaders/grass.vertex", "shaders/grass.fragment"));
         shaders["particle_program"] = shared_ptr<Shader>(new Shader("shaders/particle.vertex", "shaders/particle.fragment"));
-        //shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
     }
+
+    shaders["partitioned_deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/partitioned_deferred_lights.vertex", "shaders/partitioned_deferred_lights.fragment"));
 
 	shaders["deferred_lights_program"] = shared_ptr<Shader>(new Shader("shaders/fullscreenquad.vertex", "shaders/deferred_lights.fragment"));
 	shaders["deferred_level_program"]    = shared_ptr<Shader>(new Shader("shaders/deferred_level.vertex", "shaders/deferred_level.fragment"));
@@ -53,14 +53,14 @@ void Shaders::init()
 	shaders["deferred_ambientlight_program"]->set_texture_unit(1, "normals");
 	shaders["deferred_ambientlight_program"]->stop();
 
-    /*
+
     shaders["partitioned_deferred_lights_program"]->start();
     shaders["partitioned_deferred_lights_program"]->set_texture_unit(0, "texture_colors");
     shaders["partitioned_deferred_lights_program"]->set_texture_unit(1, "normals");
     // shaders["partitioned_deferred_lights_program"]->set_texture_unit(2, "positions");
     shaders["partitioned_deferred_lights_program"]->set_texture_unit(3, "depthTexture");
     shaders["partitioned_deferred_lights_program"]->stop();
-    */
+
 
     shaders["particle_program"]->start();
     shaders["particle_program"]->set_texture_unit(0, "particleTexture");

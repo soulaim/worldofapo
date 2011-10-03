@@ -42,17 +42,38 @@ void GrassCluster::preload()
         glBufferData(GL_ARRAY_BUFFER, bushes.size() * sizeof(vec3<float>), &bushes[0], GL_STATIC_DRAW);
     else {
         std::vector<vec3<float> > data;
-        for(size_t i=0; i<bushes.size(); ++i) {
-            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y, bushes[i].z));
-            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y, bushes[i].z));
-            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y + 0.2f, bushes[i].z));
 
-            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y, bushes[i].z));
-            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y + 0.2f, bushes[i].z));
-            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y + 0.2f, bushes[i].z));
+        float s = 0.6f;
+        float big = 0.886f;
+        float small = 0.65f;
+
+        for(size_t i=0; i<bushes.size(); ++i) {
+            data.push_back(vec3<float>(bushes[i].x - s, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x + s, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x - s, bushes[i].y + 2*s, bushes[i].z));
+
+            data.push_back(vec3<float>(bushes[i].x + s, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x - s, bushes[i].y + 2*s, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x + s, bushes[i].y + 2*s, bushes[i].z));
+
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y, bushes[i].z - s*big));
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y, bushes[i].z + s*big));
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y + 2*s, bushes[i].z - s*big));
+
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y, bushes[i].z + s*big));
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y + 2*s, bushes[i].z - s*big));
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y + 2*s, bushes[i].z + s*big));
+
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y, bushes[i].z + s*big));
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y, bushes[i].z - s*big));
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y + 2*s, bushes[i].z + s*big));
+
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y, bushes[i].z - s*big));
+            data.push_back(vec3<float>(bushes[i].x - s * small, bushes[i].y + 2*s, bushes[i].z + s*big));
+            data.push_back(vec3<float>(bushes[i].x + s * small, bushes[i].y + 2*s, bushes[i].z - s*big));
         }
 
-        glBufferData(GL_ARRAY_BUFFER, 6 * bushes.size() * sizeof(vec3<float>), &data[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * 6 * bushes.size() * sizeof(vec3<float>), &data[0], GL_STATIC_DRAW);
     }
 	assert(buffer == BUFFERS);
 
@@ -63,8 +84,6 @@ void GrassCluster::unload()
 {
 	if(buffers_loaded)
 	{
-//		std::cerr << "Unloading grasscluster buffers." << std::endl;
-
 		glDeleteBuffers(BUFFERS, locations);
 	}
 	buffers_loaded = false;
@@ -78,17 +97,16 @@ void GrassCluster::draw_fbo(Shader&) const
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 
-//	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-//	glVertexAttribPointer(bone_index_location,  2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(WeightedVertex), 0);
-
 	assert(buffer == BUFFERS);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-//	glEnableVertexAttribArray(bone_weight_location);
-	glDrawArrays(GL_POINTS, 0, bushes.size());
-//	glDisableVertexAttribArray(bone_index_location);
+    OpenGL gl;
+    if(gl.getGL3bit()) {
+        glDrawArrays(GL_POINTS, 0, bushes.size());
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, bushes.size());
+    }
 	glDisableClientState(GL_VERTEX_ARRAY);
-
 	QUADS_DRAWN_THIS_FRAME += bushes.size() * 3;
 }
 

@@ -18,17 +18,19 @@ float LinearizeDepth(float z)
 void main()
 {
 	gl_FragColor = texture2D(particleTexture, texcoord) * gl_Color;
-	
+
 	vec2 depthtexcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 	float screen_z = texture2D(depthTexture, depthtexcoord).r;
 	float particle_z = gl_FragCoord.z;
-	
+
 	float z1 = LinearizeDepth(screen_z);
 	float z2 = LinearizeDepth(particle_z);
 	float z  = z1 - z2;
-	
+
 	float scale = 20.0;
 	float fade = clamp(z * scale, 0.0, 1.0);
-	gl_FragColor.a *= fade;
+
+    // gl_FragColor.a *= fade;
+	gl_FragColor.a = 1;
 }
 

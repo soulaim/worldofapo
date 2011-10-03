@@ -15,8 +15,6 @@ uniform float screen_height;
 
 uniform float fullscreen;
 
-varying vec2 texcoord;
-
 vec4 reconstruct_position(vec2 tex)
 {
 //	return texture2D(positions, tex);
@@ -39,25 +37,13 @@ vec4 reconstruct_eye_position(vec2 tex)
 
 void main()
 {
-//	gl_FragColor = vec4(fullscreen,0,0,1); return;
-	if(fullscreen < 0.5) // Deferred lights can be rendered as point sprites or as a fullscreen quads.
-	{
-		vec2 texcoord2 = texcoord * 2.0 - 1.0;
-		if(texcoord2.x * texcoord2.x + texcoord2.y * texcoord2.y > 1.0)
-		{
-			discard;
-		}
-	}
-
 	vec2 real_texcoord = gl_FragCoord.xy / vec2(screen_width, screen_height);
 
 	vec3 normal = texture2D(normals, real_texcoord).rgb;
 	normal = 2.0 * normal - 1.0;
-//	gl_FragColor = vec4(normal*0.5 + 0.5, 1); return;
+
 	if(length(normal) < 0.5)
 	{
-//		gl_FragColor = vec4(1,0,0,1); return;
-		// Lights don't affect skybox.
 		discard;
 	}
 
@@ -81,7 +67,7 @@ void main()
 		light_direction /= dist;
 		NdotL = dot(normal, light_direction);
 	}
-	
+
 	if(NdotL > 0.0)
 	{
 		float att = 1.0 / (1.0 + 0.01 * dist * dist);
