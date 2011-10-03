@@ -1,31 +1,16 @@
-//varying vec2 texcoord;
 
 attribute vec3 wind;
 attribute float scale;
 
 varying float scale_var;
-varying mat4 modelview;
 varying vec3 wind_var;
+varying vec2 texcoord;
 
 void main()
 {
-/*
-	vec4 newVertex = gl_Vertex;
-
-	texcoord = vec2(gl_MultiTexCoord0);
-
-	if(texcoord.y >= 0.5)
-	{
-		newVertex.xyz += wind;
-	}
-
-	gl_Position = gl_ModelViewProjectionMatrix * vec4(newVertex.xyz, 1.0);
-*/
-//	wind_var = wind;
-//	scale_var = scale;
 	wind_var = vec3(0,0,0);
 	scale_var = scale + scale * sin(gl_Vertex.x) / 3.0;
 	gl_Position = gl_Vertex;
-	modelview = gl_ModelViewProjectionMatrix;
+    tex_coord = vec2(gl_Vertex.x, gl_Vertex.y);
 }
 

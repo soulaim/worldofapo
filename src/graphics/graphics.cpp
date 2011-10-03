@@ -65,6 +65,10 @@ void GameView::init(Camera& camera)
 	intVals["HELP"] = 1;
 
 	OpenGL opengl;
+    if(!opengl.getGL3bit()) {
+        intVals["DRAW_PARTICLES"] = 3;
+    }
+
 	shaders.init();
 
 	camera_p = &camera;

@@ -30,7 +30,6 @@ void main()
 	float scale = 20.0;
 	float fade = clamp(z * scale, 0.0, 1.0);
 
-    // gl_FragColor.a *= fade;
-	gl_FragColor.a = 1;
+    gl_FragColor.a *= fade;
 }
 
