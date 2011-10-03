@@ -425,8 +425,7 @@ void GameView::drawSolidGeometry(const VisualWorld& visualworld)
 		drawModels(visualworld.models, *camera_p);
 	}
 
-    OpenGL gl;
-	if(intVals["DRAW_GRASS"] && gl.getGL3bit())
+	if(intVals["DRAW_GRASS"])
 	{
 		drawGrass(visualworld.meadows);
 	}

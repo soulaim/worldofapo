@@ -36,8 +36,24 @@ void GrassCluster::preload()
 
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
-	glBufferData(GL_ARRAY_BUFFER, bushes.size() * sizeof(vec3<float>), &bushes[0], GL_STATIC_DRAW);
 
+    OpenGL gl;
+    if(gl.getGL3bit())
+        glBufferData(GL_ARRAY_BUFFER, bushes.size() * sizeof(vec3<float>), &bushes[0], GL_STATIC_DRAW);
+    else {
+        std::vector<vec3<float> > data;
+        for(size_t i=0; i<bushes.size(); ++i) {
+            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y + 0.2f, bushes[i].z));
+
+            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x - 0.1f, bushes[i].y + 0.2f, bushes[i].z));
+            data.push_back(vec3<float>(bushes[i].x + 0.1f, bushes[i].y + 0.2f, bushes[i].z));
+        }
+
+        glBufferData(GL_ARRAY_BUFFER, 6 * bushes.size() * sizeof(vec3<float>), &data[0], GL_STATIC_DRAW);
+    }
 	assert(buffer == BUFFERS);
 
 	buffers_loaded = true;

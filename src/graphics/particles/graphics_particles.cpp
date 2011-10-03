@@ -157,7 +157,9 @@ void transmitParticlesPoints(std::vector<Particle>& viewParticles, Shader& shade
 
 void transmitParticlesTriangles(std::vector<Particle>& viewParticles, Shader& shader, Camera* camera_p) {
 
-    vec3<float> direction = camera_p->getTarget() - camera_p->getPosition();
+    camera_p->getXrot();
+    
+    vec3<float> direction = vec3<float>(1, 0, 0);
     vec3<float> up = vec3<float>(0, 1, 0);
     vec3<float> hz = direction.crossProduct(up);
     vec3<float> vr = direction.crossProduct(hz);
