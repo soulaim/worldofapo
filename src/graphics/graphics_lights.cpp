@@ -109,8 +109,6 @@ void GameView::updateLights(const std::map<int, LightObject>& lightsContainer)
 
 void GameView::drawLightsDeferred_multiple_passes(const Camera& camera, const std::map<int, LightObject>& lights)
 {
-    std::cout << "drawing lights" << std::endl;
-
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -153,17 +151,22 @@ void GameView::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 
 		// TODO: if this thing will someday work really well, then all lights could be passed as varyings
 		// here instead of updated through uniforms elsewhere. Not sure which is faster though.
+
+
+        // TODO: Draw a quad that is orthogonal to the view ray of the camera.
+        /*
         float light_size = power / 6.5f;
 
         float sin = -1;
         float cos = 0;
 
         glBegin(GL_QUADS);
-            glVertex3f(v.x - light_size * cos, v.y-light_size * 0.5f, v.z - light_size * sin);
-            glVertex3f(v.x + light_size * cos, v.y-light_size * 0.5f, v.z + light_size * sin);
-            glVertex3f(v.x - light_size * cos, v.y+light_size * 0.5f, v.z - light_size * sin);
-            glVertex3f(v.x + light_size * cos, v.y+light_size * 0.5f, v.z + light_size * sin);
+            glVertex3f(v.x - light_size * cos, v.y-light_size * 0.5f, v.z - 0.5f * light_size * sin);
+            glVertex3f(v.x + light_size * cos, v.y-light_size * 0.5f, v.z + 0.5f * light_size * sin);
+            glVertex3f(v.x - light_size * cos, v.y+light_size * 0.5f, v.z - 0.5f * light_size * sin);
+            glVertex3f(v.x + light_size * cos, v.y+light_size * 0.5f, v.z + 0.5f * light_size * sin);
 		glEnd();
+        */
 	}
 	shader.stop();
 
