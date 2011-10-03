@@ -18,11 +18,6 @@ void GameView::drawParticles(std::vector<Particle>& viewParticles)
 {
     string depth_texture = (intVals["DEFERRED_RENDERING"] ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
 
-    Shader& shader = shaders.get_shader("particle_program");
-	shader.start();
-	glUniform1f(shader.uniform("near"), camera_p->nearP);
-	glUniform1f(shader.uniform("far"), camera_p->farP);
-
     switch(intVals["DRAW_PARTICLES"])
     {
             case 2: drawParticles_vbo(viewParticles, depth_texture); break;
