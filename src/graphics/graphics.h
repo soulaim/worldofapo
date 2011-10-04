@@ -55,7 +55,7 @@ class GameView: public HasProperties
 	void renderParticles(std::vector<Particle>&);
 	void drawParticles(std::vector<Particle>&);
 	void drawParticles(std::vector<Particle>&, const std::string& depth_texture);
-	void drawParticles_old(std::vector<Particle>&);
+	void drawParticles_old(std::vector<Particle>&, const std::string& depth_texture);
 	void drawParticles_vbo(std::vector<Particle>&, const std::string& depth_texture);
 	void renderToBackbuffer();
 

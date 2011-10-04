@@ -8,6 +8,7 @@
 #include "graphics/window.h"
 #include "graphics/menus/menubutton.h"
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -18,10 +19,14 @@ void GameView::drawParticles(std::vector<Particle>& viewParticles)
 {
     string depth_texture = (intVals["DEFERRED_RENDERING"] ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
 
+    OpenGL gl;
+    if(!gl.getGL3bit())
+        intVals["DRAW_PARTICLES"] = 3;
+
     switch(intVals["DRAW_PARTICLES"])
     {
             case 2: drawParticles_vbo(viewParticles, depth_texture); break;
-            case 3: drawParticles_old(viewParticles); break;
+            case 3: drawParticles_old(viewParticles, depth_texture); break;
             default: drawParticles(viewParticles, depth_texture);
     }
 }
@@ -118,9 +123,6 @@ void GameView::prepareForParticleRendering(const std::string& depth_texture)
 
 	TextureHandler::getSingleton().bindTexture(1, depth_texture);
 	TextureHandler::getSingleton().bindTexture(0, "particle");
-
-	// vec3<float> direction_vector = camera_p->getTarget() - camera_p->getPosition();
-	// depthSortParticles(direction_vector, viewParticles);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);

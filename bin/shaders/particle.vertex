@@ -1,11 +1,12 @@
 
 attribute float particleScale;
-varying float scale_var;
 varying vec2 texcoord;
+varying float scale_var;
 
 void main()
 {
-	gl_Position = gl_ModelViewMatrix * gl_Vertex;
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_FrontColor = gl_Color;
     texcoord = gl_MultiTexCoord0.xy;
 	scale_var = particleScale;
 }

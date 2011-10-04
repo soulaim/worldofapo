@@ -82,20 +82,10 @@ void GameView::drawDebugStrings()
 
 
 // This function is not in use anymore, would be useful only if geometry shader is not available. Remove if you feel like it.
-void GameView::drawParticles_old(std::vector<Particle>& viewParticles)
+void GameView::drawParticles_old(std::vector<Particle>& viewParticles, const std::string& depth_texture)
 {
-	vec3<float> direction_vector = camera_p->getTarget() - camera_p->getPosition();
-	// depthSortParticles(direction_vector, viewParticles);
-
-	Graphics::Framebuffer::get("particlesDownScaledFBO").bind();
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	//TextureHandler::getSingleton().bindTexture(1, depth_texture);
-	TextureHandler::getSingleton().bindTexture(0, "particle");
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glDepthMask(GL_FALSE); // dont write to depth buffer.
+    prepareForParticleRendering(depth_texture);
+	Graphics::Framebuffer& particlesUpScaledFBO = Graphics::Framebuffer::get("particlesUpScaledFBO");
 
 	glBegin(GL_QUADS);
 
@@ -137,15 +127,7 @@ void GameView::drawParticles_old(std::vector<Particle>& viewParticles)
 
 	glEnd();
 
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	TextureHandler::getSingleton().unbindTexture(1);
-
-	Graphics::Framebuffer::get("screenFBO").bind();
-	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("particlesDownScaledFBO").texture(0));
-
-	//glBlendFunc(GL_ONE, GL_ONE);
-	glBlendFunc(GL_SRC_COLOR, GL_ONE);
-
+    // upscale particle rendering result
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -153,9 +135,37 @@ void GameView::drawParticles_old(std::vector<Particle>& viewParticles)
 	glPushMatrix();
 	glLoadIdentity();
 
+	glDisable(GL_BLEND);
+	Graphics::Framebuffer::get("particlesUpScaledFBO").bind();
+
+	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("particlesDownScaledFBO").texture(0));
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	drawFullscreenQuad();
+	// TODO: Could this perhaps be done (faster?) by directly copying from one framebuffer to another?
+	// Perhaps with with glBindGraphics::Framebuffer(GL_READ_FRAMEBUFFER,...); glBindGraphics::Framebuffer(GL_DRAW_FRAMEBUFFER,...); glBlitGraphics::Framebuffer(...);??
+	drawFullscreenQuad(); // Draw particlesDownScaledFBO_texture to particlesUpScaledFBO_texture (i.e. upscale).
+
+	// blur upscaled particle texture
+	if(intVals["PARTICLE_BLUR"])
+	{
+		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
+		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
+
+		// Draw particlesUpScaledFBO_texture to particlesUpScaledFBO_texture (apply blur).
+		applyBlur(intVals["PARTICLE_BLUR_AMOUNT"], particlesUpScaledFBO.texture(0), particlesUpScaledFBO);
+	}
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Graphics::Framebuffer::get("screenFBO").bind();
+
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+
+	TextureHandler::getSingleton().bindTexture(0, particlesUpScaledFBO.texture(0));
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	drawFullscreenQuad(); // Draw particlesUpScaledFBO_texture to screenFBO_texture (copy directly).
 
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -163,6 +173,7 @@ void GameView::drawParticles_old(std::vector<Particle>& viewParticles)
 	glMatrixMode(GL_MODELVIEW);
 
 	TextureHandler::getSingleton().unbindTexture(0);
+
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
