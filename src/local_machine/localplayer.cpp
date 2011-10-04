@@ -264,6 +264,8 @@ void Localplayer::sendCheckSumMessage()
 
 bool Localplayer::client_tick()
 {
+    this->userio->tick();
+
 	for(size_t i=0; i<game.meta_events.size(); ++i)
 	{
 		HasProperties& event = game.meta_events[i];

@@ -12,7 +12,7 @@
 #include "misc/idgenerator.h"
 
 #include "world/worldevent.h"
-#include "world/world_item.h"
+#include "world/objects/world_item.h"
 #include "world/level.h"
 
 class Projectile;

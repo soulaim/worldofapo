@@ -16,7 +16,7 @@
 #include "graphics/visualworld.h"
 #include "graphics/framebuffer.h"
 #include "graphics/graphics_helper.h"
-#include "world/projectile.h"
+#include "world/objects/projectile.h"
 #include "misc/hasproperties.h"
 #include "misc/vec3.h"
 #include "graphics/skybox/skybox.h"
@@ -99,7 +99,7 @@ public:
 		const VisualWorld& visualworld,
 		const std::shared_ptr<Octree> o, // For debug.
 		const std::map<int, Projectile>& projectiles, // For debug.
-		const std::map<int, Unit>& units, // For debug.
+		std::map<int, Unit>& units, // For debug.
 		int blur
 		);
 
@@ -108,7 +108,7 @@ public:
 	void drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const std::string& color) const;
 	void drawMenu(const std::vector<MenuButton>&, const std::vector<MenuParticle>&) const;
 
-	void drawBoundingBoxes(const std::map<int,Unit>& units);
+	void drawBoundingBoxes(std::map<int,Unit>& units);
 	void drawBox(const Location&, const Location&, GLfloat r = 1.0f, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1.0f);
 	void drawOctree(const std::shared_ptr<Octree>& o);
 

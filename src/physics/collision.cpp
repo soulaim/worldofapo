@@ -1,14 +1,14 @@
 #include "collision.h"
 
-bool Collision::lineBoxRadius(Location b_bot, Location b_top, Location l1, Location l2, const FixedPoint& radius) {
+bool Collision::lineBoxRadius(const Location& b_bot, const Location& b_top, Location l1, Location l2, const FixedPoint& radius) {
 	FixedPoint top_x;
 	FixedPoint top_y;
 	FixedPoint top_z;
-	
+
 	FixedPoint bot_x;
 	FixedPoint bot_y;
 	FixedPoint bot_z;
-	
+
 	if (l1.x < l2.x)
 	{
 		bot_x = l1.x - radius;
@@ -39,12 +39,12 @@ bool Collision::lineBoxRadius(Location b_bot, Location b_top, Location l1, Locat
 		bot_z = l2.z - radius;
 		top_z = l1.z + radius;
 	}
-	
+
 	return boxBox(b_bot, b_top, Location(bot_x, bot_y, bot_z), Location(top_x, top_y, top_z));
 }
 
 
-bool Collision::lineBox(Location b_bot, Location b_top, Location l1, Location l2) {
+bool Collision::lineBox(const Location& b_bot, const Location& b_top, Location l1, Location l2) {
 	FixedPoint top_x;
 	FixedPoint top_y;
 	FixedPoint top_z;
@@ -52,7 +52,7 @@ bool Collision::lineBox(Location b_bot, Location b_top, Location l1, Location l2
 	FixedPoint bot_x;
 	FixedPoint bot_y;
 	FixedPoint bot_z;
-	
+
 	if (l1.x < l2.x)
 	{
 		bot_x = l1.x;
@@ -83,11 +83,11 @@ bool Collision::lineBox(Location b_bot, Location b_top, Location l1, Location l2
 		bot_z = l2.z;
 		top_z = l1.z;
 	}
-	
+
 	return boxBox(b_bot, b_top, Location(bot_x, bot_y, bot_z), Location(top_x, top_y, top_z));
 }
 
-bool Collision::boxBox(Location b1_bot, Location b1_top, Location b2_bot, Location b2_top) {
+bool Collision::boxBox(const Location& b1_bot, const Location& b1_top, const Location& b2_bot, const Location& b2_top) {
 	return !(b1_top.x < b2_bot.x || b2_top.x < b1_bot.x || b1_top.y < b2_bot.y || b2_top.y < b1_bot.y || b1_top.z < b2_bot.z || b2_top.z < b1_bot.z);
 }
 

@@ -1,5 +1,6 @@
-#include "world/unit.h"
+#include "world/objects/unit.h"
 #include "misc/apomath.h"
+#include "world/world.h"
 
 #include <iostream>
 #include <sstream>
@@ -33,19 +34,27 @@ Unit::Unit():
 	mobility(0)
 {
 	type = OctreeObject::UNIT;
-	
+
 	intVals["MASS"] = 1000;
-	
+
 	// create attributes
 	intVals["STR"] = -666;
 	intVals["DEX"] = -666;
 	intVals["VIT"] = -666;
-	
+
 	intVals["WIS"] = -666;
 	intVals["INT"] = -666;
 	intVals["REGEN"] = 0;
-	
+
 	scale = FixedPoint(1);
+}
+
+void Unit::activateCurrentItemPrimary(World& world) {
+    world.add_message("Unit::activateItemPrimary() is not implemented");
+}
+
+void Unit::activateCurrentItemSecondary(World& world) {
+    world.add_message("Unit::activateItemSecondary() is not implemented");
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -54,10 +63,10 @@ void Unit::setDefaultMonsterAttributes()
 	intVals["STR"] = 4;
 	intVals["DEX"] = 4;
 	intVals["VIT"] = 4;
-	
+
 	intVals["WIS"] = 4;
 	intVals["INT"] = 4;
-	
+
 	intVals["REGEN"] = 5;
 }
 
@@ -67,10 +76,10 @@ void Unit::setDefaultPlayerAttributes()
 	intVals["STR"] = 4;
 	intVals["DEX"] = 4;
 	intVals["VIT"] = 4;
-	
+
 	intVals["WIS"] = 4;
 	intVals["INT"] = 4;
-	
+
 	intVals["REGEN"] = 10;
 }
 
@@ -93,7 +102,7 @@ void Unit::accelerateLeft()
 {
 	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
 	int dummy_angle = angle - ApoMath::DEGREES_90;
-	
+
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
@@ -102,7 +111,7 @@ void Unit::accelerateRight()
 {
 	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
 	int dummy_angle = angle + ApoMath::DEGREES_90;
-	
+
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
@@ -110,24 +119,24 @@ void Unit::accelerateRight()
 void Unit::leapLeft()
 {
 	int dummy_angle = angle - ApoMath::DEGREES_90;
-	
+
 	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
 	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
 	velocity.y += FixedPoint(45, 100);
 	leap_cooldown = 40;
-	
+
 	soundInfo = "jump";
 }
 
 void Unit::leapRight()
 {
 	int dummy_angle = angle + ApoMath::DEGREES_90;
-	
+
 	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
 	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
 	velocity.y += FixedPoint(45, 100);
 	leap_cooldown = 40;
-	
+
 	soundInfo = "jump";
 }
 
@@ -143,12 +152,12 @@ void Unit::jump()
 void Unit::processInput()
 {
 	soundInfo = "";
-	
+
 	if(getKeyAction(Unit::RELOAD))
 	{
-		weapons[weapon].prepareReload(*this);
+        // reload action not implemented.
 	}
-	
+
 	if(getKeyAction(Unit::WEAPON1))
 	{
 		switchWeapon(1);
@@ -213,13 +222,12 @@ void Unit::processInput()
 	{
 		--leap_cooldown;
 	}
-	
+
 	if(getKeyAction(Unit::JUMP))
 	{
 		jump();
 	}
-	
-	weapons[weapon].tick(*this);
+
 }
 
 
@@ -245,10 +253,10 @@ void Unit::landingDamage()
 	if(velocity.y < FixedPoint(-12, 10))
 	{
 		strVals["DAMAGED_BY"] = "falling";
-		
+
 		FixedPoint damage_fp = velocity.y + FixedPoint(12, 10);
 		int damage_int = damage_fp.getDesimal() + damage_fp.getInteger() * FixedPoint::FIXED_POINT_ONE;
-		
+
 		if(damage_int < -500)
 		{
 			// is hitting the ground REALLY HARD. Nothing could possibly survive. Just insta-kill.
@@ -260,7 +268,7 @@ void Unit::landingDamage()
 			velocity.z *= FixedPoint(10, 100);
 			takeDamage(damage_int * damage_int / 500);
 		}
-		
+
 		// allow deny only after surviving the first hit with ground.
 		// not a deny if thrown down a cliff!
 		if(hitpoints > 0)
@@ -281,7 +289,7 @@ void Unit::applyGravity()
 {
 	// gravity
 	velocity.y -= FixedPoint(35,1000);
-	
+
 	// air resistance
 	FixedPoint friction = FixedPoint(995, 1000);
 	velocity.x *= friction;
@@ -302,7 +310,7 @@ void Unit::tick(const FixedPoint& yy_val)
 		position += velocity;
 		return;
 	}
-	
+
 	velocity.z *= yy_val;
 	velocity.x *= yy_val;
 	position += velocity;
@@ -332,15 +340,15 @@ int Unit::getModifier(const string& attribute) const
 		throw std::logic_error("Asking for an attribute that doesn't exist: " + attribute);
 		return 0;
 	}
-	
+
 	if(it->second == -666)
 	{
 		cerr << name << ": " << (*this)("AREA") << ", " << (*this)["TEAM"] << ", has attribute " << attribute << " at value -666" << endl;
 	}
-	
+
 	assert(it->second != -666);
-	
-	
+
+
 	return 6 + it->second;
 }
 
@@ -403,26 +411,26 @@ void Unit::updateMouseMove(int mousex_, int mousey_)
 {
 	int changey = mousey_;
 	int changex = mousex_;
-	
+
 	int x_major_change = changex / 1000;
 	int y_major_change = changey / 1000;
-	
+
 	mouse_x_minor += changex - x_major_change * 1000;
 	mouse_y_minor += changey - y_major_change * 1000;
-	
+
 	int xmc2 = mouse_x_minor / 1000;
 	int ymc2 = mouse_y_minor / 1000;
 	mouse_x_minor -= xmc2 * 1000;
 	mouse_y_minor -= ymc2 * 1000;
-	
+
 	x_major_change += xmc2;
 	y_major_change += ymc2;
-	
+
 	angle -= x_major_change;
-	
+
 	upangle += ApoMath::DEGREES_180; // Prevent going full circles when moving camera up or down.
 	upangle -= y_major_change;
-	
+
 	if(upangle < ApoMath::DEGREES_180 + 25)
 		upangle = ApoMath::DEGREES_180 + 25;
 	if(upangle > ApoMath::DEGREES_360 - 25)
@@ -459,25 +467,18 @@ void Unit::handleCopyOrder(stringstream& ss)
 		velocity.x >> velocity.z >> velocity.y >>
 		mouseButtons >> weapon_cooldown >> leap_cooldown >>
 		controllerTypeID >> hitpoints >> birthTime >>
-		id >> weapon >> collision_rule >> staticObject >> model_type >> scale >>
+		id >> collision_rule >> staticObject >> model_type >> scale >>
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
-	
+
 	HasProperties::handleCopyOrder(ss);
-	
-	assert(weapons.size() == 5);
-	
-	for(size_t i = 0; i < weapons.size(); ++i)
-	{
-		weapons[i].handleCopyOrder(ss);
-	}
-	
+
 	ss >> name;
 }
 
 string Unit::copyOrder(int ID) const
 {
 	stringstream hero_msg;
-	
+
 	/*
 	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
 		<< position.x << " " << position.z << " " << position.y << " "
@@ -487,7 +488,7 @@ string Unit::copyOrder(int ID) const
 		<< id << " " << weapon << " " << collision_rule << " " << scale << " "
 		<< mouse_x_minor << " " << mouse_y_minor << " ";
 	*/
-	
+
 	hero_msg << "-2 UNIT " << ID;
 	hero_msg << " " << angle;
 	hero_msg << " " << upangle;
@@ -501,7 +502,6 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << hitpoints;
 	hero_msg << " " << birthTime;
 	hero_msg << " " << id;
-	hero_msg << " " << weapon;
 	hero_msg << " " << collision_rule;
 	hero_msg << " " << staticObject;
 	hero_msg << " " << model_type;
@@ -509,14 +509,9 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val << " ";
 
 	hero_msg << HasProperties::copyOrder();
-	
-	for(size_t i = 0; i < weapons.size(); ++i)
-	{
-		hero_msg << weapons[i].copyOrder();
-	}
-	
+
 	hero_msg << " " << name << "#";
-	
+
 	return hero_msg.str();
 }
 
@@ -526,7 +521,7 @@ void Unit::updateMobility()
 	if(mobility & (MOBILITY_STANDING_ON_OBJECT | MOBILITY_STANDING_ON_GROUND))
 	{
 		int dex_modifier = getModifier("DEX");
-		
+
 		if(mobility & MOBILITY_SQUASHED)
 			mobility_val = FixedPoint(1, 6) * FixedPoint(dex_modifier, 10);
 		else
@@ -542,43 +537,49 @@ const FixedPoint& Unit::getMobility() const
 }
 
 
-Location Unit::bb_top() const
+const Location& Unit::bb_top() const
 {
-	return Location(position.x + scale * 1, position.y + scale * 5, position.z + scale * 1);
+    bb_top_.x = position.x + scale;
+    bb_top_.y = position.y + scale * 5;
+    bb_top_.z = position.z + scale;
+	return bb_top_;
 }
 
-Location Unit::bb_bot() const
+const Location& Unit::bb_bot() const
 {
-	return Location(position.x - scale * 1, position.y, position.z - scale * 1);
+    bb_bot_.x = position.x - scale;
+    bb_bot_.y = position.y;
+    bb_bot_.z = position.z - scale;
+	return bb_bot_;
 }
 
 void Unit::collides(OctreeObject& o)
 {
 	if(!exists())
 		return;
-	
+
 	if(o.type == UNIT)
 	{
 		Unit* u = static_cast<Unit*>(&o);
 		if(!u->exists()) // to make sure no collisions occur with dead heroes (spawning time)
 			return;
 	}
-	
+
 	// if one of the objects doesn't want to collide, then don't react.
 	if(!(collision_rule & o.collision_rule))
 		return;
-	
+
 	// if this object doesnt want to be moved by collisions, don't react.
 	if(staticObject)
 		return;
-	
-	
+
+
 	if(position == o.position)
 	{
 		velocity += bump(id);
 	}
-	
-	
+
+
 	// if my collision rule is STRING_SYSTEM, make changes to myself accordingly.
 	if(collision_rule == CollisionRule::STRING_SYSTEM)
 	{
@@ -588,38 +589,38 @@ void Unit::collides(OctreeObject& o)
 			// unresolvable collision. leave it be.
 			return;
 		}
-		
+
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
 		velocity += direction;
 	}
 	else if(collision_rule == CollisionRule::HARD_OBJECT)
 	{
-		Location myTop = bb_top();
-		Location myBot = bb_bot();
-		
-		Location hisTop = o.bb_top();
-		Location hisBot = o.bb_bot();
-		
+		const Location& myTop = bb_top();
+		const Location& myBot = bb_bot();
+
+		const Location& hisTop = o.bb_top();
+		const Location& hisBot = o.bb_bot();
+
 		// is always positive, otherwise there would be no collision.
 		FixedPoint y_diff = min(hisTop.y - myBot.y, myTop.y - hisBot.y);
 		FixedPoint x_diff = min(hisTop.x - myBot.x, myTop.x - hisBot.x);
 		FixedPoint z_diff = min(hisTop.z - myBot.z, myTop.z - hisBot.z);
-		
+
 		if(y_diff < x_diff && y_diff < z_diff)
 		{
 			// least offending axis is y
 			// velocity.y  = o.velocity.y * FixedPoint(1, 2) - FixedPoint(25, 1000);
-			
+
 			if(hisTop.y < myTop.y)
 			{
 				velocity.y /= 2;
-				
+
 				// i'm on top
 				// if bottom object moves, move the top object with it.
 				posCorrection.y += y_diff * FixedPoint(9, 20) * 2;
 				posCorrection   += o.velocity + o.posCorrection;
-				
+
 				mobility |= MOBILITY_STANDING_ON_OBJECT;
 			}
 			else
@@ -631,10 +632,10 @@ void Unit::collides(OctreeObject& o)
 		}
 		else if(x_diff < z_diff)
 		{
-			
+
 			// least offence by x
 			// velocity.x  = o.velocity.x * FixedPoint(1, 2);
-			
+
 			if(hisTop.x < myTop.x)
 			{
 				// i'm on right
@@ -650,7 +651,7 @@ void Unit::collides(OctreeObject& o)
 		{
 			// least offence by z
 			// velocity.z  = o.velocity.z * FixedPoint(1, 2);
-			
+
 			if(hisTop.z < myTop.z)
 			{
 				posCorrection.z += z_diff * FixedPoint(9, 20);
@@ -660,35 +661,17 @@ void Unit::collides(OctreeObject& o)
 				posCorrection.z -= z_diff * FixedPoint(9, 20);
 			}
 		}
-		
+
 	}
 }
 
 void Unit::init()
 {
-	weapons.clear();
-	weapons.push_back(Weapon("data/items/weapon_shotgun.dat"));
-	weapons.push_back(Weapon("data/items/weapon_flame.dat"));
-	weapons.push_back(Weapon("data/items/weapon_mgun.dat"));
-	weapons.push_back(Weapon("data/items/weapon_railgun.dat"));
-	weapons.push_back(Weapon("data/items/weapon_rocket.dat"));
-	
-	resetAmmoCount();
-	weapon = 2;
-}
-
-void Unit::resetAmmoCount()
-{
-	for(size_t i=0; i<weapons.size(); i++)
-	{
-		intVals[weapons[i].strVals["AMMUNITION_TYPE"]] = 2000 / weapons[i].intVals["AMMO_VALUE"];
-	}
 }
 
 void Unit::switchWeapon(unsigned x)
 {
-	if(x <= 0 || x > weapons.size())
-		return;
-	weapon = x-1;
+    x++;
+    return;
 }
 

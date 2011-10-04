@@ -172,25 +172,25 @@ void World::createBaseBuildings()
 	int id = unitIDgenerator.nextID();
 	// Location green_base_location = lvl.getRandomLocation(200);
 	Location green_base_location = Location(168, 0, 525);
-	addAIUnit(id, green_base_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000, 0);
+	addAIUnit(id, green_base_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location green_tower_location = Location(200, 0, 525);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	green_tower_location = Location(161, 0, 567);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	green_tower_location = Location(264, 0, 600);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000, 2);
+	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
 	units[id].staticObject = 1;
 
 
@@ -198,25 +198,25 @@ void World::createBaseBuildings()
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location red_base_location = Location(702, 0, 527);
-	addAIUnit(id, red_base_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000, 0);
+	addAIUnit(id, red_base_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	Location red_tower_location = Location(672, 0, 527);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	red_tower_location = Location(666, 0, 561);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000, 2);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
 	units[id].staticObject = 1;
 
 	id = unitIDgenerator.nextID();
 	// Location red_base_location = lvl.getRandomLocation(103);
 	red_tower_location = Location(433, 0, 631);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000, 2);
+	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
 	units[id].staticObject = 1;
 }
 
@@ -687,11 +687,13 @@ void World::tickUnit(Unit& unit, Model* model)
 
 	// weapon activations
 	if(unit.getMouseAction(Unit::MOUSE_LEFT)) {
-		unit.weapons[unit.weapon].onActivate(*this, unit);
+		// unit.weapons[unit.weapon].onActivate(*this, unit);
+        unit.activateCurrentItemPrimary(*this);
 	}
 
 	if(unit.getMouseAction(Unit::MOUSE_RIGHT)) {
-		unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
+		// unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
+        unit.activateCurrentItemSecondary(*this);
 	}
 
 
@@ -1126,7 +1128,7 @@ void World::worldTick(int tickCount)
 }
 
 
-void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass, int default_weapon)
+void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass)
 {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
@@ -1157,9 +1159,6 @@ void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelT
 	units[id].intVals["MASS"] = mass;
 
 	units[id].hitpoints = units[id].getMaxHP();
-
-	units[id].weapon = default_weapon;
-	// all other weapons are ok, but no rocket launcher for AI controlled units!
 }
 
 void World::addUnit(int id, bool playerCharacter, int team)
@@ -1193,9 +1192,6 @@ void World::addUnit(int id, bool playerCharacter, int team)
 		units[id].hitpoints = 500;
 		units[id]["TEAM"] = team;
 		units[id]["T"] = -1;
-
-		units[id].weapon = currentWorldFrame % (units[id].weapons.size() - 1);
-		// all other weapons are ok, but no rocket launcher for enemies!
 	}
 	else
 	{

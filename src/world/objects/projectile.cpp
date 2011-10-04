@@ -32,7 +32,7 @@ void Projectile::tick()
 void Projectile::handleCopyOrder(stringstream& ss)
 {
 	ss >> position.x >> position.z >> position.y >> velocity.x >> velocity.z >> velocity.y;
-	
+
 	HasProperties::handleCopyOrder(ss);
 }
 
@@ -44,6 +44,6 @@ string Projectile::copyOrder(int ID) const
 	projectile_msg << HasProperties::copyOrder();
 
 	projectile_msg << "#";
-	
+
 	return projectile_msg.str();
 }

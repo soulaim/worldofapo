@@ -87,8 +87,6 @@ void GameView::drawParticles_old(std::vector<Particle>& viewParticles, const std
     prepareForParticleRendering(depth_texture);
 	Graphics::Framebuffer& particlesUpScaledFBO = Graphics::Framebuffer::get("particlesUpScaledFBO");
 
-	glBegin(GL_QUADS);
-
 	float x_angle =  camera_p->getXrot();
 	float y_angle = -camera_p->getYrot() - 90.f;
 	Matrix4 m(y_angle, x_angle, 0.f, 0.f, 0.f, 0.f);
@@ -104,6 +102,8 @@ void GameView::drawParticles_old(std::vector<Particle>& viewParticles, const std
 	s4 = m * s4;
 
 	float color[4];
+
+    glBegin(GL_QUADS);
 
 	for(size_t i = 0; i < viewParticles.size(); ++i)
 	{
@@ -262,7 +262,7 @@ void GameView::drawOctree(const std::shared_ptr<Octree>& o)
 	}
 }
 
-void GameView::drawBoundingBoxes(const std::map<int,Unit>& units)
+void GameView::drawBoundingBoxes(std::map<int,Unit>& units)
 {
 	for(auto iter = units.begin(); iter != units.end(); iter++)
 	{

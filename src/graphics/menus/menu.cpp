@@ -172,6 +172,7 @@ std::string Menu::run_menu(vector<MenuButton>& buttons, string menu_name)
 		tick_menu_effects();
 		view->drawMenu(buttons, menu_particles);
 
+        userio->tick();
 		string key = userio->getSingleKey();
 
 		if(key == "")
@@ -291,6 +292,7 @@ int Menu::changeValue(vector<MenuButton>& buttons, int i)
 
 	while(true)
 	{
+        userio->tick();
 		string key_hostname = userio->getSingleKey();
 
 		tick_menu_effects();
@@ -358,6 +360,7 @@ std::string Menu::getInput(vector<MenuButton>& buttons, int i)
 
 	while(true)
 	{
+        userio->tick();
 		string key_hostname = userio->getSingleKey();
 		tick_menu_effects();
 		view->drawMenu(buttons, menu_particles);

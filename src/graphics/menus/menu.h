@@ -1,6 +1,12 @@
 #ifndef MENU_H
 #define MENU_H
 
+/*
+ * This file is full of shit. Do not extend. Do not copy.
+ * Refer to menuTemplate.h for a newer menu implementation.
+ * It is pure virtual and must be extended.
+ */
+
 #include "misc/hasproperties.h"
 #include "world/random.h"
 #include "graphics/menus/menubutton.h"
@@ -8,12 +14,8 @@
 #include <string>
 #include <vector>
 
-// class MenuButton;
-// class MenuParticle;
 class GameView;
 class UserIO;
-
-
 
 class Menu
 {

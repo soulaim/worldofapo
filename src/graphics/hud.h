@@ -2,7 +2,7 @@
 #define HUD_H
 
 #include "world/playerinfo.h"
-#include "world/unit.h"
+#include "world/objects/unit.h"
 #include "graphics/viewmessage.h"
 #include "misc/vec3.h"
 #include "misc/hasproperties.h"
@@ -14,7 +14,7 @@
 class Hud : public HasProperties
 {
 	friend class GameView;
-	
+
 public:
 	Hud();
 
@@ -50,13 +50,13 @@ public:
 
 	void draw3Dstring(const std::string& msg, const vec3<float>& pos, float x_angle, float y_angle, int team = 0) const;
 	void draw3DBar(float percentage, const vec3<float>& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale = 5.0f) const;
-	
+
 	// TODO: make it work with world-tick data also.
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.
 	void clearDebugStrings();
-	
+
 	float getFPS();
-	
+
 private:
 	FixedPoint level_max_z;
 	FixedPoint level_max_x;
@@ -64,7 +64,7 @@ private:
 	std::string currentClientCommand;
 	std::vector<ViewMessage> viewMessages;
 	std::vector<std::string> core_info;
-	
+
 	std::string kills;
 	std::string deaths;
 	std::string health;
@@ -72,24 +72,24 @@ private:
 	std::string area_name;
 	bool showStats;
 	int plr_ID;
-	
+
 	struct PerformanceData
 	{
 		PerformanceData();
 		void reset();
-		
+
 		long long last_time;
 		float fps;
 		float world_fps;
 		int frames;
 		int world_ticks;
 	};
-	
+
 	PerformanceData perfData;
-	
+
 	Location unit_location;
 	unsigned currentTime;
-	
+
 	int zombieCount;
 
 	std::map<int, PlayerInfo>* Players;

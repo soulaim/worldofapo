@@ -20,16 +20,22 @@ class UserIO
 {
 	Uint8* keystate;
 	int numKeys;
-	
+
 	Coord mouseMove;
 	Coord mouse;
 	int mouseButtons;
 	bool wheel_has_been_scrolled_up;
 	bool wheel_has_been_scrolled_down;
 	bool capslock_is_down;
-	
+
 	std::vector<int> keyStates;
 	std::vector<std::string> keyNames;
+
+    void checkEvents();
+    void updateSingleKey();
+
+    std::string singleKeyPressStorage;
+
 public:
 	enum MouseScrollStatus
 	{
@@ -39,20 +45,19 @@ public:
 	};
 
 	void init();
-	
+
 	int getGameInput();
 	int isPressed(int);
-	
+    int getMousePress();
 	void getMouseChange(int& x, int& y);
-	int getMousePress();
+
 	MouseScrollStatus getMouseWheelScrolled();
 	int ismousepressed();
-	
+
 	Coord getMousePoint();
-	
-	void checkEvents();
-	std::string getSingleKey();
-	
+    const std::string& getSingleKey();
+    void tick();
+    
 	UserIO();
 };
 

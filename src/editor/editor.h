@@ -5,7 +5,7 @@
 #include "graphics/models/skeletalmodel.h"
 #include "local_machine/userio.h"
 #include "graphics/graphics.h"
-#include "world/unit.h"
+#include "world/objects/unit.h"
 #include "graphics/hud.h"
 #include "graphics/particles/particle.h"
 #include "graphics/particles/particle_source.h"

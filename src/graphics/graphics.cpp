@@ -451,7 +451,7 @@ void GameView::draw(
 	const VisualWorld& visualworld,
 	const std::shared_ptr<Octree> o, // For debug.
 	const std::map<int, Projectile>& projectiles, // For debug.
-	const std::map<int, Unit>& units, // For debug and names.
+	std::map<int, Unit>& units, // For debug and names.
 	int blur
 	)
 {

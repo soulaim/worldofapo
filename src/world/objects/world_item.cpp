@@ -11,14 +11,20 @@ WorldItem::WorldItem()
 }
 
 // todo, items to have different dimensions?
-Location WorldItem::bb_top() const
+const Location& WorldItem::bb_top() const
 {
-	return Location(position.x+1, position.y+1, position.z+1);
+    bb_top_.x = position.x + 1;
+    bb_top_.y = position.y + 1;
+    bb_top_.z = position.z + 1;
+	return bb_top_;
 }
 
-Location WorldItem::bb_bot() const
+const Location& WorldItem::bb_bot() const
 {
-	return Location(position.x-1, position.y, position.z-1);
+    bb_bot_.x = position.x - 1;
+    bb_bot_.y = position.y;
+    bb_bot_.z = position.z - 1;
+	return bb_bot_;
 }
 
 void WorldItem::collides(OctreeObject& o)
@@ -26,20 +32,12 @@ void WorldItem::collides(OctreeObject& o)
 	// dont collide more than once.
 	if(dead)
 		return;
-	
+
 	// TODO: better handling
 	if(o.type == OctreeObject::UNIT)
 	{
 		Unit* u = static_cast<Unit*> (&o);
-		
-		if(intVals["AMMO_BOOST"] > 0)
-		{
-			for(size_t i=0; i<u->weapons.size(); ++i)
-			{
-				u->intVals[u->weapons[i].strVals["AMMUNITION_TYPE"]] += 100 / u->weapons[i].intVals["AMMO_VALUE"];
-			}
-		}
-		
+
 		if(u->id < 10000 && u->human())
 		{
 			// area transfer!
@@ -49,11 +47,11 @@ void WorldItem::collides(OctreeObject& o)
 					u->strVals["NEXT_AREA"] = strVals["AREA_CHANGE_TARGET"];
 			}
 		}
-		
+
 		if(intVals["PERSISTS"] == 0)
 			dead = true;
 	}
-	
+
 	if(o.type == OctreeObject::WORLD_ITEM)
 	{
 		Location direction = (position - o.position);
@@ -62,7 +60,7 @@ void WorldItem::collides(OctreeObject& o)
 			// unresolvable collision. leave it be.
 			return;
 		}
-		
+
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
 		velocity += direction;
@@ -76,20 +74,30 @@ string WorldItem::copyOrder(int ID) const
 	item_msg << "-2 ITEM " << ID << " " << type << " " << flags << " "
 	<< position.x << " " << position.z << " " << position.y << " "
 	<< velocity.x << " " << velocity.z << " " << velocity.y << " ";
-	
+
 	item_msg << HasProperties::copyOrder();
 	item_msg << "#";
-	
+
 	return item_msg.str();
 }
 
+/*
+int id = world.nextUnitID();
+world.addProjectile(weapon_position, id, model_prototype);
+Projectile& projectile = world.projectiles[id];
+
+// need to move projectile out of self-range (don't want to shoot self LOL)
+projectile_direction.normalize();
+projectile.velocity = projectile_direction * FixedPoint(9, 2);
+projectile.tick();
+*/
 
 void WorldItem::handleCopyOrder(stringstream& ss)
 {
-	ss >> type >> flags >> 
+	ss >> type >> flags >>
 	position.x >> position.z >> position.y >>
 	velocity.x >> velocity.z >> velocity.y;
-	
+
 	HasProperties::handleCopyOrder(ss);
 }
 

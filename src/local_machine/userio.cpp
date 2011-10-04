@@ -17,7 +17,7 @@ UserIO::UserIO()
 // this must not be called before SDL has initialized
 void UserIO::init()
 {
-	keystate = SDL_GetKeyState(&numKeys);
+    keystate = SDL_GetKeyState(&numKeys);
 	keyStates.resize(numKeys, 0);
 	for(int i = 0; i < numKeys; ++i)
 	{
@@ -33,11 +33,10 @@ int UserIO::isPressed(int key)
 
 // TODO: All input that is not relevant for the update of the world should be somewhere else.
 //       this stuff is sent over network. for local needs, handle key press with getSingleKey()
-//       at Localplayer::handleClientLocalInput()
 int UserIO::getGameInput()
 {
 	checkEvents();
-	
+
 	int keyBoard = 0;
 	if(keystate[SDLK_a])
 		keyBoard |= 1;
@@ -53,7 +52,7 @@ int UserIO::getGameInput()
 		keyBoard |= 32;
 	if(keystate[SDLK_e])
 		keyBoard |= 64;
-	
+
 	if(keystate[SDLK_F5])
 		keyBoard |= 1<<12;
 	if(keystate[SDLK_F6])
@@ -62,10 +61,10 @@ int UserIO::getGameInput()
 		keyBoard |= 1<<14;
 	if(keystate[SDLK_F8])
 		keyBoard |= 1<<15;
-	
+
 	if(keystate[SDLK_r])
 		keyBoard |= 1<<16;
-	
+
 	if(keystate[SDLK_1])
 		keyBoard |= 1<<20;
 	if(keystate[SDLK_2])
@@ -86,12 +85,8 @@ int UserIO::getGameInput()
 void UserIO::getMouseChange(int& x, int& y)
 {
 	checkEvents();
-	
 	x = mouseMove.x;
 	y = mouseMove.y;
-	
-	mouseMove.x = 0;
-	mouseMove.y = 0;
 }
 
 Coord UserIO::getMousePoint()
@@ -119,7 +114,17 @@ UserIO::MouseScrollStatus UserIO::getMouseWheelScrolled()
 	return NO_SCROLL;
 }
 
-string UserIO::getSingleKey()
+void UserIO::tick() {
+    mouseMove.x = 0;
+	mouseMove.y = 0;
+    updateSingleKey();
+}
+
+const string& UserIO::getSingleKey() {
+    return singleKeyPressStorage;
+}
+
+void UserIO::updateSingleKey()
 {
 	checkEvents();
 	for(int i=0; i<numKeys; i++)
@@ -127,15 +132,19 @@ string UserIO::getSingleKey()
 		if(keyStates[i] > 0)
 		{
 			keyStates[i]--;
-			
+
 			bool shift_pressed = isPressed(SDLK_LSHIFT) || isPressed(SDLK_RSHIFT);
 			bool special_key = keyNames[i].size() != 1;
-			
-			if(keyNames[i] == "left ctrl") return "^";
-			
+
+			if(keyNames[i] == "left ctrl") {
+                this->singleKeyPressStorage = "^";
+                return;
+            }
+
 			if(special_key || (!shift_pressed && !capslock_is_down))
 			{
-				return keyNames[i];
+				this->singleKeyPressStorage = keyNames[i];
+                return;
 			}
 
 			char key = keyNames[i][0];
@@ -146,9 +155,10 @@ string UserIO::getSingleKey()
 
 			if(!shift_pressed)
 			{
-				return string(1, key);
+				singleKeyPressStorage = string(1, key);
+                return;
 			}
-			
+
 			if(key == '+') key = '?';
 			if(key == '-') key = '_';
 			if(key == '9') key = ')';
@@ -161,17 +171,18 @@ string UserIO::getSingleKey()
 			if(key == '2') key = '"';
 			if(key == '1') key = '!';
 			if(key == '0') key = '=';
-			
-			return string(1, key);
+
+			singleKeyPressStorage = string(1, key);
+            return;
 		}
 	}
-	return "";
+	singleKeyPressStorage = "";
 }
 
 void UserIO::checkEvents()
 {
 	SDL_Event event;
-	
+
 	while( SDL_PollEvent( &event ) )
 	{
 		if(event.type == SDL_KEYDOWN)
@@ -179,23 +190,23 @@ void UserIO::checkEvents()
 			keyStates[event.key.keysym.sym] = 1;
 			capslock_is_down = bool(event.key.keysym.mod & KMOD_CAPS);
 		}
-		
+
 		if( event.type == SDL_MOUSEMOTION )
 		{
 			mouseMove.x += event.motion.xrel;
 			mouseMove.y += event.motion.yrel;
 		}
-		
+
 		if( event.type == SDL_MOUSEBUTTONDOWN )
 		{
-			//If the left mouse button was released
+			//If the left mouse button was pressed
 			if( event.button.button == SDL_BUTTON_LEFT )
 			{
 				mouse = Coord(event.button.x, event.button.y);
 				mouseButtons |= 1;
 			}
-			
-			//If the right mouse button was released
+
+			//If the right mouse button was pressed
 			if( event.button.button == SDL_BUTTON_RIGHT )
 			{
 				mouse = Coord(event.button.x, event.button.y);
@@ -211,7 +222,7 @@ void UserIO::checkEvents()
 			{
 				wheel_has_been_scrolled_down = true;
 			}
-			
+
 		}
 		else if( event.type == SDL_MOUSEBUTTONUP )
 		{

@@ -46,7 +46,7 @@ Hud::Hud():
 {
 	cerr << "Loading config file for HUD.." << endl;
 	load("configs/hud.conf");
-	
+
 	area_name = "World of Apo";
 }
 
@@ -116,10 +116,10 @@ void Hud::setCurrentClientCommand(const string& cmd)
 void Hud::world_tick()
 {
 	++perfData.world_ticks;
-	
+
 	long long time_now = Timer::time_now();
 	long long time_since_last = time_now - perfData.last_time;
-	
+
 	perfData.fps = 1000.0f * perfData.frames / time_since_last;
 	perfData.world_fps = 1000.0f * perfData.world_ticks/ time_since_last;
 }
@@ -160,18 +160,19 @@ void Hud::drawAmmo() const
 {
 	if(units->find(myID) == units->end())
 		return;
-	
+
+    /*
 	Unit& myUnit = units->find(myID)->second;
 	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
 	float reloading = myUnit.weapons[myUnit.weapon].isReloading().getFloat();
 	// float oncooldown = myUnit.weapons[myUnit.weapon].onCooldown().getFloat();
 	int clip_ammo = myUnit.weapons[myUnit.weapon].intVals["CLIP_BULLETS"];
-	
+
 	stringstream ammo;
 	string colorCode;
-	
+
 	int numAmmo = myUnit.intVals[ammotype];
-	
+
 	if(numAmmo > 50)
 	{
 		colorCode = "^G";
@@ -192,24 +193,19 @@ void Hud::drawAmmo() const
 	{
 		colorCode = "^R";
 	}
-	
+
 	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
-	
-	/*
-	if(oncooldown > 0.00001f)
-	{
-		
-	}
-	*/
-	
+
 	drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
-	
+
 	if(reloading > 0.00001f)
 	{
 		// this should be centered
 		drawString("^RRELOADING", -0.2, -0.7f, 2.0f, true);
 		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.77f, -0.72f);
 	}
+    */
+    
 }
 
 void Hud::drawZombiesLeft() const
@@ -229,35 +225,35 @@ void Hud::drawMessages()
 			for(size_t k = i+1; k < viewMessages.size(); ++k)
 				viewMessages[k-1] = viewMessages[k];
 			viewMessages.pop_back();
-			
+
 			i--;
 			continue;
 		}
-		
+
 		int reverse_index = viewMessages.size() - (i+1);
 		float pos_x = -0.9;
 		float pos_y = -0.82 + 0.05 * reverse_index;
-		
+
 		float location_alpha = 1.0f - reverse_index * 0.045f;
 		float age_alpha      = float(viewMessages[i].endTime - currentTime) / ViewMessage::VIEW_MESSAGE_LIFE;
 		float alpha          = age_alpha * location_alpha;
-		
+
 		if(alpha < 0.f)
 			alpha = 0.f;
 		drawString(viewMessages[i].msgContent, pos_x, pos_y, viewMessages[i].scale * 2.0f, viewMessages[i].hilight, alpha);
 	}
-	
+
 	if(currentClientCommand.size() > 0)
 		drawString(currentClientCommand, -0.9, -0.9, 1.3, true);
 }
 
 void Hud::drawFPS()
 {
-	
+
 	++perfData.frames;
 	long long time_now = Timer::time_now();
 	long long time_since_last = time_now - perfData.last_time;
-	
+
 	if(time_since_last > 500)
 	{
 		perfData.fps = 1000.0f * perfData.frames / time_since_last;
@@ -266,7 +262,7 @@ void Hud::drawFPS()
 		perfData.world_ticks = 1;
 		perfData.last_time = time_now;
 	}
-	
+
 	// TODO: these should probably not be set here.
 	stringstream ss0;
 	ss0 << "FPS: " << fixed << setprecision(2) << perfData.fps;
@@ -278,18 +274,18 @@ void Hud::drawFPS()
 	ss3 << "TRIS: " << fixed << setprecision(2) << TRIANGLES_DRAWN_THIS_FRAME;
 	stringstream ss4;
 	ss4 << "QUADS: " << fixed << setprecision(2) << QUADS_DRAWN_THIS_FRAME;
-	
+
 	core_info.push_back(ss0.str());
 	core_info.push_back(ss1.str());
 	core_info.push_back(ss2.str());
 	core_info.push_back(ss3.str());
 	core_info.push_back(ss4.str());
-	
+
 	for(size_t i = 0; i < core_info.size(); i++)
 	{
 		drawString(core_info[i], 0.6f, 0.9f - 0.1f * i, 1.5, true);
 	}
-	
+
 }
 
 void Hud::draw(bool firstPerson)
@@ -307,7 +303,7 @@ void Hud::draw(bool firstPerson)
 	drawStats();
 	drawFPS();
 	drawAmmo();
-	
+
 	// clear per-visual-frame info messages
 	core_info.clear();
 }
@@ -343,15 +339,15 @@ void Hud::drawCrossHair() const
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
+
 	auto it = strVals.find("CROSSHAIR");
 	string texture = (it == strVals.end() ? "chessboard" : it->second);
 	TextureHandler::getSingleton().bindTexture(0, texture);
-	
+
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	
+
 	float scale = 1.0f;
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.f, 0.f); glVertex3f(-0.03f * scale, -0.03f * scale, -1);
@@ -360,13 +356,13 @@ void Hud::drawCrossHair() const
 	glTexCoord2f(0.f, 1.f); glVertex3f(-0.03f * scale, +0.03f * scale, -1);
 	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
-	
+
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	
+
 //	if(lightsActive)
 //		glEnable(GL_LIGHTING);
 }
@@ -408,13 +404,13 @@ void choose_team_color(int team)
 void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_angle, float y_angle, int team) const
 {
 	string msg;
-	
+
 	// TODO: This should not be necessary all the time.
 	auto iteratorMyUnit = (*units).find(myID);
 	if(iteratorMyUnit == units->end())
 		return;
 	int my_team = iteratorMyUnit->second["TEAM"];
-	
+
 	if(team == my_team)
 	{
 		msg = "^G" + message + "^W";
@@ -427,21 +423,21 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 	{
 		msg = message;
 	}
-	
+
 	float scale = 50.0f;
-	
+
 	glDisable(GL_DEPTH_TEST);
-	
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	TextureHandler::getSingleton().bindTexture(0, "font");
-	
+
 	float totalWidth = 0.0f;
 	float aux_width = -0.05f;
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
-	
+
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
 		if(msg[i] == '^')
@@ -449,7 +445,7 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 			++i;
 			continue;
 		}
-		
+
 		char current_symbol = 'Q';
 		if(msg[i] == '\\')
 		{
@@ -467,29 +463,29 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 		{
 			current_symbol = msg[i];
 		}
-		
+
 		currentWidth = 0.05 * Font::width(current_symbol);
 		totalWidth = aux_width - scale * (currentWidth + lastWidth - 0.05f);
 		aux_width = totalWidth - 0.05f * scale;
 		lastWidth = currentWidth;
-		
+
 		// totalWidth += 0.05 * Font::width(msg[i]) * 2 * scale;
 	}
-	
+
 	float halfWidth = -totalWidth / 2.0f;
-	
+
 	float x_now     = halfWidth + 0.35;
 	float x_next    = x_now - 0.05;
 	float y_bot     = 0.0f;
 	float y_top     = 0.05 * scale;
 	currentWidth = 0.f;
 	lastWidth    = 0.f;
-	
+
 	choose_team_color(team);
-	
+
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
-	
+
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
@@ -498,7 +494,7 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 		{
 			++i;
 			choose_color(msg[i], 1.0f);
-			
+
 			continue;
 		}
 		else if(msg[i] == '\\')
@@ -513,11 +509,11 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 		{
 			next_char = msg[i];
 		}
-		
+
 		currentWidth = 0.05 * Font::width(next_char);
 		x_now = x_next - scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now - 0.05f * scale;
-		
+
 		lastWidth = currentWidth;
 
 		vec3<float> p1 = m * vec3<float>(x_now , y_bot, 0);
@@ -543,45 +539,45 @@ void Hud::draw3Dstring(const string& message, const vec3<float>& pos, float x_an
 void Hud::draw3DBar(float percentage, const vec3<float>& pos, float x_angle, float y_angle, const std::string& start_color, const std::string& end_color, float scale) const
 {
 	TextureHandler::getSingleton().unbindTexture(0);
-	
+
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Determine color
-	
+
 	float rgb1[4];
 	float rgb2[4];
 	float rgb_current[4];
-	
+
 	getColor(start_color, rgb1);
 	getColor(end_color, rgb2);
-	
+
 	for(int i=0; i<3; i++)
 		rgb_current[i] = rgb2[i] + (rgb1[i] - rgb2[i]) * percentage;
 	rgb_current[3] = 0.6f;
-	
+
 	glColor4fv(rgb_current);
-	
+
 	// Build transformation matrix
 	y_angle = -y_angle + 90.f;
 	Matrix4 m(y_angle, x_angle, 0, pos.x, pos.y, pos.z);
-	
+
 	float x_val = scale * percentage;
-	
+
 	glBegin(GL_QUADS);
 	{
 		vec3<float> p1 = m * vec3<float>(-x_val, -scale * 0.1f, 0);
 		vec3<float> p2 = m * vec3<float>(-x_val, +scale * 0.1f, 0);
 		vec3<float> p3 = m * vec3<float>(+x_val, +scale * 0.1f, 0);
 		vec3<float> p4 = m * vec3<float>(+x_val, -scale * 0.1f, 0);
-		
+
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);
 		glVertex3f(p3.x, p3.y, p3.z);
 		glVertex3f(p4.x, p4.y, p4.z);
 	}
 	glEnd();
-	
+
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 }
@@ -598,34 +594,34 @@ void Hud::drawBar(float size, const string& start_color, const string& end_color
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
+
 	TextureHandler::getSingleton().unbindTexture(0);
-	
+
 	float width = max_x - min_x;
-	
+
 	float rgb1[4];
 	float rgb2[4];
 	float rgb_current[4];
-	
+
 	getColor(start_color, rgb1);
 	getColor(end_color, rgb2);
-	
+
 	for(int i=0; i<3; i++)
 		rgb_current[i] = rgb2[i] + (rgb1[i] - rgb2[i]) * size;
 	rgb_current[3] = 1.0f;
-	
+
 	glColor4fv(rgb_current);
-	
+
 	glBegin(GL_QUADS);
 		glVertex3f(min_x, min_y, 1.0f);
 		glVertex3f(min_x + width * size, min_y, 1.0f);
 		glVertex3f(min_x + width * size, max_y, 1.0f);
 		glVertex3f(min_x, max_y, 1.0f);
 	glEnd();
-	
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	
+
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glPopMatrix();
@@ -642,12 +638,12 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
+
 	TextureHandler::getSingleton().bindTexture(0, "font");
-	
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	float totalWidth = 0.025f;
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
@@ -656,15 +652,15 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 			++i;
 			continue;
 		}
-		
+
 		totalWidth += 0.05 * Font::width(msg[i]) * 2 * scale;
 	}
-	
+
 	float x_now     = 0.0f;
 	float x_next    = pos_x + 0.05;
 	float y_bot     = pos_y;
 	float y_top     = pos_y + 0.05 * scale;
-	
+
 	// draw a darker background box for the text if that was requested
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
@@ -677,13 +673,13 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		++QUADS_DRAWN_THIS_FRAME;
 	}
 	glEnd();
-	
+
 	float currentWidth = 0.f;
 	float lastWidth    = 0.f;
-	
+
 	// reset default colour to white.
 	glColor4f(1.0f, 1.0f, 1.0f, alpha);
-	
+
 	glBegin(GL_QUADS);
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
@@ -692,7 +688,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		{
 			++i;
 			choose_color(msg[i], alpha);
-			
+
 			continue;
 		}
 		else if(msg[i] == '\\')
@@ -707,14 +703,14 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 		{
 			next_char = msg[i];
 		}
-		
+
 		currentWidth = 0.05 * Font::width(next_char);
-		
+
 		x_now = x_next + scale * (currentWidth + lastWidth - 0.05f);
 		x_next = x_now + 0.05f * scale;
-		
+
 		lastWidth = currentWidth;
-		
+
 		TextureCoordinates coords = Font::texture_coordinates(next_char);
 		glTexCoord2f(coords.corner[0].x, coords.corner[0].y); glVertex3f(x_now , y_bot, -1);
 		glTexCoord2f(coords.corner[1].x, coords.corner[1].y); glVertex3f(x_next, y_bot, -1);
@@ -725,7 +721,7 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 	}
 	glEnd();
 	glDisable(GL_BLEND);
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -735,44 +731,44 @@ void Hud::drawString(const string& msg, float pos_x, float pos_y, float scale, b
 void Hud::drawMinimap() const
 {
 	static ApoMath apomath = ApoMath();
-	
+
 	auto iteratorMyUnit = (*units).find(myID);
 	if(iteratorMyUnit == units->end())
 		return;
-	
+
 	int my_team = iteratorMyUnit->second["TEAM"];
 
 	TextureHandler::getSingleton().unbindTexture(0);
-	
+
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	
+
 	Unit& myUnit = iteratorMyUnit->second;
-	
+
 	float map_r = 0.18f;
 	float minimap_angle = apomath.getDegrees( myUnit.angle );
-	
+
 	float tx = (myUnit.position.x / level_max_x).getFloat();
 	float tz = (myUnit.position.z / level_max_z).getFloat();
-	
+
 	float unit_x_on_minimap = -2.f * map_r * tx + map_r;
 	float unit_z_on_minimap = +2.f * map_r * tz - map_r;
-	
+
 	// make minimap rotate along with the user.
 	// glTranslatef(+0.74f - unit_x_on_minimap, -0.74f - unit_z_on_minimap, 0.0f);
 	glTranslatef(+0.74f, -0.74f, 0.0f);
 	glRotatef(-minimap_angle, 0.0f, 0.0f, 1.0f);
-	
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	/*
 	glColor4f(0.3f, 0.3f, 0.3f, 0.5f);
 	glBegin(GL_QUADS);
@@ -783,17 +779,17 @@ void Hud::drawMinimap() const
 	++QUADS_DRAWN_THIS_FRAME;
 	glEnd();
 	*/
-	
+
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
 	for(auto it = units->begin(); it != units->end(); ++it)
 	{
 		const int id = it->first;
-		
+
 		float r = 1.0f;
 		float g = 0.0f;
 		float b = 0.0f;
-		
+
 		if(myID == id)
 		{
 			r = 0.0f;
@@ -830,21 +826,21 @@ void Hud::drawMinimap() const
 				b = 0.1f;
 			}
 		}
-		
+
 		const Unit& u = it->second;
 		const Location& loc = u.getPosition();
-		
+
 		float x = -(loc.x / level_max_x).getFloat() * 2 * map_r + map_r - unit_x_on_minimap;
 		float z = +(loc.z / level_max_z).getFloat() * 2 * map_r - map_r - unit_z_on_minimap;
-		
+
 		glColor3f(r, g, b); glVertex3f(x, z, 0.0f);
 	}
 	glEnd();
-	
+
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }
