@@ -320,7 +320,7 @@ void DedicatedServer::host_tick()
 
 	long long milliseconds = Timer::time_now();
 
-	if( /* (simulRules.currentFrame < simulRules.allowedFrame) && */ fps_world.need_to_draw(milliseconds) )
+	if( fps_world.need_to_draw(milliseconds) )
 	{
 		simulateWorldFrame();
 
