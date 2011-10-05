@@ -37,9 +37,9 @@ prof: CXXFLAGS += -pg
 prof: LDLIBS += -pg
 prof: all
 
-SRC_CLIENT := $(shell find $(CLIENT_DIRS) -maxdepth 1 -name '*.cpp')
-SRC_SERVER := $(shell find $(SERVER_DIRS) -maxdepth 1 -name '*.cpp')
-SRC_EDITOR := $(shell find $(EDITOR_DIRS) -maxdepth 1 -name '*.cpp')
+SRC_CLIENT := $(foreach dir, $(CLIENT_DIRS), $(wildcard $(dir)/*.cpp))
+SRC_EDITOR := $(foreach dir, $(EDITOR_DIRS), $(wildcard $(dir)/*.cpp))
+SRC_SERVER := $(foreach dir, $(SERVER_DIRS), $(wildcard $(dir)/*.cpp))
 
 OBJ_CLIENT := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRC_CLIENT))
 OBJ_SERVER := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRC_SERVER))
