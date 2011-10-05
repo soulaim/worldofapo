@@ -13,11 +13,12 @@ OPENMP   := -fopenmp
 PACKAGES := sdl gl glu libpng
 WARNINGS := -pedantic -Wall -Werror -Wextra
 
-CXXFLAGS := $(WARNINGS) -fopenmp -lpthread -std=c++0x -O3
-CXXFLAGS += `pkg-config --cflags $(PACKAGES)` $(INCLUDE_DIRS)
+CXX      := g++
+CXXFLAGS := $(WARNINGS) -fopenmp -lpthread -std=c++0x -O3 $(INCLUDE_DIRS)
+CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 
-LDLIBS   = -lSDL_mixer -L ./lib/ -lGLEW `pkg-config --libs $(PACKAGES)`
-CXX      = g++
+LDLIBS   := -lSDL_mixer -L ./lib/ -lGLEW
+LDLIBS   += $(shell pkg-config --libs $(PACKAGES))
 
 CLIENT = bin/client
 EDITOR = bin/editor
