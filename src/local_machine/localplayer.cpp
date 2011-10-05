@@ -181,7 +181,7 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 
 		// shared memory for processes to determine how far terrain generation has progressed.
 		float done_percent = 0.0f;
-		float prev_done_percent = -1.0f;
+		//float prev_done_percent = -1.0f;
 		string task_name = "Preparing to load world..";
 
 		LoadScreenInfo info;
@@ -194,8 +194,8 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 
 		pthread_t worldGen;
 
-		int  iret1;
-		iret1 = pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
+		
+		pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
 
 		string bg_image;
 
@@ -216,7 +216,7 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 			// if(done_percent > prev_done_percent)
 			{
 				view->drawLoadScreen(task_name, bg_image, done_percent);
-				prev_done_percent = done_percent;
+				//prev_done_percent = done_percent;
 			}
 
 #ifndef _WIN32
