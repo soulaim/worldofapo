@@ -82,17 +82,6 @@ string WorldItem::copyOrder(int ID) const
 	return item_msg.str();
 }
 
-/*
-int id = world.nextUnitID();
-world.addProjectile(weapon_position, id, model_prototype);
-Projectile& projectile = world.projectiles[id];
-
-// need to move projectile out of self-range (don't want to shoot self LOL)
-projectile_direction.normalize();
-projectile.velocity = projectile_direction * FixedPoint(9, 2);
-projectile.tick();
-*/
-
 void WorldItem::handleCopyOrder(stringstream& ss)
 {
 	ss >> type >> flags >>

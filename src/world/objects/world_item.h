@@ -8,6 +8,10 @@
 #include "physics/octree_object.h"
 #include "misc/hasproperties.h"
 
+#include "world/objects/items/ballisticweaponusage.h"
+#include "world/objects/items/beamweaponusage.h"
+#include "world/objects/items/toolitemusage.h"
+
 class World;
 class Unit;
 
@@ -16,6 +20,10 @@ class WorldItem: public OctreeObject, public HasProperties
     // these are relevant only when the object is not wielded
     mutable Location bb_top_;
     mutable Location bb_bot_;
+
+    BeamWeaponUsage beamWeapon;
+    BallisticWeaponUsage ballisticWeapon;
+    ToolItemUsage toolItem;
 
 public:
 	WorldItem();
