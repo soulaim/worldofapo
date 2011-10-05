@@ -6,6 +6,7 @@
 #include <sstream>
 
 Inventory::Inventory(Unit* u): unit(u), max_items(10), small_items_begin(7) {
+    this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
     }

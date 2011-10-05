@@ -717,10 +717,13 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 	int projectile_owner   = projectile["OWNER"];
 	string& projectile_name = projectile("NAME");
 
+    // TODO: Handle ballistic & beam projectiles separately.
+
 	static ParticleSource ps;
 
 	if(num_particles > 0)
 	{
+        // these ps values don't need to be properties.
 		ps.getIntProperty("MAX_LIFE") = 10;
 		ps.getIntProperty("CUR_LIFE") = 10;
 		ps.getIntProperty("PSP_1000") = projectile["PARTICLE_RAND_1000"];
@@ -778,10 +781,6 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			if(!u->exists())
 				continue;
 
-			// Is this actually a good thing?
-			if(u->hitpoints < 1)
-				continue; // don't hit dead units
-
 			// if the target unit is already dead, just continue.
 			if(u->hitpoints <= 0)
 				continue;
@@ -809,7 +808,7 @@ void World::tickProjectile(Projectile& projectile, Model* model)
 			}
 
 			// boolean test, hits or doesn't hit
-			if(projectile["COLLISION_TEST"] && projectile.collides(*u))
+			if(projectile["BALLISTIC"] && projectile.collides(*u))
 			{
 				{
 					BulletHitEvent event;

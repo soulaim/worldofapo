@@ -34,6 +34,9 @@ void WorldItem::onActivate(World& world, Unit& unit) {
         case 3: // visual aid
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for visual aid");
             break;
+        case 4: // consumable
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for consumables");
+            break;
         default:
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for type");
     }
