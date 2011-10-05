@@ -1,5 +1,6 @@
-#include "world_item.h"
-#include "unit.h"
+#include "world/objects/world_item.h"
+#include "world/objects/unit.h"
+#include "world/world.h"
 
 using std::stringstream;
 using std::string;
@@ -100,4 +101,3 @@ void WorldItem::handleCopyOrder(stringstream& ss)
 
 	HasProperties::handleCopyOrder(ss);
 }
-

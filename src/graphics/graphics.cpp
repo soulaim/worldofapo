@@ -13,7 +13,6 @@
 #include "algorithms.h"
 #include "terrain/roof_renderer.h"
 
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -24,6 +23,7 @@
 #include <stdexcept>
 #include <list>
 #include <tuple>
+#include <sstream>
 
 using namespace std;
 

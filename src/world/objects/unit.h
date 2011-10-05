@@ -5,6 +5,7 @@
 #include "misc/vec3.h"
 #include "physics/octree_object.h"
 #include "physics/movable_object.h"
+#include "world/objects/inventory.h"
 
 #include <vector>
 #include <string>
@@ -19,6 +20,8 @@ class Unit : public HasProperties, public OctreeObject
 
     mutable Location bb_top_;
     mutable Location bb_bot_;
+
+    Inventory inventory;
 
 public:
 

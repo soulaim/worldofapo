@@ -21,6 +21,7 @@ Location bump(int x)
 
 
 Unit::Unit():
+    inventory(this),
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(500),
 	keyState(0),
@@ -50,11 +51,11 @@ Unit::Unit():
 }
 
 void Unit::activateCurrentItemPrimary(World& world) {
-    world.add_message("Unit::activateItemPrimary() is not implemented");
+    inventory.useActiveItemPrimary(world);
 }
 
 void Unit::activateCurrentItemSecondary(World& world) {
-    world.add_message("Unit::activateItemSecondary() is not implemented");
+    inventory.useActiveItemSecondary(world);
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -471,23 +472,13 @@ void Unit::handleCopyOrder(stringstream& ss)
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 
 	HasProperties::handleCopyOrder(ss);
-
+    inventory.handleCopyOrder(ss);
 	ss >> name;
 }
 
 string Unit::copyOrder(int ID) const
 {
 	stringstream hero_msg;
-
-	/*
-	hero_msg << "-2 UNIT " << ID << " " << angle << " " << upangle << " " << keyState << " "
-		<< position.x << " " << position.z << " " << position.y << " "
-		<< velocity.x << " " << velocity.z << " " << velocity.y << " "
-		<< mouseButtons << " " << weapon_cooldown << " " << leap_cooldown << " "
-		<< controllerTypeID << " " << hitpoints << " " << birthTime << " "
-		<< id << " " << weapon << " " << collision_rule << " " << scale << " "
-		<< mouse_x_minor << " " << mouse_y_minor << " ";
-	*/
 
 	hero_msg << "-2 UNIT " << ID;
 	hero_msg << " " << angle;
@@ -509,7 +500,7 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val << " ";
 
 	hero_msg << HasProperties::copyOrder();
-
+    hero_msg << " " << inventory.copyOrder();
 	hero_msg << " " << name << "#";
 
 	return hero_msg.str();
@@ -671,7 +662,6 @@ void Unit::init()
 
 void Unit::switchWeapon(unsigned x)
 {
-    x++;
-    return;
+    inventory.activateItem(x);
 }
 
