@@ -51,8 +51,8 @@ public:
     int getArmorClass();
 
     void activateItem(int);
-    void useActiveItemPrimary(World&);
-    void useActiveItemSecondary(World&);
+    void useActiveItemPrimary(World&, Unit&);
+    void useActiveItemSecondary(World&, Unit&);
 
     std::string copyOrder() const;
 	void handleCopyOrder(std::stringstream& ss);

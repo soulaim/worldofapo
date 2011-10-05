@@ -51,11 +51,11 @@ Unit::Unit():
 }
 
 void Unit::activateCurrentItemPrimary(World& world) {
-    inventory.useActiveItemPrimary(world);
+    inventory.useActiveItemPrimary(world, *this);
 }
 
 void Unit::activateCurrentItemSecondary(World& world) {
-    inventory.useActiveItemSecondary(world);
+    inventory.useActiveItemSecondary(world, *this);
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -306,6 +306,9 @@ void Unit::postTick()
 
 void Unit::tick(const FixedPoint& yy_val)
 {
+    WorldItem* item = inventory.getItemActive();
+    if(item) item->tick(*this);
+
 	if(getMobility() == 0)
 	{
 		position += velocity;
@@ -497,9 +500,9 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << staticObject;
 	hero_msg << " " << model_type;
 	hero_msg << " " << scale;
-	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val << " ";
+	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val;
 
-	hero_msg << HasProperties::copyOrder();
+	hero_msg << " " << HasProperties::copyOrder();
     hero_msg << " " << inventory.copyOrder();
 	hero_msg << " " << name << "#";
 

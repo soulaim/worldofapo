@@ -1,5 +1,5 @@
 
-#include "world/objects/items/ballisticweaponusage.h"
+#include "world/objects/items/ballistic.h"
 #include "world/world.h"
 #include "world/objects/unit.h"
 #include "world/objects/world_item.h"
@@ -15,6 +15,15 @@ projectile.velocity = projectile_direction * FixedPoint(9, 2);
 projectile.tick();
 */
 
+void BallisticWeaponUsage::tick(WorldItem* item, Unit&) {
+    if(item->intVals["RELOADING"]) {
+        if(--item->intVals["RLTIME"] == 0)
+            item->intVals["RELOADING"] = 0;
+    } else if(item->intVals["CD"] > 0) {
+        --item->intVals["CD"];
+    }
+}
+
 void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit& caster) {
 
     if(item->intVals["RELOADING"])
@@ -24,12 +33,14 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
         return;
 
     if(item->intVals["CLIP"] == 0) {
+        world.add_message("RELOAD");
         item->intVals["RELOADING"] = 1;
         item->intVals["RLTIME"] = item->intVals["RELOAD_TIME"];
         item->intVals["CLIP"] = item->intVals["CLIPSIZE"];
         return;
     }
 
+    world.add_message("SHOOT!");
     item->intVals["CD"] = item->intVals["COOLDOWN"];
 
     int id = world.nextUnitID();
@@ -38,7 +49,10 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
     world.addProjectile(eyePos, id, VisualWorld::INVISIBLE_MODEL);
     Projectile& p = world.projectiles[id];
 
-    p.velocity = caster.getLookDirection();
+    Location direction = caster.getLookDirection();
+    caster.velocity -= direction * FixedPoint(5, 100);
+
+    p.velocity = direction;
     p.velocity.normalize();
     p.velocity *= FixedPoint(9, 2);
     p.tick();

@@ -12,11 +12,12 @@ class WorldItem;
 class World;
 class Unit;
 
+
 class BallisticWeaponUsage {
 
 public:
     void onActivatePrimary(WorldItem*, World&, Unit&);
-
+    void tick(WorldItem*, Unit&);
 };
 
 #endif	/* BALLISTICWEAPONUSAGE_H */

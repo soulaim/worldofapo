@@ -69,6 +69,16 @@ void WorldItem::collides(OctreeObject& o)
 }
 
 
+string WorldItem::inventoryCopy() const {
+    stringstream item_msg;
+	item_msg << HasProperties::copyOrder();
+	return item_msg.str();
+}
+
+void WorldItem::handleInventoryCopy(stringstream& ss) {
+    HasProperties::handleCopyOrder(ss);
+}
+
 string WorldItem::copyOrder(int ID) const
 {
 	stringstream item_msg;

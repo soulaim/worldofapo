@@ -4,32 +4,37 @@
 #include "world/world.h"
 
 #include <sstream>
+#include <string>
+#include <iostream>
 
 Inventory::Inventory(Unit* u): unit(u), max_items(10), small_items_begin(7) {
     this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
     }
+
+    this->wieldedItems[6] = new WorldItem();
+    this->wieldedItems[6]->load("data/items/ballistic_1.dat");
 }
 
 Inventory::~Inventory() {
 }
 
-void Inventory::useActiveItemPrimary(World& world) {
+void Inventory::useActiveItemPrimary(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {
         world.add_message("^yNo item is active, using item ^rfailed");
     } else {
-        item->onActivate(world, *unit);
+        item->onActivate(world, unit);
     }
 }
 
-void Inventory::useActiveItemSecondary(World& world) {
+void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {
         world.add_message("^yNo item is active, using item ^rfailed");
     } else {
-        item->onSecondaryActivate(world, *unit);
+        item->onSecondaryActivate(world, unit);
     }
 }
 
@@ -79,13 +84,16 @@ std::string Inventory::copyOrder() const {
     std::stringstream ss;
     for(unsigned i=0; i<this->max_items; ++i) {
         if(this->wieldedItems[i] != 0)
-            ss << i << " " << this->wieldedItems[i]->copyOrder(wieldedItems[i]->id) << " ";
+            ss << " " << i << " " << this->wieldedItems[i]->inventoryCopy();
     }
-    ss << "11 ";
+    ss << " 11 ";
     return ss.str();
 }
 
 void Inventory::handleCopyOrder(std::stringstream& ss) {
+
+    std::cerr << "handle invetory copy: " << std::endl;
+
     int index;
     while(true) {
         ss >> index;
@@ -93,6 +101,8 @@ void Inventory::handleCopyOrder(std::stringstream& ss) {
             break;
 
         this->wieldedItems[index] = new WorldItem();
-        this->wieldedItems[index]->handleCopyOrder(ss);
+
+        std::cerr << "handle inventory item copy: " << std::endl;
+        this->wieldedItems[index]->handleInventoryCopy(ss);
     }
 }

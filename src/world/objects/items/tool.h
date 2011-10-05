@@ -16,6 +16,7 @@ class ToolItemUsage {
 
 public:
     void onActivatePrimary(WorldItem*, World&, Unit&);
+    void tick(WorldItem*, Unit&);
 };
 
 #endif	/* TOOLITEMUSAGE_H */
