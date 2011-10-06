@@ -1,5 +1,6 @@
-#include "world_item.h"
-#include "unit.h"
+#include "world/objects/world_item.h"
+#include "world/objects/unit.h"
+#include "world/world.h"
 
 using std::stringstream;
 using std::string;
@@ -68,6 +69,16 @@ void WorldItem::collides(OctreeObject& o)
 }
 
 
+string WorldItem::inventoryCopy() const {
+    stringstream item_msg;
+	item_msg << HasProperties::copyOrder();
+	return item_msg.str();
+}
+
+void WorldItem::handleInventoryCopy(stringstream& ss) {
+    HasProperties::handleCopyOrder(ss);
+}
+
 string WorldItem::copyOrder(int ID) const
 {
 	stringstream item_msg;
@@ -81,17 +92,6 @@ string WorldItem::copyOrder(int ID) const
 	return item_msg.str();
 }
 
-/*
-int id = world.nextUnitID();
-world.addProjectile(weapon_position, id, model_prototype);
-Projectile& projectile = world.projectiles[id];
-
-// need to move projectile out of self-range (don't want to shoot self LOL)
-projectile_direction.normalize();
-projectile.velocity = projectile_direction * FixedPoint(9, 2);
-projectile.tick();
-*/
-
 void WorldItem::handleCopyOrder(stringstream& ss)
 {
 	ss >> type >> flags >>
@@ -100,4 +100,3 @@ void WorldItem::handleCopyOrder(stringstream& ss)
 
 	HasProperties::handleCopyOrder(ss);
 }
-

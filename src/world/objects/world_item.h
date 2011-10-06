@@ -8,6 +8,10 @@
 #include "physics/octree_object.h"
 #include "misc/hasproperties.h"
 
+#include "world/objects/items/ballistic.h"
+#include "world/objects/items/beam.h"
+#include "world/objects/items/tool.h"
+
 class World;
 class Unit;
 
@@ -17,6 +21,10 @@ class WorldItem: public OctreeObject, public HasProperties
     mutable Location bb_top_;
     mutable Location bb_bot_;
 
+    BeamWeaponUsage beamWeapon;
+    BallisticWeaponUsage ballisticWeapon;
+    ToolItemUsage toolItem;
+
 public:
 	WorldItem();
 	const Location& bb_top() const;
@@ -25,6 +33,9 @@ public:
 
 	std::string copyOrder(int ID) const;
 	void handleCopyOrder(std::stringstream& ss);
+
+    std::string inventoryCopy() const;
+    void handleInventoryCopy(std::stringstream& ss);
 
     // these are relevant only when someone is wielding the item
     void onActivate(World& world, Unit& user);

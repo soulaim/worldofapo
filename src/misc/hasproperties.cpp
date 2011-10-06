@@ -11,12 +11,12 @@
 void HasProperties::save(const std::string& file)
 {
 	std::ofstream out(file.c_str());
-	
+
 	for(auto iter = intVals.begin(); iter != intVals.end(); iter++)
 	{
 		out << "INT " << iter->first << " " << iter->second << std::endl;
 	}
-	
+
 	for(auto iter = strVals.begin(); iter != strVals.end(); iter++)
 	{
 		out << "STRING " << iter->first << " " << iter->second << std::endl;
@@ -110,18 +110,18 @@ void HasProperties::handleCopyOrder(std::stringstream& ss)
 {
 	std::string key;
 	ss >> key;
-	
+
 	if(key != "INT_VALS")
 	{
 		std::cerr << " " << key;
 		ss >> key;
 		std::cerr << " " << key << std::endl;
-		
+
 		assert(0 && "HasProperties copyOrder FAIL");
 	}
-	
+
 	// assert(key == "INT_VALS");
-	
+
 	while(ss >> key && key != "STR_VALS")
 	{
 		ss >> intVals[key];

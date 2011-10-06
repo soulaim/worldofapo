@@ -10,18 +10,18 @@
 
 #include "world/objects/world_item.h"
 #include <string>
+#include <sstream>
 
 class World;
 class Unit;
-class stringstream;
 
 class Inventory {
 
 private:
     Unit* unit;
 
-    unsigned const max_items;
-    unsigned const small_items_begin;
+    unsigned max_items;
+    unsigned small_items_begin;
 
     WorldItem* wieldedItems[10];
     int active_item;
@@ -49,6 +49,10 @@ public:
     void dropItemSlot(World&, int); // drop the item from a given slot.
     void dropAll(World&); // when a unit dies, it drops all items.
     int getArmorClass();
+
+    void activateItem(int);
+    void useActiveItemPrimary(World&, Unit&);
+    void useActiveItemSecondary(World&, Unit&);
 
     std::string copyOrder() const;
 	void handleCopyOrder(std::stringstream& ss);

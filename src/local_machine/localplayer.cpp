@@ -194,7 +194,7 @@ void Localplayer::handleMetaEvent(HasProperties& event)
 
 		pthread_t worldGen;
 
-		
+
 		pthread_create( &worldGen, NULL, generateTerrain,  (void*) &info);
 
 		string bg_image;
