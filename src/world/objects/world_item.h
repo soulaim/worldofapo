@@ -40,6 +40,7 @@ public:
     // these are relevant only when someone is wielding the item
     void onActivate(World& world, Unit& user);
 	void onSecondaryActivate(World&, Unit&);
+    void onReload(World&, Unit&);
 
 	bool onCollect(World&, Unit&);
 	void onDrop(World&, Unit&);

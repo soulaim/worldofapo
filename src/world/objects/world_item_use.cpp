@@ -32,6 +32,28 @@ void WorldItem::onActivate(World& world, Unit& unit) {
     }
 }
 
+void WorldItem::onReload(World& world, Unit& unit) {
+    switch(intVals["TYPE"]) {
+        case 0: // beam-weapon
+            beamWeapon.onActivateReload(this, world, unit);
+            break;
+        case 1: // ballistic-weapon
+            ballisticWeapon.onActivateReload(this, world, unit);
+            break;
+        case 2: // tool
+            toolItem.onActivateReload(this, world, unit);
+            break;
+        case 3: // visual aid
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for visual aid");
+            break;
+        case 4: // consumable
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for consumables");
+            break;
+        default:
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for type");
+    }
+}
+
 void WorldItem::onSecondaryActivate(World& world, Unit&) {
     world.add_message("^yWorldItem::onActivateSecondary ^wis ^rnot ^wimplemented");
 }

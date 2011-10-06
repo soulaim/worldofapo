@@ -18,15 +18,13 @@ class Unit;
 class Inventory {
 
 private:
-    Unit* unit;
-
     unsigned max_items;
     unsigned small_items_begin;
 
     WorldItem* wieldedItems[10];
     int active_item;
 public:
-    Inventory(Unit* u);
+    Inventory();
     ~Inventory();
 
     enum SlotName {
@@ -50,7 +48,8 @@ public:
     void dropAll(World&); // when a unit dies, it drops all items.
     int getArmorClass();
 
-    void activateItem(int);
+    void setActiveItem(World&, Unit&, int);
+    void reloadAction(World&, Unit&);
     void useActiveItemPrimary(World&, Unit&);
     void useActiveItemSecondary(World&, Unit&);
 

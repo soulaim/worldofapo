@@ -71,10 +71,11 @@ public:
 
     void activateCurrentItemPrimary(World&);
     void activateCurrentItemSecondary(World&);
+    void activateCurrentItemReload(World&);
 
 	Location getEyePosition();
 
-	void processInput();
+	void processInput(World&);
 	void regenerate();
 
 	void landingDamage();
@@ -152,7 +153,7 @@ public:
 	void collides(OctreeObject&);
 
 	void init();
-	void switchWeapon(unsigned);
+	void switchWeapon(World&, unsigned);
 
 	bool operator<(const Unit& u) const;
 };

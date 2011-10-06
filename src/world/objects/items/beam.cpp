@@ -8,6 +8,10 @@
 void BeamWeaponUsage::tick(WorldItem*, Unit&) {
 }
 
+void BeamWeaponUsage::onActivateReload(WorldItem*, World& world, Unit&) {
+    world.add_message("^yBeamWeaponUsage::onActivateReload ^wis ^rnot ^wimplemented");
+}
+
 void BeamWeaponUsage::onActivatePrimary(WorldItem*, World& world, Unit&) {
     world.add_message("^yBeamWeaponUsage::onActivatePrimary ^wis ^rnot ^wimplemented");
 }

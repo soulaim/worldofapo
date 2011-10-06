@@ -21,7 +21,6 @@ Location bump(int x)
 
 
 Unit::Unit():
-    inventory(this),
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(500),
 	keyState(0),
@@ -56,6 +55,10 @@ void Unit::activateCurrentItemPrimary(World& world) {
 
 void Unit::activateCurrentItemSecondary(World& world) {
     inventory.useActiveItemSecondary(world, *this);
+}
+
+void Unit::activateCurrentItemReload(World& world) {
+    inventory.reloadAction(world, *this);
 }
 
 void Unit::setDefaultMonsterAttributes()
@@ -150,38 +153,33 @@ void Unit::jump()
 	}
 }
 
-void Unit::processInput()
+void Unit::processInput(World& world)
 {
 	soundInfo = "";
 
-	if(getKeyAction(Unit::RELOAD))
-	{
-        // reload action not implemented.
-	}
-
 	if(getKeyAction(Unit::WEAPON1))
 	{
-		switchWeapon(1);
+		switchWeapon(world, 1);
 	}
 
 	if(getKeyAction(Unit::WEAPON2))
 	{
-		switchWeapon(2);
+		switchWeapon(world, 2);
 	}
 
 	if(getKeyAction(Unit::WEAPON3))
 	{
-		switchWeapon(3);
+		switchWeapon(world, 3);
 	}
 
 	if(getKeyAction(Unit::WEAPON4))
 	{
-		switchWeapon(4);
+		switchWeapon(world, 4);
 	}
 
 	if(getKeyAction(Unit::WEAPON5))
 	{
-		switchWeapon(5);
+		switchWeapon(world, 5);
 	}
 
 
@@ -309,15 +307,11 @@ void Unit::tick(const FixedPoint& yy_val)
     WorldItem* item = inventory.getItemActive();
     if(item) item->tick(*this);
 
+    position += velocity;
 	if(getMobility() == 0)
-	{
-		position += velocity;
 		return;
-	}
-
 	velocity.z *= yy_val;
 	velocity.x *= yy_val;
-	position += velocity;
 }
 
 bool Unit::exists()
@@ -334,7 +328,6 @@ bool Unit::hasGroundUnderFeet() const
 {
 	return mobility & Unit::MOBILITY_STANDING_ON_GROUND;
 }
-
 
 int Unit::getModifier(const string& attribute) const
 {
@@ -663,8 +656,8 @@ void Unit::init()
 {
 }
 
-void Unit::switchWeapon(unsigned x)
+void Unit::switchWeapon(World& world, unsigned x)
 {
-    inventory.activateItem(x);
+    inventory.setActiveItem(world, *this, x);
 }
 

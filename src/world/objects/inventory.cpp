@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 
-Inventory::Inventory(Unit* u): unit(u), max_items(10), small_items_begin(7) {
+Inventory::Inventory(): max_items(10), small_items_begin(7) {
     this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
@@ -18,6 +18,15 @@ Inventory::Inventory(Unit* u): unit(u), max_items(10), small_items_begin(7) {
 }
 
 Inventory::~Inventory() {
+}
+
+void Inventory::reloadAction(World& world, Unit& unit) {
+    WorldItem* item = this->wieldedItems[this->active_item];
+    if(item == 0) {
+        world.add_message("^yNo item is active, reload item ^rfailed");
+    } else {
+        item->onReload(world, unit);
+    }
 }
 
 void Inventory::useActiveItemPrimary(World& world, Unit& unit) {
@@ -38,8 +47,12 @@ void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
     }
 }
 
-void Inventory::activateItem(int i) {
+void Inventory::setActiveItem(World& world, Unit&, int i) {
     i+=this->small_items_begin-1;
+
+    std::stringstream ss; ss << "Selected item " << i;
+    world.add_message(ss.str());
+
     this->active_item = i;
 }
 
