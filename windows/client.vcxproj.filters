@@ -18,20 +18,11 @@
     <Filter Include="Source Files\main">
       <UniqueIdentifier>{1bd5afb9-cdf4-4a46-84d7-48799a9e451d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\graphics">
-      <UniqueIdentifier>{f99788ef-a04e-4fc6-bcef-0fc1898fff75}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\gamedata">
       <UniqueIdentifier>{c1dc50d8-6bd0-40b8-9239-ba49a0df498a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\graphics\frustum">
-      <UniqueIdentifier>{7351d699-1ba5-4fed-a48b-33fcf661f8cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\local_machine">
       <UniqueIdentifier>{2cd6c109-6521-40ae-a90e-5d02dffd70af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\world">
-      <UniqueIdentifier>{43f5b333-08f7-4485-82e0-641b73dc94f6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\misc">
       <UniqueIdentifier>{2ce5f008-bc6c-4f99-97c2-bf13e295ccc2}</UniqueIdentifier>
@@ -127,99 +118,6 @@
     <ClCompile Include="..\src\main\main.cpp">
       <Filter>Source Files\main</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\animation.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\btt.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\camera.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\font.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\framebuffer.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\graphics.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\graphics_helper.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\grasscluster.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\hud.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\image.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\invisiblemodel.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\leveldescriptor.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\lightsource.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\loadpng.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\menu.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\model.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\modelfactory.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\opengl.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\particle_source.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\shader.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\shaders.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\skeletalmodel.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\string2rgb.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\texturehandler.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\visualworld.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\window.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\frustum\frustumr.cpp">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\frustum\matrix4.cpp">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\frustum\plane.cpp">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\basiccamera.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\graphics_debug.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\local_machine\game.cpp">
       <Filter>Source Files\local_machine</Filter>
     </ClCompile>
@@ -231,36 +129,6 @@
     </ClCompile>
     <ClCompile Include="..\src\local_machine\userio.cpp">
       <Filter>Source Files\local_machine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\ai_behaviours.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\level.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\ordercontainer.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\playerinfo.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\projectile.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\random.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\unit.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\weapon.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world_item.cpp">
-      <Filter>Source Files\world</Filter>
     </ClCompile>
     <ClCompile Include="..\src\misc\apomath.cpp">
       <Filter>Source Files\misc</Filter>
@@ -312,116 +180,8 @@
     <ClInclude Include="..\src\net\socket_handler.h">
       <Filter>Source Files\net</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics\animation.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\btt.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\camera.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\font.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\framebuffer.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\graphics.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\graphics_helper.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\grasscluster.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\hud.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\image.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\invisiblemodel.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\level_square_part_block.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\leveldescriptor.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\light_object.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\lightsource.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\menu.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\menubutton.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\model.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\modelfactory.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\opengl.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\particle.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\particle_source.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\primitives.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\shader.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\shaders.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\skeletalmodel.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\string2rgb.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\texturecoordinate.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\texturehandler.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\viewmessage.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\visualworld.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\window.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\frustum\frustumr.h">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\frustum\matrix4.h">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\frustum\plane.h">
-      <Filter>Source Files\graphics\frustum</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\game_data\character_info.h">
       <Filter>Source Files\gamedata</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\basiccamera.h">
-      <Filter>Source Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\local_machine\game.h">
       <Filter>Source Files\local_machine</Filter>
@@ -434,42 +194,6 @@
     </ClInclude>
     <ClInclude Include="..\src\local_machine\userio.h">
       <Filter>Source Files\local_machine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\item.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\level.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\order.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\ordercontainer.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\playerinfo.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\projectile.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\random.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\unit.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\weapon.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\world.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\world_item.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\worldevent.h">
-      <Filter>Source Files\world</Filter>
     </ClInclude>
     <ClInclude Include="..\src\misc\apomath.h">
       <Filter>Source Files\misc</Filter>
