@@ -6,6 +6,7 @@
 #include "graphics/viewmessage.h"
 #include "misc/vec3.h"
 #include "misc/hasproperties.h"
+#include "graphics/hud/inventoryrenderer.h"
 
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@ class Hud : public HasProperties
 public:
 	Hud();
 
+    // TODO: This is all such a load of crap. Get rid of the shit.
 	void reset();
 	void setAreaName(const std::string&);
 	void setLocalPlayerName(const std::string&);
@@ -71,7 +73,6 @@ private:
 	std::string plr_name;
 	std::string area_name;
 	bool showStats;
-	int plr_ID;
 
 	struct PerformanceData
 	{
@@ -94,7 +95,12 @@ private:
 
 	std::map<int, PlayerInfo>* Players;
 	std::map<int, Unit>* units;
-	int myID;
+
+    // wtf? why there be two of these?
+    int myID;
+    int plr_ID;
+
+    InventoryRenderer inventoryRenderer;
 };
 
 #endif

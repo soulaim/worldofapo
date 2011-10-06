@@ -56,11 +56,11 @@ void Inventory::setActiveItem(World& world, Unit&, int i) {
     this->active_item = i;
 }
 
-WorldItem* Inventory::getItemActive() {
+WorldItem* Inventory::getItemActive() const {
     return getItemSlot(this->active_item);
 }
 
-WorldItem* Inventory::getItemSlot(int slot_id) {
+WorldItem* Inventory::getItemSlot(int slot_id) const {
     return this->wieldedItems[slot_id];
 }
 

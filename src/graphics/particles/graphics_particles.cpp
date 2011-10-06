@@ -2,7 +2,7 @@
 #include "graphics/graphics.h"
 #include "graphics/texturehandler.h"
 #include "graphics/shaders.h"
-#include "graphics/hud.h"
+#include "graphics/hud/hud.h"
 #include "graphics/frustum/matrix4.h"
 #include "graphics/texturecoordinate.h"
 #include "graphics/window.h"

@@ -61,6 +61,11 @@ void Unit::activateCurrentItemReload(World& world) {
     inventory.reloadAction(world, *this);
 }
 
+const Inventory& Unit::getInventory() const {
+    return this->inventory;
+}
+
+// TODO: create a separate class for doing this shit.
 void Unit::setDefaultMonsterAttributes()
 {
 	// set attributes
@@ -74,6 +79,7 @@ void Unit::setDefaultMonsterAttributes()
 	intVals["REGEN"] = 5;
 }
 
+// TODO: create a separate class for doing this shit.
 void Unit::setDefaultPlayerAttributes()
 {
 	// set attributes
@@ -87,7 +93,7 @@ void Unit::setDefaultPlayerAttributes()
 	intVals["REGEN"] = 10;
 }
 
-
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateForward()
 {
 	FixedPoint mobility_scale = FixedPoint(10, 100) * getMobility();
@@ -95,6 +101,7 @@ void Unit::accelerateForward()
 	velocity.z += ApoMath::getSin(angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateBackward()
 {
 	FixedPoint mobility_scale = FixedPoint(6, 100) * getMobility();
@@ -102,6 +109,7 @@ void Unit::accelerateBackward()
 	velocity.z -= ApoMath::getSin(angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateLeft()
 {
 	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
@@ -111,6 +119,7 @@ void Unit::accelerateLeft()
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateRight()
 {
 	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
@@ -120,6 +129,7 @@ void Unit::accelerateRight()
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::leapLeft()
 {
 	int dummy_angle = angle - ApoMath::DEGREES_90;
@@ -132,6 +142,7 @@ void Unit::leapLeft()
 	soundInfo = "jump";
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::leapRight()
 {
 	int dummy_angle = angle + ApoMath::DEGREES_90;
@@ -144,6 +155,7 @@ void Unit::leapRight()
 	soundInfo = "jump";
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::jump()
 {
 	if(getMobility() > FixedPoint(0))

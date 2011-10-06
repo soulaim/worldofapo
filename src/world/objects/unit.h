@@ -97,9 +97,9 @@ public:
 
 	void updateMobility();
 	const FixedPoint& getMobility() const;
+    const Inventory& getInventory() const;
 
 	std::string soundInfo;
-
 	int controllerTypeID;
 	int hitpoints;
 
