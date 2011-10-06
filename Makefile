@@ -14,7 +14,7 @@ PACKAGES := sdl gl glu libpng
 WARNINGS := -pedantic -Wall -Werror -Wextra
 
 CXX      := g++
-CXXFLAGS := $(WARNINGS) -fopenmp -lpthread -std=c++0x -O3 $(INCLUDE_DIRS)
+CXXFLAGS := $(WARNINGS) $(OPENMP) -lpthread -std=c++0x -O3 $(INCLUDE_DIRS)
 CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 
 LDLIBS   := -lSDL_mixer -L ./lib/ -lGLEW
