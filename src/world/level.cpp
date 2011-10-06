@@ -312,7 +312,7 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
             for(unsigned i=0; i<line.size(); ++i) {
                 if(line[i] == 'x')
                     updateHeight(i, lineCounter, FixedPoint(20));
-                if(line[i] == '.')
+                if(line[i] == '.' || line[i] == 'B')
                     updateHeight(i, lineCounter, FixedPoint(0));
                 if(line[i] == ',')
                     updateHeight(i, lineCounter, FixedPoint(2));
@@ -327,6 +327,8 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
                     startPosition.z = 8 * lineCounter;
                     startPosition.y = 4;
                 }
+                level_objects.addObject(line[i], 8*i, 8*lineCounter);
+                
             }
 
             ++lineCounter;

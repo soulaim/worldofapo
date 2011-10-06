@@ -163,9 +163,31 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 	}
 }
 
+//TODO: add creation of level objects or make seperate function for it.
+void World::createLevelObjects() //fazias
+{
+    cerr << "reading level objects" << endl;
+    auto fuck = lvl.level_objects.getObjects();
+    for (auto it = fuck.begin();it != fuck.end();++it)
+    {
+        cerr << "+";
+        int id = unitIDgenerator.nextID();
+        Location test_box = Location(it->coord_x, 0, it->coord_z);
+        addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
+    }
+    // (int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass)
+    cerr << "\n" << "finished reading level objects" << endl;
+    return;
+    int id = unitIDgenerator.nextID();
+    Location test_box = Location(265, 0, 935);
+    addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
+    
+}
 
 void World::createBaseBuildings()
 {
+    //being sneaky
+    createLevelObjects();
     return;
 	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
 
