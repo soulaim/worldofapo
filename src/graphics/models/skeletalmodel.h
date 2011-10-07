@@ -8,7 +8,6 @@
 #include "graphics/frustum/matrix4.h"
 #include "graphics/texturecoordinate.h"
 
-
 #include <string>
 #include <vector>
 #include <map>
@@ -59,9 +58,6 @@ struct WeightedVertex
 	unsigned bone1;
 	unsigned bone2;
 
-//	unsigned char padding1;
-//	unsigned char padding2;
-
 	float weight1;
 	float weight2;
 
@@ -101,13 +97,18 @@ struct SkeletalModel: public Model
 	SkeletalModel();
 	SkeletalModel(const SkeletalModel&);
 	void draw(bool draw_only_skeleton = 0, size_t hilight = -1) const;
+
+    void draw();
+    void drawAttachedTo(Matrix4&);
+
 	void preload();
 
+    mutable std::vector<Matrix4> rotations;
+
 private:
-	void old_draw(size_t hilight) const;
 	void draw_skeleton(const std::vector<Matrix4>& rotations, size_t hilight) const;
 	void draw_normals() const;
-	void calcMatrices(size_t current_bone, std::vector<Matrix4>& rotations, Matrix4 offset, const std::string& animation_name, int animation_state) const;
+	void calcMatrices(size_t current_bone, Matrix4 offset, const std::string& animation_name, int animation_state) const;
 	void draw_buffers() const;
 
 	static const size_t BUFFERS = 5;
