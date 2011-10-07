@@ -13,7 +13,8 @@ class Inventory;
 class InventoryRenderer {
 private:
     float x_pos, y_pos;
-    void drawItem(const Inventory&, int slot, float dx, float dy, float hw, float hh);
+    void drawArmorItem(const Inventory&, int slot, float dx, float dy, float hw, float hh);
+    void drawWeaponItem(const Inventory& inventory, int slot, int itemType);
 
 public:
     InventoryRenderer();

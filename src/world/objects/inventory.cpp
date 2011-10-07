@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 
-Inventory::Inventory(): max_items(10), small_items_begin(7) {
+Inventory::Inventory(): max_items(12), small_items_begin(8) {
     this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
@@ -48,7 +48,12 @@ void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
 }
 
 void Inventory::setActiveItem(World& world, Unit&, int i) {
-    i+=this->small_items_begin-1;
+    i+=this->small_items_begin-2;
+
+    if(i >= 12) {
+        world.add_message("Bad active item selection..");
+        return;
+    }
 
     std::stringstream ss; ss << "Selected item " << i;
     world.add_message(ss.str());

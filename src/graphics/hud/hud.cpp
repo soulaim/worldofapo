@@ -307,7 +307,7 @@ void Hud::draw(bool firstPerson)
 	drawAmmo();
 
     if(this->units != 0) {
-        map<int, Unit>::iterator plr_it = this->units->find(this->plr_ID);
+        map<int, Unit>::iterator plr_it = this->units->find(this->myID);
         if(plr_it != this->units->end()) {
             inventoryRenderer.draw(plr_it->second.getInventory());
         }

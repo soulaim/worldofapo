@@ -17,11 +17,13 @@ class Unit;
 
 class Inventory {
 
+    friend class InventoryRenderer;
+
 private:
     unsigned max_items;
     unsigned small_items_begin;
 
-    WorldItem* wieldedItems[10];
+    WorldItem* wieldedItems[12];
     int active_item;
 public:
     Inventory();
@@ -34,7 +36,8 @@ public:
         LEGS_SLOT = 3,
         AMULET_SLOT = 4,
         BELT_SLOT = 5,
-        WEAPON_SLOT = 6
+        WEAPON_SLOT1 = 6,
+        WEAPON_SLOT2 = 7
     };
     // additionally an inventory contains room for 3 small items, which can be
     // used, but do not offer passive protection or abilities.

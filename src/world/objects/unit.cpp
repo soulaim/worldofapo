@@ -96,7 +96,7 @@ void Unit::setDefaultPlayerAttributes()
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateForward()
 {
-	FixedPoint mobility_scale = FixedPoint(10, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(24, 100) * getMobility();
 	velocity.x += ApoMath::getCos(angle) * mobility_scale;
 	velocity.z += ApoMath::getSin(angle) * mobility_scale;
 }
@@ -104,7 +104,7 @@ void Unit::accelerateForward()
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateBackward()
 {
-	FixedPoint mobility_scale = FixedPoint(6, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(11, 100) * getMobility();
 	velocity.x -= ApoMath::getCos(angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(angle) * mobility_scale;
 }
@@ -112,7 +112,7 @@ void Unit::accelerateBackward()
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateLeft()
 {
-	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(18, 100) * getMobility();
 	int dummy_angle = angle - ApoMath::DEGREES_90;
 
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
@@ -122,7 +122,7 @@ void Unit::accelerateLeft()
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateRight()
 {
-	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(18, 100) * getMobility();
 	int dummy_angle = angle + ApoMath::DEGREES_90;
 
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
@@ -134,10 +134,10 @@ void Unit::leapLeft()
 {
 	int dummy_angle = angle - ApoMath::DEGREES_90;
 
-	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
-	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
+	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility() * FixedPoint(5, 10);
+	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility() * FixedPoint(5, 10);
 	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 40;
+	leap_cooldown = 25;
 
 	soundInfo = "jump";
 }
@@ -150,7 +150,7 @@ void Unit::leapRight()
 	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
 	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
 	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 40;
+	leap_cooldown = 25;
 
 	soundInfo = "jump";
 }
@@ -161,7 +161,7 @@ void Unit::jump()
 	if(getMobility() > FixedPoint(0))
 	{
 		soundInfo = "jump";
-		velocity.y = FixedPoint(900, 1000);
+		velocity.y = FixedPoint(1100, 1000);
 	}
 }
 
@@ -171,27 +171,27 @@ void Unit::processInput(World& world)
 
 	if(getKeyAction(Unit::WEAPON1))
 	{
-		switchWeapon(world, 1);
+		switchWeapon(world, 0);
 	}
 
 	if(getKeyAction(Unit::WEAPON2))
 	{
-		switchWeapon(world, 2);
+		switchWeapon(world, 1);
 	}
 
 	if(getKeyAction(Unit::WEAPON3))
 	{
-		switchWeapon(world, 3);
+		switchWeapon(world, 2);
 	}
 
 	if(getKeyAction(Unit::WEAPON4))
 	{
-		switchWeapon(world, 4);
+		switchWeapon(world, 3);
 	}
 
 	if(getKeyAction(Unit::WEAPON5))
 	{
-		switchWeapon(world, 5);
+		switchWeapon(world, 4);
 	}
 
 
@@ -291,7 +291,7 @@ void Unit::landingDamage()
 
 void Unit::applyFriction()
 {
-	FixedPoint friction = FixedPoint(88, 100);
+	FixedPoint friction = FixedPoint(75, 100);
 	velocity.x *= friction;
 	velocity.z *= friction;
 }
@@ -299,7 +299,7 @@ void Unit::applyFriction()
 void Unit::applyGravity()
 {
 	// gravity
-	velocity.y -= FixedPoint(35,1000);
+	velocity.y -= FixedPoint(100,1000);
 
 	// air resistance
 	FixedPoint friction = FixedPoint(995, 1000);
