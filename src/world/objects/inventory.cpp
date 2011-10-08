@@ -17,7 +17,37 @@ Inventory::Inventory(): max_items(11), small_items_begin(8) {
     this->wieldedItems[6]->load("data/items/ballistic_1.dat");
 }
 
+Inventory::Inventory(const Inventory& inventory): max_items(11), small_items_begin(8) {
+
+    for(unsigned i=0; i<this->max_items; ++i) {
+        this->wieldedItems[i] = 0;
+    }
+
+    *this = inventory;
+}
+
+Inventory& Inventory::operator = (const Inventory& inventory) {
+    for(unsigned i=0; i<this->max_items; ++i) {
+        WorldItem* item = inventory.getItemSlot(i);
+
+        if(item == 0)
+            continue;
+
+        this->wieldedItems[i] = new WorldItem();
+        *(this->wieldedItems[i]) = *item;
+    }
+    this->active_item = inventory.active_item;
+    return *this;
+}
+
 Inventory::~Inventory() {
+    for(unsigned i=0; i<this->max_items; ++i) {
+        if(this->wieldedItems[i] == 0)
+            continue;
+
+        delete this->wieldedItems[i];
+        this->wieldedItems[i] = 0;
+    }
 }
 
 void Inventory::reloadAction(World& world, Unit& unit) {

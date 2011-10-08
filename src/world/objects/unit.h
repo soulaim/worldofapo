@@ -32,8 +32,8 @@ public:
 		MOVE_FRONT   = 4,
 		MOVE_BACK    = 8,
 		JUMP         = 16,
-		LEAP_LEFT    = 32,
-		LEAP_RIGHT   = 64,
+		INTERACT     = 32,
+		// LEAP_RIGHT   = 64,
 		RELOAD       = 1<<16,
 		WEAPON1      = 1<<20,
 		WEAPON2      = 1<<21,
@@ -65,8 +65,6 @@ public:
 	void accelerateBackward();
 	void accelerateRight();
 	void accelerateLeft();
-	void leapLeft();
-	void leapRight();
 	void jump();
 
     void activateCurrentItemPrimary(World&);
@@ -110,9 +108,6 @@ public:
 
 	int mouse_x_minor; // to support mouse sensitivity
 	int mouse_y_minor; // to support mouse sensitivity
-
-	int weapon_cooldown;
-	int leap_cooldown;
 
 	int last_damage_dealt_by;
 	int birthTime;

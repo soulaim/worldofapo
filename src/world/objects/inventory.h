@@ -25,10 +25,12 @@ private:
 
     WorldItem* wieldedItems[11];
     unsigned active_item;
-    
 public:
     Inventory();
     ~Inventory();
+
+    Inventory(const Inventory& inventory);
+    Inventory& operator = (const Inventory& inventory);
 
     enum SlotName {
         HEAD_SLOT = 0,

@@ -7,6 +7,7 @@
 #include "misc/fixed_point.h"
 #include "misc/vec3.h"
 #include "world/random.h"
+#include "world/level_objects.h"
 
 struct Level
 {
@@ -37,7 +38,7 @@ struct Level
 	int max_block_x() const;
 	int max_block_z() const;
 	const FixedPoint& getVertexHeight(int x, int z) const;
-
+        LevelObjects level_objects;
 	enum { BLOCK_SIZE = 8 };
 
 private:
@@ -51,7 +52,7 @@ private:
 	void updateHeightDifference(int x, int z);
 	void updateNormal(int x, int z);
 
-    Location startPosition;
+        Location startPosition;
 	Location unitVectorUp;
 	RandomMachine randomer;
 

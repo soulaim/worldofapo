@@ -200,7 +200,7 @@ void World::AI_RabidAlien(Unit& unit)
 	unit.upangle = best_upangle;
 
 	if(bestSquaredDistance < FixedPoint(1000))
-		keyState |= Unit::MOVE_BACK | Unit::LEAP_RIGHT;
+		keyState |= Unit::MOVE_BACK | Unit::MOVE_RIGHT;
 	else
 		keyState |= Unit::MOVE_FRONT;
 
@@ -325,7 +325,7 @@ void World::AI_TeamCreep(Unit& unit)
 				unit.updateMousePress(0);
 
 				if( ((currentWorldFrame + (unit.id * 1837) % 131) % 130) == 0 )
-					unit.updateKeyState(Unit::LEAP_LEFT);
+					unit.updateKeyState(Unit::MOVE_LEFT);
 			}
 		}
 
@@ -344,17 +344,15 @@ void World::AI_TeamCreep(Unit& unit)
 	unit.upangle = best_upangle;
 
 	if(bestSquaredDistance < FixedPoint(1000))
-		keyState |= Unit::MOVE_BACK | Unit::LEAP_RIGHT;
+		keyState |= Unit::MOVE_BACK | Unit::MOVE_RIGHT;
 	else
 		keyState |= Unit::MOVE_FRONT;
 
-	if( ((currentWorldFrame + unit.birthTime) % 140) < 20)
-	{
+	if( ((currentWorldFrame + unit.birthTime) % 140) < 20) {
 		keyState |= Unit::JUMP;
 	}
 
-	if( ((currentWorldFrame + unit.birthTime) % 140) > 50 )
-	{
+	if( ((currentWorldFrame + unit.birthTime) % 140) > 50 ) {
 		// mousex += ( ((unit.birthTime + currentWorldFrame) * 23) % 200) - 100;
 		mousebutton = 1;
 	}

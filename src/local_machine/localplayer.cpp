@@ -129,6 +129,7 @@ void Localplayer::init()
 	ModelFactory::load(VisualWorld::ModelType::ZOMBIE_MODEL, "models/imp_apodus.sm2", "marine"); // TODO: Texture
 	ModelFactory::load(VisualWorld::ModelType::WEAPON_MODEL, "models/big_pistol.sm2", "big_pistol");
 	ModelFactory::load(VisualWorld::ModelType::INVISIBLE_MODEL, "", "");
+        ModelFactory::load(VisualWorld::ModelType::BOX_MODEL, "models/stone_beast.sm2","stonebeast"); // TODO: do the box model?
 
 	game.init();
 

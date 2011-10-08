@@ -27,8 +27,6 @@ Unit::Unit():
 	mouseButtons(0),
 	mouse_x_minor(0),
 	mouse_y_minor(0),
-	weapon_cooldown(0),
-	leap_cooldown(0),
 	last_damage_dealt_by(-1),
 	birthTime(0),
 	mobility(0)
@@ -129,31 +127,6 @@ void Unit::accelerateRight()
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
 
-// TODO: Hide this functionality behind some unit ticker class
-void Unit::leapLeft()
-{
-	int dummy_angle = angle - ApoMath::DEGREES_90;
-
-	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility() * FixedPoint(5, 10);
-	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility() * FixedPoint(5, 10);
-	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 25;
-
-	soundInfo = "jump";
-}
-
-// TODO: Hide this functionality behind some unit ticker class
-void Unit::leapRight()
-{
-	int dummy_angle = angle + ApoMath::DEGREES_90;
-
-	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
-	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
-	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 25;
-
-	soundInfo = "jump";
-}
 
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::jump()
@@ -217,22 +190,6 @@ void Unit::processInput(World& world)
 
 	if(getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (soundInfo == ""))
 		soundInfo = "walk";
-
-	if(leap_cooldown == 0 && getMobility() > FixedPoint(0))
-	{
-		if(getKeyAction(Unit::LEAP_LEFT))
-		{
-			leapLeft();
-		}
-		if(getKeyAction(Unit::LEAP_RIGHT))
-		{
-			leapRight();
-		}
-	}
-	else if(leap_cooldown > 0)
-	{
-		--leap_cooldown;
-	}
 
 	if(getKeyAction(Unit::JUMP))
 	{
@@ -474,8 +431,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
 		velocity.x >> velocity.z >> velocity.y >>
-		mouseButtons >> weapon_cooldown >> leap_cooldown >>
-		controllerTypeID >> hitpoints >> birthTime >>
+		mouseButtons >> controllerTypeID >> hitpoints >> birthTime >>
 		id >> collision_rule >> staticObject >> model_type >> scale >>
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 
@@ -495,8 +451,6 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << position.x << " " << position.z << " " << position.y;
 	hero_msg << " " << velocity.x << " " << velocity.z << " " << velocity.y;
 	hero_msg << " " << mouseButtons;
-	hero_msg << " " << weapon_cooldown;
-	hero_msg << " " << leap_cooldown;
 	hero_msg << " " << controllerTypeID;
 	hero_msg << " " << hitpoints;
 	hero_msg << " " << birthTime;
