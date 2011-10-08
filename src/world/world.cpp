@@ -181,66 +181,7 @@ void World::createLevelObjects() //fazias
     int id = unitIDgenerator.nextID();
     Location test_box = Location(265, 0, 935);
     addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
-    
-}
 
-void World::createBaseBuildings()
-{
-    //being sneaky
-    createLevelObjects();
-    return;
-
-	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
-
-	int id = unitIDgenerator.nextID();
-	// Location green_base_location = lvl.getRandomLocation(200);
-	Location green_base_location = Location(168, 0, 525);
-	addAIUnit(id, green_base_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife", 250, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	Location green_tower_location = Location(200, 0, 525);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	green_tower_location = Location(161, 0, 567);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	green_tower_location = Location(264, 0, 600);
-	addAIUnit(id, green_tower_location, 0, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
-	units[id].staticObject = 1;
-
-
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	Location red_base_location = Location(702, 0, 527);
-	addAIUnit(id, red_base_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::BASE_BUILDING, 4, "Stone\\sBeast\\sOf\\sLife",   250, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	Location red_tower_location = Location(672, 0, 527);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	red_tower_location = Location(666, 0, 561);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 3, "Defense\\sTower",   100, 0, 100000);
-	units[id].staticObject = 1;
-
-	id = unitIDgenerator.nextID();
-	// Location red_base_location = lvl.getRandomLocation(103);
-	red_tower_location = Location(433, 0, 631);
-	addAIUnit(id, red_tower_location, 1, VisualWorld::ModelType::STONEBEAST_MODEL, Unit::TOWER_BUILDING, 2, "Outer\\sDefense\\sTower",   60, 0, 100000);
-	units[id].staticObject = 1;
 }
 
 void World::resetGame()
@@ -258,33 +199,22 @@ void World::resetGame()
 		{
 			// restore player hitpoints to maximum values
 			it->second.hitpoints = it->second.getMaxHP();
-
-			// TODO: reset ammo counts?
-
-			// TODO: clear world from ammo-items? (if you do - make sure you don't delete the warp point to another world)
-
 		}
 	}
 
-	createBaseBuildings();
+	createLevelObjects();
+
 	teams[0].reset();
 	teams[1].reset();
 
-	Location red; findBasePosition(red, 1);
-	Location green; findBasePosition(green, 0);
+	const Location& startPos = lvl.getStartLocation();
 
 	for(auto it = units.begin(); it != units.end(); ++it)
 	{
 		if(it->second.human())
 		{
-			if(it->second["TEAM"] == 0)
-			{
-				it->second.position = green;
-			}
-			else if(it->second["TEAM"] == 1)
-			{
-				it->second.position = red;
-			}
+            it->second.position = startPos;
+            it->second.velocity = Location();
 		}
 	}
 }
