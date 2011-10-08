@@ -67,9 +67,11 @@ $(SERVER): $(OBJ_SERVER)
 $(OBJ)/%.d: $(SRC)/%.cpp
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $@
+	@echo DEP $@
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(DEPFILES)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo CC $@
 
 clean:
 	@$(RM) -rf $(CLIENT) $(SERVER) $(EDITOR) $(OBJ)
