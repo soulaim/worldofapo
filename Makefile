@@ -1,7 +1,7 @@
 DIRS := src src/net src/graphics src/graphics/menus src/graphics/terrain
 DIRS += src/graphics/models src/graphics/skybox src/graphics/particles
 DIRS += src/graphics/frustum src/world src/world/objects src/misc
-DIRS += src/local_machine src/physics src/world/objects/items
+DIRS += src/local_machine src/physics src/world/objects/items src/graphics/hud
 
 CLIENT_DIRS := $(DIRS) src/main
 SERVER_DIRS := $(DIRS) src/dedicated
@@ -14,7 +14,7 @@ PACKAGES := sdl gl glu libpng
 WARNINGS := -pedantic -Wall -Werror -Wextra
 
 CXX      := g++
-CXXFLAGS := $(WARNINGS) -fopenmp -lpthread -std=c++0x -O3 $(INCLUDE_DIRS)
+CXXFLAGS := $(WARNINGS) $(OPENMP) -lpthread -std=c++0x -O3 $(INCLUDE_DIRS)
 CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 
 LDLIBS   := -lSDL_mixer -L ./lib/ -lGLEW
@@ -26,6 +26,7 @@ SERVER = bin/server
 
 SRC := src
 OBJ := obj
+BIN := bin
 
 all: dirs $(CLIENT) $(EDITOR) $(SERVER)
 
@@ -55,20 +56,20 @@ DEPFILES := $(sort $(DEPFILES))
 all: dirs $(CLIENT) $(EDITOR) $(SERVER)
 
 $(CLIENT): $(OBJ_CLIENT)
-	$(CXX) $^ $(LDLIBS) -o $@
-	rm -f bin/myKeys
-
 $(EDITOR): $(OBJ_EDITOR)
-	$(CXX) $^ $(LDLIBS) -o $@
-
 $(SERVER): $(OBJ_SERVER)
-	$(CXX) $^ $(LDLIBS) -o $@
+
+$(BIN)/%:
+	@echo LINK $@
+	@$(CXX) $^ $(LDLIBS) -o $@
 
 $(OBJ)/%.d: $(SRC)/%.cpp
+	@echo DEP $@
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $@
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(DEPFILES)
+	@echo CC $@
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:

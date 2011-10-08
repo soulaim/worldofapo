@@ -27,6 +27,47 @@ void WorldItem::onActivate(World& world, Unit& unit) {
         case 4: // consumable
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for consumables");
             break;
+        case 5:
+            world.add_message("Helmet's cannot be activated");
+            break;
+        case 6:
+            world.add_message("Torso armors cannot be activated");
+            break;
+        case 7:
+            world.add_message("Belts cannot be activated");
+            break;
+        case 8:
+            world.add_message("Leg armors cannot be activated");
+            break;
+        case 9:
+            world.add_message("Arm armors cannot be activated");
+            break;
+        case 10:
+            world.add_message("Amulets cannot be activated");
+            break;
+
+        default:
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for type");
+    }
+}
+
+void WorldItem::onReload(World& world, Unit& unit) {
+    switch(intVals["TYPE"]) {
+        case 0: // beam-weapon
+            beamWeapon.onActivateReload(this, world, unit);
+            break;
+        case 1: // ballistic-weapon
+            ballisticWeapon.onActivateReload(this, world, unit);
+            break;
+        case 2: // tool
+            toolItem.onActivateReload(this, world, unit);
+            break;
+        case 3: // visual aid
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for visual aid");
+            break;
+        case 4: // consumable
+            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for consumables");
+            break;
         default:
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for type");
     }

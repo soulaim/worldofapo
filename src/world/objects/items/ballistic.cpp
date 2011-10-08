@@ -24,6 +24,16 @@ void BallisticWeaponUsage::tick(WorldItem* item, Unit&) {
     }
 }
 
+void BallisticWeaponUsage::onActivateReload(WorldItem* item, World& world, Unit&) {
+    if(item->intVals["RELOADING"])
+        return;
+
+    world.add_message("RELOAD");
+    item->intVals["RELOADING"] = 1;
+    item->intVals["RLTIME"] = item->intVals["RELOAD_TIME"];
+    item->intVals["CLIP"] = item->intVals["CLIPSIZE"];
+}
+
 void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit& caster) {
 
     if(item->intVals["RELOADING"])
@@ -33,15 +43,14 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
         return;
 
     if(item->intVals["CLIP"] == 0) {
-        world.add_message("RELOAD");
-        item->intVals["RELOADING"] = 1;
-        item->intVals["RLTIME"] = item->intVals["RELOAD_TIME"];
-        item->intVals["CLIP"] = item->intVals["CLIPSIZE"];
+        onActivateReload(item, world, caster);
         return;
     }
 
     world.add_message("SHOOT!");
+
     item->intVals["CD"] = item->intVals["COOLDOWN"];
+    --item->intVals["CLIP"];
 
     int id = world.nextUnitID();
 

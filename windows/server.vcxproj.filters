@@ -30,38 +30,35 @@
     <Filter Include="Source Files\local_machine">
       <UniqueIdentifier>{6c536428-f8fa-4a58-a854-828b30215399}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Source Files">
-      <UniqueIdentifier>{53363077-0d76-4293-b5a6-123ae9cfcbdf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics">
-      <UniqueIdentifier>{4365d0a2-d643-4996-9eb3-eccf52350114}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\frustum">
-      <UniqueIdentifier>{b7071e7d-1939-4aa3-854d-84bac3efc25b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\menus">
-      <UniqueIdentifier>{82d89a9b-0e74-495a-a8b7-ae3d538e4340}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\models">
-      <UniqueIdentifier>{ad0ba93a-4dce-4172-8611-b2bfa4b732eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\particles">
-      <UniqueIdentifier>{b14ae9e4-6623-46c1-a674-a3531cb6e123}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\skybox">
-      <UniqueIdentifier>{01e85263-9038-4e24-8876-4bd15dd13024}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\graphics\terrain">
-      <UniqueIdentifier>{d67e8ca7-a4c8-4381-bf24-5502bf0c71f3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\world">
-      <UniqueIdentifier>{7828fc02-ceab-4f5b-a854-f5c9ff950a8e}</UniqueIdentifier>
+      <UniqueIdentifier>{66bbc7f5-66c1-43fd-89e0-4e4004180d64}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\world\objects">
-      <UniqueIdentifier>{7a73729b-dffa-45b5-b018-596c672acf4f}</UniqueIdentifier>
+      <UniqueIdentifier>{c8183c97-9200-4641-b47a-f7d411e25a80}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\world\objects\items">
-      <UniqueIdentifier>{aa5eba43-0620-4cf5-97c6-39e6e72e00ed}</UniqueIdentifier>
+      <UniqueIdentifier>{b01b7ce9-00cd-4947-ab15-31ccc7475530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics">
+      <UniqueIdentifier>{70e55602-ed20-4048-9c21-d1f56c641b88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\frustum">
+      <UniqueIdentifier>{5920fddf-16b0-42ff-bc03-1a2903430f7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\menus">
+      <UniqueIdentifier>{2c470894-e96a-49c4-8ff9-2e9e1cb947d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\models">
+      <UniqueIdentifier>{3a0d620d-7e56-4cd5-89fe-df63fe1f9252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\skybox">
+      <UniqueIdentifier>{94cf86b0-234a-4d62-8d26-dc09296c93b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\terrain">
+      <UniqueIdentifier>{427a5495-defb-49ac-a4d2-b6f67f874466}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\particles">
+      <UniqueIdentifier>{bf61e6a4-7503-475a-9afb-bb2ccaa5c240}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +136,51 @@
     </ClCompile>
     <ClCompile Include="..\src\gamesound.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\ai_behaviours.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\level.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\ordercontainer.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\playerinfo.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\random.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\world.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\world_team.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\inventory.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\projectile.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\unit.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\world_item.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\world_item_use.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\ballistic.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\beam.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\tool.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\basiccamera.cpp">
       <Filter>Source Files\graphics</Filter>
@@ -227,12 +269,6 @@
     <ClCompile Include="..\src\graphics\models\skeletalmodel.cpp">
       <Filter>Source Files\graphics\models</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics\particles\graphics_particles.cpp">
-      <Filter>Source Files\graphics\particles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\particles\particle_source.cpp">
-      <Filter>Source Files\graphics\particles</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\graphics\skybox\skybox.cpp">
       <Filter>Source Files\graphics\skybox</Filter>
     </ClCompile>
@@ -248,50 +284,11 @@
     <ClCompile Include="..\src\graphics\terrain\roof_renderer.cpp">
       <Filter>Source Files\graphics\terrain</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\world\ai_behaviours.cpp">
-      <Filter>Source Files\world</Filter>
+    <ClCompile Include="..\src\graphics\particles\graphics_particles.cpp">
+      <Filter>Source Files\graphics\particles</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\world\level.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\ordercontainer.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\playerinfo.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\random.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world_team.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\inventory.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\projectile.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\unit.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\world_item.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\world_item_use.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\ballistic.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\beam.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\tool.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
+    <ClCompile Include="..\src\graphics\particles\particle_source.cpp">
+      <Filter>Source Files\graphics\particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +363,51 @@
     </ClInclude>
     <ClInclude Include="..\src\gamesound.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\item.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\level.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\order.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\ordercontainer.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\playerinfo.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\random.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\world.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\worldevent.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\inventory.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\projectile.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\unit.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\world_item.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\ballistic.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\beam.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\tool.h">
+      <Filter>Source Files\world\objects\items</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\basiccamera.h">
       <Filter>Source Files\graphics</Filter>
@@ -463,12 +505,6 @@
     <ClInclude Include="..\src\graphics\models\skeletalmodel.h">
       <Filter>Source Files\graphics\models</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics\particles\particle.h">
-      <Filter>Source Files\graphics\particles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\particles\particle_source.h">
-      <Filter>Source Files\graphics\particles</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\graphics\skybox\skybox.h">
       <Filter>Source Files\graphics\skybox</Filter>
     </ClInclude>
@@ -484,50 +520,11 @@
     <ClInclude Include="..\src\graphics\terrain\roof_renderer.h">
       <Filter>Source Files\graphics\terrain</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\world\item.h">
-      <Filter>Source Files\world</Filter>
+    <ClInclude Include="..\src\graphics\particles\particle.h">
+      <Filter>Source Files\graphics\particles</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\world\level.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\order.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\ordercontainer.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\playerinfo.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\random.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\world.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\worldevent.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\inventory.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\projectile.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\unit.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\world_item.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\ballistic.h">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\beam.h">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\tool.h">
-      <Filter>Source Files\world\objects\items</Filter>
+    <ClInclude Include="..\src\graphics\particles\particle_source.h">
+      <Filter>Source Files\graphics\particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

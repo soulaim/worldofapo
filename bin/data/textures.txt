@@ -5,6 +5,8 @@ chessboard data/chessboard.png
 marine data/images/marine_tex_01.png
 smoke data/smoke.png
 
+item_texture data/images/item_texture.png
+
 meadow1 data/images/meadow1.png
 meadow1small data/images/meadow1small.png
 meadow2 data/images/meadow2.png
@@ -12,6 +14,11 @@ meadow3 data/images/meadow3.png
 meadow4 data/images/meadow4.png
 meadow5 data/images/meadow5.png
 meadow6 data/images/meadow6.png
+
+ground1 data/images/terrain_ground1.png
+ground2 data/images/terrain_ground2.png
+wall1 data/images/terrain_wall1.png
+wall2 data/images/terrain_wall2.png
 
 grimmnight data/grimmnight.png
 interstellar data/interstellar.png

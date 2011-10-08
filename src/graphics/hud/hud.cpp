@@ -1,5 +1,4 @@
-#include "graphics/hud.h"
-#include "graphics/graphics.h"
+#include "graphics/hud/hud.h"
 #include "graphics/texturehandler.h"
 #include "graphics/font.h"
 #include "graphics/frustum/matrix4.h"
@@ -7,6 +6,8 @@
 
 #include "misc/timer.h"
 #include "misc/apomath.h"
+
+#include "graphics/opengl.h"
 
 #include <string>
 #include <sstream>
@@ -205,7 +206,7 @@ void Hud::drawAmmo() const
 		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.77f, -0.72f);
 	}
     */
-    
+
 }
 
 void Hud::drawZombiesLeft() const
@@ -295,6 +296,7 @@ void Hud::draw(bool firstPerson)
 		drawCrossHair();
 	}
 
+    // These should be separate components, would be about 1000 times clearer
 	drawMessages();
 	drawStatusBar();
 	drawMinimap();
@@ -303,6 +305,13 @@ void Hud::draw(bool firstPerson)
 	drawStats();
 	drawFPS();
 	drawAmmo();
+
+    if(this->units != 0) {
+        map<int, Unit>::iterator plr_it = this->units->find(this->myID);
+        if(plr_it != this->units->end()) {
+            inventoryRenderer.draw(plr_it->second.getInventory());
+        }
+    }
 
 	// clear per-visual-frame info messages
 	core_info.clear();

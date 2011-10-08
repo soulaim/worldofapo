@@ -21,15 +21,12 @@ Location bump(int x)
 
 
 Unit::Unit():
-    inventory(this),
 	controllerTypeID(HUMAN_INPUT),
 	hitpoints(500),
 	keyState(0),
 	mouseButtons(0),
 	mouse_x_minor(0),
 	mouse_y_minor(0),
-	weapon_cooldown(0),
-	leap_cooldown(0),
 	last_damage_dealt_by(-1),
 	birthTime(0),
 	mobility(0)
@@ -58,6 +55,15 @@ void Unit::activateCurrentItemSecondary(World& world) {
     inventory.useActiveItemSecondary(world, *this);
 }
 
+void Unit::activateCurrentItemReload(World& world) {
+    inventory.reloadAction(world, *this);
+}
+
+const Inventory& Unit::getInventory() const {
+    return this->inventory;
+}
+
+// TODO: create a separate class for doing this shit.
 void Unit::setDefaultMonsterAttributes()
 {
 	// set attributes
@@ -71,6 +77,7 @@ void Unit::setDefaultMonsterAttributes()
 	intVals["REGEN"] = 5;
 }
 
+// TODO: create a separate class for doing this shit.
 void Unit::setDefaultPlayerAttributes()
 {
 	// set attributes
@@ -84,104 +91,80 @@ void Unit::setDefaultPlayerAttributes()
 	intVals["REGEN"] = 10;
 }
 
-
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateForward()
 {
-	FixedPoint mobility_scale = FixedPoint(10, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(24, 100) * getMobility();
 	velocity.x += ApoMath::getCos(angle) * mobility_scale;
 	velocity.z += ApoMath::getSin(angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateBackward()
 {
-	FixedPoint mobility_scale = FixedPoint(6, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(11, 100) * getMobility();
 	velocity.x -= ApoMath::getCos(angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateLeft()
 {
-	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(18, 100) * getMobility();
 	int dummy_angle = angle - ApoMath::DEGREES_90;
 
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
 
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateRight()
 {
-	FixedPoint mobility_scale = FixedPoint(8, 100) * getMobility();
+	FixedPoint mobility_scale = FixedPoint(18, 100) * getMobility();
 	int dummy_angle = angle + ApoMath::DEGREES_90;
 
 	velocity.x -= ApoMath::getCos(dummy_angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(dummy_angle) * mobility_scale;
 }
 
-void Unit::leapLeft()
-{
-	int dummy_angle = angle - ApoMath::DEGREES_90;
 
-	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
-	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
-	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 40;
-
-	soundInfo = "jump";
-}
-
-void Unit::leapRight()
-{
-	int dummy_angle = angle + ApoMath::DEGREES_90;
-
-	velocity.x -= ApoMath::getCos(dummy_angle) * getMobility();
-	velocity.z -= ApoMath::getSin(dummy_angle) * getMobility();
-	velocity.y += FixedPoint(45, 100);
-	leap_cooldown = 40;
-
-	soundInfo = "jump";
-}
-
+// TODO: Hide this functionality behind some unit ticker class
 void Unit::jump()
 {
 	if(getMobility() > FixedPoint(0))
 	{
 		soundInfo = "jump";
-		velocity.y = FixedPoint(900, 1000);
+		velocity.y = FixedPoint(1100, 1000);
 	}
 }
 
-void Unit::processInput()
+void Unit::processInput(World& world)
 {
 	soundInfo = "";
 
-	if(getKeyAction(Unit::RELOAD))
-	{
-        // reload action not implemented.
-	}
-
 	if(getKeyAction(Unit::WEAPON1))
 	{
-		switchWeapon(1);
+		switchWeapon(world, 0);
 	}
 
 	if(getKeyAction(Unit::WEAPON2))
 	{
-		switchWeapon(2);
+		switchWeapon(world, 1);
 	}
 
 	if(getKeyAction(Unit::WEAPON3))
 	{
-		switchWeapon(3);
+		switchWeapon(world, 2);
 	}
 
 	if(getKeyAction(Unit::WEAPON4))
 	{
-		switchWeapon(4);
+		switchWeapon(world, 3);
 	}
 
 	if(getKeyAction(Unit::WEAPON5))
 	{
-		switchWeapon(5);
+		switchWeapon(world, 4);
 	}
 
 
@@ -207,22 +190,6 @@ void Unit::processInput()
 
 	if(getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (soundInfo == ""))
 		soundInfo = "walk";
-
-	if(leap_cooldown == 0 && getMobility() > FixedPoint(0))
-	{
-		if(getKeyAction(Unit::LEAP_LEFT))
-		{
-			leapLeft();
-		}
-		if(getKeyAction(Unit::LEAP_RIGHT))
-		{
-			leapRight();
-		}
-	}
-	else if(leap_cooldown > 0)
-	{
-		--leap_cooldown;
-	}
 
 	if(getKeyAction(Unit::JUMP))
 	{
@@ -281,7 +248,7 @@ void Unit::landingDamage()
 
 void Unit::applyFriction()
 {
-	FixedPoint friction = FixedPoint(88, 100);
+	FixedPoint friction = FixedPoint(75, 100);
 	velocity.x *= friction;
 	velocity.z *= friction;
 }
@@ -289,7 +256,7 @@ void Unit::applyFriction()
 void Unit::applyGravity()
 {
 	// gravity
-	velocity.y -= FixedPoint(35,1000);
+	velocity.y -= FixedPoint(100,1000);
 
 	// air resistance
 	FixedPoint friction = FixedPoint(995, 1000);
@@ -309,15 +276,11 @@ void Unit::tick(const FixedPoint& yy_val)
     WorldItem* item = inventory.getItemActive();
     if(item) item->tick(*this);
 
+    position += velocity;
 	if(getMobility() == 0)
-	{
-		position += velocity;
 		return;
-	}
-
 	velocity.z *= yy_val;
 	velocity.x *= yy_val;
-	position += velocity;
 }
 
 bool Unit::exists()
@@ -334,7 +297,6 @@ bool Unit::hasGroundUnderFeet() const
 {
 	return mobility & Unit::MOBILITY_STANDING_ON_GROUND;
 }
-
 
 int Unit::getModifier(const string& attribute) const
 {
@@ -469,8 +431,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
 		velocity.x >> velocity.z >> velocity.y >>
-		mouseButtons >> weapon_cooldown >> leap_cooldown >>
-		controllerTypeID >> hitpoints >> birthTime >>
+		mouseButtons >> controllerTypeID >> hitpoints >> birthTime >>
 		id >> collision_rule >> staticObject >> model_type >> scale >>
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 
@@ -490,8 +451,6 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << position.x << " " << position.z << " " << position.y;
 	hero_msg << " " << velocity.x << " " << velocity.z << " " << velocity.y;
 	hero_msg << " " << mouseButtons;
-	hero_msg << " " << weapon_cooldown;
-	hero_msg << " " << leap_cooldown;
 	hero_msg << " " << controllerTypeID;
 	hero_msg << " " << hitpoints;
 	hero_msg << " " << birthTime;
@@ -663,8 +622,8 @@ void Unit::init()
 {
 }
 
-void Unit::switchWeapon(unsigned x)
+void Unit::switchWeapon(World& world, unsigned x)
 {
-    inventory.activateItem(x);
+    inventory.setActiveItem(world, *this, x);
 }
 

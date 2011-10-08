@@ -32,14 +32,17 @@ SkeletalModel::SkeletalModel(const SkeletalModel& model):
 	Model(model)
 {
 	buffers_loaded = model.buffers_loaded;
-	for(size_t i = 0; i < BUFFERS; ++i)
+
+    for(size_t i = 0; i < BUFFERS; ++i)
 	{
 		locations[i] = model.locations[i];
 	}
-	triangles_size = model.triangles_size;
+
+    triangles_size = model.triangles_size;
 
 	// Always copy bones.
 	bones = model.bones;
+    rotations.resize(bones.size());
 
 	// Copy rest of the things if they are not yet preloaded (which shouldn't happen)
 	if(!buffers_loaded)
@@ -412,7 +415,8 @@ bool SkeletalModel::load(const string& filename)
 	}
 
 	triangles_size = triangles.size();
-
+    rotations.resize(bones.size());
+    
 	return true;
 }
 
@@ -475,7 +479,7 @@ bool SkeletalModel::save(const string& filename) const
 	return bool(out);
 }
 
-void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations, Matrix4 offset, const string& animation_name, int animation_state) const
+void SkeletalModel::calcMatrices(size_t current_bone, Matrix4 offset, const string& animation_name, int animation_state) const
 {
 	const Bone& bone = bones[current_bone];
 
@@ -528,7 +532,7 @@ void SkeletalModel::calcMatrices(size_t current_bone, vector<Matrix4>& rotations
 
 	for(size_t i = 0; i < bone.children.size(); ++i)
 	{
-		calcMatrices(bone.children[i], rotations, offset, animation_name, animation_state);
+		calcMatrices(bone.children[i], offset, animation_name, animation_state);
 	}
 }
 
@@ -558,56 +562,6 @@ void SkeletalModel::draw_skeleton(const vector<Matrix4>& rotations, size_t hilig
 
 		glVertex3f(line_start.x, line_start.y, line_start.z);
 		glVertex3f(line_end.x, line_end.y, line_end.z);
-	}
-	glEnd();
-}
-
-void SkeletalModel::old_draw(size_t hilight) const
-{
-	// This draw function is not used anymore because it is so slow!
-	// Might be helpful for some debugging still.
-
-	glBegin(GL_TRIANGLES);
-	for(size_t i = 0; i < triangles.size(); ++i)
-	{
-		++TRIANGLES_DRAWN_THIS_FRAME;
-
-//		glUniform4f(unit_color_location, 0.7, 0.7, 0.7, 1.0);
-
-		for(int j = 0; j < 3; ++j)
-		{
-			size_t vi = triangles[i].vertices[j];
-			const WeightedVertex& wv = weighted_vertices[vi];
-
-			size_t bone1i = wv.bone1;
-			size_t bone2i = wv.bone2;
-
-			if(bone1i == hilight)
-			{
-				glColor3f(0, 1, 1);
-			}
-			else
-			{
-				glColor3f(0.5*j, 0.5*j,0.5*j);
-			}
-
-//			const Matrix4& offset1 = rotations[bone1i];
-//			const Matrix4& offset2 = rotations[bone2i];
-
-			float weight1 = wv.weight1;
-			float weight2 = wv.weight2;
-
-//			Bone& bone1 = bones[bone1i];
-//			Bone& bone2 = bones[bone2i];
-
-			vec3<float> v = vertices[vi];
-//			v = offset1 * v * weight1 + offset2 * v * weight2; // This is already done in the vertex shader.
-
-			glVertexAttrib2f(bone_index_location, bone1i, bone2i);
-			glVertexAttrib2f(bone_weight_location, weight1, weight2);
-			glVertex3f(v.x, v.y, v.z);
-			glTexCoord2f(texture_coordinates[vi].x, texture_coordinates[vi].y);
-		}
 	}
 	glEnd();
 }
@@ -665,6 +619,40 @@ void SkeletalModel::draw_normals() const
 	glEnd();
 }
 
+void SkeletalModel::drawAttachedTo(Matrix4&) {
+
+    // TODO: Activate correct shader.
+    // TODO: Write the correct shader first, because it doesn't exist yet.
+    // TODO: Set shader uniforms (at least the matrix parameter
+
+    assert(buffers_loaded);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
+	size_t buffer = 0;
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, locations[buffer++]); buffer++;
+	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
+	glNormalPointer(GL_FLOAT, 0, 0);
+
+	assert(buffer == BUFFERS);
+
+	glDrawElements(GL_TRIANGLES, triangles_size * 3, GL_UNSIGNED_SHORT, 0);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	TRIANGLES_DRAWN_THIS_FRAME += triangles_size;
+
+}
+
 void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 {
 	assert(weighted_vertices.size() == vertices.size());
@@ -673,13 +661,10 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 
 	glUniform1f(model_scale_location, myScale);
 
-	vector<Matrix4> rotations;
-	rotations.resize(bones.size());
-
 	for(size_t i=0; i<bones.size(); i++)
 	{
 		if(bones[i].root)
-			calcMatrices(i, rotations, Matrix4(), animation_name, animation_time);
+			calcMatrices(i, Matrix4(), animation_name, animation_time);
 	}
 
 	if(draw_only_skeleton)
@@ -702,16 +687,19 @@ void SkeletalModel::draw(bool draw_only_skeleton, size_t hilight) const
 
 	assert(rotations.size() < 23);
 	glUniformMatrix4fv(bones_location, rotations.size(), true, rotations[0].T);
-
-	//old_draw(hilight);
-	//return;
-
 	draw_buffers();
 }
 
 void SkeletalModel::draw_buffers() const
 {
 	assert(buffers_loaded);
+
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableVertexAttribArray(bone_weight_location);
+	glEnableVertexAttribArray(bone_index_location);
 
 	size_t buffer = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, locations[buffer++]);
@@ -731,11 +719,6 @@ void SkeletalModel::draw_buffers() const
 
 	assert(buffer == BUFFERS);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableVertexAttribArray(bone_weight_location);
-	glEnableVertexAttribArray(bone_index_location);
 	glDrawElements(GL_TRIANGLES, triangles_size * 3, GL_UNSIGNED_SHORT, 0);
 	glDisableVertexAttribArray(bone_index_location);
 	glDisableVertexAttribArray(bone_weight_location);

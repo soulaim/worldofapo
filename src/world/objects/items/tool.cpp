@@ -8,7 +8,9 @@
 void ToolItemUsage::tick(WorldItem*, Unit&) {
 }
 
+void ToolItemUsage::onActivateReload(WorldItem*, World&, Unit&) {
+}
+
 void ToolItemUsage::onActivatePrimary(WorldItem*, World& world, Unit&) {
     world.add_message("^yToolItemUsage::onActivatePrimary ^wis ^rnot ^wimplemented");
 }
-

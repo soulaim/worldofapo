@@ -7,7 +7,7 @@
 #include "graphics/models/animation.h"
 #include "graphics/models/modelfactory.h"
 #include "graphics/graphics.h"
-#include "graphics/hud.h"
+#include "graphics/hud/hud.h"
 #include "graphics/window.h"
 
 #include "world/ordercontainer.h"

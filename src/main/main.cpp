@@ -8,7 +8,7 @@
 #include "graphics/menus/menu.h"
 #include "graphics/graphics.h"
 #include "local_machine/userio.h"
-#include "graphics/hud.h"
+#include "graphics/hud/hud.h"
 #include "misc/logger.h"
 #include "graphics/window.h"
 

@@ -705,18 +705,20 @@ void World::tickUnit(Unit& unit, Model* model)
 
 	unit.applyGravity();
 	unit.updateMobility();
-	unit.processInput();
+	unit.processInput(*this);
 
 	// weapon activations
 	if(unit.getMouseAction(Unit::MOUSE_LEFT)) {
-		// unit.weapons[unit.weapon].onActivate(*this, unit);
         unit.activateCurrentItemPrimary(*this);
 	}
 
 	if(unit.getMouseAction(Unit::MOUSE_RIGHT)) {
-		// unit.weapons[unit.weapon].onSecondaryActivate(*this, unit);
         unit.activateCurrentItemSecondary(*this);
 	}
+
+    if(unit.getKeyAction(Unit::RELOAD)) {
+        unit.activateCurrentItemReload(*this);
+    }
 
 
 	FixedPoint reference_x = unit.position.x + unit.velocity.x;
