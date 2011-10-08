@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 
-Inventory::Inventory(): max_items(12), small_items_begin(8) {
+Inventory::Inventory(): max_items(11), small_items_begin(8) {
     this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
@@ -50,7 +50,7 @@ void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
 void Inventory::setActiveItem(World& world, Unit&, int i) {
     i+=this->small_items_begin-2;
 
-    if(i >= 12) {
+    if(i >= this->max_items) {
         world.add_message("Bad active item selection..");
         return;
     }
@@ -74,27 +74,120 @@ int Inventory::getArmorClass() {
     return 0;
 }
 
-bool Inventory::pickUp(WorldItem*) {
-    // TODO:
-    // delete item model from visual world.
-    // remove item from world.
-    // add item to inventory.
+int getSlot(WorldItem* item) {
+    int itemType = item->intVals["TYPE"];
+    if(itemType < 3)
+        return 6;
+    if(itemType >= 5 && itemType <= 10)
+        return itemType - 5;
+    return 8;
+}
+
+void removeItemFromWorld(World& world, WorldItem* item) {
+     std::map<int, WorldItem>::iterator it = world.items.find(item->id);
+     if(it != world.items.end()) {
+         world.visualworld->removeUnit(item->id);
+         world.items.erase(it);
+     }
+}
+
+bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
+
+    // REMEMBER TO TAKE A COPY OF THE ITEM.
+    // delete item model from visual world!
+
+    // Step one: Check if pickUp is possible (see which slot the item is going to occupy).
+    if(item == 0)
+        return false;
+
+    unsigned slot = getSlot(item);
+
+    // armor slot, easy
+    if(slot < 6) {
+        // if wearing something already, THROW IT ON THE GROUND!!11!
+        if(this->wieldedItems[slot] != 0)
+            this->dropItemSlot(world, unit, slot);
+
+        WorldItem* itemCopy = new WorldItem();
+        *itemCopy = *item; // copy must work!
+
+        this->wieldedItems[slot] = itemCopy; // catch the reserved memory.
+
+        removeItemFromWorld(world, item);
+        return true;
+    }
+
+    // weapon item, a bit more difficult
+    if(slot >= 6 && slot < this->small_items_begin) {
+        // if there is a weapon slot that is empty, then place the item there.
+        if(this->wieldedItems[6] == 0) {
+            WorldItem* itemCopy = new WorldItem();
+            *itemCopy = *item;
+            this->wieldedItems[6] = itemCopy;
+
+            removeItemFromWorld(world, item);
+            return true;
+        }
+
+        if(this->wieldedItems[7] == 0) {
+            WorldItem* itemCopy = new WorldItem();
+            *itemCopy = *item;
+            this->wieldedItems[7] = itemCopy;
+
+            removeItemFromWorld(world, item);
+            return true;
+        }
+
+
+        // if a weapon is selected, then replace that weapon
+        if(this->active_item >= 6u && this->active_item < this->small_items_begin) {
+            this->dropItemSlot(world, unit, (int)this->active_item);
+            WorldItem* itemCopy = new WorldItem();
+            *itemCopy = *item;
+            this->wieldedItems[this->active_item] = itemCopy;
+
+            removeItemFromWorld(world, item);
+            return true;
+        }
+
+        // replace first weapon item
+        this->dropItemSlot(world, unit, 6);
+        WorldItem* itemCopy = new WorldItem();
+        *itemCopy = *item;
+        this->wieldedItems[6] = itemCopy;
+
+        removeItemFromWorld(world, item);
+        return true;
+    }
+
+
+    // item is either a small item or something the player can't pick up.
+    world.add_message("TODO: Handle picking up small items.");
+
+
+    // finally, if could not handle item, simply return false.
     return false;
 }
 
-void Inventory::dropItemCurrent(World& world) {
-    dropItemSlot(world, this->active_item);
+void Inventory::dropItemCurrent(World& world, Unit& unit) {
+    dropItemSlot(world, unit, this->active_item);
 }
 
-void Inventory::dropItemSlot(World&, int i) {
+void Inventory::dropItemSlot(World& world, Unit&, int i) {
+    std::stringstream ss;
+    ss << "Deleted item at slot: " << i;
+
+    world.add_message(ss.str());
+    world.add_message("TODO: place the dropped item into world.");
+
     delete this->wieldedItems[i];
     this->wieldedItems[i] = 0;
 }
 
-void Inventory::dropAll(World& world) {
+void Inventory::dropAll(World& world, Unit& unit) {
     for(unsigned i=0; i<this->max_items; ++i) {
         if(this->wieldedItems[i] != 0)
-            dropItemSlot(world, i);
+            dropItemSlot(world, unit, i);
     }
 }
 
@@ -109,9 +202,6 @@ std::string Inventory::copyOrder() const {
 }
 
 void Inventory::handleCopyOrder(std::stringstream& ss) {
-
-    std::cerr << "handle invetory copy: " << std::endl;
-
     int index;
     while(true) {
         ss >> index;
@@ -119,8 +209,6 @@ void Inventory::handleCopyOrder(std::stringstream& ss) {
             break;
 
         this->wieldedItems[index] = new WorldItem();
-
-        std::cerr << "handle inventory item copy: " << std::endl;
         this->wieldedItems[index]->handleInventoryCopy(ss);
     }
 }

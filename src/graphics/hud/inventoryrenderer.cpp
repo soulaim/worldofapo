@@ -41,7 +41,7 @@ void InventoryRenderer::drawWeaponItem(const Inventory& inventory, int slot, int
     if(item != 0)
         itemLevel = item->intVals["ITEM_LVL"];
 
-    if(inventory.active_item == slot)
+    if(inventory.active_item == (unsigned)slot)
         glColor4f(1, 1, 1, 1);
     else
         glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
@@ -91,6 +91,7 @@ void InventoryRenderer::draw(const Inventory& inventory) {
     drawWeaponItem(inventory, 7, 6);
     drawWeaponItem(inventory, 8, 7);
     drawWeaponItem(inventory, 9, 7);
+    drawWeaponItem(inventory, 10, 7);
     //drawWeaponItem(inventory, inventory.getItemSlot(10), 7);
     //drawWeaponItem(inventory, inventory.getItemSlot(11), 7);
 

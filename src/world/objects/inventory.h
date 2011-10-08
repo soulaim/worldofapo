@@ -23,8 +23,9 @@ private:
     unsigned max_items;
     unsigned small_items_begin;
 
-    WorldItem* wieldedItems[12];
-    int active_item;
+    WorldItem* wieldedItems[11];
+    unsigned active_item;
+    
 public:
     Inventory();
     ~Inventory();
@@ -45,12 +46,12 @@ public:
     WorldItem* getItemActive() const; // returns active item.
     WorldItem* getItemSlot(int slot_id) const; // returns item in a given slot.
 
-    bool pickUp(WorldItem* item); // returns true if picked up. false otherwise.
-    void dropItemCurrent(World&); // drop active item (how to drop armor?)
-    void dropItemSlot(World&, int); // drop the item from a given slot.
-    void dropAll(World&); // when a unit dies, it drops all items.
+    void dropItemCurrent(World&, Unit&); // drop active item (how to drop armor?)
+    void dropItemSlot(World&, Unit&, int); // drop the item from a given slot.
+    void dropAll(World&, Unit&); // when a unit dies, it drops all items.
     int getArmorClass();
 
+    bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.
     void setActiveItem(World&, Unit&, int);
     void reloadAction(World&, Unit&);
     void useActiveItemPrimary(World&, Unit&);
