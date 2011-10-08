@@ -52,7 +52,7 @@ public:
     int getArmorClass();
 
     bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.
-    void setActiveItem(World&, Unit&, int);
+    void setActiveItem(World&, Unit&, unsigned);
     void reloadAction(World&, Unit&);
     void useActiveItemPrimary(World&, Unit&);
     void useActiveItemSecondary(World&, Unit&);

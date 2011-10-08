@@ -47,7 +47,7 @@ void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
     }
 }
 
-void Inventory::setActiveItem(World& world, Unit&, int i) {
+void Inventory::setActiveItem(World& world, Unit&, unsigned i) {
     i+=this->small_items_begin-2;
 
     if(i >= this->max_items) {
