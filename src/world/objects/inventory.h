@@ -25,10 +25,12 @@ private:
 
     WorldItem* wieldedItems[11];
     unsigned active_item;
-    
 public:
     Inventory();
     ~Inventory();
+
+    Inventory(const Inventory& inventory);
+    Inventory& operator = (const Inventory& inventory);
 
     enum SlotName {
         HEAD_SLOT = 0,
@@ -52,7 +54,7 @@ public:
     int getArmorClass();
 
     bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.
-    void setActiveItem(World&, Unit&, int);
+    void setActiveItem(World&, Unit&, unsigned);
     void reloadAction(World&, Unit&);
     void useActiveItemPrimary(World&, Unit&);
     void useActiveItemSecondary(World&, Unit&);
