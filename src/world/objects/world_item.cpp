@@ -7,6 +7,7 @@ using std::string;
 
 WorldItem::WorldItem()
 {
+    dead = false;
 	type = OctreeObject::WORLD_ITEM;
 	flags = AFFECTED_BY_GRAVITY_BIT | AFFECTED_BY_FRICTION_BIT | TERRAIN_COLLISION_BIT | OBJECT_COLLISION_BIT;
 }

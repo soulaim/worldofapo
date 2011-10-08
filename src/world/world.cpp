@@ -167,6 +167,7 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 void World::createBaseBuildings()
 {
     return;
+
 	// void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, float scale, const std::string& name)
 
 	int id = unitIDgenerator.nextID();

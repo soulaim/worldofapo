@@ -262,7 +262,16 @@ void GameView::drawOctree(const std::shared_ptr<Octree>& o)
 	}
 }
 
-void GameView::drawBoundingBoxes(std::map<int,Unit>& units)
+
+void GameView::drawBoundingBoxes(const std::map<int,WorldItem>& items)
+{
+	for(auto iter = items.begin(); iter != items.end(); iter++)
+	{
+		drawBox(iter->second.bb_top(), iter->second.bb_bot());
+	}
+}
+
+void GameView::drawBoundingBoxes(const std::map<int,Unit>& units)
 {
 	for(auto iter = units.begin(); iter != units.end(); iter++)
 	{

@@ -324,7 +324,7 @@ void Localplayer::draw()
 			hud->setAreaName(world.strVals["AREA_NAME"]);
 
 			// if we didn't need to tick the world right now, then there should be time to draw the scene.
-			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.units, blur);
+			view->draw(world.lvl, visualworld, world.octree, world.projectiles, world.items, world.units, blur);
 		}
 	}
 }

@@ -451,6 +451,7 @@ void GameView::draw(
 	const VisualWorld& visualworld,
 	const std::shared_ptr<Octree> o, // For debug.
 	const std::map<int, Projectile>& projectiles, // For debug.
+    const std::map<int, WorldItem>& items, // For debug.
 	std::map<int, Unit>& units, // For debug and names.
 	int blur
 	)
@@ -469,10 +470,12 @@ void GameView::draw(
 	if(intVals["DRAW_DEBUG_LINES"])
 	{
 		drawBoundingBoxes(units);
+        drawBoundingBoxes(items);
 		drawOctree(o);
 		visualworld.levelDesc.drawDebugLevelNormals();
-		drawDebugProjectiles(projectiles);
+        drawDebugProjectiles(projectiles);
 		drawDebugLines();
+
 	}
 
 	if(intVals["DRAW_DEBUG_WIREFRAME"])
