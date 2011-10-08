@@ -26,6 +26,7 @@ SERVER = bin/server
 
 SRC := src
 OBJ := obj
+BIN := bin
 
 all: dirs $(CLIENT) $(EDITOR) $(SERVER)
 
@@ -55,23 +56,21 @@ DEPFILES := $(sort $(DEPFILES))
 all: dirs $(CLIENT) $(EDITOR) $(SERVER)
 
 $(CLIENT): $(OBJ_CLIENT)
-	$(CXX) $^ $(LDLIBS) -o $@
-	rm -f bin/myKeys
-
 $(EDITOR): $(OBJ_EDITOR)
-	$(CXX) $^ $(LDLIBS) -o $@
-
 $(SERVER): $(OBJ_SERVER)
-	$(CXX) $^ $(LDLIBS) -o $@
+
+$(BIN)/%:
+	@echo LINK $@
+	@$(CXX) $^ $(LDLIBS) -o $@
 
 $(OBJ)/%.d: $(SRC)/%.cpp
+	@echo DEP $@
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $@
-	@echo DEP $@
 
 $(OBJ)/%.o: $(SRC)/%.cpp $(DEPFILES)
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
 	@echo CC $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@$(RM) -rf $(CLIENT) $(SERVER) $(EDITOR) $(OBJ)
