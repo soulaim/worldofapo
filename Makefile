@@ -63,14 +63,10 @@ $(BIN)/%:
 	@echo LINK $@
 	@$(CXX) $^ $(LDLIBS) -o $@
 
-$(OBJ)/%.d: $(SRC)/%.cpp
-	@echo DEP $@
-	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $@
-
-$(OBJ)/%.o: $(SRC)/%.cpp $(DEPFILES)
+$(OBJ)/%.o: $(SRC)/%.cpp
 	@echo CC $@
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $(@:.o=.d)
 
 clean:
 	@$(RM) -rf $(CLIENT) $(SERVER) $(EDITOR) $(OBJ)
