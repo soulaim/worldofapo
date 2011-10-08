@@ -27,6 +27,7 @@ public:
 
 	enum ModelType
 	{
+                BOX_MODEL,
 		INVISIBLE_MODEL,
 		PLAYER_MODEL,
 		BULLET_MODEL,

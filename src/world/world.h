@@ -57,6 +57,7 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 	std::string getTeamColour(Unit&);
 
 	void createBaseBuildings();
+        void createLevelObjects(); //fazias
 
 public:
 
