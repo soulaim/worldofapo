@@ -5,6 +5,15 @@
 #include "world/objects/unit.h"
 #include "world/objects/world_item.h"
 
+#include <sstream>
+
+void BeamWeaponUsage::getDetails(WorldItem* item, std::vector<std::string>& details) {
+    std::stringstream ss_name;
+    ss_name << item->strVals["NAME"] << " ^g(Beam)";
+
+    details.push_back(ss_name.str());
+}
+
 void BeamWeaponUsage::tick(WorldItem*, Unit&) {
 }
 

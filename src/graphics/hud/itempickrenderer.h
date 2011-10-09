@@ -8,11 +8,14 @@
 #ifndef ITEMPICKRENDERER_H
 #define	ITEMPICKRENDERER_H
 
+#include "graphics/hud/textRenderer.h"
+
 class Inventory;
 class ItemPicker;
 
 class ItemPickRenderer {
 public:
+    TextRenderer textRenderer;
     void draw(const Inventory&, const ItemPicker&);
 };
 

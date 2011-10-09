@@ -4,6 +4,8 @@
 #include "world/objects/unit.h"
 #include "world/objects/world_item.h"
 
+#include <sstream>
+
 /*
 int id = world.nextUnitID();
 world.addProjectile(weapon_position, id, model_prototype);
@@ -14,6 +16,37 @@ projectile_direction.normalize();
 projectile.velocity = projectile_direction * FixedPoint(9, 2);
 projectile.tick();
 */
+
+void BallisticWeaponUsage::getDetails(WorldItem* item, std::vector<std::string>& details) {
+    std::stringstream ss_name;
+    ss_name << "^YWeapon: ^R" << item->strVals["NAME"] << " ^w(^GBallistic^w)";
+
+    std::stringstream ss_damage;
+    ss_damage << "^YDamage per bullet: ^R" << item->intVals["DAMAGE"];
+
+    std::stringstream ss_clip;
+    ss_clip << "^YClip size: ^R" << item->intVals["CLIPSIZE"];
+
+    std::stringstream ss_cooldown;
+    ss_cooldown << "^YCooldown: ^R" << (item->intVals["COOLDOWN"] / 25.0f);
+
+    std::stringstream ss_bullets;
+    ss_bullets << "^YBullets per shot: ^R" << item->intVals["BPS"];
+
+    std::stringstream ss_reload;
+    ss_reload << "^YReload time: ^R" << (item->intVals["RELOAD_TIME"] / 25.0f);
+
+    std::stringstream ss_dps;
+    ss_dps << "^YTotal DPS: ^R" << (item->intVals["DAMAGE"] * item->intVals["BPS"] / (item->intVals["COOLDOWN"] / 25.0f));
+
+    details.push_back(ss_name.str());
+    details.push_back(ss_clip.str());
+    details.push_back(ss_cooldown.str());
+    details.push_back(ss_reload.str());
+    details.push_back(ss_bullets.str());
+    details.push_back(ss_damage.str());
+    details.push_back(ss_dps.str());
+}
 
 void BallisticWeaponUsage::tick(WorldItem* item, Unit&) {
     if(item->intVals["RELOADING"]) {

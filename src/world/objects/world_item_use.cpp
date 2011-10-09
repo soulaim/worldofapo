@@ -6,9 +6,6 @@
 using std::stringstream;
 using std::string;
 
-
-
-
 void WorldItem::onActivate(World& world, Unit& unit) {
 
     switch(intVals["TYPE"]) {

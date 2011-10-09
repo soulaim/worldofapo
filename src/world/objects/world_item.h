@@ -1,7 +1,7 @@
 #ifndef MEDIKIT_H
 #define MEDIKIT_H
 
-#include <iostream>
+#include <vector>
 #include <string>
 #include <sstream>
 
@@ -11,6 +11,7 @@
 #include "world/objects/items/ballistic.h"
 #include "world/objects/items/beam.h"
 #include "world/objects/items/tool.h"
+#include "world/objects/items/armor.h"
 
 class World;
 class Unit;
@@ -24,6 +25,7 @@ class WorldItem: public OctreeObject, public HasProperties
     BeamWeaponUsage beamWeapon;
     BallisticWeaponUsage ballisticWeapon;
     ToolItemUsage toolItem;
+    ArmorItemUsage armorItem;
 
 public:
 	WorldItem();
@@ -36,6 +38,9 @@ public:
 
     std::string inventoryCopy() const;
     void handleInventoryCopy(std::stringstream& ss);
+
+    // for displaying item information on screen.
+    void getDetails(std::vector<std::string>&);
 
     // these are relevant only when someone is wielding the item
     void onActivate(World& world, Unit& user);
