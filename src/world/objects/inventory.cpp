@@ -121,10 +121,6 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
 
     world.add_message("pickup");
 
-    // REMEMBER TO TAKE A COPY OF THE ITEM.
-    // delete item model from visual world!
-
-    // Step one: Check if pickUp is possible (see which slot the item is going to occupy).
     if(item == 0)
         return false;
 
@@ -142,6 +138,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
         this->wieldedItems[slot] = itemCopy; // catch the reserved memory.
 
         removeItemFromWorld(world, item);
+        unit.itemPick.reset();
         return true;
     }
 
@@ -163,6 +160,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
             this->wieldedItems[7] = itemCopy;
 
             removeItemFromWorld(world, item);
+            unit.itemPick.reset();
             return true;
         }
 
@@ -175,6 +173,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
             this->wieldedItems[this->active_item] = itemCopy;
 
             removeItemFromWorld(world, item);
+            unit.itemPick.reset();
             return true;
         }
 
@@ -185,6 +184,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
         this->wieldedItems[6] = itemCopy;
 
         removeItemFromWorld(world, item);
+        unit.itemPick.reset();
         return true;
     }
 
@@ -206,7 +206,7 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
         return;
 
     this->wieldedItems[i]->position = unit.getEyePosition();
-    this->wieldedItems[i]->velocity = unit.getLookDirection() * FixedPoint(3, 10);
+    this->wieldedItems[i]->velocity = unit.getLookDirection() * FixedPoint(10, 100);
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), world.nextUnitID());
 
     delete this->wieldedItems[i];
