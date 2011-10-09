@@ -205,12 +205,6 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
     if(this->wieldedItems[i] == 0)
         return;
 
-    std::stringstream ss;
-    ss << "Deleted item at slot: " << i;
-
-    world.add_message(ss.str());
-    world.add_message("TODO: place the dropped item into world.");
-
     Location zero;
     int new_item_id = world.nextUnitID();
     world.addItem(unit.position, zero, new_item_id);

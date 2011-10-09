@@ -64,6 +64,10 @@ const Inventory& Unit::getInventory() const {
     return this->inventory;
 }
 
+const ItemPicker& Unit::getItemPicker() const {
+    return this->itemPick;
+}
+
 // TODO: create a separate class for doing this shit.
 void Unit::setDefaultMonsterAttributes()
 {

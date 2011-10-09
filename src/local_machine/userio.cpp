@@ -48,10 +48,9 @@ int UserIO::getGameInput()
 		keyBoard |= 8;
 	if(keystate[SDLK_SPACE])
 		keyBoard |= 16;
-	if(keystate[SDLK_q])
+
+    if(getSingleKey() == "e")
 		keyBoard |= 32;
-	if(keystate[SDLK_e])
-		keyBoard |= 64;
 
 	if(keystate[SDLK_F5])
 		keyBoard |= 1<<12;

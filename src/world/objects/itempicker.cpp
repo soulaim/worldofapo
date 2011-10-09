@@ -18,6 +18,6 @@ void ItemPicker::reset() {
     this->nearest = 0;
 }
 
-WorldItem* ItemPicker::get() {
+WorldItem* ItemPicker::get() const {
     return nearest;
 }

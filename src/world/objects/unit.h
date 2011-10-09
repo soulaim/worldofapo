@@ -104,6 +104,7 @@ public:
 	void updateMobility();
 	const FixedPoint& getMobility() const;
     const Inventory& getInventory() const;
+    const ItemPicker& getItemPicker() const;
 
 	std::string soundInfo;
 	int controllerTypeID;

@@ -52,7 +52,7 @@ void GameView::drawLoadScreen(const std::string& message, const std::string& bg_
 	glEnd();
 
 	// DRAW LOAD TITLE
-	hud.drawString(message, -0.95f, -0.8f, 3.0f, true, 1.0f);
+	textRenderer.drawString(message, -0.95f, -0.8f, 3.0f, true, 1.0f);
 
 	window.swap_buffers();
 	return;

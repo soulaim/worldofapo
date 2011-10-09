@@ -11,6 +11,7 @@
 #include "graphics/particles/particle_source.h"
 #include "graphics/visualworld.h"
 #include "graphics/window.h"
+#include "graphics/hud/textRenderer.h"
 
 #include <string>
 #include <vector>
@@ -24,6 +25,8 @@ class Editor
 	UserIO userio;
 	GameView view;
 	Hud hud;
+
+    TextRenderer textRenderer;
 
 	bool handle_input();
 	void loadObjects(const std::string& file);

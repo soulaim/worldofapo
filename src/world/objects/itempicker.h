@@ -19,7 +19,7 @@ public:
 
     void reset();
     void pushItem(WorldItem& item, FixedPoint dist);
-    WorldItem* get();
+    WorldItem* get() const;
 
     FixedPoint distance;
     WorldItem* nearest;

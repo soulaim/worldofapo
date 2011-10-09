@@ -549,19 +549,19 @@ void GameView::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 		const Model& model = *models.find(iter->first)->second;
 		vec3<float> posName = model.currentModelPos;
 		posName.y += 5.5f * model.myScale;
-		hud.draw3Dstring(iter->second.name, posName, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
+		QUADS_DRAWN_THIS_FRAME += textRenderer.draw3Dstring(iter->second.name, posName, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
 
 		float hp_percent = float(iter->second.hitpoints) / float(iter->second.getMaxHP());
 
 		if(&(iter->second) == camera_p->getUnitPointer())
 		{
-			hud.drawBar(hp_percent, "GREEN", "DARK_RED", -1.0f, 0.0f, -1.0f, -0.9f);
+			barRenderer.drawBar(hp_percent, "GREEN", "DARK_RED", -1.0f, 0.0f, -1.0f, -0.9f);
 		}
 		else
 		{
 			vec3<float> posHP = model.currentModelPos;
 			posHP.y += 5.0f * model.myScale;
-			hud.draw3DBar(hp_percent, posHP, camera_p->getXrot(), camera_p->getYrot(), "GREEN", "DARK_RED", 5.0f);
+			barRenderer.draw3DBar(hp_percent, posHP, camera_p->getXrot(), camera_p->getYrot(), "GREEN", "DARK_RED", 5.0f);
 		}
 	}
 
@@ -665,7 +665,8 @@ void GameView::drawMenuParticles(const std::vector<MenuParticle>& menuParticles,
         if(menuParticles[i].front == front)
         {
             menuparticle << color << menuParticles[i].val;
-            hud.drawString(menuparticle.str(), menuParticles[i].x, menuParticles[i].y, scale);
+            string p = menuparticle.str();
+            QUADS_DRAWN_THIS_FRAME += textRenderer.drawString(p, menuParticles[i].x, menuParticles[i].y, scale);
         }
     }
 }
@@ -700,8 +701,8 @@ void GameView::drawMenuButtons(const vector<MenuButton>& buttons) const
 
         msg << buttons[i].name;
         info << buttons[i].info;
-        hud.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
-        hud.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
+        QUADS_DRAWN_THIS_FRAME += textRenderer.drawString(msg.str(), -0.7f, minus + menu_y_offset, 3.0f);
+        QUADS_DRAWN_THIS_FRAME += textRenderer.drawString(info.str(), 0.0f, minus + menu_y_offset, 3.0f);
     }
 }
 

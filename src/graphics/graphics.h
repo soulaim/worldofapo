@@ -22,6 +22,9 @@
 #include "graphics/skybox/skybox.h"
 #include "graphics/terrain/roof_renderer.h"
 
+#include "graphics/hud/barRenderer.h"
+#include "graphics/hud/textRenderer.h"
+
 struct Level;
 struct MenuButton;
 struct MenuParticle;
@@ -83,6 +86,8 @@ class GameView: public HasProperties
 
     Skybox skybox;
     RoofRenderer roofRenderer;
+    TextRenderer textRenderer;
+    BarRenderer barRenderer;
 
 	void clear_errors() const;
 	bool check_errors(const char* filename, int line) const;

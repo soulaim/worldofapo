@@ -76,7 +76,7 @@ void GameView::drawDebugStrings()
 {
 	for(size_t i = 0; i < STRINGS.size(); ++i)
 	{
-		hud.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera_p->getXrot(), camera_p->getYrot());
+		textRenderer.draw3Dstring(STRINGS[i].second, STRINGS[i].first, camera_p->getXrot(), camera_p->getYrot());
 	}
 }
 
