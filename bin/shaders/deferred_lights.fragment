@@ -1,27 +1,20 @@
-const int MAX_LIGHTS = 71;
-uniform vec4 lights[MAX_LIGHTS * 2];
-const int POSITION = 0;
-const int DIFFUSE = 1;
 
-varying vec2 texcoord;
 
 uniform sampler2D texture_colors;
 uniform sampler2D normals;
-//uniform sampler2D positions;
 uniform sampler2D depthTexture;
 
-const int MAX_ACTIVE_LIGHTS = 4;
-
+uniform vec4 lights[142];
 uniform vec3 camera_position;
 uniform vec3 camera_target;
-varying vec3 fragment_direction;
 
 uniform float light_count;
 
+varying vec3 fragment_direction;
+varying vec2 texcoord;
+
 vec4 reconstruct_position(vec2 tex)
 {
-//	return texture2D(positions, tex);
-
 	float depth = texture2D(depthTexture, tex).r;
 	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
 	vec4 homogeneous = gl_ModelViewProjectionMatrixInverse * ndc;
@@ -30,8 +23,6 @@ vec4 reconstruct_position(vec2 tex)
 
 vec4 reconstruct_eye_position(vec2 tex)
 {
-//	return gl_ModelViewMatrix * texture2D(positions, tex);
-
 	float depth = texture2D(depthTexture, tex).r;
 	vec4 ndc = vec4(2.0 * tex.x - 1.0, 2.0 * tex.y - 1.0, 2.0 * depth - 1.0, 1);
 	vec4 homogeneous = gl_ProjectionMatrixInverse * ndc;
@@ -52,8 +43,8 @@ void main()
 	{
 		int lightIndex = i;
 
-		vec4 light_diffuse = lights[lightIndex*2 + DIFFUSE];
-		vec4 light_position = lights[lightIndex*2 + POSITION];
+		vec4 light_diffuse = lights[lightIndex*2.0 + 1.0];
+		vec4 light_position = lights[lightIndex*2.0];
 
 		vec3 light_direction = vec3(light_position - fragment_eye_position);
 
@@ -72,7 +63,7 @@ void main()
 			light_color += light_diffuse * NdotL * att;
 		}
 	}
-	
+
 	gl_FragColor = texture_color * light_color;
 }
 
