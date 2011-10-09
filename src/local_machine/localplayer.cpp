@@ -295,8 +295,9 @@ bool Localplayer::client_tick()
 			view->world_tick(visualworld.lights);
 
 			visualworld.levelDesc.world_tick(view->frustum);
-
 			sendCheckSumMessage();
+
+            this->userio->world_tick();
 		}
 		else
 		{

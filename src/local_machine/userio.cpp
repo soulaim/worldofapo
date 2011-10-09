@@ -12,6 +12,7 @@ UserIO::UserIO()
 	capslock_is_down = false;
 	keystate = 0;
 	numKeys = 0;
+    pickUpCounter = 0;
 }
 
 // this must not be called before SDL has initialized
@@ -49,8 +50,10 @@ int UserIO::getGameInput()
 	if(keystate[SDLK_SPACE])
 		keyBoard |= 16;
 
-    if(getSingleKey() == "e")
+    if(keystate[SDLK_e] && pickUpCounter == 0) {
 		keyBoard |= 32;
+        pickUpCounter = 17;
+    }
 
 	if(keystate[SDLK_F5])
 		keyBoard |= 1<<12;
@@ -114,9 +117,17 @@ UserIO::MouseScrollStatus UserIO::getMouseWheelScrolled()
 }
 
 void UserIO::tick() {
+    updateSingleKey();
+}
+
+void UserIO::world_tick() {
+
+    if(--pickUpCounter < 0)
+        pickUpCounter = 0;
+
     mouseMove.x = 0;
 	mouseMove.y = 0;
-    updateSingleKey();
+
 }
 
 const string& UserIO::getSingleKey() {

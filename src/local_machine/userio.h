@@ -31,6 +31,8 @@ class UserIO
 	std::vector<int> keyStates;
 	std::vector<std::string> keyNames;
 
+    int pickUpCounter;
+
     void checkEvents();
     void updateSingleKey();
 
@@ -56,8 +58,10 @@ public:
 
 	Coord getMousePoint();
     const std::string& getSingleKey();
+
     void tick();
-    
+    void world_tick();
+
 	UserIO();
 };
 
