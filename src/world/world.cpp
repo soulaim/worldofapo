@@ -2,6 +2,7 @@
 #include "world.h"
 #include "graphics/models/modelfactory.h"
 #include "graphics/visualworld.h"
+#include "objects/itempicker.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -168,20 +169,20 @@ void World::createLevelObjects() //fazias
 {
     cerr << "reading level objects" << endl;
     auto fuck = lvl.level_objects.getObjects();
-    for (auto it = fuck.begin();it != fuck.end();++it)
+    for(auto it = fuck.begin();it != fuck.end();++it)
     {
         cerr << "+";
         int id = unitIDgenerator.nextID();
         Location test_box = Location(it->coord_x, 0, it->coord_z);
         addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
-    }
-    // (int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass)
-    cerr << "\n" << "finished reading level objects" << endl;
-    return;
-    int id = unitIDgenerator.nextID();
-    Location test_box = Location(265, 0, 935);
-    addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
 
+        Location velocity;
+        int item_id = unitIDgenerator.nextID();
+        this->addItem(test_box + Location(4, 0, 4), velocity, item_id);
+        items[item_id].load("data/items/ballistic_1.dat");
+        visualworld->createModel(item_id, test_box + Location(4, 0, 4), VisualWorld::ITEM_MODEL, 1.0f);
+    }
+    cerr << "\n" << "finished reading level objects" << endl;
 }
 
 void World::resetGame()
@@ -544,11 +545,8 @@ void World::tickItem(WorldItem& item, Model* model)
 	}
 
 	// gravity
-	item.velocity.y -= FixedPoint(35,1000);
-
-	// apply motion
+	item.velocity.y -= FixedPoint(120,1000);
 	item.position += item.velocity;
-
 	clampToLevelArea(item);
 }
 
@@ -603,8 +601,6 @@ void World::tickUnit(Unit& unit, Model* model)
 		model->updatePosition(unit.position.x.getFloat(), unit.position.y.getFloat(), unit.position.z.getFloat());
 	}
 
-
-
 	// some physics & game world information
 	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
@@ -649,6 +645,13 @@ void World::tickUnit(Unit& unit, Model* model)
 
     if(unit.getKeyAction(Unit::RELOAD)) {
         unit.activateCurrentItemReload(*this);
+    }
+
+    if(unit.getKeyAction(Unit::INTERACT)) {
+        WorldItem* item = unit.itemPick.get();
+        if((item != 0) && (item->dead == 0)) {
+            unit.inventory.pickUp(*this, unit, item);
+        }
     }
 
 
@@ -893,9 +896,6 @@ void World::worldTick(int tickCount)
 {
 
 	currentWorldFrame = tickCount;
-
-	// TODO: should have a method to update the state of a MovableObject !! (instead of a separate tick for every type..)
-
 	friendly_fire = (intVals["FRIENDLY_FIRE"] == 1);
 
 	// if this area has monsters autospawning
@@ -908,7 +908,6 @@ void World::worldTick(int tickCount)
 
 			// it's time to create a monster!
 			addRandomMonster();
-
 		}
 	}
 
@@ -920,63 +919,37 @@ void World::worldTick(int tickCount)
 
 	octree.reset(new Octree(Location(0, 0, 0), Location(lvl.max_x(), FixedPoint(400), lvl.max_z())));
 
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
+	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter) {
 		octree->insertObject(&(iter->second));
 	}
-
 	octree->doCollisions();
 
+    for(auto iter = units.begin(); iter != units.end(); ++iter) {
+        iter->second.preTick();
+    }
 
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Tick units and projectiles      \
 	*     \_/""""""""""""""""""""""""""""""""""/
 	*/
 
-#if LAZY_UPDATE > 0
-	bool players_present = (units.begin()->first < 10000);
-
-	// shut down AI units if there are no players present.
-	if(players_present)
+    for(auto iter = items.begin(); iter != items.end(); ++iter)
 	{
-		for(auto iter = units.begin(); iter != units.end(); ++iter)
-		{
-			Model* model = visualworld->getModel(iter->first);
-			tickUnit(iter->second, model);
-		}
+		Model* model = visualworld->getModel(iter->first);
+		tickItem(iter->second, model);
 	}
-#else
+
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
 		Model* model = visualworld->getModel(iter->first);
 		tickUnit(iter->second, model);
 	}
-#endif
 
-	// ticking projectiles even without players is ok, since projectiles will die with time.
 	for(map<int, Projectile>::iterator iter = projectiles.begin(); iter != projectiles.end(); ++iter)
 	{
 		Model* model = visualworld->getModel(iter->first);
 		tickProjectile(iter->second, model);
 	}
-
-#if LAZY_UPDATE > 0
-	// don't waste time on moving items either, if no players are there.
-	if(players_present)
-	{
-		for(auto iter = items.begin(); iter != items.end(); ++iter)
-		{
-			Model* model = visualworld->getModel(iter->first);
-			tickItem(iter->second, model);
-		}
-	}
-#else
-	for(auto iter = items.begin(); iter != items.end(); ++iter)
-	{
-		Model* model = visualworld->getModel(iter->first);
-		tickItem(iter->second, model);
-	}
-#endif
 
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
 	*     \  Find dead units                 \
@@ -996,41 +969,17 @@ void World::worldTick(int tickCount)
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
 		Unit& unit = iter->second;
-		if(unit.hitpoints < 1)
-		{
-			if(unit.intVals["GOD_MODE"])
-			{
+		if(unit.hitpoints < 1) {
+			if(unit.intVals["GOD_MODE"]) {
 				unit.hitpoints = 1000;
 				continue;
 			}
 
-			// every time a unit dies, spawn some replenishment stuff
-			Location gear_pos = unit.position + Location(0, 1, 0);
-			Location gear_vel = unit.velocity + Location(0, 1, 0);
+			//int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(half, 0, half), id1);
+			//items[id1].intVals["AMMO_BOOST"] = 1;
+			//items[id1].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
+			//visualworld->createModel(id1, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
 
-			if(gear_vel.lengthSquared() > FixedPoint(1))
-			{
-				gear_vel.normalize();
-			}
-
-			// add some ammunition into the world.
-			FixedPoint half = FixedPoint(1, 2);
-			int id1 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(half, 0, half), id1);
-			items[id1].intVals["AMMO_BOOST"] = 1;
-			items[id1].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
-			visualworld->createModel(id1, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
-
-			int id2 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(0, half, -half), id2);
-			items[id2].intVals["AMMO_BOOST"] = 1;
-			items[id2].intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
-			visualworld->createModel(id2, gear_pos, VisualWorld::ModelType::ITEM_MODEL, 1.0f);
-
-			int id3 = unitIDgenerator.nextID(); addItem(gear_pos, gear_vel + Location(-half, -half, 0), id3);
-			items[id3].intVals["AMMO_BOOST"] = 1;
-			items[id3].intVals["MODEL_TYPE"] = VisualWorld::ModelType::WEAPON_MODEL;
-			visualworld->createModel(id3, gear_pos, VisualWorld::ModelType::WEAPON_MODEL, 2.0f);
-
-			// then do the more important death processing
 			doDeathFor(unit);
 			atDeath(unit, unit);
 		}
@@ -1039,13 +988,8 @@ void World::worldTick(int tickCount)
 	for(auto iter = items.begin(); iter != items.end(); ++iter)
 	{
 		WorldItem& item = iter->second;
-		if(item.dead)
-		{
+		if(item.dead) {
 			deadUnits.push_back(iter->first);
-
-			/*
-			atDeath(item, item); // hmm? collection is not the same as death though.
-			*/
 		}
 	}
 
@@ -1067,7 +1011,7 @@ void World::worldTick(int tickCount)
 	*/
 
 
-	if(show_errors && (currentWorldFrame % 200) == 0)
+	if(show_errors && (currentWorldFrame % 100) == 0)
 	{
 		for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 		{
@@ -1206,14 +1150,6 @@ void World::removeUnit(int id)
 
 int World::getUnitCount()
 {
-	/*
-	int count = 0;
-	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		if (!iter->second.human())
-			count++;
-	}
-	*/
 	return units.size();
 }
 

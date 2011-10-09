@@ -42,16 +42,16 @@ void WorldItem::collides(OctreeObject& o)
 
 		if(u->id < 10000 && u->human())
 		{
+            u->pushPickableItem(*this);
+            /*
 			// area transfer!
 			if(intVals["AREA_CHANGE"])
 			{
 					u->intVals["NEEDS_AREA_TRANSFER"] = 1;
 					u->strVals["NEXT_AREA"] = strVals["AREA_CHANGE_TARGET"];
 			}
+            */
 		}
-
-		if(intVals["PERSISTS"] == 0)
-			dead = true;
 	}
 
 	if(o.type == OctreeObject::WORLD_ITEM)
@@ -71,9 +71,7 @@ void WorldItem::collides(OctreeObject& o)
 
 
 string WorldItem::inventoryCopy() const {
-    stringstream item_msg;
-	item_msg << HasProperties::copyOrder();
-	return item_msg.str();
+	return HasProperties::copyOrder();
 }
 
 void WorldItem::handleInventoryCopy(stringstream& ss) {

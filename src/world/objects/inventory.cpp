@@ -113,15 +113,13 @@ int getSlot(WorldItem* item) {
     return 8;
 }
 
-void removeItemFromWorld(World& world, WorldItem* item) {
-     std::map<int, WorldItem>::iterator it = world.items.find(item->id);
-     if(it != world.items.end()) {
-         world.visualworld->removeUnit(item->id);
-         world.items.erase(it);
-     }
+void removeItemFromWorld(World&, WorldItem* item) {
+    item->dead = 1;
 }
 
 bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
+
+    world.add_message("pickup");
 
     // REMEMBER TO TAKE A COPY OF THE ITEM.
     // delete item model from visual world!
@@ -203,12 +201,23 @@ void Inventory::dropItemCurrent(World& world, Unit& unit) {
     dropItemSlot(world, unit, this->active_item);
 }
 
-void Inventory::dropItemSlot(World& world, Unit&, int i) {
+void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
+    if(this->wieldedItems[i] == 0)
+        return;
+
     std::stringstream ss;
     ss << "Deleted item at slot: " << i;
 
     world.add_message(ss.str());
     world.add_message("TODO: place the dropped item into world.");
+
+    Location zero;
+    int new_item_id = world.nextUnitID();
+    world.addItem(unit.position, zero, new_item_id);
+    world.items[new_item_id] = *(this->wieldedItems[i]);
+    world.items[new_item_id].position = unit.getEyePosition();
+    world.items[new_item_id].velocity = Location();
+    world.visualworld->createModel(new_item_id, unit.position, VisualWorld::ITEM_MODEL, 1.0f);
 
     delete this->wieldedItems[i];
     this->wieldedItems[i] = 0;

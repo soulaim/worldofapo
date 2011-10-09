@@ -6,6 +6,7 @@
 #include "physics/octree_object.h"
 #include "physics/movable_object.h"
 #include "world/objects/inventory.h"
+#include "world/objects/itempicker.h"
 
 #include <vector>
 #include <string>
@@ -61,12 +62,19 @@ public:
 
 	Unit();
 
+    // items tell the unit whether they can be picked up or not.
+    void preTick();
+    void pushPickableItem(WorldItem& item);
+    ItemPicker itemPick;
+
+
 	void accelerateForward();
 	void accelerateBackward();
 	void accelerateRight();
 	void accelerateLeft();
 	void jump();
 
+    // inventory interface
     void activateCurrentItemPrimary(World&);
     void activateCurrentItemSecondary(World&);
     void activateCurrentItemReload(World&);

@@ -1,6 +1,7 @@
 #include "world/objects/unit.h"
 #include "misc/apomath.h"
 #include "world/world.h"
+#include "itempicker.h"
 
 #include <iostream>
 #include <sstream>
@@ -89,6 +90,14 @@ void Unit::setDefaultPlayerAttributes()
 	intVals["INT"] = 4;
 
 	intVals["REGEN"] = 10;
+}
+
+void Unit::preTick() {
+    this->itemPick.reset();
+}
+
+void Unit::pushPickableItem(WorldItem& item) {
+    this->itemPick.pushItem( item, (item.position - this->position).lengthSquared() );
 }
 
 // TODO: Hide this functionality behind some unit ticker class

@@ -70,7 +70,10 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
     p["OWNER"] = caster.id;
     p("NAME") = (*item)("NAME");
 
+    p["DAMAGE"] = 100;
+    p["BALLISTIC"] = 1;
     p["TPF"] = 15;
     p["DEATH_IF_HITS_UNIT"] = 1;
     p["LIFETIME"] = 5;
+    p["MASS"] = 50;
 }

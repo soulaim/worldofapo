@@ -32,7 +32,7 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 
 		int level;
 	};
-
+    
 	Team teams[2];
 
 	void AI_TeamCreep(Unit& unit);
