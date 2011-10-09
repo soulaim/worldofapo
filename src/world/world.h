@@ -32,7 +32,7 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 
 		int level;
 	};
-    
+
 	Team teams[2];
 
 	void AI_TeamCreep(Unit& unit);
@@ -89,7 +89,7 @@ public:
 	void addUnit(int id, bool player = true, int team = -1);
 
 	void addProjectile(Location& location, int id, size_t model_prototype);
-	void addItem(const Location& location, const Location& velocity, int id); // TODO: more control over what is spawned
+    void addItem(WorldItem& item, VisualWorld::ModelType modelType, int id);
 
 	void removeUnit(int id);
 

@@ -66,14 +66,6 @@ DedicatedServer::DedicatedServer():
 	area_settings[first_area].load("serverdata/worlds/default_area.area");
 	areas.find(first_area)->second.strVals["AREA_NAME"] = first_area;
 
-	int portal1_id = areas.find(first_area)->second.nextUnitID();
-	areas.find(first_area)->second.addItem(Location(200, 50, 200), Location(0, 0, 0), portal1_id);
-	WorldItem& portal1 = areas.find(first_area)->second.items[portal1_id];
-	portal1.intVals["PERSISTS"] = 1;
-	portal1.intVals["AREA_CHANGE"] = 1;
-	portal1.strVals["AREA_CHANGE_TARGET"] = second_area;
-
-
 	areas.insert(make_pair(second_area, World(&visualworld)));
 	areas.find(second_area)->second.buildTerrain(5, world_gen_percentage);
 	visualworld.disable(); // server doesnt need visual information
@@ -81,13 +73,6 @@ DedicatedServer::DedicatedServer():
 	areas.find(second_area)->second.load("serverdata/worlds/other_area.dat");
 	area_settings[second_area].load("serverdata/worlds/other_area.area");
 	areas.find(second_area)->second.strVals["AREA_NAME"] = second_area;
-
-	int portal2_id = areas.find(second_area)->second.nextUnitID();
-	areas.find(second_area)->second.addItem(Location(700, 50, 700), Location(0, 0, 0), portal2_id);
-	WorldItem& portal2 = areas.find(second_area)->second.items[portal2_id];
-	portal2.intVals["PERSISTS"] = 1;
-	portal2.intVals["AREA_CHANGE"] = 1;
-	portal2.strVals["AREA_CHANGE_TARGET"] = first_area;
 
 	init();
 }

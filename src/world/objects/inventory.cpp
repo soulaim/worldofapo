@@ -205,13 +205,9 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
     if(this->wieldedItems[i] == 0)
         return;
 
-    Location zero;
-    int new_item_id = world.nextUnitID();
-    world.addItem(unit.position, zero, new_item_id);
-    world.items[new_item_id] = *(this->wieldedItems[i]);
-    world.items[new_item_id].position = unit.getEyePosition();
-    world.items[new_item_id].velocity = Location();
-    world.visualworld->createModel(new_item_id, unit.position, VisualWorld::ITEM_MODEL, 1.0f);
+    this->wieldedItems[i]->position = unit.getEyePosition();
+    this->wieldedItems[i]->velocity = unit.getLookDirection() * FixedPoint(3, 10);
+    world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), world.nextUnitID());
 
     delete this->wieldedItems[i];
     this->wieldedItems[i] = 0;

@@ -2,6 +2,7 @@
 #include "world.h"
 #include "graphics/models/modelfactory.h"
 #include "graphics/visualworld.h"
+#include "world/objects/world_item.h"
 #include "objects/itempicker.h"
 
 #include <iostream>
@@ -168,20 +169,21 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 void World::createLevelObjects() //fazias
 {
     cerr << "reading level objects" << endl;
-    auto fuck = lvl.level_objects.getObjects();
-    for(auto it = fuck.begin();it != fuck.end();++it)
+    vector<LevelObject> objects = lvl.level_objects.getObjects();
+    for(vector<LevelObject>::iterator it = objects.begin();it != objects.end();++it)
     {
         cerr << "+";
         int id = unitIDgenerator.nextID();
         Location test_box = Location(it->coord_x, 0, it->coord_z);
         addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
 
-        Location velocity;
-        int item_id = unitIDgenerator.nextID();
-        this->addItem(test_box + Location(4, 0, 4), velocity, item_id);
-        items[item_id].load("data/items/ballistic_1.dat");
-        visualworld->createModel(item_id, test_box + Location(4, 0, 4), VisualWorld::ITEM_MODEL, 1.0f);
+        // get rid of this crap.
+        WorldItem item;
+        item.position = test_box + Location(4, 0, 4);
+        item.load("data/items/ballistic_1.dat");
+        this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
     }
+    
     cerr << "\n" << "finished reading level objects" << endl;
 }
 
@@ -514,6 +516,10 @@ void World::tickItem(WorldItem& item, Model* model)
 										3, 1000, 1000, "GREEN", "GREEN", "GREEN", "GREEN", 1000, 5, 100);
 	}
 
+
+    // gravity
+	item.velocity.y -= FixedPoint(120,1000);
+
 	// some physics & game world information
 	if( (item.velocity.y + item.position.y - FixedPoint(1, 20)) <= lvl.getHeight(item.position.x, item.position.z) )
 	{
@@ -522,7 +528,7 @@ void World::tickItem(WorldItem& item, Model* model)
 
 		item.position.y = lvl.getHeight(item.position.x, item.position.z);
 
-		item.velocity.y += FixedPoint(50, 1000); // no clue if this makes any sense
+		item.velocity.y = FixedPoint(50, 1000); // no clue if this makes any sense
 		item.velocity.x *= friction;
 		item.velocity.z *= friction;
 	}
@@ -538,14 +544,11 @@ void World::tickItem(WorldItem& item, Model* model)
 		Unit* u = static_cast<Unit*>(*iter);
 
 		// now did they collide or not?
-		if( (item.position - u->position).lengthSquared() < FixedPoint(16) )
-		{
+		if( (item.position - u->position).lengthSquared() < FixedPoint(16) ) {
 			item.collides(*u);
 		}
 	}
 
-	// gravity
-	item.velocity.y -= FixedPoint(120,1000);
 	item.position += item.velocity;
 	clampToLevelArea(item);
 }
@@ -614,8 +617,7 @@ void World::tickUnit(Unit& unit, Model* model)
 		unit.landingDamage();
 		unit.applyFriction();
 
-		if(unit.hasGroundUnderFeet())
-		{
+		if(unit.hasGroundUnderFeet()) {
 			unit.position.y = lvl.getHeight(unit.position.x, unit.position.z);
 			unit.velocity.y = FixedPoint::ZERO;
 		}
@@ -1120,13 +1122,12 @@ void World::addProjectile(Location& location, int id, size_t model_prototype)
 	projectiles[id].prototype_model = model_prototype;
 }
 
-void World::addItem(const Location& location, const Location& velocity, int id)
+void World::addItem(WorldItem& item, VisualWorld::ModelType modelType, int id)
 {
-	// NOTE: We don't know what kind of an item it is here, so let's not decide on the model here either.
-	// visualworld->createModel(id, location, VisualWorld::ITEM_MODEL, 1.0f);
-
-	items[id].position = location;
-	items[id].velocity = velocity;
+    items[id] = item;
+    items[id].id = id;
+    items[id].intVals["MODEL_TYPE"] = (int)modelType;
+    visualworld->createModel(id, items[id].position, modelType, 1.0f);
 }
 
 int World::nextUnitID()

@@ -697,11 +697,9 @@ void Game::processClientMsgs()
 				Logger log;
 				log << "ORDER: create item " << itemID << "\n";
 
-				Location dummy;
-				world->addItem(dummy, dummy, itemID);
-				auto item_it = world->items.find(itemID);
-				item_it->second.handleCopyOrder(ss);
-				world->visualworld->createModel(itemID, item_it->second.position, VisualWorld::ModelType(item_it->second.intVals["MODEL_TYPE"]), 1.0f);
+                WorldItem item;
+                item.handleCopyOrder(ss);
+				world->addItem(item, VisualWorld::ModelType(item.intVals["MODEL_TYPE"]), itemID);
 			}
 			else if(cmd == "PROJECTILE")
 			{
