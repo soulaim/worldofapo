@@ -1,7 +1,7 @@
 
 #include "graphics/terrain/roof_renderer.h"
 #include "world/world.h"
-#include "world/level.h"
+#include "world/level/level.h"
 
 RoofRenderer::RoofRenderer(): roofTexture1("roof1"), roofTexture2("roof2") {
     roofTexture = roofTexture1;

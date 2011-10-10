@@ -1,7 +1,7 @@
 
 #include "graphics/graphics.h"
 #include "graphics/texturehandler.h"
-#include "world/level.h"
+#include "world/level/level.h"
 #include "graphics/shaders.h"
 #include "graphics/hud/hud.h"
 #include "graphics/frustum/matrix4.h"

@@ -7,7 +7,8 @@
 #include "misc/fixed_point.h"
 #include "misc/vec3.h"
 #include "world/random.h"
-#include "world/level_objects.h"
+
+#include "world/level/level_objects.h"
 
 class MovableObject;
 

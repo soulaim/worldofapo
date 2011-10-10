@@ -12,6 +12,7 @@
 #include "world/objects/items/beam.h"
 #include "world/objects/items/tool.h"
 #include "world/objects/items/armor.h"
+#include "world/objects/items/small.h"
 
 class World;
 class Unit;
@@ -26,6 +27,7 @@ class WorldItem: public OctreeObject, public HasProperties
     BallisticWeaponUsage ballisticWeapon;
     ToolItemUsage toolItem;
     ArmorItemUsage armorItem;
+    SmallItemUsage smallItem;
 
 public:
 	WorldItem();

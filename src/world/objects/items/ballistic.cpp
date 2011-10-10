@@ -28,7 +28,7 @@ Location getSpread(int spread, int bullet_num, int id) {
 
 void BallisticWeaponUsage::getDetails(WorldItem* item, std::vector<std::string>& details) {
     std::stringstream ss_name;
-    ss_name << "^YWeapon: ^R" << item->strVals["NAME"] << " ^w(^GBallistic^w)";
+    ss_name << "^YWeapon: ^G" << item->strVals["NAME"] << " ^w(^RBallistic^w)";
 
     std::stringstream ss_damage;
     ss_damage << "^YDamage per bullet: ^R" << item->intVals["DAMAGE"];

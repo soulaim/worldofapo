@@ -9,20 +9,21 @@ LevelObjects::LevelObjects()
 }
 
 //add support for more objects!!
-void LevelObjects::addObject(char levelFormatMark, int coordinate_x, int coordinate_y)
+bool LevelObjects::addObject(char levelFormatMark, int coordinate_x, int coordinate_y)
 {
     if (levelFormatMark == 'B')
     {
-        objects.push_back(LevelObject(VisualWorld::ModelType::BOX_MODEL, coordinate_x, coordinate_y));
+        objects.push_back(LevelObject(coordinate_x, coordinate_y, "box"));
+        return true;
     }
-    
+
     if (levelFormatMark == 'T')
     {
-        // you get the idea from line 15
+        objects.push_back(LevelObject(coordinate_x, coordinate_y, "item"));
+        return true;
     }
-    
-    
-        
+
+    return false;
 }
 
 std::vector<LevelObject> LevelObjects::getObjects()

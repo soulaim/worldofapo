@@ -26,6 +26,7 @@ void WorldItem::getDetails(std::vector<std::string>& result) {
         case 3: // visual aid
             break;
         case 4: // consumable
+            smallItem.getDetails(this, result);
             break;
         case 5: // armor
         case 6:

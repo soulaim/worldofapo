@@ -7,11 +7,10 @@
 #include <memory>
 
 #include "graphics/visualworld.h"
-
 #include "world/objects/world_item.h"
 #include "world/objects/unit.h"
 #include "world/objects/projectile.h"
-#include "world/level.h"
+#include "world/level/level.h"
 #include "world/worldevent.h"
 #include "physics/octree.h"
 #include "physics/movable_object.h"
@@ -20,6 +19,7 @@
 #include "misc/apomath.h"
 #include "misc/messaging_system.h"
 
+#include "world/logic/item_creator.h"
 #include "world/logic/projectile_ticker.h"
 #include "world/logic/unit_ticker.h"
 #include "world/logic/item_ticker.h"
@@ -40,6 +40,7 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 
 	Team teams[2];
 
+    ItemCreator      itemCreator;
     ProjectileTicker projectileTicker;
     UnitTicker       unitTicker;
     ItemTicker       itemTicker;
@@ -77,8 +78,6 @@ public:
 	void handle(const GotPlayerID& event);
 
 	int getUnitCount(); // TODO: Maybe it's about time to change this..
-	std::vector<Location> humanPositions() const;
-
 	void worldTick(int tickCount);
 
 	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);
@@ -99,10 +98,7 @@ public:
 	void terminate();
 
 	void checksum(std::vector<World::CheckSumType>&) const;
-
-	// TODO: this could now be done with messaging system.
 	void add_message(const std::string& message) const;
-
 	void buildTerrain(int n, float&);
 	std::string generatorMessage();
 

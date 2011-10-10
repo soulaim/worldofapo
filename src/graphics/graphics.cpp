@@ -9,7 +9,7 @@
 #include "graphics/menus/menubutton.h"
 
 #include "physics/octree.h"
-#include "world/level.h"
+#include "world/level/level.h"
 #include "algorithms.h"
 #include "terrain/roof_renderer.h"
 

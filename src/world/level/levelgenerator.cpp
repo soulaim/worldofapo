@@ -1,5 +1,5 @@
 
-#include "world/levelgenerator.h"
+#include "world/level/levelgenerator.h"
 #include "world/random.h"
 
 void LevelGenerator::generate(int seed) {

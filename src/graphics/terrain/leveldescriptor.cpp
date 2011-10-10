@@ -3,7 +3,7 @@
 #include "graphics/graphics.h"
 #include "graphics/texturehandler.h"
 #include "graphics/texturecoordinate.h"
-#include "world/level.h"
+#include "world/level/level.h"
 #include "graphics/frustum/frustumr.h"
 
 #include <numeric>

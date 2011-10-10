@@ -6,20 +6,19 @@ float randf(float min, float max);
 class RandomMachine
 {
 public:
-	RandomMachine(): ans(1)
-	{
+	RandomMachine(): ans(1573) {
 	}
-	
+
 	void setSeed(unsigned s)
 	{
 		ans = s;
 	}
 
-	enum { MAX_RAND = 1 << 24 };
+	enum { MAX_RAND = 1 << 16 };
 
 	int getInt()
 	{
-		ans = (1103515245u * ans + 12345) % MAX_RAND;
+		ans = (35317u * ans + 13873u) % MAX_RAND;
 		return ans;
 	}
 

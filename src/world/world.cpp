@@ -126,18 +126,27 @@ void World::createLevelObjects() //fazias
 {
     cerr << "reading level objects" << endl;
     vector<LevelObject> objects = lvl.level_objects.getObjects();
+    int itemCreationNums = 0;
     for(vector<LevelObject>::iterator it = objects.begin();it != objects.end();++it)
     {
         cerr << "+";
-        int id = unitIDgenerator.nextID();
-        Location test_box = Location(it->coord_x, 0, it->coord_z);
-        addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
 
-        // get rid of this crap.
-        WorldItem item;
-        item.position = test_box + Location(4, 0, 4);
-        item.load("data/items/ballistic_1.dat");
-        this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+        if(it->object_name == "box") {
+            int id = unitIDgenerator.nextID();
+            Location test_box = Location(it->coord_x, 0, it->coord_z);
+            addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
+        }
+        else if(it->object_name == "item") {
+            WorldItem item = itemCreator.makeItem(5, ++itemCreationNums, this->currentWorldFrame);
+            item.position = Location(it->coord_x, 0, it->coord_z);
+            this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+        }
+        else {
+            string errorstr = "Unrecognized object name: ";
+            errorstr.append(it->object_name);
+            throw std::logic_error(errorstr);
+        }
+
     }
 
     cerr << "\n" << "finished reading level objects" << endl;
@@ -491,7 +500,6 @@ int World::currentUnitID() const
 
 void World::removeUnit(int id)
 {
-	// Note that same id might be removed twice on the same frame!
 	units.erase(id);
 	projectiles.erase(id);
 	items.erase(id);
@@ -501,17 +509,6 @@ void World::removeUnit(int id)
 int World::getUnitCount()
 {
 	return units.size();
-}
-
-std::vector<Location> World::humanPositions() const
-{
-	std::vector<Location> positions;
-	for(map<int, Unit>::const_iterator iter = units.begin(); iter != units.end(); ++iter)
-	{
-		if (iter->second.human())
-			positions.push_back(iter->second.position);
-	}
-	return positions;
 }
 
 void World::setNextUnitID(int id)

@@ -2,7 +2,7 @@ DIRS := src src/net src/graphics src/graphics/menus src/graphics/terrain
 DIRS += src/graphics/models src/graphics/skybox src/graphics/particles
 DIRS += src/graphics/frustum src/world src/world/objects src/misc
 DIRS += src/local_machine src/physics src/world/objects/items src/graphics/hud
-DIRS += src/world/logic
+DIRS += src/world/logic src/world/level
 
 CLIENT_DIRS := $(DIRS) src/main
 SERVER_DIRS := $(DIRS) src/dedicated
