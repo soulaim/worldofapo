@@ -105,11 +105,29 @@ int Inventory::getArmorClass() {
 }
 
 int getSlot(WorldItem* item) {
+
+    // arm => amulet
+    // amulet => belt
+    // belt => arm
+
+    // AMULET_SLOT = 4,
+    // BELT_SLOT = 5,
+    // ARM_SLOT = 2
+
     int itemType = item->intVals["TYPE"];
     if(itemType < 3)
         return 6;
-    if(itemType >= 5 && itemType <= 10)
-        return itemType - 5;
+    if(itemType >= 5 && itemType <= 10) {
+        int suggested_type = itemType - 5;
+        if(suggested_type == 2)
+            return 5;
+        else if(suggested_type == 5)
+            return 4;
+        else if(suggested_type == 4)
+            return 2;
+        return suggested_type;
+    }
+
     return 8;
 }
 

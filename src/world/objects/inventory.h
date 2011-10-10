@@ -42,6 +42,7 @@ public:
         WEAPON_SLOT1 = 6,
         WEAPON_SLOT2 = 7
     };
+
     // additionally an inventory contains room for 3 small items, which can be
     // used, but do not offer passive protection or abilities.
 
