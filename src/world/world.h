@@ -20,6 +20,11 @@
 #include "misc/apomath.h"
 #include "misc/messaging_system.h"
 
+#include "world/logic/projectile_ticker.h"
+#include "world/logic/unit_ticker.h"
+#include "world/logic/item_ticker.h"
+#include "world/logic/unitdeath.h"
+
 class Model;
 
 class World : public HasProperties, public MessagingSystem<GotPlayerID>
@@ -35,35 +40,28 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 
 	Team teams[2];
 
-	void AI_TeamCreep(Unit& unit);
-	void AI_RabidAlien(Unit& unit);
-	void AI_BaseBuilding(Unit& unit);
-	void AI_TowerBuilding(Unit& unit);
+    ProjectileTicker projectileTicker;
+    UnitTicker       unitTicker;
+    ItemTicker       itemTicker;
+    UnitDeathHandler unitDeathHandler;
 
-	void clampToLevelArea(MovableObject&);
-	void findBasePosition(Location& pos, int team);
-
-	void tickUnit(Unit&, Model*);                 // world frame update
-	void tickProjectile(Projectile&, Model*);     // world frame update
 	void tickItem(WorldItem& item, Model* model); // world frame update
-
-	static FixedPoint heightDifference2Velocity(const FixedPoint& h_diff);
-	void doDeathFor(Unit& unit);
 
 	void instantForceOutwards(const FixedPoint& power, const Location& pos, const std::string& name, int owner);
 	void atDeath(MovableObject&, HasProperties&);
 
 	int getLocalTeam();
-	std::string getTeamColour(Unit&);
-
     void createLevelObjects(); //fazias
 
 public:
+
+    std::string getTeamColour(Unit&);
 
 	int currentWorldFrame;
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;
 
+    void unitHasDied(int id);
 	World(VisualWorld*);
 	void init();
 
@@ -82,8 +80,6 @@ public:
 	std::vector<Location> humanPositions() const;
 
 	void worldTick(int tickCount);
-
-	void addRandomMonster();
 
 	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);
 	void addUnit(int id, bool player = true, int team = -1);
@@ -110,11 +106,11 @@ public:
 	void buildTerrain(int n, float&);
 	std::string generatorMessage();
 
+    ApoMath apomath;
+
 private:
 	int localPlayerID;
 	std::vector<int> deadUnits;
-	ApoMath apomath;
-
 	IDGenerator unitIDgenerator;
 };
 

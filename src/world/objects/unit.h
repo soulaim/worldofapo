@@ -17,7 +17,7 @@ class ApoMath;
 
 class Unit : public HasProperties, public OctreeObject
 {
-	friend class World;
+    friend class UnitTicker;
 
     mutable Location bb_top_;
     mutable Location bb_bot_;

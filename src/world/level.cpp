@@ -1,5 +1,6 @@
 #include "world/level.h"
 #include "algorithms.h"
+#include "physics/movable_object.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -51,6 +52,37 @@ Location Level::getRandomLocation(int seed) const
 const Location& Level::getStartLocation() const
 {
     return startPosition;
+}
+
+void Level::clampToLevelArea(MovableObject& object) {
+	if(object.position.x < 0)
+	{
+		object.position.x = 0;
+		if(object.velocity.x < 0)
+			object.velocity.x = 0;
+	}
+	if(object.position.x > max_x())
+	{
+		object.position.x = max_x();
+		if(object.velocity.x > 0)
+			object.velocity.x = 0;
+	}
+	if(object.position.z < 0)
+	{
+		object.position.z = 0;
+		if(object.velocity.z < 0)
+			object.velocity.z = 0;
+	}
+	if(object.position.z > max_z())
+	{
+		object.position.z = max_z();
+		if(object.velocity.z > 0)
+			object.velocity.z = 0;
+	}
+    if(object.position.y > 10) {
+        object.position.y = 10;
+        object.velocity.y = FixedPoint(-1, 10);
+    }
 }
 
 void Level::updateHeight(int x, int z, FixedPoint h)
@@ -328,7 +360,7 @@ void Level::generate(int seed, int post_passes, float& percentage_done)
                     startPosition.y = 4;
                 }
                 level_objects.addObject(line[i], 8*i, 8*lineCounter);
-                
+
             }
 
             ++lineCounter;

@@ -6,6 +6,7 @@
 
 using namespace std;
 
+/*
 
 void getTurnValues(Unit& me, Unit& target, int& best_angle, int& best_upangle)
 {
@@ -253,15 +254,6 @@ void World::AI_TeamCreep(Unit& unit)
 				}
 			}
 
-			/*
-			else
-			{
-				if(myLeaderID == -1)
-				{
-					myLeaderID = it->first;
-				}
-			}
-			*/
 		}
 
 		unit["T"] = unitID;
@@ -407,15 +399,7 @@ void World::AI_BaseBuilding(Unit& u)
 				addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(2 + limit, 2), creepNames[limit-1], limit*4,  limit*1, limit*500);
 			}
 		}
-
-		/*
-		else if(team == 1)
-		{
-			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
-			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
-			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
-			addAIUnit(unitIDgenerator.nextID(), spawn_pos, team, VisualWorld::ModelType::ZOMBIE_MODEL, Unit::TEAM_CREEP, FixedPoint(1), "Recruit", 4, 1, 500);
-		}
-		*/
 	}
 }
+
+*/

@@ -15,13 +15,11 @@
 
 class Unit;
 
-class Projectile : MovableObject, HasProperties
+class Projectile : public MovableObject, public HasProperties
 {
-	friend class Weapon;
-	friend class World;
-	friend class GameView;
     friend class BallisticWeaponUsage;
     friend class BeamWeaponUsage;
+    friend class ProjectileTicker;
 
 	public:
 		Projectile():
@@ -37,6 +35,14 @@ class Projectile : MovableObject, HasProperties
 		{
 			return position;
 		}
+
+        const Location& getPosition() {
+            return position;
+        }
+
+        const Location& getVelocity() {
+            return velocity;
+        }
 
 		void tick();
 

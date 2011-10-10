@@ -9,6 +9,8 @@
 #include "world/random.h"
 #include "world/level_objects.h"
 
+class MovableObject;
+
 struct Level
 {
 	Level();
@@ -31,6 +33,8 @@ struct Level
 	// Dynamic environment changes can be done with this function
 	void updateHeight(int x, int z, FixedPoint h);
 
+    void clampToLevelArea(MovableObject&);
+
 	FixedPoint max_x() const;
 	FixedPoint max_z() const;
 	FixedPoint getHeight(const FixedPoint& x, const FixedPoint& z) const;
@@ -52,7 +56,7 @@ private:
 	void updateHeightDifference(int x, int z);
 	void updateNormal(int x, int z);
 
-        Location startPosition;
+    Location startPosition;
 	Location unitVectorUp;
 	RandomMachine randomer;
 
