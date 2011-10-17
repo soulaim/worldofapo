@@ -14,7 +14,7 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     int quality = 1 + max_quality;
     if(quality > 7)
         quality = 7;
-    
+
     int major_type = (item_num + worldTick) % 8;
 
     switch(major_type) {
@@ -40,11 +40,13 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
 
 WorldItem ItemCreator::createAmulet(int quality, int num, int worldTick) {
     RandomMachine random; random.setSeed(num + worldTick);
+
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
-    item.intVals["TYPE"] = 10;
     item.strVals["NAME"] = "Power\\sAmulet";
+    item.intVals["TYPE"] = 10;
+
     return item;
 }
 

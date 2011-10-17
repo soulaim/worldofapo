@@ -102,7 +102,6 @@ void DedicatedServer::playerStartingChoice(int playerID_val, std::string choice)
 
 		// TODO: how about calling some actual unit init function?
 		dormantPlayers[choice].unit.init();
-		dormantPlayers[choice].unit.setDefaultPlayerAttributes();
 		dormantPlayers[choice].unit.model_type = VisualWorld::ModelType::PLAYER_MODEL;
 		dormantPlayers[choice].unit["TEAM"] = 0;
 

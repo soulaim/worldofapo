@@ -26,7 +26,7 @@ bool Network::SocketHandler::accept(int id)
 	{
 		Connection conn;
 		listen_socket.accept_connection(conn.socket);
-		
+
 		if(conn.alive())
 		{
 			cerr << "Accepted a new connection." << endl;
@@ -84,9 +84,9 @@ int Network::SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks
 	struct timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
-	
+
 	int high = 0;
-	
+
 	FD_ZERO(&fd_write_socks);
 	FD_ZERO(&fd_read_socks);
 	for(auto iter = sockets.begin(); iter != sockets.end(); iter++)
@@ -103,7 +103,7 @@ int Network::SocketHandler::select(fd_set& fd_read_socks, fd_set& fd_write_socks
 			high = iter->second.socket.sock;
 		}
 	}
-	
+
 	int count;
 	do
 	{
@@ -126,7 +126,7 @@ void Network::SocketHandler::read_and_write(const fd_set& read_socks, const fd_s
 				cerr << "Connection #" << iter->first << " has disconnected." << endl;
 				conn.socket.alive = false;
 			}
-			
+
 			conn.pushToReadBuffer(read, delimiter);
 		}
 
@@ -186,15 +186,15 @@ bool Network::SocketHandler::Connection::operator >> (std::string& msg)
 {
 	if(msgs.empty())
 		return false;
-	
+
 	msg = msgs[out_marker];
-	
+
 	if(++out_marker == msgs.size())
 	{
 		out_marker = 0;
 		msgs.clear();
 	}
-	
+
 	return true;
 }
 
@@ -212,7 +212,7 @@ Network::SocketHandler::Connection& Network::SocketHandler::Connection::pushToRe
 		msgs.push_back(read_buffer);
 		read_buffer = "";
 	}
-	
+
 	size_t msg_start = 0;
 	for(size_t i = 0; i < msg.size(); ++i)
 	{
@@ -223,18 +223,18 @@ Network::SocketHandler::Connection& Network::SocketHandler::Connection::pushToRe
 				msg_start = i + 1;
 				continue;
 			}
-			
+
 			msgs.push_back(read_buffer + msg.substr(msg_start, i - msg_start));
 			read_buffer = "";
-			
+
 			msg_start = i + 1;
 		}
 	}
-	
+
 	if(msg_start <= msg.size()-1)
 	{
 		read_buffer += msg.substr(msg_start);
 	}
-	
+
 	return *this;
 }

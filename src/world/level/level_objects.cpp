@@ -23,6 +23,12 @@ bool LevelObjects::addObject(char levelFormatMark, int coordinate_x, int coordin
         return true;
     }
 
+    if (levelFormatMark == 'M')
+    {
+        objects.push_back(LevelObject(coordinate_x, coordinate_y, "monster"));
+        return true;
+    }
+
     return false;
 }
 

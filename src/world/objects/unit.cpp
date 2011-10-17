@@ -33,17 +33,8 @@ Unit::Unit():
 	mobility(0)
 {
 	type = OctreeObject::UNIT;
-
 	intVals["MASS"] = 1000;
-
-	// create attributes
-	intVals["STR"] = -666;
-	intVals["DEX"] = -666;
-	intVals["VIT"] = -666;
-
-	intVals["WIS"] = -666;
-	intVals["INT"] = -666;
-	intVals["REGEN"] = 0;
+    init();
 
 	scale = FixedPoint(1);
 }
@@ -66,34 +57,6 @@ const Inventory& Unit::getInventory() const {
 
 const ItemPicker& Unit::getItemPicker() const {
     return this->itemPick;
-}
-
-// TODO: create a separate class for doing this shit.
-void Unit::setDefaultMonsterAttributes()
-{
-	// set attributes
-	intVals["STR"] = 4;
-	intVals["DEX"] = 4;
-	intVals["VIT"] = 4;
-
-	intVals["WIS"] = 4;
-	intVals["INT"] = 4;
-
-	intVals["REGEN"] = 5;
-}
-
-// TODO: create a separate class for doing this shit.
-void Unit::setDefaultPlayerAttributes()
-{
-	// set attributes
-	intVals["STR"] = 4;
-	intVals["DEX"] = 4;
-	intVals["VIT"] = 4;
-
-	intVals["WIS"] = 4;
-	intVals["INT"] = 4;
-
-	intVals["REGEN"] = 10;
 }
 
 void Unit::preTick() {
@@ -313,34 +276,24 @@ bool Unit::hasGroundUnderFeet() const
 
 int Unit::getModifier(const string& attribute) const
 {
-	auto it = intVals.find(attribute);
-	if(it == intVals.end())
+	auto it = stats.intVals.find(attribute);
+	if(it == stats.intVals.end())
 	{
 		throw std::logic_error("Asking for an attribute that doesn't exist: " + attribute);
 		return 0;
 	}
 
-	if(it->second == -666)
-	{
-		cerr << name << ": " << (*this)("AREA") << ", " << (*this)["TEAM"] << ", has attribute " << attribute << " at value -666" << endl;
-	}
-
-	assert(it->second != -666);
-
-
-	return 6 + it->second;
+	return 4 + it->second;
 }
 
 int Unit::getMaxHP() const
 {
-	return 100 * getModifier("STR");
+    auto it = stats.intVals.find("CONSTITUTION");
+	return 100 + 10 * it->second;
 }
 
 void Unit::levelUp()
 {
-	intVals["STR"]++;
-	intVals["DEX"]++;
-	hitpoints = getMaxHP();
 }
 
 void Unit::takeDamage(int damage)
@@ -449,6 +402,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 
 	HasProperties::handleCopyOrder(ss);
+    stats.handleCopyOrder(ss);
     inventory.handleCopyOrder(ss);
 	ss >> name;
 }
@@ -475,6 +429,7 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << mouse_x_minor << " " << mouse_y_minor << " " << mobility_val;
 
 	hero_msg << " " << HasProperties::copyOrder();
+    hero_msg << " " << stats.copyOrder();
     hero_msg << " " << inventory.copyOrder();
 	hero_msg << " " << name << "#";
 
@@ -486,7 +441,7 @@ void Unit::updateMobility()
 {
 	if(mobility & (MOBILITY_STANDING_ON_OBJECT | MOBILITY_STANDING_ON_GROUND))
 	{
-		int dex_modifier = getModifier("DEX");
+		int dex_modifier = getModifier("MOVEMENT");
 
 		if(mobility & MOBILITY_SQUASHED)
 			mobility_val = FixedPoint(1, 6) * FixedPoint(dex_modifier, 10);
@@ -633,6 +588,24 @@ void Unit::collides(OctreeObject& o)
 
 void Unit::init()
 {
+    intVals["SANITY"] = 100;
+	intVals["HEALTH"] = 100;
+
+    // these two are taken into account.
+    stats.intVals["CONSTITUTION"] = 0;
+    stats.intVals["MOVEMENT"] = 0;
+
+    // :G
+    stats.intVals["TELEPATHIC"] = 0;
+    stats.intVals["BALLISTIC"] = 0;
+    stats.intVals["BEAM"] = 0;
+    stats.intVals["ENGINEER"] = 0;
+    stats.intVals["ZEN"] = 0;
+    stats.intVals["SNEAK"] = 0;
+    stats.intVals["PERCEPTION"] = 0;
+    stats.intVals["DARKVISION"] = 0;
+
+	intVals["REGEN"] = 0;
 }
 
 void Unit::switchWeapon(World& world, unsigned x)

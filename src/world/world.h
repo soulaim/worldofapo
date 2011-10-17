@@ -80,7 +80,8 @@ public:
 	int getUnitCount(); // TODO: Maybe it's about time to change this..
 	void worldTick(int tickCount);
 
-	void addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass);
+    void addBoxUnit(int id, const Location& location);
+	void addAIUnit(int id, const Location& pos);
 	void addUnit(int id, bool player = true, int team = -1);
 
 	void addProjectile(Location& location, int id, size_t model_prototype);

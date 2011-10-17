@@ -18,11 +18,13 @@ class ApoMath;
 class Unit : public HasProperties, public OctreeObject
 {
     friend class UnitTicker;
+    friend class MonsterCreator;
 
     mutable Location bb_top_;
     mutable Location bb_bot_;
 
     Inventory inventory;
+    HasProperties stats;
 
 public:
 
@@ -46,12 +48,8 @@ public:
 		MOUSE_RIGHT = 2,
 
 		HUMAN_INPUT = 0,
-		AI_RABID_ALIEN = 1,
+        AI_ALIEN = 1,
 		INANIMATE_OBJECT = 2,
-		BASE_BUILDING    = 3,
-		TEAM_CREEP       = 4,
-		TOWER_BUILDING   = 5,
-
 
 		MOBILITY_CLEAR_VALUE = 0,
 		MOBILITY_STANDING_ON_OBJECT = 1,
@@ -142,10 +140,6 @@ public:
 
 	std::string copyOrder(int ID) const;
 	void handleCopyOrder(std::stringstream& ss);
-
-	// default attributes
-	void setDefaultMonsterAttributes();
-	void setDefaultPlayerAttributes();
 
 	int getModifier(const std::string& attribute) const;
 	void levelUp(); // very much a place holder! TODO:

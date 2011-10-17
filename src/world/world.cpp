@@ -4,6 +4,7 @@
 #include "graphics/visualworld.h"
 #include "world/objects/world_item.h"
 #include "objects/itempicker.h"
+#include "logic/monster_creator.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -121,6 +122,8 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 	}
 }
 
+
+
 //TODO: add creation of level objects or make seperate function for it.
 void World::createLevelObjects() //fazias
 {
@@ -130,16 +133,20 @@ void World::createLevelObjects() //fazias
     for(vector<LevelObject>::iterator it = objects.begin();it != objects.end();++it)
     {
         cerr << "+";
+        Location pos = Location(it->coord_x, 0, it->coord_z);
 
         if(it->object_name == "box") {
             int id = unitIDgenerator.nextID();
-            Location test_box = Location(it->coord_x, 0, it->coord_z);
-            addAIUnit(id, test_box, 0, VisualWorld::ModelType::BOX_MODEL, Unit::INANIMATE_OBJECT, 2, "Box\\sof\\sDOOM", 4, 0, 1000);
+            addBoxUnit(id, pos);
         }
         else if(it->object_name == "item") {
             WorldItem item = itemCreator.makeItem(5, ++itemCreationNums, this->currentWorldFrame);
-            item.position = Location(it->coord_x, 0, it->coord_z);
+            item.position = pos;
             this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+        }
+        else if(it->object_name == "monster") {
+            int id = this->unitIDgenerator.nextID();
+            this->addAIUnit(id, pos);
         }
         else {
             string errorstr = "Unrecognized object name: ";
@@ -389,41 +396,44 @@ void World::worldTick(int tickCount)
 }
 
 
-void World::addAIUnit(int id, const Location& pos, int team, VisualWorld::ModelType model_type, int controllerType, FixedPoint scale, const std::string& name, int strength, int dexterity, int mass)
-{
+
+void World::addBoxUnit(int id, const Location& location) {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
 
 	units[id] = Unit();
-	units[id].init();
-	units[id].scale = scale;
+    units[id].init();
 
+    units[id].name = "Box";
+    units[id].controllerTypeID = Unit::INANIMATE_OBJECT;
+	units[id].scale = 1;
+	units[id].position = location;
+
+    // should get rid of these still.
+	units[id].model_type = VisualWorld::ModelType::BOX_MODEL;
+	visualworld->createModel(id, units[id].position, VisualWorld::ModelType::BOX_MODEL, 1.0f);
+}
+
+void World::addAIUnit(int id, const Location& pos)
+{
+	if(units.find(id) != units.end())
+		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
+
+    MonsterCreator creator;
+	units[id] = creator.createMonster(1, this->currentWorldFrame, id);
+	units[id].scale = 1;
 	units[id].position = pos;
-	units[id].id = id;
-	units[id].birthTime = currentWorldFrame;
 
+    // should get rid of these still.
+    VisualWorld::ModelType model_type = VisualWorld::ModelType::ZOMBIE_MODEL;
 	units[id].model_type = model_type;
-	visualworld->createModel(id, units[id].position, model_type, scale.getFloat());
-
-	// TODO: FIX THIS SHIT
-	units[id].setDefaultMonsterAttributes();
-	units[id].hitpoints = 500;
-
-	units[id].name = name;
-	units[id].controllerTypeID = controllerType;
-
-	units[id]["TEAM"] = team;
-	units[id]["T"] = -1;
-
-	units[id].intVals["STR"]  = strength;
-	units[id].intVals["DEX"]  = dexterity;
-	units[id].intVals["MASS"] = mass;
-
-	units[id].hitpoints = units[id].getMaxHP();
+	visualworld->createModel(id, units[id].position, model_type, 1.0f);
 }
 
 void World::addUnit(int id, bool playerCharacter, int team)
 {
+    assert(playerCharacter);
+
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
 
@@ -440,31 +450,14 @@ void World::addUnit(int id, bool playerCharacter, int team)
 	units[id].id = id;
 	units[id].birthTime = currentWorldFrame;
 
-	if(!playerCharacter)
-	{
-		units[id].model_type = VisualWorld::ModelType::ZOMBIE_MODEL;
-		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::ZOMBIE_MODEL, 1.0f);
 
-		units[id].setDefaultMonsterAttributes();
+    units[id].model_type = VisualWorld::ModelType::PLAYER_MODEL;
+    visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
 
-		units[id].name = "Alien\\smonster";
-		units[id].controllerTypeID = Unit::AI_RABID_ALIEN;
-		units[id].hitpoints = 500;
-		units[id]["TEAM"] = team;
-		units[id]["T"] = -1;
-	}
-	else
-	{
-		units[id].model_type = VisualWorld::ModelType::PLAYER_MODEL;
-		visualworld->createModel(id, units[id].position, VisualWorld::ModelType::PLAYER_MODEL, 1.0f);
-
-		units[id].setDefaultPlayerAttributes();
-
-		units[id].name = "Unknown\\sPlayer";
-		units[id].controllerTypeID = Unit::HUMAN_INPUT;
-		units[id].hitpoints = 1000;
-		units[id]["TEAM"] = id % 2;
-	}
+    units[id].name = "Unknown\\sPlayer";
+    units[id].controllerTypeID = Unit::HUMAN_INPUT;
+    units[id].hitpoints = 1000;
+    units[id]["TEAM"] = id % 2;
 }
 
 void World::addProjectile(Location& location, int id, size_t model_prototype)
