@@ -54,7 +54,9 @@ public:
     void dropAll(World&, Unit&); // when a unit dies, it drops all items.
     int getArmorClass();
 
+    void pickUpHelper(World&, Unit&, WorldItem*, int);
     bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.
+
     void setActiveItem(World&, Unit&, unsigned);
     void reloadAction(World&, Unit&);
     void useActiveItemPrimary(World&, Unit&);

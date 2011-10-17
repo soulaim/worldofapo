@@ -42,6 +42,8 @@ void WorldItem::onActivate(World& world, Unit& unit) {
         case 10:
             world.add_message("Amulets cannot be activated");
             break;
+        case 11:
+            world.add_message("Operator activation has not been implemented.");
 
         default:
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for type");

@@ -115,6 +115,10 @@ int getSlot(WorldItem* item) {
     // ARM_SLOT = 2
 
     int itemType = item->intVals["TYPE"];
+
+    if(itemType == 11)
+        return 9; // operator items
+
     if(itemType < 3)
         return 6;
     if(itemType >= 5 && itemType <= 10) {
@@ -128,11 +132,22 @@ int getSlot(WorldItem* item) {
         return suggested_type;
     }
 
-    return 8;
+    return 8; // small items
+
+
 }
 
 void removeItemFromWorld(World&, WorldItem* item) {
     item->dead = 1;
+}
+
+void Inventory::pickUpHelper(World& world, Unit& unit, WorldItem* item, int slot) {
+    WorldItem* itemCopy = new WorldItem();
+    *itemCopy = *item;
+    this->wieldedItems[slot] = itemCopy;
+
+    removeItemFromWorld(world, item);
+    unit.itemPick.reset();
 }
 
 bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
@@ -149,14 +164,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
         // if wearing something already, THROW IT ON THE GROUND!!11!
         if(this->wieldedItems[slot] != 0)
             this->dropItemSlot(world, unit, slot);
-
-        WorldItem* itemCopy = new WorldItem();
-        *itemCopy = *item; // copy must work!
-
-        this->wieldedItems[slot] = itemCopy; // catch the reserved memory.
-
-        removeItemFromWorld(world, item);
-        unit.itemPick.reset();
+        this->pickUpHelper(world, unit, item, slot);
         return true;
     }
 
@@ -164,21 +172,12 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
     if(slot >= 6 && slot < this->small_items_begin) {
         // if there is a weapon slot that is empty, then place the item there.
         if(this->wieldedItems[6] == 0) {
-            WorldItem* itemCopy = new WorldItem();
-            *itemCopy = *item;
-            this->wieldedItems[6] = itemCopy;
-
-            removeItemFromWorld(world, item);
+            this->pickUpHelper(world, unit, item, 6);
             return true;
         }
 
         if(this->wieldedItems[7] == 0) {
-            WorldItem* itemCopy = new WorldItem();
-            *itemCopy = *item;
-            this->wieldedItems[7] = itemCopy;
-
-            removeItemFromWorld(world, item);
-            unit.itemPick.reset();
+            this->pickUpHelper(world, unit, item, 7);
             return true;
         }
 
@@ -186,32 +185,44 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
         // if a weapon is selected, then replace that weapon
         if(this->active_item >= 6u && this->active_item < this->small_items_begin) {
             this->dropItemSlot(world, unit, (int)this->active_item);
-            WorldItem* itemCopy = new WorldItem();
-            *itemCopy = *item;
-            this->wieldedItems[this->active_item] = itemCopy;
-
-            removeItemFromWorld(world, item);
-            unit.itemPick.reset();
+            this->pickUpHelper(world, unit, item, active_item);
             return true;
         }
 
         // replace first weapon item
         this->dropItemSlot(world, unit, 6);
-        WorldItem* itemCopy = new WorldItem();
-        *itemCopy = *item;
-        this->wieldedItems[6] = itemCopy;
-
-        removeItemFromWorld(world, item);
-        unit.itemPick.reset();
+        this->pickUpHelper(world, unit, item, 6);
         return true;
     }
 
 
-    // item is either a small item or something the player can't pick up.
-    world.add_message("TODO: Handle picking up small items.");
+    // small item
+    if(slot == 8) {
+        for(unsigned i=this->small_items_begin; i<this->max_items; ++i) {
+            if(this->wieldedItems[i] == 0) {
+                this->pickUpHelper(world, unit, item, i);
+                return true;
+            }
+        }
 
+        if(this->active_item >= this->small_items_begin) {
+            if(this->wieldedItems[active_item] != 0) {
+                this->dropItemSlot(world, unit, active_item);
+            }
+            this->pickUpHelper(world, unit, item, active_item);
+            return true;
+        }
 
-    // finally, if could not handle item, simply return false.
+        world.add_message("^YInventory full! Make room in the inventory first.");
+    }
+
+    if(slot == 9) {
+        world.add_message("Operator pick-up not implemented.");
+    }
+    else {
+        world.add_message("Unrecognized item type. Interaction not allowed.");
+    }
+
     return false;
 }
 
