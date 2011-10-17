@@ -146,16 +146,16 @@ void Inventory::pickUpHelper(World& world, Unit& unit, WorldItem* item, int slot
     *itemCopy = *item;
     this->wieldedItems[slot] = itemCopy;
 
+    if(unit.id == world.getLocalPlayerID())
+        world.add_message("^YPicked up ^G" + item->strVals["NAME"]);
+
     removeItemFromWorld(world, item);
     unit.itemPick.reset();
 }
 
 bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
 
-    world.add_message("pickup");
-
-    if(item == 0)
-        return false;
+    assert(item != 0 && "Picking up an item failed: Nullpointer!");
 
     unsigned slot = getSlot(item);
 
@@ -217,10 +217,10 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
     }
 
     if(slot == 9) {
-        world.add_message("Operator pick-up not implemented.");
+        world.add_message("^RWARNING: ^YOperator pick-up not implemented.");
     }
     else {
-        world.add_message("Unrecognized item type. Interaction not allowed.");
+        world.add_message("^RWARNING: ^YUnrecognized item type. Interaction not allowed.");
     }
 
     return false;

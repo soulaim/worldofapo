@@ -60,6 +60,9 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 	checksums.push_back(hash);
 }
 
+int World::getLocalPlayerID() {
+    return this->localPlayerID;
+}
 
 void World::instantForceOutwards(const FixedPoint& power, const Location& pos, const string& name, int owner)
 {

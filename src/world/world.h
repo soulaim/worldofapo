@@ -105,6 +105,8 @@ public:
 
     ApoMath apomath;
 
+    int getLocalPlayerID();
+    
 private:
 	int localPlayerID;
 	std::vector<int> deadUnits;

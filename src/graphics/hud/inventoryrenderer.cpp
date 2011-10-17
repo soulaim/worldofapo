@@ -51,8 +51,8 @@ void InventoryRenderer::drawWeaponItem(const Inventory& inventory, int slot, int
     float yp = 1.0f - itemType / 8.0f - 0.003f;
     float yn = 1.0f - (itemType+1.0f) / 8.0f + 0.003f;
 
-    float x = (slot - 7) * 0.1f - 0.5f;
-    float y = -0.9f;
+    float x = x_pos + (slot - 6) * 0.1f - 0.20f;
+    float y = y_pos - 0.4f;
     float hw = 0.05f;
     float hh = 0.05f;
 
@@ -94,6 +94,14 @@ void InventoryRenderer::draw(const Inventory& inventory) {
     drawWeaponItem(inventory, 10, 7);
     //drawWeaponItem(inventory, inventory.getItemSlot(10), 7);
     //drawWeaponItem(inventory, inventory.getItemSlot(11), 7);
+
+    // draw the name of the active item.
+    {
+        WorldItem* activeItem = inventory.getItemActive();
+        if(activeItem != 0) {
+            this->textRenderer.drawString("^G" + activeItem->strVals["NAME"], -0.9f, 0.0f, 1.5f);
+        }
+    }
 
     glDisable(GL_BLEND);
 

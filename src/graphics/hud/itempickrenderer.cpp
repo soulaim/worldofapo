@@ -4,12 +4,17 @@
 #include "graphics/texturehandler.h"
 #include "world/objects/itempicker.h"
 #include "world/objects/world_item.h"
+#include "world/objects/inventory.h"
 
-void ItemPickRenderer::draw(const Inventory&, const ItemPicker& picker) {
+void ItemPickRenderer::draw(const Inventory& inventory, const ItemPicker& picker) {
 
     WorldItem* item = picker.get();
-    if(item == 0)
+    if(item == 0) {
+        alpha = 0;
         return;
+    }
+
+    alpha = 1.0f - picker.distance.getFloat() * 0.1f;
 
     glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_MODELVIEW);
@@ -26,7 +31,7 @@ void ItemPickRenderer::draw(const Inventory&, const ItemPicker& picker) {
     float pos_x =  0.0f, width = 1.0f;
     float pos_y = -0.5f, height = 0.5f;
 
-    glColor4f(0.3f, 0.3f, 0.3f, 0.7f);
+    glColor4f(0.3f, 0.3f, 0.3f, 0.7f * alpha);
 
     glBegin(GL_QUADS);
     		glVertex3f(pos_x - width*.5f  , pos_y - height*.5f, -1);
@@ -42,10 +47,10 @@ void ItemPickRenderer::draw(const Inventory&, const ItemPicker& picker) {
     for(size_t i=0; i<details.size(); ++i) {
         if(i < 8) {
             float y = pos_y - i * 0.06f + height * 0.35f;
-            textRenderer.drawString(details[i], pos_x - width * 0.5f, y, 1.3f);
+            textRenderer.drawString(details[i], pos_x - width * 0.5f, y, 1.3f, false, alpha);
         } else {
             float y = pos_y - (i - 7) * 0.06f + height * 0.35f;
-            textRenderer.drawString(details[i], pos_x, y, 1.3f);
+            textRenderer.drawString(details[i], pos_x, y, 1.3f, false, alpha);
         }
     }
 

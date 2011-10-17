@@ -14,7 +14,9 @@ class Inventory;
 class ItemPicker;
 
 class ItemPickRenderer {
+    float alpha;
 public:
+    ItemPickRenderer(): alpha(0) {}
     TextRenderer textRenderer;
     void draw(const Inventory&, const ItemPicker&);
 };
