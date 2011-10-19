@@ -60,12 +60,11 @@ public:
 
 	Unit();
 
-    // items tell the unit whether they can be picked up or not.
     void preTick();
     void pushPickableItem(WorldItem& item);
     ItemPicker itemPick;
 
-
+    // movement
 	void accelerateForward();
 	void accelerateBackward();
 	void accelerateRight();
@@ -77,7 +76,7 @@ public:
     void activateCurrentItemSecondary(World&);
     void activateCurrentItemReload(World&);
 
-	Location getEyePosition();
+	Location getEyePosition() const;
 
 	void processInput(World&);
 	void regenerate();
@@ -103,10 +102,11 @@ public:
 	const FixedPoint& getMobility() const;
     const Inventory& getInventory() const;
     const ItemPicker& getItemPicker() const;
+    const HasProperties& getStats() const;
+    HasProperties& getStatsEditor();
 
 	std::string soundInfo;
 	int controllerTypeID;
-	int hitpoints;
 
 	int model_type; // the visual representation's ID
 
@@ -142,7 +142,8 @@ public:
 	void handleCopyOrder(std::stringstream& ss);
 
 	int getModifier(const std::string& attribute) const;
-	void levelUp(); // very much a place holder! TODO:
+	bool gainExperience(int);
+    void levelUp();
 
 	float getAngle();
 
@@ -152,6 +153,7 @@ public:
 
 	void init();
 	void switchWeapon(World&, unsigned);
+    void destroyInventoryItem(WorldItem* item);
 
 	bool operator<(const Unit& u) const;
 };

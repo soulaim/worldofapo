@@ -5,6 +5,7 @@
 
 WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     RandomMachine random;
+    random.setSeed(item_num + worldTick);
 
     int max_quality = 1 + depth / 3;
     for(int i=0; i<max_quality; ++i)
@@ -15,7 +16,7 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     if(quality > 7)
         quality = 7;
 
-    int major_type = (item_num + worldTick) % 8;
+    int major_type =  random.getInt() & 15;
 
     switch(major_type) {
         case Inventory::AMULET_SLOT:
@@ -139,13 +140,32 @@ WorldItem ItemCreator::createSmallItem(int quality, int num, int worldTick) {
     RandomMachine random; random.setSeed(num + worldTick);
     WorldItem item;
 
-    // for small items, the level marker is not used to show quality, but type.
-    item.intVals["ITEM_LVL"] = 0;
-    item.intVals["TYPE"] = 4;
-    item.strVals["NAME"] = "Antidepressant";
-    item.strVals["EFFECT1"] = "SANITY";
-    item.intVals["EFFECT1"] = 20; // increases sanity by 20 when consumed.
-    item.intVals["AMOUNT"] = quality * 2; // increases sanity by 20 when consumed.
+    int val = random.getInt() & 127;
+    if(val < 40)
+    {
+        item.intVals["ITEM_LVL"] = 1;
+        item.intVals["TYPE"] = 4;
+        item.strVals["NAME"] = "Antidepressant";
+        item.strVals["EFFECT1"] = "SANITY";
+        item.intVals["EFFECT1"] = 20;
+        item.intVals["AMOUNT"] = quality * 2;
+    }
+    else if(val < 80) {
+        item.intVals["ITEM_LVL"] = 1;
+        item.intVals["TYPE"] = 4;
+        item.strVals["NAME"] = "RegeDrug";
+        item.strVals["EFFECT1"] = "HEALTH";
+        item.intVals["EFFECT1"] = 20;
+        item.intVals["AMOUNT"] = quality * 2;
+    }
+    else {
+        item.intVals["ITEM_LVL"] = 1;
+        item.intVals["TYPE"] = 4;
+        item.strVals["NAME"] = "Torch";
+        item.strVals["EFFECT1"] = "LIGHT";
+        item.intVals["EFFECT1"] = 2 + (random.getInt() & 7);
+        item.intVals["AMOUNT"] = quality * 2;
+    }
 
     return item;
 }

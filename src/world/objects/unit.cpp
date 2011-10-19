@@ -23,7 +23,6 @@ Location bump(int x)
 
 Unit::Unit():
 	controllerTypeID(HUMAN_INPUT),
-	hitpoints(500),
 	keyState(0),
 	mouseButtons(0),
 	mouse_x_minor(0),
@@ -175,15 +174,27 @@ void Unit::processInput(World& world)
 }
 
 
-Location Unit::getEyePosition()
+Location Unit::getEyePosition() const
 {
 	return Location(position.x, position.y + (bb_top().y - position.y) * FixedPoint(3, 4), position.z);
 }
 
+const HasProperties& Unit::getStats() const {
+    return stats;
+}
+
+void Unit::destroyInventoryItem(WorldItem* item) {
+    inventory.destroyItem(item);
+}
+
+HasProperties& Unit::getStatsEditor() {
+    return stats;
+}
 
 void Unit::regenerate()
 {
 	int unit_max_hp = getMaxHP();
+    int& hitpoints = intVals["HEALTH"];
 	if(hitpoints < unit_max_hp)
 	{
 		int regen = intVals["REGEN"];
@@ -204,7 +215,7 @@ void Unit::landingDamage()
 		if(damage_int < -500)
 		{
 			// is hitting the ground REALLY HARD. Nothing could possibly survive. Just insta-kill.
-			hitpoints = -1;
+			intVals["HEALTH"] = -1;
 		}
 		else
 		{
@@ -215,7 +226,7 @@ void Unit::landingDamage()
 
 		// allow deny only after surviving the first hit with ground.
 		// not a deny if thrown down a cliff!
-		if(hitpoints > 0)
+		if(intVals["HEALTH"] > 0)
 		{
 			last_damage_dealt_by = id;
 		}
@@ -292,13 +303,26 @@ int Unit::getMaxHP() const
 	return 100 + 10 * it->second;
 }
 
+bool Unit::gainExperience(int exp) {
+    intVals["EXPERIENCE"] += exp;
+    if(intVals["EXPERIENCE"] > intVals["EXPLIMIT"]) {
+        intVals["EXPLIMIT"] *= 9;
+        intVals["EXPLIMIT"] /= 7;
+        levelUp();
+        return true;
+    }
+    return false;
+}
+
 void Unit::levelUp()
 {
+    ++intVals["CHAR_LEVEL"];
+    intVals["STAT_POINTS"] += 3;
 }
 
 void Unit::takeDamage(int damage)
 {
-	hitpoints -= damage;
+	intVals["HEALTH"] -= damage;
 	intVals["D"] += damage;
 }
 
@@ -397,7 +421,7 @@ void Unit::handleCopyOrder(stringstream& ss)
 	ss >> angle >> upangle >> keyState >>
 		position.x >> position.z >> position.y >>
 		velocity.x >> velocity.z >> velocity.y >>
-		mouseButtons >> controllerTypeID >> hitpoints >> birthTime >>
+		mouseButtons >> controllerTypeID >> birthTime >>
 		id >> collision_rule >> staticObject >> model_type >> scale >>
 		mouse_x_minor >> mouse_y_minor >> mobility_val;
 
@@ -419,7 +443,6 @@ string Unit::copyOrder(int ID) const
 	hero_msg << " " << velocity.x << " " << velocity.z << " " << velocity.y;
 	hero_msg << " " << mouseButtons;
 	hero_msg << " " << controllerTypeID;
-	hero_msg << " " << hitpoints;
 	hero_msg << " " << birthTime;
 	hero_msg << " " << id;
 	hero_msg << " " << collision_rule;
@@ -590,6 +613,7 @@ void Unit::init()
 {
     intVals["SANITY"] = 100;
 	intVals["HEALTH"] = 100;
+    intVals["EXPLIMIT"] = 5;
 
     // these two are taken into account.
     stats.intVals["CONSTITUTION"] = 0;

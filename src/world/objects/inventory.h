@@ -46,6 +46,8 @@ public:
     // additionally an inventory contains room for 3 small items, which can be
     // used, but do not offer passive protection or abilities.
 
+    void destroyItem(WorldItem* item);
+
     WorldItem* getItemActive() const; // returns active item.
     WorldItem* getItemSlot(int slot_id) const; // returns item in a given slot.
 

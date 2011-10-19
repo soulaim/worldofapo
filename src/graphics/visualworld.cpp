@@ -389,9 +389,7 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 			}
 			else
 			{
-				// light.drawPos  = models.find(light.unitBind)->second.currentModelPos;
-				light.position = units.find(light.unitBind)->second.getPosition();
-				light.position.y += FixedPoint(7, 2);
+				light.position = units.find(light.unitBind)->second.getEyePosition();
 			}
 		}
 	}
@@ -423,26 +421,53 @@ void VisualWorld::addLight(const Location& location, Location direction)
 	light.position = location;
 	light.position.y += FixedPoint(3, 2);
 	light.velocity = direction;
+
 }
 
-void VisualWorld::weaponFireLight(int id, const Location& pos, int life, int r, int g, int b)
-{
+int VisualWorld::getTorchID(const Unit& unit) {
+    for(map<int, LightObject>::iterator it = lights.begin(); it != lights.end(); ++it) {
+        if(it->second.unitBind == unit.id)
+            return it->first;
+    }
+    return -1;
+}
 
+void VisualWorld::activateTorch(const Unit& unit, int power) {
 	if(active == 0)
 		return;
 
+    float multiplier = power / 10.f;
+    int id = this->getTorchID(unit);
+    if(id == -1)
+        id = lightIDgenerator.nextID();
 
+	LightObject& light = lights[id];
+	light.setDiffuse(multiplier * 5.3f, multiplier * 3.3f, multiplier * 1.3f);
+	light.setSpecular(0.f, 0.f, 0.f);
+	light.setLife(25 * 120); // two minutes of light.
+	light.setPower(5);
+	light.activateLight();
+	light.lifeType = LightSource::MORTAL;
+    light.behaviour = LightSource::ONLY_DIE;
+	light.position = unit.getEyePosition();
+    light.unitBind = unit.id;
+}
+
+void VisualWorld::weaponFireLight(const Location& pos, int life, int r, int g, int b)
+{
+	if(active == 0)
+		return;
+
+    int id = this->lightIDgenerator.nextID();
 	LightObject& light = lights[id];
 	light.setDiffuse(r / 255.f, g / 255.f, b / 255.f);
 	light.setSpecular(0.f, 0.f, 0.f);
 	light.setLife(life);
 	light.activateLight();
 	light.position = pos;
-	light.position.y += FixedPoint(2);
 
-	light.behaviour = LightSource::RISE_AND_DIE;
-	// light.behaviour = LightSource::ONLY_DIE;
-
+	//light.behaviour = LightSource::RISE_AND_DIE;
+	light.behaviour = LightSource::ONLY_DIE;
 }
 
 void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const string& s_color_s, const string& s_color_e, const string& e_color_s, const string& e_color_e, int scatteringCone, int particlesPerFrame, int particleLife)

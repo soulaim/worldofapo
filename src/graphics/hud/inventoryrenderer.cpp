@@ -99,7 +99,10 @@ void InventoryRenderer::draw(const Inventory& inventory) {
     {
         WorldItem* activeItem = inventory.getItemActive();
         if(activeItem != 0) {
-            this->textRenderer.drawString("^G" + activeItem->strVals["NAME"], -0.9f, 0.0f, 1.5f);
+            std::vector<std::string> details;
+            activeItem->getDetails(details);
+            for(size_t i = 0; i<details.size(); ++i)
+                this->textRenderer.drawString(details[i], -0.9f, -0.035f * i, 1.1f);
         }
     }
 

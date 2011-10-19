@@ -50,6 +50,16 @@ Inventory::~Inventory() {
     }
 }
 
+void Inventory::destroyItem(WorldItem* item) {
+    for(unsigned i=0; i<this->max_items; ++i) {
+        WorldItem* myItem = getItemSlot(i);
+        if(item == myItem) {
+            delete myItem;
+            this->wieldedItems[i] = 0;
+        }
+    }
+}
+
 void Inventory::reloadAction(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {

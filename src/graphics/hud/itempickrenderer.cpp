@@ -6,7 +6,7 @@
 #include "world/objects/world_item.h"
 #include "world/objects/inventory.h"
 
-void ItemPickRenderer::draw(const Inventory& inventory, const ItemPicker& picker) {
+void ItemPickRenderer::draw(const Inventory&, const ItemPicker& picker) {
 
     WorldItem* item = picker.get();
     if(item == 0) {

@@ -31,7 +31,7 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 	hash = 5381;
 	for (auto it = units.begin(); it != units.end(); ++it)
 	{
-		hash = ((hash << 5) + hash) + it->second.hitpoints;
+		hash = ((hash << 5) + hash) + it->second["HEALTH"];
 	}
 	checksums.push_back(hash);
 
@@ -169,14 +169,14 @@ void World::resetGame()
 	{
 		if(!it->second.human())
 		{
-			it->second.hitpoints = -1;
+			it->second["HEALTH"] = -1;
 			it->second("DAMAGED_BY") = "Game\\sreset";
 			it->second["DELETED"] = 1;
 		}
 		else
 		{
-			// restore player hitpoints to maximum values
-			it->second.hitpoints = it->second.getMaxHP();
+			// restore player hp to maximum values
+			it->second["HEALTH"] = it->second.getMaxHP();
 		}
 	}
 
@@ -346,10 +346,10 @@ void World::worldTick(int tickCount)
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
 		Unit& unit = iter->second;
-		if(unit.hitpoints < 1) {
+		if(unit["HEALTH"] < 1) {
 
             if(unit.intVals["GOD_MODE"]) {
-				unit.hitpoints = 1000;
+				unit["HEALTH"] = 1000;
 				continue;
 			}
 
@@ -459,7 +459,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 
     units[id].name = "Unknown\\sPlayer";
     units[id].controllerTypeID = Unit::HUMAN_INPUT;
-    units[id].hitpoints = 1000;
+    units[id]["HEALTH"] = 1000;
     units[id]["TEAM"] = id % 2;
 }
 

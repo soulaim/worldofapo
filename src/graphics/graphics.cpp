@@ -540,22 +540,22 @@ void GameView::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 {
 	for(auto iter = units.begin(); iter != units.end(); ++iter)
 	{
-		/*
-		if(!iter->second.human())
-		{
-			continue;
-		}
-		*/
+        if(!iter->second.human())
+            continue;
+        
 		const Model& model = *models.find(iter->first)->second;
 		vec3<float> posName = model.currentModelPos;
 		posName.y += 5.5f * model.myScale;
 		QUADS_DRAWN_THIS_FRAME += textRenderer.draw3Dstring(iter->second.name, posName, camera_p->getXrot(), camera_p->getYrot(), iter->second["TEAM"]);
 
-		float hp_percent = float(iter->second.hitpoints) / float(iter->second.getMaxHP());
+        auto it_hp = iter->second.intVals.find("HEALTH");
+        int hp = it_hp->second;
+		float hp_percent = float(hp) / float(iter->second.getMaxHP());
 
 		if(&(iter->second) == camera_p->getUnitPointer())
 		{
-			barRenderer.drawBar(hp_percent, "GREEN", "DARK_RED", -1.0f, 0.0f, -1.0f, -0.9f);
+            // this looks so fucking ugly. visualise in some other way.
+			// barRenderer.drawBar(hp_percent, "GREEN", "DARK_RED", -1.0f, 0.0f, -1.0f, -0.9f);
 		}
 		else
 		{
@@ -564,7 +564,6 @@ void GameView::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 			barRenderer.draw3DBar(hp_percent, posHP, camera_p->getXrot(), camera_p->getYrot(), "GREEN", "DARK_RED", 5.0f);
 		}
 	}
-
 }
 
 void GameView::renderToBackbuffer()

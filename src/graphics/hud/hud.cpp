@@ -148,7 +148,7 @@ void Hud::drawStatusBar() const
 
 void Hud::drawBanner() const
 {
-	textRenderer.drawString(area_name, -0.8f, -0.8f, 1.0f, true, 1.0f);
+	textRenderer.drawString("^YArea: ^G" + area_name, -0.1f, +0.9f, 1.3f);
 }
 
 void Hud::drawAmmo() const
@@ -283,7 +283,7 @@ void Hud::draw(bool firstPerson)
 		drawCrossHair();
 	}
 
-    // These should be separate components, would be about 1000 times clearer
+    // These should be separate components, would be about 1000 times more clear
 	drawMessages();
 	drawStatusBar();
 	drawMinimap();
@@ -386,6 +386,7 @@ void Hud::drawMinimap() const
 	glLoadIdentity();
 
 	Unit& myUnit = iteratorMyUnit->second;
+    float range = myUnit.getModifier("TELEPATHIC") * 8;
 
 	float map_r = 0.18f;
 	float minimap_angle = apomath.getDegrees( myUnit.angle );
@@ -417,8 +418,15 @@ void Hud::drawMinimap() const
 
 	glPointSize(5.0f);
 	glBegin(GL_POINTS);
-	for(auto it = units->begin(); it != units->end(); ++it)
+	for(map<int, Unit>::iterator it = units->begin(); it != units->end(); ++it)
 	{
+        if( (it->second.getPosition() - myUnit.getPosition()).lengthSquared().getFloat() > range * range )
+            continue;
+        
+        // telepathy does not reveal unconscious elements
+        if( it->second.controllerTypeID == Unit::INANIMATE_OBJECT )
+            continue;
+
 		const int id = it->first;
 
 		float r = 1.0f;

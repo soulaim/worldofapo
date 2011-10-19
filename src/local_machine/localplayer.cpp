@@ -782,7 +782,7 @@ void Localplayer::handleWorldEvents()
 {
 	if(game.myID >= 0)
 	{
-		hud->setLocalPlayerHP(world.units.find(game.myID)->second.hitpoints);
+		hud->setLocalPlayerHP(world.units.find(game.myID)->second["HEALTH"]);
 	}
 
 	// TODO: THIS MAKES NO FUCKING SENSE!! USE THE MESSAGE SENDING SYSTEM INSTEAD

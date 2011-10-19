@@ -22,10 +22,10 @@ void WorldItem::onActivate(World& world, Unit& unit) {
             world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for visual aid");
             break;
         case 4: // consumable
-            world.add_message("^yWorldItem::onActivatePrimary ^wis ^rnot ^wimplemented for consumables");
+            smallItem.onActivatePrimary(this, world, unit);
             break;
         case 5:
-            world.add_message("Helmet's cannot be activated");
+            world.add_message("Helmets cannot be activated");
             break;
         case 6:
             world.add_message("Torso armors cannot be activated");
@@ -100,6 +100,7 @@ void WorldItem::tick(Unit& unit) {
         case 3: // visual aid
             break;
         case 4: // consumable
+            smallItem.tick(this, unit);
             break;
         default:
             ;

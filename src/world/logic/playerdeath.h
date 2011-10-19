@@ -8,7 +8,13 @@
 #ifndef PLAYERDEATH_H
 #define	PLAYERDEATH_H
 
-// TODO
+class World;
+class Unit;
+
+class PlayerDeathHandler {
+public:
+    void handle(World&, Unit&);
+};
 
 #endif	/* PLAYERDEATH_H */
 

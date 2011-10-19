@@ -90,7 +90,7 @@ void ProjectileTicker::tickProjectile(World& world, Projectile& projectile, Mode
 				continue;
 
 			// if the target unit is already dead, just continue.
-			if(u->hitpoints <= 0)
+			if(u->intVals["HEALTH"] <= 0)
 				continue;
 
 

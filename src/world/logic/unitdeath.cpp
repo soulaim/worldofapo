@@ -9,34 +9,34 @@
 
 using std::string;
 
+void UnitDeathHandler::updateComponents(World& world, Unit& unit) {
+    target_colour = world.getTeamColour(unit);
+	killer_colour = "";
+    killer = "an unknown entity";
+
+	causeOfDeath = unit.last_damage_dealt_by;
+	actor_id  = -1;
+	target_id = unit.id;
+
+    std::map<int, Unit>::iterator killer_it = world.units.find(causeOfDeath);
+	if(killer_it != world.units.end())
+	{
+		killer_colour = world.getTeamColour(killer_it->second);
+		killer = killer_it->second.name;
+		actor_id = killer_it->second.id;
+	}
+}
+
 void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
-	string target_colour = world.getTeamColour(unit);
-	string killer_colour;
+    updateComponents(world, unit);
+
 
 	// deleted units don't deserve a burial!
 	if(unit["DELETED"] == 1)
 	{
 		world.unitHasDied(unit.id);
 		return;
-	}
-
-	std::stringstream msg;
-	string killer = "an unknown entity";
-
-	int causeOfDeath = unit.last_damage_dealt_by;
-
-	int actor_id  = -1;
-	int target_id = -1;
-
-	target_id = unit.id;
-
-	std::map<int, Unit>::iterator killer_it = world.units.find(causeOfDeath);
-	if(killer_it != world.units.end())
-	{
-		killer_colour = world.getTeamColour(killer_it->second);
-		killer = killer_it->second.name;
-		actor_id = killer_it->second.id;
 	}
 
 	std::vector<string> killWords;
@@ -71,25 +71,22 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
 	verbose = verbose || unit.human();
 
-	if(actor_id != target_id)
-	{
-		int i = world.currentWorldFrame % killWords.size();
+    if(verbose) {
+        std::stringstream msg;
 
-		if(verbose)
-		{
-			msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
-			world.visualworld->add_message(msg.str());
-		}
-	}
-	else
-	{
-		if(verbose)
-		{
-			actor_id  = -1; // For a suicide, no points are to be awarded.
-			msg << target_colour << killer << " ^Whas committed suicide by ^g" << unit("DAMAGED_BY");
-			world.visualworld->add_message(msg.str());
-		}
-	}
+        if(actor_id != target_id)
+        {
+            int i = world.currentWorldFrame % killWords.size();
+            msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
+            world.visualworld->add_message(msg.str());
+        }
+        else
+        {
+            actor_id  = -1; // For a suicide, no points are to be awarded.
+            msg << target_colour << killer << " ^Whas committed suicide by ^g" << unit("DAMAGED_BY");
+            world.visualworld->add_message(msg.str());
+        }
+    }
 
 	if(unit.human())
 	{
@@ -104,15 +101,7 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 			queueMsg(event);
 		}
 
-		// reset player hitpoints
-		unit.hitpoints = unit.getMaxHP();
-
-		// respawn player back in base
-		Location pos = world.lvl.getStartLocation();
-		unit.setPosition(pos);
-
-		// stop any movement, let the player drop down to the field of battle.
-		unit.zeroMovement();
+        playerDeath.handle(world, unit);
 	}
 	else
 	{

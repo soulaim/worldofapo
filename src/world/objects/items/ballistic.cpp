@@ -100,7 +100,12 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
 
 
     Location eyePos = caster.getEyePosition();
+    Location direction = caster.getLookDirection();
+    direction.normalize();
+
     int bullets = item->intVals["BPS"];
+
+    world.visualworld->weaponFireLight(eyePos + direction, 2, 150, 70, 30);
 
     for(int i=0; i<bullets; ++i) {
         int id = world.nextUnitID();

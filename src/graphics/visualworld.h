@@ -46,8 +46,11 @@ public:
 	void createModel(int id, const Location& location, ModelType type, float scale);
 	void setModelScale(int id, float scale);
 
+    int getTorchID(const Unit& unit);
+    void activateTorch(const Unit& unitID, int power);
 	void addLight(const Location& location, Location direction = Location());
-	void weaponFireLight(int id, const Location& pos, int life, int r, int g, int b);
+	void weaponFireLight(const Location& pos, int life, int r, int g, int b);
+
 	void tickLights(const std::map<int, Unit>& units);
 	void explosion(const Location& pos, const Location& direction = Location());
 
