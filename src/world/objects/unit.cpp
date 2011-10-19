@@ -272,7 +272,7 @@ void Unit::tick(const FixedPoint& yy_val)
 
 bool Unit::exists()
 {
-	return ((*this)["RESPAWN"] == 0);
+	return true;
 }
 
 bool Unit::hasSupportUnderFeet() const
@@ -499,24 +499,18 @@ const Location& Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
-	if(!exists())
-		return;
-
-	if(o.type == UNIT)
-	{
-		Unit* u = static_cast<Unit*>(&o);
-		if(!u->exists()) // to make sure no collisions occur with dead heroes (spawning time)
-			return;
-	}
-
-	// if one of the objects doesn't want to collide, then don't react.
-	if(!(collision_rule & o.collision_rule))
-		return;
+    cerr << "collision1" << endl;
 
 	// if this object doesnt want to be moved by collisions, don't react.
-	if(staticObject)
+	if(staticObject || collision_rule == OctreeObject::CollisionRule::NO_COLLISION)
 		return;
 
+    cerr << "collision2" << endl;
+
+	// if the other object doesn't want to collide..
+	if(!o.collision_rule) {
+		return;
+    }
 
 	if(position == o.position)
 	{
@@ -618,9 +612,9 @@ void Unit::init()
     // these two are taken into account.
     stats.intVals["CONSTITUTION"] = 0;
     stats.intVals["MOVEMENT"] = 0;
+    stats.intVals["TELEPATHIC"] = 0;
 
     // :G
-    stats.intVals["TELEPATHIC"] = 0;
     stats.intVals["BALLISTIC"] = 0;
     stats.intVals["BEAM"] = 0;
     stats.intVals["ENGINEER"] = 0;

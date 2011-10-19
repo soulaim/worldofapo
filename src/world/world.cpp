@@ -156,7 +156,6 @@ void World::createLevelObjects() //fazias
             errorstr.append(it->object_name);
             throw std::logic_error(errorstr);
         }
-
     }
 
     cerr << "\n" << "finished reading level objects" << endl;
@@ -404,13 +403,13 @@ void World::addBoxUnit(int id, const Location& location) {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
 
-	units[id] = Unit();
     units[id].init();
-
     units[id].name = "Box";
+    units[id].id = id;
     units[id].controllerTypeID = Unit::INANIMATE_OBJECT;
 	units[id].scale = 1;
 	units[id].position = location;
+    units[id].intVals["TEAM"] = -1;
 
     // should get rid of these still.
 	units[id].model_type = VisualWorld::ModelType::BOX_MODEL;

@@ -30,6 +30,8 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     RandomMachine random;
     random.setSeed(tick * 4217 + mon_num * 81321);
 
+    setAttributes(monster, depth, random);
+    
     monster.birthTime = tick;
     monster.name = "Alien";
     monster.controllerTypeID = Unit::AI_ALIEN;
@@ -40,7 +42,5 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     monster["TEAM"] = 1;
     monster["T"] = -1;
     monster["HEALTH"] = monster.getMaxHP();
-
-    setAttributes(monster, depth, random);
     return monster;
 }
