@@ -13,7 +13,7 @@ void main()
     if(height > 0.4)
         gl_FragData[0] = texture2D(baseMap0, gl_TexCoord[0].st);
     else
-        gl_FragData[0] = texture2D(baseMap1, gl_TexCoord[0].st);
+        gl_FragData[0] = texture2D(baseMap1, gl_TexCoord[1].st);
 
     /*
 	float weigth0 = 80.0 / (abs(height - 12.0) + 0.01);
@@ -32,6 +32,6 @@ void main()
 
 	// gl_FragData[0] = texture_color;
 	gl_FragData[1] = vec4(n, 1.0);
-//	gl_FragData[2] = vertex_position;
+    //	gl_FragData[2] = vertex_position;
 }
 

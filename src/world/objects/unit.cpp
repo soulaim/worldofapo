@@ -499,13 +499,9 @@ const Location& Unit::bb_bot() const
 
 void Unit::collides(OctreeObject& o)
 {
-    cerr << "collision1" << endl;
-
 	// if this object doesnt want to be moved by collisions, don't react.
 	if(staticObject || collision_rule == OctreeObject::CollisionRule::NO_COLLISION)
 		return;
-
-    cerr << "collision2" << endl;
 
 	// if the other object doesn't want to collide..
 	if(!o.collision_rule) {

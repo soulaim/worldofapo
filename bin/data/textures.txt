@@ -17,8 +17,8 @@ meadow6 data/images/meadow6.png
 
 ground1 data/images/terrain_ground1.png
 ground2 data/images/terrain_ground2.png
-wall1 data/images/terrain_wall1.png
-wall2 data/images/terrain_wall2.png
+wall2 data/images/metal_wall2.png
+wall1 data/images/terrain_wall2.png
 
 grimmnight data/grimmnight.png
 interstellar data/interstellar.png

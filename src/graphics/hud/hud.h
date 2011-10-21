@@ -10,6 +10,7 @@
 #include "graphics/hud/itempickrenderer.h"
 #include "graphics/hud/barRenderer.h"
 #include "graphics/hud/textRenderer.h"
+#include "graphics/hud/statRenderer.h"
 
 #include <string>
 #include <vector>
@@ -99,6 +100,7 @@ private:
     ItemPickRenderer itemPickRenderer;
     TextRenderer textRenderer;
     BarRenderer barRenderer;
+    StatRenderer statRenderer;
 };
 
 #endif

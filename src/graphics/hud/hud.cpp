@@ -297,6 +297,7 @@ void Hud::draw(bool firstPerson)
         if(plr_it != this->units->end()) {
             inventoryRenderer.draw(plr_it->second.getInventory());
             itemPickRenderer.draw(plr_it->second.getInventory(), plr_it->second.getItemPicker());
+            statRenderer.drawStatSheet(plr_it->second);
         }
     }
 
@@ -422,7 +423,7 @@ void Hud::drawMinimap() const
 	{
         if( (it->second.getPosition() - myUnit.getPosition()).lengthSquared().getFloat() > range * range )
             continue;
-        
+
         // telepathy does not reveal unconscious elements
         if( it->second.controllerTypeID == Unit::INANIMATE_OBJECT )
             continue;
