@@ -9,6 +9,7 @@
 #define	STATRENDERER_H
 
 #include "graphics/hud/textRenderer.h"
+#include "world/logic/stats_names.h"
 
 #include <string>
 #include <vector>
@@ -23,9 +24,7 @@ class StatRenderer {
     int mouseButtons;
     int selected;
 
-    std::vector<std::string> names;
-    std::vector<std::string> keys;
-
+    StatsNames statsNames;
     TextRenderer textRenderer;
 public:
     StatRenderer();

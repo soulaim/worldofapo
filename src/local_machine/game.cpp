@@ -306,7 +306,7 @@ void Game::process_received_game_input()
 					break;
 
                 case NetworkMessage::STATINCREASE_MESSAGE_ID:
-                    it->second.increaseStat(tmp.mouseButtons);
+                    it->second.increaseStat(*(this->world), tmp.mouseButtons);
                     break;
 			}
 		}

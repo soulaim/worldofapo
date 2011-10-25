@@ -8,14 +8,10 @@ smoke data/smoke.png
 
 item_texture data/images/item_texture_big.png
 stats_bg data/images/stats_bg.png
+stats_cursor data/images/cursor.png
 
 meadow1 data/images/meadow1.png
 meadow1small data/images/meadow1small.png
-meadow2 data/images/meadow2.png
-meadow3 data/images/meadow3.png
-meadow4 data/images/meadow4.png
-meadow5 data/images/meadow5.png
-meadow6 data/images/meadow6.png
 
 ground1 data/images/terrain_ground1.png
 ground2 data/images/terrain_ground2.png

@@ -456,7 +456,7 @@ void DedicatedServer::simulateWorldFrame()
 						break;
 
                     case NetworkMessage::STATINCREASE_MESSAGE_ID:
-                        it->second.increaseStat(tmp.mouseButtons);
+                        it->second.increaseStat(world, tmp.mouseButtons);
                         break;
 				}
 			}

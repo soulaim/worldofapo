@@ -414,7 +414,6 @@ void Localplayer::process_sent_game_input()
         int retVal = hud->statViewInput(x, y, mousePress, keyState);
         if(retVal != -1) {
             game.sendStatIncrease(retVal);
-            this->world.add_message("" + retVal);
         }
 
         // dont send to game

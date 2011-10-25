@@ -2,6 +2,7 @@
 #include "misc/apomath.h"
 #include "world/world.h"
 #include "itempicker.h"
+#include "world/logic/stats_names.h"
 
 #include <iostream>
 #include <sstream>
@@ -173,8 +174,14 @@ void Unit::processInput(World& world)
 
 }
 
-void Unit::increaseStat(int increasedStat) {
-    cerr << "TODO: Unit::increaseStat() " << increasedStat << endl;
+void Unit::increaseStat(World& world, int increasedStat) {
+    StatsNames statsNames;
+    if(intVals["STAT_POINTS"]) {
+        if(world.getLocalPlayerID() == this->id)
+            world.add_message("^YIncreased: ^G" + statsNames.getName(increasedStat));
+        stats.intVals[statsNames.getKey(increasedStat)]++;
+        intVals["STAT_POINTS"]--;
+    }
 }
 
 Location Unit::getEyePosition() const
