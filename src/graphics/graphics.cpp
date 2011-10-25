@@ -542,7 +542,7 @@ void GameView::drawPlayerNames(const std::map<int, Unit>& units, const map<int, 
 	{
         if(!iter->second.human())
             continue;
-        
+
 		const Model& model = *models.find(iter->first)->second;
 		vec3<float> posName = model.currentModelPos;
 		posName.y += 5.5f * model.myScale;

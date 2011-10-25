@@ -7,7 +7,7 @@
 class NetworkMessage
 {
 public:
-	
+
 	enum ServerMessageType
 	{
 		PAUSE_MESSAGE_ID = 3,
@@ -21,14 +21,15 @@ public:
 		TOGGLE_GOD_MODE_MESSAGE_ID = 24,
 		AREA_CHANGE_HERO_DESTROY_MESSAGE_ID = 7
 	};
-	
+
 	enum InputMessageType
 	{
 		KEYSTATE_MESSAGE_ID   = 6,
 		MOUSEPRESS_MESSAGE_ID = 7,
-		MOUSEMOVE_MESSAGE_ID  = 8
+		MOUSEMOVE_MESSAGE_ID  = 8,
+        STATINCREASE_MESSAGE_ID = 9
 	};
-	
+
 	enum MessageType
 	{
 		COPY_ORDER_MESSAGE = -4,
@@ -39,10 +40,11 @@ public:
 		CHAT_MESSAGE = 3,
 		ADMIN_ORDER_MESSAGE = 4
 	};
-	
+
 	static std::string getKeyState(int myID, int frame, int keystate);
 	static std::string getMousePress(int myID, int frame, int mousePress);
 	static std::string getMouseMove(int myID, int frame, int x, int y);
+    static std::string getStatIncrease(int myID, int frame, int);
 };
 
 #endif

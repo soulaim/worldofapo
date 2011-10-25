@@ -402,20 +402,36 @@ void Localplayer::process_sent_game_input()
 	}
 
 	visualworld.camera.updateInput(keyState, x, y); // Make only "small" local changes like change the camera angle.
-	hud->setShowStats(keyState & (1 << 31));
 
-	x *= intVals["sensitivity"];
-	y *= intVals["sensitivity"];
+    bool statsView = keyState & (1 << 31);
+	hud->setShowStats(statsView);
 
-	if(keyState != prevKeyState)
-		game.sendKeyState(keyState);
-	if(x != 0 || y != 0)
-		game.sendMouseMove(x, y);
-	if(mousePress != prevMousePress)
-		game.sendMousePress(mousePress);
+    x *= intVals["sensitivity"];
+    y *= intVals["sensitivity"];
 
-	prevMousePress = mousePress;
-	prevKeyState = keyState;
+    if(statsView) {
+        // send input to stats menu
+        int retVal = hud->statViewInput(x, y, mousePress, keyState);
+        if(retVal != -1) {
+            game.sendStatIncrease(retVal);
+            this->world.add_message("" + retVal);
+        }
+
+        // dont send to game
+        keyState = 0;
+        mousePress = 0;
+        x = y = 0;
+    }
+
+    if(keyState != prevKeyState)
+        game.sendKeyState(keyState);
+    if(x != 0 || y != 0)
+        game.sendMouseMove(x, y);
+    if(mousePress != prevMousePress)
+        game.sendMousePress(mousePress);
+
+    prevMousePress = mousePress;
+    prevKeyState = keyState;
 }
 
 bool setVariable(HasProperties& properties, string var_name, string word, int val)

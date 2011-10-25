@@ -173,6 +173,9 @@ void Unit::processInput(World& world)
 
 }
 
+void Unit::increaseStat(int increasedStat) {
+    cerr << "TODO: Unit::increaseStat() " << increasedStat << endl;
+}
 
 Location Unit::getEyePosition() const
 {

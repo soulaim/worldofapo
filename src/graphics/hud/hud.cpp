@@ -288,7 +288,6 @@ void Hud::draw(bool firstPerson)
 	drawStatusBar();
 	drawMinimap();
 	drawBanner();
-	drawStats();
 	drawFPS();
 	drawAmmo();
 
@@ -297,7 +296,8 @@ void Hud::draw(bool firstPerson)
         if(plr_it != this->units->end()) {
             inventoryRenderer.draw(plr_it->second.getInventory());
             itemPickRenderer.draw(plr_it->second.getInventory(), plr_it->second.getItemPicker());
-            statRenderer.drawStatSheet(plr_it->second);
+            if(showStats)
+                statRenderer.drawStatSheet(plr_it->second);
         }
     }
 
@@ -309,21 +309,8 @@ void Hud::setShowStats(bool _showStats) {
 	showStats = _showStats;
 }
 
-void Hud::drawStats() const
-{
-	if (!showStats)
-		return;
-
-	int i = 0;
-	for(map<int, PlayerInfo>::iterator iter = Players->begin(); iter != Players->end(); iter++)
-	{
-		if(iter->first < 0)
-		  continue;
-		stringstream line;
-		line << iter->second.name << " " << iter->second.kills << "/" << iter->second.deaths;
-		textRenderer.drawString(line.str(), -0.8f, 0.8f-(i*0.05), 1.0f);
-		i++;
-	}
+int Hud::statViewInput(int dx, int dy, int mousePress, int keyState) {
+    return statRenderer.input(dx, dy, mousePress, keyState);
 }
 
 void Hud::drawCrossHair() const

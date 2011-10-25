@@ -454,6 +454,10 @@ void DedicatedServer::simulateWorldFrame()
 					case NetworkMessage::InputMessageType::MOUSEMOVE_MESSAGE_ID:
 						it->second.updateMouseMove(tmp.mousex, tmp.mousey);
 						break;
+
+                    case NetworkMessage::STATINCREASE_MESSAGE_ID:
+                        it->second.increaseStat(tmp.mouseButtons);
+                        break;
 				}
 			}
 		}
@@ -594,8 +598,22 @@ void DedicatedServer::parseClientMsg(const std::string& msg, int player_id, Play
 	int orderType;
 	ss >> orderType;
 
+	if(orderType == NetworkMessage::InputMessageType::STATINCREASE_MESSAGE_ID)
+	{
+		if(player.connectionState != ConnectionState::GAMEPLAY)
+		{
+			cerr << "WARNING: Ignoring a player input command. Arrived from a source with a wrong connectionstate." << endl;
+			return;
+		}
 
-	if(orderType == NetworkMessage::InputMessageType::KEYSTATE_MESSAGE_ID)
+		Order tmp_order;
+		ss >> tmp_order.plr_id;
+		ss >> tmp_order.frameID;
+		ss >> tmp_order.mouseButtons;
+		tmp_order.frameID = player.getFrameForKeyPress(simulRules.currentFrame);
+		new_message = NetworkMessage::getStatIncrease(tmp_order.plr_id, tmp_order.frameID, tmp_order.mouseButtons);
+	}
+    else if(orderType == NetworkMessage::InputMessageType::KEYSTATE_MESSAGE_ID)
 	{
 		if(player.connectionState != ConnectionState::GAMEPLAY)
 		{
@@ -1002,6 +1020,15 @@ void DedicatedServer::processClientMsg(const std::string& msg)
 
 		UnitInput.push_back(tmp_order);
 	}
+    else if(order_type == NetworkMessage::STATINCREASE_MESSAGE_ID) {
+        Order tmp_order;
+        tmp_order.cmd_type = NetworkMessage::STATINCREASE_MESSAGE_ID;
+        ss >> tmp_order.plr_id;
+        ss >> tmp_order.frameID;
+        ss >> tmp_order.mouseButtons;
+
+        UnitInput.push_back(tmp_order);
+    }
 	else if(order_type == NetworkMessage::MOUSEMOVE_MESSAGE_ID)
 	{
 		Order tmp_order;

@@ -196,6 +196,13 @@ void Game::sendKeyState(int keyState)
 	getServerConnection() << NetworkMessage::getKeyState(myID, 0, keyState);
 }
 
+void Game::sendStatIncrease(int stat) {
+    if(!hasID())
+        return;
+
+    getServerConnection() << NetworkMessage::getStatIncrease(myID, 0, stat);
+}
+
 void Game::sendMouseMove(int x, int y)
 {
 	if(!hasID())
@@ -297,6 +304,10 @@ void Game::process_received_game_input()
 				case NetworkMessage::MOUSEMOVE_MESSAGE_ID:
 					it->second.updateMouseMove(tmp.mousex, tmp.mousey);
 					break;
+
+                case NetworkMessage::STATINCREASE_MESSAGE_ID:
+                    it->second.increaseStat(tmp.mouseButtons);
+                    break;
 			}
 		}
 	}
@@ -502,6 +513,15 @@ void Game::processClientMsgs()
 
 			UnitInput.push_back(tmp_order);
 		}
+        else if(order_type == NetworkMessage::STATINCREASE_MESSAGE_ID) {
+            Order tmp_order;
+            tmp_order.cmd_type = NetworkMessage::STATINCREASE_MESSAGE_ID;
+            ss >> tmp_order.plr_id;
+            ss >> tmp_order.frameID;
+            ss >> tmp_order.mouseButtons;
+
+            UnitInput.push_back(tmp_order);
+        }
 		else if(order_type == 3) // chat message
 		{
 			cerr << "ORDER: " << clientOrders.orders[i] << endl;

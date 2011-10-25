@@ -47,10 +47,11 @@ public:
 	void drawBanner() const;
 	void drawMinimap() const;
 	void drawFPS();
-	void drawStats() const;
 	void drawAmmo() const;
 	void draw(bool firstPerson);
 
+
+    int statViewInput(int dx, int dy, int mousePress, int keyState);
 
 	// TODO: make it work with world-tick data also.
 	void insertDebugString(const std::string&); // only per visual frame inserts! not for per world-tick data.

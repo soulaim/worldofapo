@@ -16,6 +16,13 @@
 class Unit;
 
 class StatRenderer {
+
+    float cursor_x;
+    float cursor_y;
+
+    int mouseButtons;
+    int selected;
+
     std::vector<std::string> names;
     std::vector<std::string> keys;
 
@@ -23,6 +30,7 @@ class StatRenderer {
 public:
     StatRenderer();
     void drawStatSheet(Unit&);
+    int input(int dx, int dy, int mousePress, int keyState);
 };
 
 

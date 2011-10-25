@@ -96,6 +96,7 @@ public:
 	const Location& getPosition() const;
 	const Location& getVelocity() const;
 
+    void increaseStat(int increasedStat);
 	int getMaxHP() const;
 
 	void updateMobility();

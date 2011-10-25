@@ -154,9 +154,16 @@ int TextRenderer::draw3Dstring(const string& message, const vec3<float>& pos, fl
 
 		lastWidth = currentWidth;
 
-		vec3<float> p1 = m * vec3<float>(x_now , y_bot, 0);
+        /*
+		vec3<float> p1 = m * vec3<float>(x_now , y_top, 0);
+		vec3<float> p2 = m * vec3<float>(x_now, y_bot, 0);
+		vec3<float> p3 = m * vec3<float>(x_next, y_bot, 0);
+		vec3<float> p4 = m * vec3<float>(x_next , y_top, 0);
+        */
+
+        vec3<float> p1 = m * vec3<float>(x_next , y_top, 0);
 		vec3<float> p2 = m * vec3<float>(x_next, y_bot, 0);
-		vec3<float> p3 = m * vec3<float>(x_next, y_top, 0);
+		vec3<float> p3 = m * vec3<float>(x_now, y_bot, 0);
 		vec3<float> p4 = m * vec3<float>(x_now , y_top, 0);
 
 		TextureCoordinates coords = Font::texture_coordinates(next_char);

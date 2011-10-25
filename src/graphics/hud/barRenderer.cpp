@@ -37,10 +37,10 @@ void BarRenderer::draw3DBar(float percentage, const vec3<float>& pos, float x_an
 
 	glBegin(GL_QUADS);
 	{
-		vec3<float> p1 = m * vec3<float>(-x_val, -scale * 0.1f, 0);
-		vec3<float> p2 = m * vec3<float>(-x_val, +scale * 0.1f, 0);
-		vec3<float> p3 = m * vec3<float>(+x_val, +scale * 0.1f, 0);
-		vec3<float> p4 = m * vec3<float>(+x_val, -scale * 0.1f, 0);
+		vec3<float> p1 = m * vec3<float>(-x_val, +scale * 0.1f, 0);
+		vec3<float> p2 = m * vec3<float>(-x_val, -scale * 0.1f, 0);
+		vec3<float> p3 = m * vec3<float>(+x_val, -scale * 0.1f, 0);
+		vec3<float> p4 = m * vec3<float>(+x_val, +scale * 0.1f, 0);
 
 		glVertex3f(p1.x, p1.y, p1.z);
 		glVertex3f(p2.x, p2.y, p2.z);
