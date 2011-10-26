@@ -313,21 +313,28 @@ int Unit::getMaxHP() const
 	return 100 + 10 * it->second;
 }
 
-bool Unit::gainExperience(int exp) {
+bool Unit::gainExperience(World& world, int exp) {
     intVals["EXPERIENCE"] += exp;
     if(intVals["EXPERIENCE"] > intVals["EXPLIMIT"]) {
         intVals["EXPLIMIT"] *= 9;
         intVals["EXPLIMIT"] /= 7;
-        levelUp();
+        levelUp(world);
         return true;
     }
     return false;
 }
 
-void Unit::levelUp()
+void Unit::levelUp(World& world)
 {
     ++intVals["CHAR_LEVEL"];
     intVals["STAT_POINTS"] += 3;
+
+    if(id == world.getLocalPlayerID()) {
+        stringstream ss1; ss1 << "^YWelcome to level ^G" << intVals["CHAR_LEVEL"] << "^Y!";
+        stringstream ss2; ss2 << "^YStats points to use ^G" << intVals["STAT_POINTS"];
+        world.add_message(ss1.str());
+        world.add_message(ss2.str());
+    }
 }
 
 void Unit::takeDamage(int damage)

@@ -143,8 +143,8 @@ public:
 	void handleCopyOrder(std::stringstream& ss);
 
 	int getModifier(const std::string& attribute) const;
-	bool gainExperience(int);
-    void levelUp();
+	bool gainExperience(World&, int);
+    void levelUp(World&);
 
 	float getAngle();
 

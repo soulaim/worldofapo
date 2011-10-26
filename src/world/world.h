@@ -62,6 +62,7 @@ public:
 	VisualWorld* visualworld;
 	typedef unsigned CheckSumType;
 
+    void awardExperience(Unit& deadUnit);
     void unitHasDied(int id);
 	World(VisualWorld*);
 	void init();
@@ -106,7 +107,7 @@ public:
     ApoMath apomath;
 
     int getLocalPlayerID();
-    
+
 private:
 	int localPlayerID;
 	std::vector<int> deadUnits;

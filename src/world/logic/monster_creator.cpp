@@ -22,7 +22,7 @@ void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine&)
 
     unit.intVals["SANITY"] = 100;
 	unit.intVals["HEALTH"] = 200;
-	unit.intVals["REGEN"] = 5;
+	unit.intVals["REGEN"] = 0;
 }
 
 Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
@@ -31,7 +31,7 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     random.setSeed(tick * 4217 + mon_num * 81321);
 
     setAttributes(monster, depth, random);
-    
+
     monster.birthTime = tick;
     monster.name = "Alien";
     monster.controllerTypeID = Unit::AI_ALIEN;
@@ -42,5 +42,6 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     monster["TEAM"] = 1;
     monster["T"] = -1;
     monster["HEALTH"] = monster.getMaxHP();
+    monster["REWARD"] = 3;
     return monster;
 }

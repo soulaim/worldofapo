@@ -81,6 +81,12 @@ void StatRenderer::drawStatSheet(Unit& unit) {
         textRenderer.drawString(ss.str(), -0.4f, 0.0f - 0.07f * i, 1.6f);
     }
 
+    string color = "^G";
+    if(unit["STAT_POINTS"] == 0) color = "^R";
+    stringstream ss; ss << "^YStats points to spend: " << color << unit["STAT_POINTS"];
+    textRenderer.drawString(ss.str(), -0.4f, -0.8f, 2.0f);
+
+
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 

@@ -64,10 +64,20 @@ int World::getLocalPlayerID() {
     return this->localPlayerID;
 }
 
+void World::awardExperience(Unit& deadUnit) {
+    for(std::map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter) {
+        if(iter->first >= 10000) {
+            return;
+        }
+
+        iter->second.gainExperience(*this, deadUnit.intVals["REWARD"] + 1);
+    }
+}
+
 void World::instantForceOutwards(const FixedPoint& power, const Location& pos, const string& name, int owner)
 {
 	// find out who is inflicted an how.
-	for(std::map<int, Unit>::iterator iter = units.begin(); iter != units.end(); iter++)
+	for(std::map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter)
 	{
 		const Location& pos2 = iter->second.getPosition();
 		Location velocity_vector = (pos2 - pos);

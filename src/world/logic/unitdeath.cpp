@@ -39,45 +39,26 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 		return;
 	}
 
-	std::vector<string> killWords;
-	std::vector<string> afterWords;
-	killWords.push_back(" slaughtered "); afterWords.push_back("!");
-	killWords.push_back(" made "); afterWords.push_back(" his bitch!");
-	killWords.push_back(" has balls of steel! "); afterWords.push_back(" is a casualty");
-	killWords.push_back(" owned "); afterWords.push_back("'s ass!");
-	killWords.push_back(" ravaged "); afterWords.push_back(" inside out!");
-	killWords.push_back(" dominated "); afterWords.push_back("!");
-	killWords.push_back(" demonstrated to "); afterWords.push_back(" the art of .. spanking!");
-	killWords.push_back(" has knocked "); afterWords.push_back(" out cold!");
-	killWords.push_back(" defiled "); afterWords.push_back("'s remains!");
-	killWords.push_back(" shoved it up "); afterWords.push_back("'s ass!");
-	killWords.push_back(" is laughing at "); afterWords.push_back("'s lack of skill!");
-
-
 	Location t_position = unit.getEyePosition();
 	Location t_velocity = unit.velocity; t_velocity.y += FixedPoint(200,1000);
 	Location a_position;
 	Location a_velocity;
-
-	bool verbose = false;
 
 	if(actor_id != -1)
 	{
 		std::map<int, Unit>::iterator it = world.units.find(actor_id);
 		a_position = it->second.getEyePosition();
 		a_velocity = it->second.velocity;
-		verbose = it->second.human();
 	}
 
-	verbose = verbose || unit.human();
+	bool verbose = unit.human();
 
     if(verbose) {
         std::stringstream msg;
 
         if(actor_id != target_id)
         {
-            int i = world.currentWorldFrame % killWords.size();
-            msg << killer_colour << killer << "^W" << killWords[i] << target_colour << unit.name << "^W" << afterWords[i] << " ^g(" << unit("DAMAGED_BY") << ")";
+            msg << target_colour << unit.name << " ^Wwas killed by " << killer_colour << killer << " ^g(" << unit("DAMAGED_BY") << ")";
             world.visualworld->add_message(msg.str());
         }
         else
@@ -115,6 +96,7 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
         queueMsg(event);
 
 		world.unitHasDied(unit.id);
+        world.awardExperience(unit);
 	}
 
 }
