@@ -121,6 +121,21 @@ void UnitAI::turnTowardsTarget(Unit& me, Unit& target, int& best_angle, int& bes
     turnTowardsTarget(me, direction, best_angle, best_upangle);
 }
 
+
+bool UnitAI::isLineClear(World& world, const Location& pos1, const Location& pos2) {
+    Location current_pos = pos1;
+    Location direction = pos2 - pos1;
+    direction /= 20;
+
+    for(int i=0; i<20; ++i) {
+        current_pos += direction;
+        if(world.lvl.getHeight(current_pos.x, current_pos.z) > 6) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool UnitAI::roamingNextStepOk(World& world, Unit& unit) {
 
     const Location& pos = unit.getPosition();
@@ -181,25 +196,94 @@ Location UnitAI::findLongestLine(World& world, Unit& me) {
 void UnitAI::tick(World& world, Unit& unit) {
     switch(unit.controllerTypeID)
 	{
+        unit.keyState = 0;
+        unit.mouseButtons = 0;
+
 		case Unit::AI_ALIEN:
 		{
-            if(unit.intVals["STATE"] == 0) {
-                cout << "ALIEN GOING ROAMING" << endl;
+            int stateValue = unit.intVals["STATE"];
+
+            // if not doing anything
+            if(stateValue == 0) {
                 unit.intVals["STATE"] = 1; // Roaming state.
                 Location direction = findLongestLine(world, unit);
                 unit.intVals["DIRECTIONX"] = direction.x.getAsInteger();
                 unit.intVals["DIRECTIONZ"] = direction.z.getAsInteger();
                 this->turnTowardsTarget(unit);
             }
-            else if(unit.intVals["STATE"] == 1) {
+            else if(stateValue == 1) {
                 if(!roamingNextStepOk(world, unit)) {
                     Location direction = findLongestLine(world, unit);
                     unit.intVals["DIRECTIONX"] = direction.x.getAsInteger();
                     unit.intVals["DIRECTIONZ"] = direction.z.getAsInteger();
                     this->turnTowardsTarget(unit);
                 }
-
                 unit.keyState = Unit::MOVE_FRONT;
+
+                // heartbeat - check if creep notices enemies
+                if((unit.birthTime + world.currentWorldFrame + unit.id * 631) % 50 == 0) {
+                    for(std::map<int, Unit>::iterator it = world.units.begin(); it != world.units.end(); ++it) {
+                        if(it->first >= 10000)
+                            break;
+                        if(this->isLineClear(world, unit.getPosition(), it->second.getPosition())) {
+                            unit.intVals["STATE"] = 2;
+                            unit.intVals["T"] = it->first;
+                            world.add_message("^RATTACK! :GG");
+                        }
+                    }
+                }
+            }
+            else if(stateValue == 2) {
+
+                // hearbeat, pick nearest target
+                if((unit.birthTime + world.currentWorldFrame + unit.id * 631) % 50 == 0) {
+                    int current_target = -1;
+                    FixedPoint distance = FixedPoint(1000);
+                    for(std::map<int, Unit>::iterator it = world.units.begin(); it != world.units.end(); ++it) {
+                        if(it->first >= 10000)
+                            break;
+
+                        FixedPoint tmp_dist = (it->second.getPosition() - unit.getPosition()).lengthSquared();
+                        if( tmp_dist < distance ) {
+                            current_target = it->second.id;
+                            distance = tmp_dist;
+                        }
+                    }
+
+                    unit["T"] = current_target;
+                }
+
+                if(unit["T"] != -1 && (world.units.find(unit["T"]) != world.units.end()) ) {
+
+                    int angle = unit.angle;
+                    int upangle = unit.upangle;
+                    this->turnTowardsTarget(unit, world.units[unit["T"]], angle, upangle);
+                    unit.angle = angle;
+                    unit.upangle = upangle;
+
+                    // heartbeat, leap
+                    if((unit.birthTime * 7 + world.currentWorldFrame + unit.id * 13) % 50 == 0) {
+                        if(unit.hasSupportUnderFeet()) {
+                            // LEAP!
+                            unit.velocity.y += FixedPoint(1, 15);
+                            unit.velocity += unit.getLookDirection() * FixedPoint(1, 10);
+                        }
+                    }
+                }
+
+                unit.keyState |= Unit::MOVE_FRONT;
+                unit.mouseButtons |= Unit::MOUSE_LEFT;
+
+                // heartbeat - if can't see enemies and enemies are not nearby, go roaming.
+                if((unit.birthTime + world.currentWorldFrame + unit.id * 631) % 50 == 0 && (world.units.find(unit["T"]) != world.units.end()) ) {
+                    if(!isLineClear(world, unit.getPosition(), world.units[unit["T"]].getPosition())) {
+                        world.add_message("^RAlien ^Glost target! ^YGoing roaming.");
+                        unit.intVals["STATE"] = 1;
+                    }
+                    else {
+                        world.add_message("Line is clear");
+                    }
+                }
 
             }
 			break;

@@ -19,6 +19,8 @@ class UnitAI {
     void turnTowardsTarget(Unit&, Location&, int&, int&);
     void turnTowardsTarget(Unit&, Unit&, int&, int&);
     bool roamingNextStepOk(World&, Unit&);
+    bool isLineClear(World&, const Location&, const Location&);
+
     Location findLongestLine(World&, Unit&);
 
 public:
