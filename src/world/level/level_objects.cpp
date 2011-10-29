@@ -1,6 +1,8 @@
 #include "level_objects.h"
 #include "graphics/visualworld.h"
 #include <cassert>
+#include <iostream>
+
 using namespace std;
 
 LevelObjects::LevelObjects()

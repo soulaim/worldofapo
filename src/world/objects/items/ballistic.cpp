@@ -22,7 +22,7 @@ Location getSpread(int spread, int bullet_num, int id) {
     int val2 = (id * 5023 + bullet_num * 1217) % (2 * spread) - spread;
     int val3 = (id * 1451 + bullet_num * 7329) % (2 * spread) - spread;
 
-    return Location(FixedPoint(val1, 10), FixedPoint(val2, 10), FixedPoint(val3, 10));
+    return Location(FixedPoint(val1, 30), FixedPoint(val2, 30), FixedPoint(val3, 30));
 }
 
 
@@ -70,11 +70,10 @@ void BallisticWeaponUsage::tick(WorldItem* item, Unit&) {
     }
 }
 
-void BallisticWeaponUsage::onActivateReload(WorldItem* item, World& world, Unit&) {
+void BallisticWeaponUsage::onActivateReload(WorldItem* item, World&, Unit&) {
     if(item->intVals["RELOADING"])
         return;
 
-    world.add_message("RELOAD");
     item->intVals["RELOADING"] = 1;
     item->intVals["RLTIME"] = item->intVals["RELOAD_TIME"];
     item->intVals["CLIP"] = item->intVals["CLIPSIZE"];
@@ -92,8 +91,6 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
         onActivateReload(item, world, caster);
         return;
     }
-
-    world.add_message("SHOOT!");
 
     item->intVals["CD"] = item->intVals["COOLDOWN"];
     --item->intVals["CLIP"];
@@ -115,11 +112,13 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
         Location direction = caster.getLookDirection();
         caster.velocity -= direction * FixedPoint(1, 100);
 
-        p.velocity = direction + getSpread(item->intVals["SPREAD"], i, id);
+
+        // TODO: Use unit's properties to get spread
+        p.velocity = direction + getSpread(40 / caster.getModifier("BALLISTIC"), i, id);
         p.velocity.normalize();
-        p.velocity *= FixedPoint(9, 2);
+        p.velocity *= FixedPoint(5, 2);
         p.tick();
-        p.velocity *= FixedPoint(2, 9);
+        p.velocity *= FixedPoint(2, 5);
 
         p["OWNER"] = caster.id;
         p("NAME") = (*item)("NAME");

@@ -27,7 +27,7 @@ public:
 
 	enum ModelType
 	{
-                BOX_MODEL,
+        BOX_MODEL,
 		INVISIBLE_MODEL,
 		PLAYER_MODEL,
 		BULLET_MODEL,
@@ -51,6 +51,7 @@ public:
 	void addLight(const Location& location, Location direction = Location());
 	void weaponFireLight(const Location& pos, int life, int r, int g, int b);
 
+    void insertLevelLight(const Location& location);
 	void tickLights(const std::map<int, Unit>& units);
 	void explosion(const Location& pos, const Location& direction = Location());
 
@@ -78,7 +79,7 @@ public:
 	LevelDescriptor levelDesc;
 
 	std::vector<ParticleSource> psources;
-	mutable std::vector<Particle> particles; // TODO: maybe get rid of mutable with some kind of predrawing which sorts the particles.
+	mutable std::vector<Particle> particles;
 
 	std::vector<GrassCluster> meadows;
 

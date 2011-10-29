@@ -251,7 +251,7 @@ World::World(VisualWorld* vw)
 void World::buildTerrain(int n, float& percentage_done)
 {
 	// TODO, post-passes should not be constant in code
-	lvl.generate(n, 1, percentage_done);
+	lvl.generate(*this, n, 1, percentage_done);
 	intVals["GENERATOR"] = n;
 }
 

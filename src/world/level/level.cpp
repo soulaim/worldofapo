@@ -1,6 +1,7 @@
 #include "world/level/level.h"
 #include "algorithms.h"
 #include "physics/movable_object.h"
+#include "world/world.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -325,49 +326,51 @@ FixedPoint Level::getHeight(const FixedPoint& x, const FixedPoint& z) const
 
 
 
-void Level::generate(int seed, int post_passes, float& percentage_done)
+void Level::generate(World& world, int seed, int post_passes, float& percentage_done)
 {
-    // lol.
     ++post_passes;
-
 	randomer.setSeed(seed);
 
 	for(size_t i = 0; i < pointheight_info.size(); ++i)
 		for(size_t k = 0; k < pointheight_info[i].size(); ++k)
 			updateHeight(i, k, FixedPoint(20));
 
-        ifstream inFile("data/levels/level1.dat");
-        string line;
-        int lineCounter = 0;
-        while(inFile >> line) {
-            percentage_done = lineCounter / 129.0f;
-            for(unsigned i=0; i<line.size(); ++i) {
-                if(line[i] == 'x')
-                    updateHeight(i, lineCounter, FixedPoint(20));
-                if(line[i] == '.')
-                    updateHeight(i, lineCounter, FixedPoint(0));
-                if(line[i] == ',')
-                    updateHeight(i, lineCounter, FixedPoint(2));
-                if(line[i] == ';')
-                    updateHeight(i, lineCounter, FixedPoint(4));
-                if(line[i] == ':')
-                    updateHeight(i, lineCounter, FixedPoint(6));
-                if(line[i] == 's')
-                {
-                    updateHeight(i, lineCounter, FixedPoint(0));
-                    startPosition.x = 8 * i;
-                    startPosition.z = 8 * lineCounter;
-                    startPosition.y = 4;
-                }
-                
-                if(level_objects.addObject(line[i], 8*i, 8*lineCounter)) {
-                    updateHeight(i, lineCounter, FixedPoint(0));
-                }
-
+    ifstream inFile("data/levels/level1.dat");
+    string line;
+    int lineCounter = 0;
+    while(inFile >> line) {
+        percentage_done = lineCounter / 129.0f;
+        for(unsigned i=0; i<line.size(); ++i) {
+            if(line[i] == 'x')
+                updateHeight(i, lineCounter, FixedPoint(20));
+            if(line[i] == '.')
+                updateHeight(i, lineCounter, FixedPoint(0));
+            if(line[i] == ',')
+                updateHeight(i, lineCounter, FixedPoint(2));
+            if(line[i] == ';')
+                updateHeight(i, lineCounter, FixedPoint(4));
+            if(line[i] == ':')
+                updateHeight(i, lineCounter, FixedPoint(6));
+            if(line[i] == 'L')
+            {
+                updateHeight(i, lineCounter, FixedPoint(0));
+                Location pos = Location(8*i, 15, 8*lineCounter);
+                world.visualworld->insertLevelLight(pos);
             }
-
-            ++lineCounter;
+            if(line[i] == 's')
+            {
+                updateHeight(i, lineCounter, FixedPoint(0));
+                startPosition.x = 8 * i;
+                startPosition.z = 8 * lineCounter;
+                startPosition.y = 4;
+            }
+            if(level_objects.addObject(line[i], 8*i, 8*lineCounter)) {
+                updateHeight(i, lineCounter, FixedPoint(0));
+            }
         }
+
+        ++lineCounter;
+    }
 }
 
 

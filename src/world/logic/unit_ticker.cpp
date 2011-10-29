@@ -21,8 +21,6 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 	if(world.currentWorldFrame % 50 == 0)
 		unit.regenerate();
 
-    unit_ai.tick(world, unit);
-
 	// for server it's ok that there are no models sometimes :G
 	if(world.visualworld->isActive())
 	{
@@ -34,7 +32,6 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 	// some physics & game world information
 	if( (unit.velocity.y + unit.position.y - FixedPoint(1, 20)) <= world.lvl.getHeight(unit.position.x, unit.position.z) )
 		unit.mobility |= Unit::MOBILITY_STANDING_ON_GROUND;
-
 
 	if(unit.hasSupportUnderFeet())
 	{
@@ -49,6 +46,8 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 			unit.velocity.y = FixedPoint::ZERO;
 		}
 	}
+
+    unit_ai.tick(world, unit);
 
     Location tmp;
     for(int i=0; i<world.apomath.DEGREES_360; i+=world.apomath.DEGREES_360/32) {

@@ -11,6 +11,7 @@
 #include "world/level/level_objects.h"
 
 class MovableObject;
+class World;
 
 struct Level
 {
@@ -19,7 +20,7 @@ struct Level
 	friend class LevelDescriptor;
 	friend class BinaryTriangleTree; // TODO: is this really necessary?
 
-	void generate(int, int, float&);
+	void generate(World&, int, int, float&);
 
 	// random position from the map. (spawn)
 	Location getRandomLocation(int) const;

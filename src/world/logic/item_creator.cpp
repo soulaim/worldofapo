@@ -20,28 +20,26 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
 
     switch(major_type) {
         case Inventory::AMULET_SLOT:
-            return createAmulet(quality, item_num, worldTick);
+            return createAmulet(quality, random);
         case Inventory::ARMS_SLOT:
-            return createArmsArmor(quality, item_num, worldTick);
+            return createArmsArmor(quality, random);
         case Inventory::BELT_SLOT:
-            return createBeltArmor(quality, item_num, worldTick);
+            return createBeltArmor(quality, random);
         case Inventory::HEAD_SLOT:
-            return createHeadArmor(quality, item_num, worldTick);
+            return createHeadArmor(quality, random);
         case Inventory::LEGS_SLOT:
-            return createLegArmor(quality, item_num, worldTick);
+            return createLegArmor(quality, random);
         case Inventory::TORSO_SLOT:
-            return createTorsoArmor(quality, item_num, worldTick);
+            return createTorsoArmor(quality, random);
         case Inventory::WEAPON_SLOT1:
-            return createWeapon(quality, item_num, worldTick);
+            return createWeapon(quality, random);
         default:
-            return createSmallItem(quality, item_num, worldTick);
+            return createSmallItem(quality, random);
     }
 }
 
 
-WorldItem ItemCreator::createAmulet(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
-
+WorldItem ItemCreator::createAmulet(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -51,8 +49,7 @@ WorldItem ItemCreator::createAmulet(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createArmsArmor(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createArmsArmor(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -61,8 +58,7 @@ WorldItem ItemCreator::createArmsArmor(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createTorsoArmor(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createTorsoArmor(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -71,8 +67,7 @@ WorldItem ItemCreator::createTorsoArmor(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createHeadArmor(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createHeadArmor(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -81,8 +76,7 @@ WorldItem ItemCreator::createHeadArmor(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createLegArmor(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createLegArmor(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -91,8 +85,7 @@ WorldItem ItemCreator::createLegArmor(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createBeltArmor(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createBeltArmor(int quality, RandomMachine& random) {
     WorldItem item;
     item.intVals["ITEM_LVL"] = quality;
     item.intVals["AC"] = quality + random.getInt() % quality;
@@ -101,19 +94,15 @@ WorldItem ItemCreator::createBeltArmor(int quality, int num, int worldTick) {
     return item;
 }
 
-WorldItem ItemCreator::createWeapon(int quality, int num, int worldTick) {
-    RandomMachine randomer;
-    randomer.setSeed(num + worldTick);
-    if(randomer.getInt() & 1)
-        return createBallisticWeapon(quality, num, worldTick);
-    return createBeamWeapon(quality, num, worldTick);
+WorldItem ItemCreator::createWeapon(int quality, RandomMachine& random) {
+    if(random.getInt() & 1)
+        return createBallisticWeapon(quality, random);
+    return createBeamWeapon(quality, random);
 }
 
-WorldItem ItemCreator::createBallisticWeapon(int quality, int num, int worldTick) {
+WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randomer) {
     quality += 3;
-    RandomMachine randomer;
-    randomer.setSeed(num + worldTick);
-    WorldItem item; item.load("data/items/ballistic_1.dat");
+    WorldItem item;
     item.intVals["ITEM_LVL"] = quality - 3;
     item.intVals["DAMAGE"] = (randomer.getInt() % quality) * quality + quality;
     item.intVals["BPS"] = 1 + randomer.getInt() % (quality - 2);
@@ -124,47 +113,61 @@ WorldItem ItemCreator::createBallisticWeapon(int quality, int num, int worldTick
     return item;
 }
 
-WorldItem ItemCreator::createBeamWeapon(int quality, int num, int worldTick) {
+WorldItem ItemCreator::createBeamWeapon(int quality, RandomMachine& random) {
 
     // TODO
     ++quality;
-    RandomMachine randomer;
-    randomer.setSeed(num + worldTick);
-
-    WorldItem item = this->createBallisticWeapon(quality, num, worldTick);
+    WorldItem item = this->createBallisticWeapon(quality, random);
     return item;
 
 }
 
-WorldItem ItemCreator::createSmallItem(int quality, int num, int worldTick) {
-    RandomMachine random; random.setSeed(num + worldTick);
+WorldItem ItemCreator::createTorch(int quality, RandomMachine& random) {
+    WorldItem item;
+    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["TYPE"] = 4;
+    item.strVals["NAME"] = "Torch";
+    item.strVals["EFFECT1"] = "LIGHT";
+    item.intVals["EFFECT1"] = 2 + (random.getInt() & 7);
+    item.intVals["AMOUNT"] = quality * 2;
+    return item;
+}
+
+WorldItem ItemCreator::createMediKit(int quality, RandomMachine& random) {
+    WorldItem item;
+    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["TYPE"] = 4;
+    item.strVals["NAME"] = "RegeDrug";
+    item.strVals["EFFECT1"] = "HEALTH";
+    item.intVals["EFFECT1"] = 10 + 4 * (random.getInt() % quality);
+    item.intVals["AMOUNT"] = quality * 2;
+    return item;
+}
+
+WorldItem ItemCreator::createAntiDepressant(int quality, RandomMachine& random) {
+    WorldItem item;
+    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["TYPE"] = 4;
+    item.strVals["NAME"] = "Antidepressant";
+    item.strVals["EFFECT1"] = "SANITY";
+    item.intVals["EFFECT1"] = 10 + random.getInt() % 20;
+    item.intVals["AMOUNT"] = quality * 2 + (random.getInt() % (quality * 2));
+    return item;
+}
+
+WorldItem ItemCreator::createSmallItem(int quality, RandomMachine& random) {
     WorldItem item;
 
     int val = random.getInt() & 127;
     if(val < 40)
     {
-        item.intVals["ITEM_LVL"] = 1;
-        item.intVals["TYPE"] = 4;
-        item.strVals["NAME"] = "Antidepressant";
-        item.strVals["EFFECT1"] = "SANITY";
-        item.intVals["EFFECT1"] = 20;
-        item.intVals["AMOUNT"] = quality * 2;
+        return createAntiDepressant(quality, random);
     }
     else if(val < 80) {
-        item.intVals["ITEM_LVL"] = 1;
-        item.intVals["TYPE"] = 4;
-        item.strVals["NAME"] = "RegeDrug";
-        item.strVals["EFFECT1"] = "HEALTH";
-        item.intVals["EFFECT1"] = 20;
-        item.intVals["AMOUNT"] = quality * 2;
+        return createMediKit(quality, random);
     }
     else {
-        item.intVals["ITEM_LVL"] = 1;
-        item.intVals["TYPE"] = 4;
-        item.strVals["NAME"] = "Torch";
-        item.strVals["EFFECT1"] = "LIGHT";
-        item.intVals["EFFECT1"] = 2 + (random.getInt() & 7);
-        item.intVals["AMOUNT"] = quality * 2;
+        return createTorch(quality, random);
     }
 
     return item;

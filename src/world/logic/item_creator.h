@@ -10,21 +10,25 @@
 
 #include "world/objects/world_item.h"
 
+class RandomMachine;
+
 class ItemCreator {
-    WorldItem createAmulet(int, int, int);
-    WorldItem createArmsArmor(int, int, int);
-    WorldItem createTorsoArmor(int, int, int);
-    WorldItem createHeadArmor(int, int, int);
-    WorldItem createLegArmor(int, int, int);
-    WorldItem createBeltArmor(int, int, int);
-
-    WorldItem createWeapon(int, int, int);
-    WorldItem createBallisticWeapon(int, int, int);
-    WorldItem createBeamWeapon(int, int, int);
-
-    WorldItem createSmallItem(int, int, int);
-
 public:
+    WorldItem createAmulet(int, RandomMachine&);
+    WorldItem createArmsArmor(int, RandomMachine&);
+    WorldItem createTorsoArmor(int, RandomMachine&);
+    WorldItem createHeadArmor(int, RandomMachine&);
+    WorldItem createLegArmor(int, RandomMachine&);
+    WorldItem createBeltArmor(int, RandomMachine&);
+
+    WorldItem createWeapon(int, RandomMachine&);
+    WorldItem createBallisticWeapon(int, RandomMachine&);
+    WorldItem createBeamWeapon(int, RandomMachine&);
+
+    WorldItem createMediKit(int quality, RandomMachine& random);
+    WorldItem createAntiDepressant(int quality, RandomMachine& random);
+    WorldItem createTorch(int quality, RandomMachine& random);
+    WorldItem createSmallItem(int, RandomMachine&);
     WorldItem makeItem(int depth, int item_num, int worldTick);
 };
 

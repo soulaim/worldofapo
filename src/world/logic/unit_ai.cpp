@@ -228,7 +228,6 @@ void UnitAI::tick(World& world, Unit& unit) {
                         if(this->isLineClear(world, unit.getPosition(), it->second.getPosition())) {
                             unit.intVals["STATE"] = 2;
                             unit.intVals["T"] = it->first;
-                            world.add_message("^RATTACK! :GG");
                         }
                     }
                 }
@@ -253,35 +252,46 @@ void UnitAI::tick(World& world, Unit& unit) {
                     unit["T"] = current_target;
                 }
 
-                if(unit["T"] != -1 && (world.units.find(unit["T"]) != world.units.end()) ) {
-
+                std::map<int, Unit>::iterator it = world.units.find(unit["T"]);
+                if(unit["T"] != -1 && (it != world.units.end()) ) {
                     int angle = unit.angle;
                     int upangle = unit.upangle;
-                    this->turnTowardsTarget(unit, world.units[unit["T"]], angle, upangle);
+                    this->turnTowardsTarget(unit, it->second, angle, upangle);
                     unit.angle = angle;
                     unit.upangle = upangle;
+                    FixedPoint dist = (unit.getPosition() - it->second.getPosition()).lengthSquared();
 
-                    // heartbeat, leap
+                    // this should be ranged behaviour
+                    if( dist < 1000 ) {
+                        unit.keyState |= Unit::MOVE_LEFT;
+                    }
+                    else {
+                        unit.keyState |= Unit::MOVE_FRONT;
+                    }
+                    unit.mouseButtons |= Unit::MOUSE_LEFT;
+
+                    // this should be melee behaviour
+                    if(dist < 100) {
+                        it->second.takeDamage(1);
+                        it->second.last_damage_dealt_by = unit.id;
+                        it->second("DAMAGED_BY") = "devour";
+                        // TODO: sound + particles
+                    }
                     if((unit.birthTime * 7 + world.currentWorldFrame + unit.id * 13) % 50 == 0) {
                         if(unit.hasSupportUnderFeet()) {
-                            // LEAP!
-                            unit.velocity.y += FixedPoint(1, 15);
-                            unit.velocity += unit.getLookDirection() * FixedPoint(1, 10);
+                            unit.velocity.y += FixedPoint(15, 15);
+                            unit.velocity += unit.getLookDirection() * FixedPoint(13, 20);
                         }
                     }
                 }
 
-                unit.keyState |= Unit::MOVE_FRONT;
-                unit.mouseButtons |= Unit::MOUSE_LEFT;
-
                 // heartbeat - if can't see enemies and enemies are not nearby, go roaming.
-                if((unit.birthTime + world.currentWorldFrame + unit.id * 631) % 50 == 0 && (world.units.find(unit["T"]) != world.units.end()) ) {
-                    if(!isLineClear(world, unit.getPosition(), world.units[unit["T"]].getPosition())) {
-                        world.add_message("^RAlien ^Glost target! ^YGoing roaming.");
+                if( (unit.birthTime + world.currentWorldFrame + unit.id * 631) % 50 == 0 ) {
+                    if(it == world.units.end()) {
                         unit.intVals["STATE"] = 1;
                     }
-                    else {
-                        world.add_message("Line is clear");
+                    else if(!isLineClear(world, unit.getPosition(), it->second.getPosition())) {
+                        unit.intVals["STATE"] = 1;
                     }
                 }
 

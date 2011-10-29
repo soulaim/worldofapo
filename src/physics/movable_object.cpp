@@ -23,13 +23,13 @@ const Location& MovableObject::getLookDirection()
 {
 	static ApoMath apomath;
 	apomath.init(3000);
-	
+
 	FixedPoint cos = apomath.getCos(angle);
 	FixedPoint sin = apomath.getSin(angle);
 	FixedPoint upcos = apomath.getCos(upangle);
 	FixedPoint upsin = apomath.getSin(upangle);
-	
-	FixedPoint x = 30; // what is this actually? :D
+
+	FixedPoint x = 1; // what is this actually? :D
 	lookDirection.x = cos * upcos * x;
 	lookDirection.z = sin * upcos * x;
 	lookDirection.y =      -upsin * x;
@@ -57,7 +57,7 @@ void MovableObject::tick(const FixedPoint& terrainHeight)
 	{
 		position.y = terrainHeight;
 		velocity.y = 0;
-		
+
 		if(flags & AFFECTED_BY_FRICTION_BIT)
 		{
 			FixedPoint friction = getFriction();
@@ -65,7 +65,7 @@ void MovableObject::tick(const FixedPoint& terrainHeight)
 			velocity.z *= friction;
 		}
 	}
-	
+
 	position += velocity;
 }
 
