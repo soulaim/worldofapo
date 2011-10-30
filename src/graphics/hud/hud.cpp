@@ -141,9 +141,16 @@ void Hud::setPlayerInfo(map<int,PlayerInfo> *pInfo)
 
 void Hud::drawStatusBar() const
 {
-	stringstream ss;
-	ss << plr_name << " hp: " << health << " k/d: " << kills << "/" << deaths;
-	textRenderer.drawString(ss.str(), -0.9, 0.9, 2.0, true);
+	stringstream ss1;
+    stringstream ss2;
+    std::map<int, Unit>::iterator it = units->find(this->myID);
+    if(it == units->end())
+        return;
+
+	ss1 << "^YLife:     ^G" << health << "/" << it->second.getMaxHP();
+    ss2 << "^YSanity: ^B" << it->second.intVals["SANITY"] << " %";
+	textRenderer.drawString(ss1.str(), -0.9f, 0.9f, 2.0f, true);
+    textRenderer.drawString(ss2.str(), -0.9f, 0.83f, 2.0f, true);
 }
 
 void Hud::drawBanner() const

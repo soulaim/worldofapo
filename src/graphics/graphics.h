@@ -43,7 +43,7 @@ class GameView: public HasProperties
 	void updateCamera(const Level&); // TODO: separate camera and this function away from graphics.
 
 	void startDrawing();
-	void applyDeferredLights(const std::map<int, LightObject>& lights);
+	void applyDeferredLights(const std::map<int, LightObject>& lights, int, int, int);
 	void finishDrawing();
 
 	void drawDeferredDepthBuffer(const VisualWorld& visualworld);
@@ -62,7 +62,7 @@ class GameView: public HasProperties
 	void drawParticles_vbo(std::vector<Particle>&, const std::string& depth_texture);
 	void renderToBackbuffer();
 
-	void applyAmbientLight();
+	void applyAmbientLight(int, int, int);
 	void applyBlur(int blur, const std::string& input_texture, const Graphics::Framebuffer& renderTarget);
 	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, const Graphics::Framebuffer& renderTarget);
 

@@ -7,8 +7,8 @@ void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine&)
     HasProperties& stats = unit.getStatsEditor();
 
     // these are taken into account.
-    stats.intVals["CONSTITUTION"] = depth * 3;
-    stats.intVals["MOVEMENT"] = depth;
+    stats.intVals["CONSTITUTION"] = depth - 10;
+    stats.intVals["MOVEMENT"] = depth - 3;
     stats.intVals["TELEPATHIC"] = 10;
 
     // :G
@@ -21,7 +21,7 @@ void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine&)
     stats.intVals["DARKVISION"] = 10;
 
     unit.intVals["SANITY"] = 100;
-	unit.intVals["HEALTH"] = 200;
+	unit.intVals["HEALTH"] = 10;
 	unit.intVals["REGEN"] = 0;
 }
 
@@ -42,6 +42,8 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     monster["TEAM"] = 1;
     monster["T"] = -1;
     monster["HEALTH"] = monster.getMaxHP();
+
     monster["REWARD"] = 3;
+
     return monster;
 }

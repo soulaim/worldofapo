@@ -223,11 +223,11 @@ void GameView::drawLightsDeferred_multiple_passes(const Camera& camera, const st
 	glEnable(GL_DEPTH_TEST);
 }
 
-void GameView::applyDeferredLights(const std::map<int, LightObject>& lights)
+void GameView::applyDeferredLights(const std::map<int, LightObject>& lights, int red, int green, int blue)
 {
 	Graphics::Framebuffer::get("screenFBO").bind();
 
-	applyAmbientLight();
+	applyAmbientLight(red, green, blue);
 
 	if(intVals["DRAW_DEFERRED_LIGHTS"] == 2)
 	{

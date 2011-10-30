@@ -105,6 +105,7 @@ void InventoryRenderer::draw(const Inventory& inventory) {
                 this->textRenderer.drawString(details[i], -0.9f, -0.035f * i, 1.1f);
         }
     }
+    
 
     glDisable(GL_BLEND);
 

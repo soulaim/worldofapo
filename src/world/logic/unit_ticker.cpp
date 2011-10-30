@@ -18,6 +18,31 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 {
 	unit.intVals["D"] *= 0.95;
 
+    if(unit.human()) {
+        int zen_modifier = unit.getModifier("ZEN");
+        int& sanity = unit["SANITY"];
+
+        // sanity tremble
+        if(sanity < 60) {
+            RandomMachine random;
+            random.setSeed(world.currentWorldFrame);
+            int mouse_effect1 = 3 * (random.getInt() % (60 - sanity)) * ((random.getInt() & 1) * 2 - 1);
+            int mouse_effect2 = 3 * (random.getInt() % (60 - sanity)) * ((random.getInt() & 1) * 2 - 1);
+            unit.angle += mouse_effect1;
+            unit.upangle += mouse_effect2;
+        }
+
+        if(world.currentWorldFrame % (10 * zen_modifier) == 0) {
+            --sanity;
+            if(sanity < 0) {
+                sanity = 0;
+                unit.last_damage_dealt_by = unit.id;
+                unit.takeDamage(20);
+                unit("DAMAGED_BY") = "depression";
+            }
+        }
+    }
+
 	if(world.currentWorldFrame % 50 == 0)
 		unit.regenerate();
 

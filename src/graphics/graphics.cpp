@@ -351,16 +351,16 @@ void GameView::drawLightsDeferred_single_pass(int lights)
 	shader.stop();
 }
 
-void GameView::applyAmbientLight()
+void GameView::applyAmbientLight(int red, int green, int blue)
 {
 	Shader& shader = shaders.get_shader("deferred_ambientlight_program");
 	shader.start();
 
 	TextureHandler::getSingleton().bindTexture(0, Graphics::Framebuffer::get("deferredFBO").texture(0));
 	TextureHandler::getSingleton().bindTexture(1, Graphics::Framebuffer::get("deferredFBO").texture(1));
-	float r = intVals["AMBIENT_RED"]   / 255.0f;
-	float g = intVals["AMBIENT_GREEN"] / 255.0f;
-	float b = intVals["AMBIENT_BLUE"]  / 255.0f;
+	float r = red / 255.0f;
+	float g = green / 255.0f;
+	float b = blue / 255.0f;
 	glUniform4f(shader.uniform("ambientLight"), r, g, b, 1.0f);
 
 	glDepthMask(GL_FALSE);
@@ -501,7 +501,7 @@ void GameView::draw(
 
 	if(deferred_rendering)
 	{
-		applyDeferredLights(visualworld.lights);
+		applyDeferredLights(visualworld.lights, intVals["AMBIENT_RED"], intVals["AMBIENT_GREEN"], intVals["AMBIENT_BLUE"]);
 	}
 
 	string depth_texture = (deferred_rendering ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());

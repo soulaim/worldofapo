@@ -159,8 +159,7 @@ WorldItem ItemCreator::createSmallItem(int quality, RandomMachine& random) {
     WorldItem item;
 
     int val = random.getInt() & 127;
-    if(val < 40)
-    {
+    if(val < 40) {
         return createAntiDepressant(quality, random);
     }
     else if(val < 80) {

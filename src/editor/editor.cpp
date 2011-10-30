@@ -191,7 +191,7 @@ bool Editor::do_tick()
 
 	if(view.intVals["DEFERRED_RENDERING"])
 	{
-		view.applyDeferredLights(visualworld.lights);
+		view.applyDeferredLights(visualworld.lights, 30, 30, 30);
 	}
 
 	hud.drawFPS();
