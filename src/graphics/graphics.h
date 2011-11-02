@@ -107,7 +107,7 @@ public:
         const std::map<int, WorldItem>& items, // For debug.
 		std::map<int, Unit>& units, // For debug.
 		int blur
-		);
+    );
 
 	void drawMenuRectangles() const;
 	void drawMenuButtons(const std::vector<MenuButton>& buttons) const;

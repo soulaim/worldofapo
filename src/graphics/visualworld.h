@@ -7,6 +7,7 @@
 #include "graphics/terrain/grasscluster.h"
 #include "graphics/terrain/leveldescriptor.h"
 #include "graphics/camera.h"
+#include "graphics/projectile_path.h"
 
 #include "misc/hasproperties.h"
 #include "misc/idgenerator.h"
@@ -41,6 +42,7 @@ public:
 	ModelType getModelType(const std::string&);
 	Model* getModel(int id);
 
+    void pushProjectilePath(const Location& start, const Location& end);
 	void genParticleEmitter(const Location& pos, const Location& vel, int life, int max_rand, int scale, const std::string& s_color_s, const std::string& s_color_e, const std::string& e_color_s, const std::string& e_color_e, int scatteringCone = 500, int particlesPerFrame = 5, int particleLife = 50);
 
 	void createModel(int id, const Location& location, ModelType type, float scale);
@@ -71,6 +73,7 @@ public:
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
+    std::vector<ProjectilePath> projectilePaths;
 
 	LevelDescriptor levelDesc;
 

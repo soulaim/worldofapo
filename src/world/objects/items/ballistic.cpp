@@ -104,7 +104,7 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
 
     world.visualworld->weaponFireLight(eyePos + direction, 2, 150, 70, 30);
     sendMsg(SoundEvent("shoot", 100000, caster.getEyePosition()));
-    
+
     for(int i=0; i<bullets; ++i) {
         int id = world.nextUnitID();
         world.addProjectile(eyePos, id, VisualWorld::INVISIBLE_MODEL);
@@ -126,9 +126,9 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
 
         p["DAMAGE"] = item->intVals["DAMAGE"];
         p["BALLISTIC"] = 1;
-        p["TPF"] = 15;
+        p["TPF"] = 5;
         p["DEATH_IF_HITS_UNIT"] = 1;
-        p["LIFETIME"] = 5;
+        p["LIFETIME"] = 25;
         p["MASS"] = 50;
     }
 }

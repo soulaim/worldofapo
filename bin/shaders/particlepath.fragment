@@ -1,0 +1,9 @@
+
+// varying vec2 texcoord;
+
+void main()
+{
+	vec3 n = vec3(0.0, 1.0, 0.0);
+    gl_FragData[0] = gl_Color;
+	gl_FragData[1] = vec4(n, 1.0);
+}

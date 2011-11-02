@@ -21,6 +21,10 @@ void VisualWorld::init()
 	enable();
 }
 
+void VisualWorld::pushProjectilePath(const Location& start, const Location& end) {
+    projectilePaths.push_back(ProjectilePath(start, end));
+}
+
 void VisualWorld::insertLevelLight(const Location& position) {
     if(!this->active)
         return;
@@ -229,6 +233,15 @@ void VisualWorld::viewTick(const std::map<int, Unit>& units, const std::map<int,
 
 	static int previousWorldFrame = currentWorldFrame;
 	int timeDiff = currentWorldFrame - previousWorldFrame;
+
+    for(size_t i=0; i<projectilePaths.size(); ++i) {
+        projectilePaths[i].tick(timeDiff);
+        if(!projectilePaths[i].alive()) {
+            projectilePaths[i] = projectilePaths.back();
+            projectilePaths.pop_back();
+            --i;
+        }
+    }
 
 	camera.tick();
 

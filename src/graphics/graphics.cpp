@@ -434,6 +434,15 @@ void GameView::drawSolidGeometry(const VisualWorld& visualworld)
 		drawGrass(visualworld.meadows);
 	}
 
+
+    Shader& shader = shaders.get_shader("ppath"); shader.start();
+    TextureHandler::getSingleton().bindTexture(0, "chessboard");
+    glLineWidth(5);
+    for(size_t i=0; i<visualworld.projectilePaths.size(); ++i) {
+        visualworld.projectilePaths[i].draw();
+    }
+    shader.stop();
+
     roofRenderer.draw(visualworld.levelDesc.getLevel());
 }
 
