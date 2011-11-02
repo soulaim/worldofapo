@@ -17,7 +17,7 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     if(quality > 7)
         quality = 7;
 
-    int major_type =  random.getInt() & 15;
+    int major_type = random.getInt() & 15;
 
     switch(major_type) {
         case Inventory::AMULET_SLOT:

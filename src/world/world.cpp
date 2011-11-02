@@ -170,7 +170,7 @@ void World::createLevelObjects() //fazias
         }
         else if(it->object_name == "smallitem") {
             RandomMachine random; random.setSeed(itemCreationNums);
-            WorldItem item = itemCreator.createSmallItem(depth, random); item.position = pos;
+            WorldItem item = itemCreator.createSmallItem(1 + depth / 3, random); item.position = pos;
             this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
         }
         else if(it->object_name == "item") {
