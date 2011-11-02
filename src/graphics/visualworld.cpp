@@ -142,7 +142,6 @@ void VisualWorld::terminate()
 	models.clear();
 
 	lights.clear();
-	worldMessages.clear();
 
 	psources.clear();
 	particles.clear();
@@ -489,17 +488,6 @@ void VisualWorld::genParticleEmitter(const Location& pos, const Location& vel, i
 	pe.velocity = vel;
 
 	psources.push_back(pe);
-}
-
-
-void VisualWorld::add_message(const std::string& message)
-{
-
-	if(active == 0)
-		return;
-
-
-	worldMessages.push_back(message);
 }
 
 void VisualWorld::removeUnit(int id)

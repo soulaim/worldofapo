@@ -27,7 +27,7 @@ class Localplayer: private HasProperties, public MessagingSystem<BulletHitEvent>
 {
 public:
 	Localplayer(GameView*, UserIO*, Hud*, Window* window);
-	
+
 	void handle(const BulletHitEvent& event);
 	void handle(const DevourEvent& event);
 	void handle(const DeathPlayerEvent& event);
@@ -37,51 +37,48 @@ public:
 	void handle(const GameOver& event);
 	void handle(const GotPlayerID& event);
 	void handle(const GotMyName& event);
-	
+
 	void deliverMessages();
-	
+
 	bool client_tick();
-	
+
 	void draw();
 	void init();
-	
+
 	bool internetGameGetHeroes(const std::string&, std::map<std::string, CharacterInfo>&);
 	void internetGameSelectHero(const std::string&);
-	
+
 	void reload_confs();
-	
+
 	void startMusic(std::string name);
 	void endMusic();
 	void setMusicVolume();
 	void reset();
-	
+
 private:
 	void endGame();
-	
+
 	void handleMetaEvent(HasProperties& event);
 	void handleWorldEvents();
 	void camera_handling();
-	
+
 	bool handleClientLocalInput();
 	void process_sent_game_input();
 	void sendCheckSumMessage();
-	
-	// fully 3D single channel sounds! :DD
-	void playSound(const std::string& name, const Location& position);
-	
+
 	bool set_local_variable(const std::string& clientCommand);
-	
+
 private:
 	bool need_to_tick_world;
-	
+
 	int client_input_state;
 	std::string clientCommand;
-	
+
 	Hud* hud;
 	GameView* view;
 	UserIO* userio;
 	Window* window;
-	
+
 	Game game;
 	GameSound soundsystem;
 	VisualWorld visualworld;

@@ -103,6 +103,7 @@ WorldItem ItemCreator::createWeapon(int quality, RandomMachine& random) {
 WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randomer) {
     quality += 3;
     WorldItem item;
+    item.intVals["TYPE"] = 1;
     item.intVals["ITEM_LVL"] = quality - 3;
     item.intVals["DAMAGE"] = (randomer.getInt() % quality) * quality + quality;
     item.intVals["BPS"] = 1 + randomer.getInt() % (quality - 2);
@@ -116,6 +117,8 @@ WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randome
 WorldItem ItemCreator::createBeamWeapon(int quality, RandomMachine& random) {
 
     // TODO
+    // item.intVals["TYPE"] = 0;
+
     ++quality;
     WorldItem item = this->createBallisticWeapon(quality, random);
     return item;

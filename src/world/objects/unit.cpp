@@ -109,15 +109,13 @@ void Unit::jump()
 {
 	if(getMobility() > FixedPoint(0))
 	{
-		soundInfo = "jump";
+        sendMsg(SoundEvent("jump", 100000, this->getEyePosition()));
 		velocity.y = FixedPoint(1100, 1000);
 	}
 }
 
 void Unit::processInput(World& world)
 {
-	soundInfo = "";
-
 	if(getKeyAction(Unit::WEAPON1))
 	{
 		switchWeapon(world, 0);
@@ -164,11 +162,12 @@ void Unit::processInput(World& world)
 		accelerateRight();
 	}
 
-	if(getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (soundInfo == ""))
-		soundInfo = "walk";
+    int value = (id * 531 + world.currentWorldFrame) & 7;
+	if(getKeyAction(Unit::MOVE_RIGHT | Unit::MOVE_LEFT | Unit::MOVE_FRONT | Unit::MOVE_BACK) && (value == 0)) {
+        sendMsg(SoundEvent("walk", 100000, this->getEyePosition()));
+    }
 
-	if(getKeyAction(Unit::JUMP))
-	{
+	if(getKeyAction(Unit::JUMP)) {
 		jump();
 	}
 

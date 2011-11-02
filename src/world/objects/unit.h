@@ -106,9 +106,7 @@ public:
     const HasProperties& getStats() const;
     HasProperties& getStatsEditor();
 
-	std::string soundInfo;
 	int controllerTypeID;
-
 	int model_type; // the visual representation's ID
 
 	int keyState; // what is the unit doing right now, represented as player keyboard input

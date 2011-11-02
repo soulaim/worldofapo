@@ -6,7 +6,6 @@ DIRS += src/world/logic src/world/level
 
 CLIENT_DIRS := $(DIRS) src/main
 SERVER_DIRS := $(DIRS) src/dedicated
-EDITOR_DIRS := $(DIRS) src/editor
 
 INCLUDE_DIRS := -I src
 OPENMP   := -fopenmp
@@ -22,14 +21,13 @@ LDLIBS   := -lSDL_mixer -L ./lib/ -lGLEW
 LDLIBS   += $(shell pkg-config --libs $(PACKAGES))
 
 CLIENT = bin/client
-EDITOR = bin/editor
 SERVER = bin/server
 
 SRC := src
 OBJ := obj
 BIN := bin
 
-all: dirs $(CLIENT) $(EDITOR) $(SERVER)
+all: dirs $(CLIENT) $(SERVER)
 
 debug: CXXFLAGS += -O0 -g
 debug: LDLIBS += -g
@@ -40,24 +38,20 @@ prof: LDLIBS += -pg
 prof: all
 
 SRC_CLIENT := $(foreach dir, $(CLIENT_DIRS), $(wildcard $(dir)/*.cpp))
-SRC_EDITOR := $(foreach dir, $(EDITOR_DIRS), $(wildcard $(dir)/*.cpp))
 SRC_SERVER := $(foreach dir, $(SERVER_DIRS), $(wildcard $(dir)/*.cpp))
 
 OBJ_CLIENT := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRC_CLIENT))
 OBJ_SERVER := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRC_SERVER))
-OBJ_EDITOR := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRC_EDITOR))
 
 DEPFILES := $(OBJ_CLIENT:.o=.d)
 DEPFILES += $(OBJ_SERVER:.o=.d)
-DEPFILES += $(OBJ_EDITOR:.o=.d)
 DEPFILES := $(sort $(DEPFILES))
 
 .PHONY: all clean dirs echo
 
-all: dirs $(CLIENT) $(EDITOR) $(SERVER)
+all: dirs $(CLIENT) $(SERVER)
 
 $(CLIENT): $(OBJ_CLIENT)
-$(EDITOR): $(OBJ_EDITOR)
 $(SERVER): $(OBJ_SERVER)
 
 $(BIN)/%:
@@ -70,13 +64,12 @@ $(OBJ)/%.o: $(SRC)/%.cpp
 	@$(CXX) $(CXXFLAGS) -MM -MT "$(@:.d=.o) $@" $< > $(@:.o=.d)
 
 clean:
-	@$(RM) -rf $(CLIENT) $(SERVER) $(EDITOR) $(OBJ)
+	@$(RM) -rf $(CLIENT) $(SERVER) $(OBJ)
 
 dirs:
 	@mkdir -p $(OBJ)
 	@mkdir -p $(patsubst $(SRC)/%, $(OBJ)/%, $(shell find $(CLIENT_DIRS) -type d))
 	@mkdir -p $(patsubst $(SRC)/%, $(OBJ)/%, $(shell find $(SERVER_DIRS) -type d))
-	@mkdir -p $(patsubst $(SRC)/%, $(OBJ)/%, $(shell find $(EDITOR_DIRS) -type d))
 
 ifneq ($(MAKECMDGOALS),clean)
   -include $(DEPFILES)

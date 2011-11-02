@@ -98,9 +98,9 @@ void Hud::setLocalPlayerDeaths(const int d)
 	deaths = ss.str();
 }
 
-void Hud::pushMessage(const string& msg)
+void Hud::handle(const ChatMessage& msg)
 {
-	viewMessages.push_back(ViewMessage(msg, currentTime));
+	viewMessages.push_back(ViewMessage(msg.line, currentTime));
 }
 
 void Hud::setTime(unsigned time)

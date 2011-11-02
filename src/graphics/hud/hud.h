@@ -3,9 +3,11 @@
 
 #include "world/playerinfo.h"
 #include "world/objects/unit.h"
+#include "world/worldevent.h"
 #include "graphics/viewmessage.h"
 #include "misc/vec3.h"
 #include "misc/hasproperties.h"
+#include "misc/messaging_system.h"
 #include "graphics/hud/inventoryrenderer.h"
 #include "graphics/hud/itempickrenderer.h"
 #include "graphics/hud/barRenderer.h"
@@ -16,12 +18,14 @@
 #include <vector>
 #include <map>
 
-class Hud : public HasProperties
+class Hud : public HasProperties, public MessagingSystem<ChatMessage>
 {
 	friend class GameView;
 
 public:
 	Hud();
+
+    void handle(const ChatMessage& msg);
 
     // TODO: This is all such a load of crap. Get rid of the shit.
 	void reset();
@@ -31,7 +35,6 @@ public:
 	void setPlayerInfo(std::map<int,PlayerInfo>* pInfo);
 	void setLocalPlayerKills(const int k);
 	void setLocalPlayerDeaths(const int d);
-	void pushMessage(const std::string&);
 	void setCurrentClientCommand(const std::string&);
 	void setTime(unsigned);
 	void world_tick();

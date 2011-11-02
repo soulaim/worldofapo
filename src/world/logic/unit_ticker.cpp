@@ -4,6 +4,8 @@
 #include "world/objects/unit.h"
 #include "graphics/models/model.h"
 
+#include "misc/messaging_system.h"
+
 FixedPoint heightDifference2Velocity(const FixedPoint& h_diff)
 {
 	// no restrictions for moving downhill
@@ -60,8 +62,9 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 
 	if(unit.hasSupportUnderFeet())
 	{
-		if(unit.velocity.y < FixedPoint(-7, 10))
-			unit.soundInfo = "jump_land";
+		if(unit.velocity.y < FixedPoint(-7, 10)) {
+            sendMsg(SoundEvent("jump_land", 100000, unit.getEyePosition()));
+        }
 
 		unit.landingDamage();
 		unit.applyFriction();

@@ -103,7 +103,8 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
     int bullets = item->intVals["BPS"];
 
     world.visualworld->weaponFireLight(eyePos + direction, 2, 150, 70, 30);
-
+    sendMsg(SoundEvent("shoot", 100000, caster.getEyePosition()));
+    
     for(int i=0; i<bullets; ++i) {
         int id = world.nextUnitID();
         world.addProjectile(eyePos, id, VisualWorld::INVISIBLE_MODEL);

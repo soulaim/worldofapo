@@ -60,6 +60,21 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 	checksums.push_back(hash);
 }
 
+void World::handle(const SoundEvent& event) {
+    int id = getLocalPlayerID();
+    if(id >= 0) {
+        std::map<int, Unit>::iterator it = units.find(id);
+        if(it == units.end())
+            return;
+
+        PlaySoundEvent e;
+        e.sound = event.sound;
+        e.distance = (it->second.getEyePosition() - event.source).length().getFloat();
+        e.magnitude = event.magnitude;
+        sendMsg(e);
+    }
+}
+
 int World::getLocalPlayerID() {
     return this->localPlayerID;
 }
@@ -401,7 +416,7 @@ void World::worldTick(int tickCount)
 			{
 				stringstream msg;
 				msg << currentWorldFrame << ": " << iter->second.name << " (" << iter->first << "): " << iter->second.position.x.getFloat() << ", " << iter->second.position.z.getFloat();
-				visualworld->add_message(msg.str());
+				add_message(msg.str());
 			}
 		}
 	}
@@ -528,5 +543,7 @@ void World::handle(const GotPlayerID& event)
 
 void World::add_message(const std::string& message) const
 {
-	visualworld->add_message(message);
+    ChatMessage msg;
+    msg.line = message;
+    sendMsg(msg);
 }

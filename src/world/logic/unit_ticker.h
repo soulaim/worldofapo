@@ -13,6 +13,8 @@ class Unit;
 class Model;
 
 #include "unit_ai.h"
+#include "misc/vec3.h"
+#include <string>
 
 class UnitTicker {
     UnitAI unit_ai;

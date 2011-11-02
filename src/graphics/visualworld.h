@@ -62,8 +62,6 @@ public:
 
 	void removeUnit(int id);
 
-	void add_message(const std::string& message);
-
 	bool isActive();
 	void disable();
 	void enable();
@@ -73,8 +71,6 @@ public:
 public:
 	std::map<int, Model*> models;
 	std::map<int, LightObject> lights;
-
-	std::vector<std::string> worldMessages;
 
 	LevelDescriptor levelDesc;
 

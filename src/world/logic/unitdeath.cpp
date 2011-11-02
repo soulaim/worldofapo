@@ -59,13 +59,13 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
         if(actor_id != target_id)
         {
             msg << target_colour << unit.name << " ^Wwas killed by " << killer_colour << killer << " ^g(" << unit("DAMAGED_BY") << ")";
-            world.visualworld->add_message(msg.str());
+            world.add_message(msg.str());
         }
         else
         {
             actor_id  = -1; // For a suicide, no points are to be awarded.
             msg << target_colour << killer << " ^Whas committed suicide by ^g" << unit("DAMAGED_BY");
-            world.visualworld->add_message(msg.str());
+            world.add_message(msg.str());
         }
     }
 

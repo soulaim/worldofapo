@@ -27,7 +27,7 @@
 
 class Model;
 
-class World : public HasProperties, public MessagingSystem<GotPlayerID>
+class World : public HasProperties, public MessagingSystem<GotPlayerID>, public MessagingSystem<SoundEvent>
 {
 
 	struct Team
@@ -56,6 +56,7 @@ class World : public HasProperties, public MessagingSystem<GotPlayerID>
 
 public:
 
+    void handle(const SoundEvent& event);
     std::string getTeamColour(Unit&);
 
 	int currentWorldFrame;
