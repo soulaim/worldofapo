@@ -127,7 +127,7 @@ WorldItem ItemCreator::createBeamWeapon(int quality, RandomMachine& random) {
 
 WorldItem ItemCreator::createTorch(int quality, RandomMachine& random) {
     WorldItem item;
-    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["ITEM_LVL"] = 3;
     item.intVals["TYPE"] = 4;
     item.strVals["NAME"] = "Torch";
     item.strVals["EFFECT1"] = "LIGHT";
@@ -138,7 +138,7 @@ WorldItem ItemCreator::createTorch(int quality, RandomMachine& random) {
 
 WorldItem ItemCreator::createMediKit(int quality, RandomMachine& random) {
     WorldItem item;
-    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["ITEM_LVL"] = 4;
     item.intVals["TYPE"] = 4;
     item.strVals["NAME"] = "RegeDrug";
     item.strVals["EFFECT1"] = "HEALTH";
@@ -149,7 +149,7 @@ WorldItem ItemCreator::createMediKit(int quality, RandomMachine& random) {
 
 WorldItem ItemCreator::createAntiDepressant(int quality, RandomMachine& random) {
     WorldItem item;
-    item.intVals["ITEM_LVL"] = 1;
+    item.intVals["ITEM_LVL"] = 2;
     item.intVals["TYPE"] = 4;
     item.strVals["NAME"] = "Antidepressant";
     item.strVals["EFFECT1"] = "SANITY";
