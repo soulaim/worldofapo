@@ -39,7 +39,7 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
             if(sanity < 0) {
                 sanity = 0;
                 unit.last_damage_dealt_by = unit.id;
-                unit.takeDamage(20);
+                unit.takeDamage(20, DamageType::PURE);
                 unit("DAMAGED_BY") = "depression";
             }
         }

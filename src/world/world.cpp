@@ -113,7 +113,7 @@ void World::instantForceOutwards(const FixedPoint& power, const Location& pos, c
 		if(int_damage > 0)
 		{
 			Unit& u = iter->second;
-			u.takeDamage(int_damage);
+			u.takeDamage(int_damage, DamageType::PURE);
 			u.last_damage_dealt_by = owner;
 			u("DAMAGED_BY") = name;
 		}

@@ -7,6 +7,7 @@
 #include "physics/movable_object.h"
 #include "world/objects/inventory.h"
 #include "world/objects/itempicker.h"
+#include "world/logic/damagetype.h"
 
 #include <vector>
 #include <string>
@@ -135,7 +136,7 @@ public:
 	int getMouseAction(int type) const;
 	bool human() const;
 
-	void takeDamage(int);
+	void takeDamage(int, int);
 
 	std::string copyOrder(int ID) const;
 	void handleCopyOrder(std::stringstream& ss);

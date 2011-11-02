@@ -125,6 +125,7 @@ void BallisticWeaponUsage::onActivatePrimary(WorldItem* item, World& world, Unit
         p("NAME") = (*item)("NAME");
 
         p["DAMAGE"] = item->intVals["DAMAGE"];
+        p["DAMAGE_TYPE"] = item->intVals["DAMAGE_TYPE"];
         p["BALLISTIC"] = 1;
         p["TPF"] = 5;
         p["DEATH_IF_HITS_UNIT"] = 1;

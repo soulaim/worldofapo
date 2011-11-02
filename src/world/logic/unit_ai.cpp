@@ -272,7 +272,7 @@ void UnitAI::tick(World& world, Unit& unit) {
 
                     // this should be melee behaviour
                     if(dist < 100) {
-                        it->second.takeDamage(1);
+                        it->second.takeDamage(1, DamageType::ARMOR_PIERCING);
                         it->second.last_damage_dealt_by = unit.id;
                         it->second("DAMAGED_BY") = "devour";
                         // TODO: sound + particles

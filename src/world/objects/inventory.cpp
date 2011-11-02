@@ -1,4 +1,5 @@
 
+#include "world/logic/item_creator.h"
 #include "world/objects/inventory.h"
 #include "world/objects/unit.h"
 #include "world/world.h"
@@ -13,8 +14,22 @@ Inventory::Inventory(): max_items(11), small_items_begin(8) {
         this->wieldedItems[i] = 0;
     }
 
+    RandomMachine random; random.setSeed(1);
+    ItemCreator creator;
+
     this->wieldedItems[6] = new WorldItem();
-    this->wieldedItems[6]->load("data/items/ballistic_1.dat");
+    (*this->wieldedItems[6]) = creator.createBallisticWeapon(1, random);
+    (*this->wieldedItems[6]).intVals["DAMAGE"] = 6;
+}
+
+int Inventory::getArmorClass() {
+    int ac = 0;
+    for(unsigned i=0; i<6; ++i) {
+        if(this->wieldedItems[i] == 0)
+            continue;
+        ac += this->wieldedItems[i]->intVals["AC"];
+    }
+    return ac;
 }
 
 Inventory::Inventory(const Inventory& inventory): max_items(11), small_items_begin(8) {
@@ -107,11 +122,6 @@ WorldItem* Inventory::getItemActive() const {
 
 WorldItem* Inventory::getItemSlot(int slot_id) const {
     return this->wieldedItems[slot_id];
-}
-
-int Inventory::getArmorClass() {
-    // TODO
-    return 0;
 }
 
 int getSlot(WorldItem* item) {

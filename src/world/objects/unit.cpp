@@ -230,7 +230,7 @@ void Unit::landingDamage()
 		{
 			velocity.x *= FixedPoint(10, 100);
 			velocity.z *= FixedPoint(10, 100);
-			takeDamage(damage_int * damage_int / 500);
+			takeDamage(damage_int * damage_int / 500, DamageType::PHYSICAL);
 		}
 
 		// allow deny only after surviving the first hit with ground.
@@ -336,10 +336,43 @@ void Unit::levelUp(World& world)
     }
 }
 
-void Unit::takeDamage(int damage)
+void Unit::takeDamage(int damage, int damageType)
 {
-	intVals["HEALTH"] -= damage;
-	intVals["D"] += damage;
+    switch(damageType) {
+
+        // physical damage, resisted by armor
+        case DamageType::PHYSICAL:
+        {
+            int ac = this->inventory.getArmorClass();
+            if(damage <= ac)
+                return;
+
+            intVals["HEALTH"] -= damage - ac;
+            intVals["D"] += damage - ac;
+            break;
+        }
+
+        // pure damage, cannot be resisted
+        case DamageType::PURE:
+        {
+            intVals["HEALTH"] -= damage;
+            intVals["D"] += damage;
+            break;
+        }
+
+        // armor piercing damage, armor effect is halved
+        case DamageType::ARMOR_PIERCING:
+        {
+            int ac = this->inventory.getArmorClass() >> 1;
+            if(damage <= ac)
+                return;
+
+            intVals["HEALTH"] -= damage - ac;
+            intVals["D"] += damage - ac;
+            break;
+        }
+
+    }
 }
 
 void Unit::zeroMovement()

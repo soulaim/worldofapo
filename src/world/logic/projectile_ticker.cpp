@@ -81,7 +81,7 @@ void ProjectileTicker::tickProjectile(World& world, Projectile& projectile, Mode
 				}
 				else
 				{
-					u->takeDamage(projectile["DAMAGE"]); // does damage according to weapon definition :)
+					u->takeDamage(projectile["DAMAGE"], projectile["DAMAGE_TYPE"]); // does damage according to weapon definition :)
 					u->last_damage_dealt_by = projectile_owner;
 					(*u)("DAMAGED_BY") = projectile_name;
 				}

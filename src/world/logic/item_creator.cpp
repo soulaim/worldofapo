@@ -2,6 +2,7 @@
 #include "world/logic/item_creator.h"
 #include "world/random.h"
 #include "world/objects/inventory.h"
+#include "world/logic/damagetype.h"
 
 WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     RandomMachine random;
@@ -103,6 +104,7 @@ WorldItem ItemCreator::createWeapon(int quality, RandomMachine& random) {
 WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randomer) {
     quality += 3;
     WorldItem item;
+    item.intVals["DAMAGE_TYPE"] = DamageType::PHYSICAL;
     item.intVals["TYPE"] = 1;
     item.intVals["ITEM_LVL"] = quality - 3;
     item.intVals["DAMAGE"] = (randomer.getInt() % quality) * quality + quality;
