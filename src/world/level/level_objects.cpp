@@ -19,6 +19,12 @@ bool LevelObjects::addObject(char levelFormatMark, int coordinate_x, int coordin
         return true;
     }
 
+    if (levelFormatMark == 'S')
+    {
+        objects.push_back(LevelObject(coordinate_x, coordinate_y, "smallitem"));
+        return true;
+    }
+
     if (levelFormatMark == 'T')
     {
         objects.push_back(LevelObject(coordinate_x, coordinate_y, "item"));

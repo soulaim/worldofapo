@@ -7,7 +7,7 @@ WorldItem ItemCreator::makeItem(int depth, int item_num, int worldTick) {
     RandomMachine random;
     random.setSeed(item_num + worldTick);
 
-    int max_quality = 1 + depth / 3;
+    int max_quality = depth / 3;
     for(int i=0; i<max_quality; ++i)
         if(random.getInt() & 3)
             --max_quality;

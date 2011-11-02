@@ -151,10 +151,11 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 }
 
 
-
-//TODO: add creation of level objects or make seperate function for it.
 void World::createLevelObjects() //fazias
 {
+    // TODO: This should somehow be a property of the world or something.
+    int depth = 1;
+
     cerr << "reading level objects" << endl;
     vector<LevelObject> objects = lvl.level_objects.getObjects();
     int itemCreationNums = 0;
@@ -167,8 +168,13 @@ void World::createLevelObjects() //fazias
             int id = unitIDgenerator.nextID();
             addBoxUnit(id, pos);
         }
+        else if(it->object_name == "smallitem") {
+            RandomMachine random; random.setSeed(itemCreationNums);
+            WorldItem item = itemCreator.createSmallItem(depth, random); item.position = pos;
+            this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+        }
         else if(it->object_name == "item") {
-            WorldItem item = itemCreator.makeItem(5, ++itemCreationNums, this->currentWorldFrame);
+            WorldItem item = itemCreator.makeItem(depth, ++itemCreationNums, this->currentWorldFrame);
             item.position = pos;
             this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
         }
