@@ -46,6 +46,7 @@ class GameView: public HasProperties
 	void applyDeferredLights(const std::map<int, LightObject>& lights, int, int, int);
 	void finishDrawing();
 
+    void drawFullscreenQuad() const;
 	void drawDeferredDepthBuffer(const VisualWorld& visualworld);
 
 	void drawLightsDeferred_single_pass(int lights);

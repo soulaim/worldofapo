@@ -2,6 +2,7 @@ grass data/grass1024.png
 highground data/highground.png
 hill data/hill.png
 
+menu_bg data/images/menu_bg.png
 chessboard data/chessboard.png
 marine data/images/marine_tex_01.png
 smoke data/smoke.png

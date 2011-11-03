@@ -176,19 +176,16 @@ void Hud::drawAmmo() const
     if(item->intVals["TYPE"] == 1)
     {
         float reloading = 1.0f * item->intVals["RLTIME"] / item->intVals["RELOAD_TIME"];
-        // float oncooldown = item->intVals["CD"] / 25.0f;
         int clip_ammo = item->intVals["CLIP"];
         int clip_size = item->intVals["CLIPSIZE"];
 
         stringstream ammo;
         string colorCode;
 
-        if(clip_ammo > 0)
-        {
+        if(clip_ammo > 0) {
             colorCode = "^G";
         }
-        else
-        {
+        else {
             colorCode = "^R";
         }
 

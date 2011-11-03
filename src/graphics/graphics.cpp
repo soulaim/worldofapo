@@ -666,7 +666,6 @@ void GameView::drawGrass(const std::vector<GrassCluster>& meadows)
 
 void GameView::drawMenuParticles(const std::vector<MenuParticle>& menuParticles, int front, float scale, const string& color) const
 {
-    // render a menu background scene! Falling particles would be awesome.
     for(size_t i = 0;i < menuParticles.size();i++)
     {
         stringstream menuparticle;
@@ -719,6 +718,11 @@ void GameView::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
+
+    // render a menu background scene! Falling particles would be awesome.
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    TextureHandler::getSingleton().bindTexture(0, "menu_bg");
+    this->drawFullscreenQuad();
 
 	if(intVals.find("MENU_FALLING_NUMBERS")->second)
 	{

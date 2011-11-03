@@ -1,7 +1,16 @@
-#include "opengl.h"
+#include "graphics/opengl.h"
+#include "graphics/graphics.h"
 
-void drawFullscreenQuad()
+void GameView::drawFullscreenQuad() const
 {
+    glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
 	float vertices[4*3] =
 	{
 		-1.0f, -1.0f, -1.0f,
@@ -26,13 +35,10 @@ void drawFullscreenQuad()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-/*
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 0.f); glVertex3f(+1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.f, 1.f); glVertex3f(+1.0f, +1.0f, -1.0f);
-	glTexCoord2f(0.f, 1.f); glVertex3f(-1.0f, +1.0f, -1.0f);
-	glEnd();
-*/
+
+	glEnable(GL_DEPTH_TEST);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 
