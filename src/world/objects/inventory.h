@@ -54,7 +54,7 @@ public:
     void dropItemCurrent(World&, Unit&); // drop active item (how to drop armor?)
     void dropItemSlot(World&, Unit&, int); // drop the item from a given slot.
     void dropAll(World&, Unit&); // when a unit dies, it drops all items.
-    int getArmorClass();
+    int getArmorClass() const;
 
     void pickUpHelper(World&, Unit&, WorldItem*, int);
     bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.

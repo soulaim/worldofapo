@@ -20,6 +20,7 @@ void SmallItemUsage::applyEffect(WorldItem* item, World& world, Unit& unit, cons
     auto it = unit.intVals.find(effect);
     if(it != unit.intVals.end()) {
         it->second += value;
+        unit.clamp(effect);
     }
 
     // special case for lights

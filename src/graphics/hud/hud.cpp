@@ -143,14 +143,17 @@ void Hud::drawStatusBar() const
 {
 	stringstream ss1;
     stringstream ss2;
+    stringstream ss3;
     std::map<int, Unit>::iterator it = units->find(this->myID);
     if(it == units->end())
         return;
 
 	ss1 << "^YLife:     ^G" << health << "/" << it->second.getMaxHP();
     ss2 << "^YSanity: ^B" << it->second.intVals["SANITY"] << " %";
-	textRenderer.drawString(ss1.str(), -0.9f, 0.9f, 2.0f, true);
+    ss3 << "^YArmor:   ^W" << it->second.getInventory().getArmorClass();
+	textRenderer.drawString(ss1.str(), -0.9f, 0.90f, 2.0f, true);
     textRenderer.drawString(ss2.str(), -0.9f, 0.83f, 2.0f, true);
+    textRenderer.drawString(ss3.str(), -0.9f, 0.76f, 2.0f, true);
 }
 
 void Hud::drawBanner() const

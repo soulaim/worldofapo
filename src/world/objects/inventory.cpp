@@ -22,7 +22,7 @@ Inventory::Inventory(): max_items(11), small_items_begin(8) {
     (*this->wieldedItems[6]).intVals["DAMAGE"] = 6;
 }
 
-int Inventory::getArmorClass() {
+int Inventory::getArmorClass() const {
     int ac = 0;
     for(unsigned i=0; i<6; ++i) {
         if(this->wieldedItems[i] == 0)

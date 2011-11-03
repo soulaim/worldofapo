@@ -61,6 +61,7 @@ public:
 
 	Unit();
 
+    void clamp(const std::string& property);
     void preTick();
     void pushPickableItem(WorldItem& item);
     ItemPicker itemPick;

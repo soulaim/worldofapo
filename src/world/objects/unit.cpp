@@ -67,6 +67,19 @@ void Unit::pushPickableItem(WorldItem& item) {
     this->itemPick.pushItem( item, (item.position - this->position).lengthSquared() );
 }
 
+void Unit::clamp(const string& property) {
+    if(property == "HEALTH") {
+        int maxHP = getMaxHP();
+        if(intVals["HEALTH"] > maxHP)
+            intVals["HEALTH"] = maxHP;
+    }
+
+    if(property == "SANITY") {
+        if(intVals["SANITY"] > 100)
+            intVals["SANITY"] = 100;
+    }
+}
+
 // TODO: Hide this functionality behind some unit ticker class
 void Unit::accelerateForward()
 {
