@@ -28,8 +28,9 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
         if(sanity < 60) {
             RandomMachine random;
             random.setSeed(world.currentWorldFrame);
-            int mouse_effect1 = 3 * (random.getInt() % (60 - sanity)) * ((random.getInt() & 1) * 2 - 1);
-            int mouse_effect2 = 3 * (random.getInt() % (60 - sanity)) * ((random.getInt() & 1) * 2 - 1);
+            int maxEffect = (60 - sanity < 30) ? (60 - sanity) : 30;
+            int mouse_effect1 = 3 * (random.getInt() % (maxEffect)) * ((random.getInt() & 1) * 2 - 1);
+            int mouse_effect2 = 3 * (random.getInt() % (maxEffect)) * ((random.getInt() & 1) * 2 - 1);
             unit.angle += mouse_effect1;
             unit.upangle += mouse_effect2;
         }

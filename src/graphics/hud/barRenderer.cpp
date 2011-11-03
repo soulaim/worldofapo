@@ -90,9 +90,6 @@ void BarRenderer::drawBar(float size, const string& start_color, const string& e
 		glVertex3f(min_x, max_y, 1.0f);
 	glEnd();
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glPopMatrix();

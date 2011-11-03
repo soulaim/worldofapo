@@ -166,51 +166,49 @@ void Hud::drawAmmo() const
 	if(units->find(myID) == units->end())
 		return;
 
-    /*
 	Unit& myUnit = units->find(myID)->second;
-	string& ammotype = myUnit.weapons[myUnit.weapon].strVals["AMMUNITION_TYPE"];
-	float reloading = myUnit.weapons[myUnit.weapon].isReloading().getFloat();
-	// float oncooldown = myUnit.weapons[myUnit.weapon].onCooldown().getFloat();
-	int clip_ammo = myUnit.weapons[myUnit.weapon].intVals["CLIP_BULLETS"];
+    const Inventory& inventory = myUnit.getInventory();
+    WorldItem* item = inventory.getItemActive();
+    if(item == 0)
+        return;
 
-	stringstream ammo;
-	string colorCode;
+    // info display for ballistic weapons.
+    if(item->intVals["TYPE"] == 1)
+    {
+        float reloading = 1.0f * item->intVals["RLTIME"] / item->intVals["RELOAD_TIME"];
+        // float oncooldown = item->intVals["CD"] / 25.0f;
+        int clip_ammo = item->intVals["CLIP"];
+        int clip_size = item->intVals["CLIPSIZE"];
 
-	int numAmmo = myUnit.intVals[ammotype];
+        stringstream ammo;
+        string colorCode;
 
-	if(numAmmo > 50)
-	{
-		colorCode = "^G";
-	}
-	else if(numAmmo > 35)
-	{
-		colorCode = "^g";
-	}
-	else if(numAmmo > 20)
-	{
-		colorCode = "^Y";
-	}
-	else if(numAmmo > 10)
-	{
-		colorCode = "^y";
-	}
-	else
-	{
-		colorCode = "^R";
-	}
+        if(clip_ammo > 0)
+        {
+            colorCode = "^G";
+        }
+        else
+        {
+            colorCode = "^R";
+        }
 
-	ammo << "^Y" << ammotype << ": " << colorCode << clip_ammo << "/" << numAmmo;
+        ammo << "^YAmmo: " << colorCode << clip_ammo << "/" << clip_size;
 
-	textRenderer.drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
+        textRenderer.drawString(ammo.str(), 0.f, -0.9f, 2.0f, true);
 
-	if(reloading > 0.00001f)
-	{
-		// this should be centered
-		textRenderer.drawString("^RRELOADING", -0.2, -0.7f, 2.0f, true);
-		drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.77f, -0.72f);
-	}
-    */
+        /*
+        if(oncooldown > 0.1f) {
+            textRenderer.drawString("cooldown");
+        }
+        */
 
+        if(reloading > 0.00001f)
+        {
+            // this should be centered
+            textRenderer.drawString("^RRELOADING", -0.2, -0.7f, 2.0f, true);
+            barRenderer.drawBar(reloading, "GREEN", "GREEN", -0.2, +0.2, -0.77f, -0.72f);
+        }
+    }
 }
 
 

@@ -48,9 +48,6 @@ void BallisticWeaponUsage::getDetails(WorldItem* item, std::vector<std::string>&
     std::stringstream ss_dps;
     ss_dps << "^YTotal DPS: ^R" << (item->intVals["DAMAGE"] * item->intVals["BPS"] / (item->intVals["COOLDOWN"] / 25.0f));
 
-    std::stringstream ss_spread;
-    ss_spread << "^YProjectile spread: ^R" << item->intVals["SPREAD"];
-
     details.push_back(ss_name.str());
     details.push_back(ss_clip.str());
     details.push_back(ss_cooldown.str());
@@ -58,7 +55,6 @@ void BallisticWeaponUsage::getDetails(WorldItem* item, std::vector<std::string>&
     details.push_back(ss_bullets.str());
     details.push_back(ss_damage.str());
     details.push_back(ss_dps.str());
-    details.push_back(ss_spread.str());
 }
 
 void BallisticWeaponUsage::tick(WorldItem* item, Unit&) {
