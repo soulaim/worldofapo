@@ -1,0 +1,16 @@
+uniform sampler2D image;
+varying vec2 vTexCoord;
+
+uniform float amount;
+
+void main(void)
+{
+	vec4 color = texture2D(image, vTexCoord);
+
+	// Convert to grayscale using NTSC conversion weights.
+	float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+	vec4 gray_color = vec4(gray, gray, gray, 0);
+
+	gl_FragColor = mix(color, gray_color, amount);
+}
+

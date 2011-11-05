@@ -65,6 +65,7 @@ class GameView: public HasProperties
 
 	void applyAmbientLight(int, int, int);
 	void applyBlur(int blur, const std::string& input_texture, const Graphics::Framebuffer& renderTarget);
+	void applyGreyscale(const std::string& input_texture, const Graphics::Framebuffer& renderTarget);
 	void applySSAO(int power, const std::string& input_texture, const std::string& depth_texture, const Graphics::Framebuffer& renderTarget);
 
 	void drawDebugLines();

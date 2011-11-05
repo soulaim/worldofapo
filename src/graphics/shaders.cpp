@@ -29,6 +29,7 @@ void Shaders::init()
 	shaders["unit_program"]     = shared_ptr<Shader>(new Shader("shaders/unit.vertex", "shaders/unit.fragment"));
 	shaders["ssao_program"]     = shared_ptr<Shader>(new Shader("shaders/ssao_simple.vertex", "shaders/ssao_simple.fragment"));
     shaders["ppath"]            = shared_ptr<Shader>(new Shader("shaders/particlepath.vertex", "shaders/particlepath.fragment"));
+    shaders["greyscale_program"]= shared_ptr<Shader>(new Shader("shaders/greyscale.vertex", "shaders/greyscale.fragment"));
 
     OpenGL gl;
     if(gl.getGL3bit()) {

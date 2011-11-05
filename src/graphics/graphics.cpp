@@ -296,6 +296,29 @@ void GameView::applyBlur(int blur, const string& input_image, const Graphics::Fr
 	glDepthMask(GL_TRUE);
 }
 
+void GameView::applyGreyscale(const string& input_image, const Graphics::Framebuffer& renderTarget)
+{
+	float amount = intVals["GREYSCALE_AMOUNT"] / 100.0f;
+
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	renderTarget.bind();
+	TextureHandler::getSingleton().bindTexture(0, input_image);
+	{
+		Shader& shader = shaders.get_shader("greyscale_program");
+		shader.start();
+		glUniform1f(shader.uniform("amount"), amount);
+		drawFullscreenQuad();
+		shader.stop();
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+}
+
+
 
 void GameView::drawLightsDeferred_single_pass(int lights)
 {
@@ -535,6 +558,11 @@ void GameView::draw(
 	if(intVals["DAMAGE_BLUR"])
 	{
 		applyBlur(blur, Graphics::Framebuffer::get("screenFBO").texture(0), Graphics::Framebuffer::get("screenFBO"));
+	}
+
+	if(intVals["APPLY_GREYSCALE"])
+	{
+		applyGreyscale(Graphics::Framebuffer::get("screenFBO").texture(0), Graphics::Framebuffer::get("screenFBO"));
 	}
 
 	if(intVals["DRAW_HUD"])
