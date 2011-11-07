@@ -416,6 +416,8 @@ void LevelDescriptor::drawLevelDeferred(const Level& lvl, Shaders& shaders) cons
 	Shader& shader = shaders.get_shader("deferred_level_program");
 	shader.start();
 
+	glUniform1f(shader.uniform("time"), clock());
+
 //	size_t height = lvl.pointheight_info.size();
 	size_t width = lvl.pointheight_info[0].size();
 
