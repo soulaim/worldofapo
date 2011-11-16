@@ -209,6 +209,7 @@ void Hud::drawAmmo() const
 }
 
 
+// TODO: place the message somewhere better
 void Hud::drawLevelUpInfo()
 {
     if(units->find(myID) == units->end())
