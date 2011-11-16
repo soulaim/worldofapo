@@ -21,6 +21,11 @@ void UnitTicker::tickUnit(World& world, Unit& unit, Model* model)
 	unit.intVals["D"] *= 0.95;
 
     if(unit.human()) {
+
+        if(unit.intVals["HEALTH"] < 0) {
+            unit.position = Location();
+        }
+
         int zen_modifier = unit.getModifier("ZEN");
         int& sanity = unit["SANITY"];
 

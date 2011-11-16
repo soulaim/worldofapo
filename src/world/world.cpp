@@ -195,7 +195,9 @@ void World::createLevelObjects() //fazias
 void World::resetGame()
 {
 	cerr << "Reseting world game to a feasible start" << endl;
-	for(auto it = units.begin(); it != units.end(); ++it)
+    this->intVals["START"] = this->currentWorldFrame;
+
+    for(auto it = units.begin(); it != units.end(); ++it)
 	{
 		if(!it->second.human())
 		{
@@ -205,8 +207,12 @@ void World::resetGame()
 		}
 		else
 		{
-			// restore player hp to maximum values
+			// reset player characters
+            int id = it->second.id;
+            it->second = Unit();
+            it->second.init();
 			it->second["HEALTH"] = it->second.getMaxHP();
+            it->second.id = id;
 		}
 	}
 
@@ -315,8 +321,43 @@ void World::worldTick(int tickCount)
 
 	currentWorldFrame = tickCount;
 
-	// if this area has monsters autospawning
+    // if no players are alive, reset game and time
+    int players = 0;
+    int deadPlayers = 0;
+    for(map<int, Unit>::iterator it = units.begin(); it->first < 10000 && it != units.end(); ++it) {
+        ++players;
+        if(it->second.intVals["HEALTH"] <= 0)
+            ++deadPlayers;
+    }
 
+    if(players > 0 && (players == deadPlayers)) {
+        this->resetGame();
+        return;
+    }
+
+	// when to spawn monsters? Note that this is not actually safe.
+    int depthCounter = currentWorldFrame - this->intVals["START"];
+    if(depthCounter % (400 - depthCounter / 100) == 12) {
+        // spawn monster.
+        for(int i=0; i<1000; ++i) {
+            Location spawnPoint = this->lvl.getRandomLocation(depthCounter + ((i * 1731) % 10000) );
+            if(lvl.getHeight(spawnPoint.x, spawnPoint.y) < 7) {
+
+                int depth = depthCounter / 500;
+                stringstream spawnMessage; spawnMessage << "^RSpawning monster with depth: " << depth;
+                this->add_message(spawnMessage.str());
+
+                // spawn monster to spawnPoint
+                MonsterCreator mc;
+                Unit monster = mc.createMonster(depth, currentWorldFrame, i);
+                monster.birthTime = i;
+                monster.id = this->unitIDgenerator.nextID();
+                monster.position = spawnPoint;
+                units[monster.id] = monster;
+                break;
+            }
+        }
+    }
 
 
 	/*  /"\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\
@@ -490,7 +531,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
     units[id].name = "Unknown\\sPlayer";
     units[id].controllerTypeID = Unit::HUMAN_INPUT;
     units[id]["HEALTH"] = 1000;
-    units[id]["TEAM"] = id % 2;
+    units[id]["TEAM"] = 1;
 }
 
 void World::addProjectile(Location& location, int id, size_t model_prototype)

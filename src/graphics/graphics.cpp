@@ -471,13 +471,11 @@ void GameView::draw(
 
 	startDrawing();
 
-	if(intVals["DRAW_SKYBOX"])
-	{
+	if(intVals["DRAW_SKYBOX"]) {
         skybox.draw(shaders.get_shader("skybox_program"), camera_p);
 	}
 
-	if(intVals["DRAW_DEBUG_LINES"])
-	{
+	if(intVals["DRAW_DEBUG_LINES"]) {
 		drawBoundingBoxes(units);
         drawBoundingBoxes(items);
 		drawOctree(o);
@@ -487,8 +485,7 @@ void GameView::draw(
 
 	}
 
-	if(intVals["DRAW_DEBUG_WIREFRAME"])
-	{
+	if(intVals["DRAW_DEBUG_WIREFRAME"]) {
 		visualworld.levelDesc.drawDebugHeightDots(camera_p->getPosition());
 	}
 
@@ -515,30 +512,25 @@ void GameView::draw(
 
 	string depth_texture = (deferred_rendering ? Graphics::Framebuffer::get("deferredFBO").depth_texture() : Graphics::Framebuffer::get("screenFBO").depth_texture());
 
-	if(intVals["SSAO"])
-	{
+	if(intVals["SSAO"]) {
 		applySSAO(intVals["SSAO_DISTANCE"], Graphics::Framebuffer::get("screenFBO").texture(0), depth_texture, Graphics::Framebuffer::get("screenFBO"));
 	}
 
-	if(intVals["DRAW_PARTICLES"])
-	{
+	if(intVals["DRAW_PARTICLES"]) {
 		drawParticles(visualworld.particles);
 	}
 
-	if(intVals["DRAW_NAMES"])
-	{
+	if(intVals["DRAW_NAMES"]) {
 		drawPlayerNames(units, visualworld.models);
 	}
 
 	drawDebugStrings();
 
-	if(intVals["DAMAGE_BLUR"])
-	{
+	if(intVals["DAMAGE_BLUR"]) {
 		applyBlur(blur, Graphics::Framebuffer::get("screenFBO").texture(0), Graphics::Framebuffer::get("screenFBO"));
 	}
 
-	if(intVals["DRAW_HUD"])
-	{
+	if(intVals["DRAW_HUD"]) {
 		hud.draw(camera_p->mode() == Camera::FIRST_PERSON);
 	}
 
@@ -724,27 +716,19 @@ void GameView::drawMenu(const vector<MenuButton>& buttons, const std::vector<Men
     TextureHandler::getSingleton().bindTexture(0, "menu_bg");
     this->drawFullscreenQuad();
 
-	if(intVals.find("MENU_FALLING_NUMBERS")->second)
-	{
+	if(intVals.find("MENU_FALLING_NUMBERS")->second) {
 		drawMenuParticles(menuParticles, 0, 1.2f, "^r");
 		drawMenuParticles(menuParticles, 1, 2.0f, "^R");
 	}
 
-	if(intVals.find("MENU_RECTANGLES")->second)
-	{
+	if(intVals.find("MENU_RECTANGLES")->second) {
 		drawMenuRectangles();
 	}
-
-	// blur the effect?
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
 
 	// render menu buttons on top of the scene.
 	drawMenuButtons(buttons);
 
 	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 
 	window.swap_buffers();
