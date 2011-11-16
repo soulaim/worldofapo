@@ -28,6 +28,7 @@ class StatRenderer {
     TextRenderer textRenderer;
 public:
     StatRenderer();
+    void drawStatExplanation();
     void drawStatSheet(Unit&);
     int input(int dx, int dy, int mousePress, int keyState);
 };

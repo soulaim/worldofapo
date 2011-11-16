@@ -209,6 +209,24 @@ void Hud::drawAmmo() const
 }
 
 
+// TODO: place the message somewhere better
+void Hud::drawLevelUpInfo()
+{
+    if(units->find(myID) == units->end())
+	return;
+
+    Unit& myUnit = units->find(myID)->second;
+    if (myUnit.intVals["STAT_POINTS"] > 0)
+    {
+        stringstream ss0;
+        ss0 << "^RUnused statpoints left: " << myUnit.intVals["STAT_POINTS"];
+        textRenderer.drawString(ss0.str(), -0.95f, -0.4f, 2.0f, true);
+    }
+
+}
+
+
+
 void Hud::drawMessages()
 {
 	for(size_t i = 0; i < viewMessages.size(); ++i)
@@ -295,6 +313,7 @@ void Hud::draw(bool firstPerson)
 	drawBanner();
 	drawFPS();
 	drawAmmo();
+        drawLevelUpInfo();
 
     if(this->units != 0) {
         map<int, Unit>::iterator plr_it = this->units->find(this->myID);

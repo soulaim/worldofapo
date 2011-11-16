@@ -18,6 +18,47 @@ void clamp(float& val, float min, float max) {
         val = max;
 }
 
+void StatRenderer::drawStatExplanation() {
+    if (selected == -1)
+        return;
+    stringstream ss1;
+
+    switch (selected) {
+        case 0:
+                ss1 << "^vIncreases movement speed";
+                break;
+        case 1:
+                ss1 << "^vDecreases sanity loss and related negative effects";
+                break;
+        case 2:
+                ss1 << "^vIncreases range of nearby enemies shown on minimap";
+                break;
+        case 3:
+                ss1 << "^vIncreases a characters maximum hit points";
+                break;
+        case 4:
+                ss1 << "^vDecreases reload and cool-down times for ballistic weapons";
+                break;
+        case 5:
+                ss1 << "^vIncreases ambient light on player's local view";
+                break;
+        case 6:
+                ss1 << "^vIncreases FOV, decreases screen blur, linearizes sound attenuation";
+                break;
+        case 7:
+                ss1 << "^vIncreases the chances of successfully using terminals and buttons";
+                break;
+        case 8:
+                ss1 << "^vIncreases beam weapons' recharge rate";
+                break;
+        case 9:
+            ss1 << "^rSomething";
+        default:
+                break;
+     }           
+     textRenderer.drawString(ss1.str(), -0.7f, 0.2f, 1.4f);
+}
+
 int StatRenderer::input(int dx, int dy, int mousePress, int) {
     cursor_x += dx * 0.000001f; clamp(cursor_x, -0.5f, +0.5f);
     cursor_y -= dy * 0.000001f; clamp(cursor_y, -0.5f, +0.5f);
@@ -85,8 +126,7 @@ void StatRenderer::drawStatSheet(Unit& unit) {
     if(unit["STAT_POINTS"] == 0) color = "^R";
     stringstream ss; ss << "^YStats points to spend: " << color << unit["STAT_POINTS"];
     textRenderer.drawString(ss.str(), -0.4f, -0.8f, 2.0f);
-
-
+    drawStatExplanation();
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
