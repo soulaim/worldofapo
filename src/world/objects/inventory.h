@@ -58,7 +58,7 @@ public:
     int getArmorClass() const;
 
     void pickUpHelper(World&, Unit&, WorldItem*, int);
-    bool pickUp(World&, Unit&, WorldItem*); // returns true if picked up. false otherwise.
+    bool pickUp(World&, Unit&, WorldItem*, bool forced = false); // returns true if picked up. false otherwise.
 
     void setActiveItem(World&, Unit&, unsigned);
     void reloadAction(World&, Unit&);

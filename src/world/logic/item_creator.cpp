@@ -20,47 +20,47 @@ int getQualityFromDepth(int depth, RandomMachine& random) {
 }
 
 void ItemCreator::fillWithItems(World& world, Unit& unit, int depth, Inventory& inventory, RandomMachine& random) {
-    int weaponQuality = getQualityFromDepth(depth, random);
-    if(weaponQuality == 0) weaponQuality = 1;
     {
+        int weaponQuality = getQualityFromDepth(depth, random);
+        if(weaponQuality < 1) weaponQuality = 1;
         WorldItem item = this->createBallisticWeapon(weaponQuality, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int torso = getQualityFromDepth(depth, random);
     if(torso) {
         WorldItem item = this->createTorsoArmor(torso, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int arms = getQualityFromDepth(depth, random);
     if(arms) {
         WorldItem item = this->createArmsArmor(arms, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int head = getQualityFromDepth(depth, random);
     if(head) {
         WorldItem item = this->createHeadArmor(head, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int belt = getQualityFromDepth(depth, random);
     if(belt) {
         WorldItem item = this->createBeltArmor(belt, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int legs = getQualityFromDepth(depth, random);
     if(legs) {
         WorldItem item = this->createLegArmor(legs, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     int pendant = getQualityFromDepth(depth, random);
     if(pendant) {
         WorldItem item = this->createAmulet(pendant, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 
     for(int i=0; i<3; ++i) {
@@ -68,7 +68,7 @@ void ItemCreator::fillWithItems(World& world, Unit& unit, int depth, Inventory& 
         if(!small) break;
 
         WorldItem item = this->createSmallItem(small, random);
-        inventory.pickUp(world, unit, &item);
+        inventory.pickUp(world, unit, &item, true);
     }
 }
 

@@ -27,12 +27,9 @@ int Inventory::getArmorClass() const {
 }
 
 Inventory::Inventory(const Inventory& inventory): max_items(11), small_items_begin(8) {
-
-    this->last_pickup_time = inventory.last_pickup_time;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
     }
-
     *this = inventory;
 }
 
@@ -47,6 +44,7 @@ Inventory& Inventory::operator = (const Inventory& inventory) {
         *(this->wieldedItems[i]) = *item;
     }
     this->active_item = inventory.active_item;
+    this->last_pickup_time = inventory.last_pickup_time;
     return *this;
 }
 
@@ -168,13 +166,15 @@ void Inventory::pickUpHelper(World& world, Unit& unit, WorldItem* item, int slot
     unit.itemPick.reset();
 }
 
-bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
+bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
 
     assert(item != 0 && "Picking up an item failed: Nullpointer!");
 
-    if(last_pickup_time + 13 > world.currentWorldFrame) return false;
-    last_pickup_time = world.currentWorldFrame;
-
+    if(!forced) {
+        if(last_pickup_time + 13 > world.currentWorldFrame) return false;
+        last_pickup_time = world.currentWorldFrame;
+    }
+    
     unsigned slot = getSlot(item);
 
 
