@@ -54,6 +54,16 @@ void ItemTicker::tickItem(World& world, WorldItem& item, Model* model)
 	}
 
 	item.position += item.velocity;
+
+    Location tmp;
+    for(int i=0; i<world.apomath.DEGREES_360; i+=world.apomath.DEGREES_360/32) {
+        FixedPoint& tmp_x = world.apomath.getCos(i);
+        FixedPoint& tmp_z = world.apomath.getSin(i);
+        if(world.lvl.getHeight(item.position.x + tmp_x, item.position.z + tmp_z) > 8) {
+            item.position += Location(-tmp_x * FixedPoint(2, 20), 0, -tmp_z * FixedPoint(2, 20));
+        }
+    }
+
 	world.lvl.clampToLevelArea(item);
 }
 

@@ -89,12 +89,14 @@ void WorldItem::collides(OctreeObject& o)
 		Location direction = (position - o.position);
 		if(direction.length() == FixedPoint(0))
 		{
-			// unresolvable collision. leave it be.
-			return;
+            RandomMachine random; random.setSeed(id);
+            direction.x = (random.getInt() % 100) - 50;
+            direction.z = (random.getInt() % 100) - 50;
+            direction.y = (random.getInt() % 10);
 		}
 
 		direction.normalize();
-		direction *= FixedPoint(1, 5);
+		direction *= FixedPoint(1, 10);
 		velocity += direction;
 	}
 }
