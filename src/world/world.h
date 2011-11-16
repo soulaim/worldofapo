@@ -83,7 +83,7 @@ public:
 	void worldTick(int tickCount);
 
     void addBoxUnit(int id, const Location& location);
-	void addAIUnit(int id, const Location& pos);
+	void addAIUnit(int id, const Location& pos, int depth = 1);
 	void addUnit(int id, bool player = true, int team = -1);
 
 	void addProjectile(Location& location, int id, size_t model_prototype);

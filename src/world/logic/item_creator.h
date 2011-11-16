@@ -11,6 +11,8 @@
 #include "world/objects/world_item.h"
 
 class RandomMachine;
+class Inventory;
+class Unit;
 
 class ItemCreator {
 public:
@@ -30,6 +32,8 @@ public:
     WorldItem createTorch(int quality, RandomMachine& random);
     WorldItem createSmallItem(int, RandomMachine&);
     WorldItem makeItem(int depth, int item_num, int worldTick);
+
+    void fillWithItems(World& world, Unit&, int depth, Inventory& inventory, RandomMachine& random);
 };
 
 #endif	/* ITEM_CREATOR_H */

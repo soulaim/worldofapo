@@ -9,17 +9,11 @@
 #include <iostream>
 
 Inventory::Inventory(): max_items(11), small_items_begin(8) {
+    this->last_pickup_time = 0;
     this->active_item = 6;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
     }
-
-    RandomMachine random; random.setSeed(1);
-    ItemCreator creator;
-
-    this->wieldedItems[6] = new WorldItem();
-    (*this->wieldedItems[6]) = creator.createBallisticWeapon(1, random);
-    (*this->wieldedItems[6]).intVals["DAMAGE"] = 6;
 }
 
 int Inventory::getArmorClass() const {
@@ -34,6 +28,7 @@ int Inventory::getArmorClass() const {
 
 Inventory::Inventory(const Inventory& inventory): max_items(11), small_items_begin(8) {
 
+    this->last_pickup_time = inventory.last_pickup_time;
     for(unsigned i=0; i<this->max_items; ++i) {
         this->wieldedItems[i] = 0;
     }
@@ -177,7 +172,11 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item) {
 
     assert(item != 0 && "Picking up an item failed: Nullpointer!");
 
+    if(last_pickup_time + 13 > world.currentWorldFrame) return false;
+    last_pickup_time = world.currentWorldFrame;
+
     unsigned slot = getSlot(item);
+
 
     // armor slot, easy
     if(slot < 6) {

@@ -97,6 +97,7 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
 		world.unitHasDied(unit.id);
         world.awardExperience(unit);
+        unit.dropAllItems(world);
 	}
 
 }

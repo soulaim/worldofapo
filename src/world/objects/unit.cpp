@@ -39,6 +39,10 @@ Unit::Unit():
 	scale = FixedPoint(1);
 }
 
+void Unit::dropAllItems(World& world) {
+    inventory.dropAll(world, *this);
+}
+
 void Unit::activateCurrentItemPrimary(World& world) {
     inventory.useActiveItemPrimary(world, *this);
 }
@@ -94,6 +98,10 @@ void Unit::accelerateBackward()
 	FixedPoint mobility_scale = FixedPoint(11, 100) * getMobility();
 	velocity.x -= ApoMath::getCos(angle) * mobility_scale;
 	velocity.z -= ApoMath::getSin(angle) * mobility_scale;
+}
+
+Inventory& Unit::getInventoryEditor() {
+    return inventory;
 }
 
 // TODO: Hide this functionality behind some unit ticker class

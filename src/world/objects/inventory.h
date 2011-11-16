@@ -25,6 +25,7 @@ private:
 
     WorldItem* wieldedItems[11];
     unsigned active_item;
+    int last_pickup_time;
 public:
     Inventory();
     ~Inventory();

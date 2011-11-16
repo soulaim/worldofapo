@@ -77,6 +77,7 @@ public:
     void activateCurrentItemPrimary(World&);
     void activateCurrentItemSecondary(World&);
     void activateCurrentItemReload(World&);
+    void dropAllItems(World& world);
 
 	Location getEyePosition() const;
 
@@ -104,6 +105,8 @@ public:
 	void updateMobility();
 	const FixedPoint& getMobility() const;
     const Inventory& getInventory() const;
+    Inventory& getInventoryEditor();
+
     const ItemPicker& getItemPicker() const;
     const HasProperties& getStats() const;
     HasProperties& getStatsEditor();

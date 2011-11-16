@@ -347,13 +347,9 @@ void World::worldTick(int tickCount)
                 stringstream spawnMessage; spawnMessage << "^RSpawning monster with depth: " << depth;
                 this->add_message(spawnMessage.str());
 
-                // spawn monster to spawnPoint
-                MonsterCreator mc;
-                Unit monster = mc.createMonster(depth, currentWorldFrame, i);
-                monster.birthTime = i;
-                monster.id = this->unitIDgenerator.nextID();
-                monster.position = spawnPoint;
-                units[monster.id] = monster;
+
+                int id = this->unitIDgenerator.nextID();
+                this->addAIUnit(id, spawnPoint, depth);
                 break;
             }
         }
@@ -488,7 +484,7 @@ void World::addBoxUnit(int id, const Location& location) {
 	visualworld->createModel(id, units[id].position, VisualWorld::ModelType::BOX_MODEL, 1.0f);
 }
 
-void World::addAIUnit(int id, const Location& pos)
+void World::addAIUnit(int id, const Location& pos, int depth)
 {
 	if(units.find(id) != units.end())
 		throw std::logic_error("Trying to create a unit, but the unitID is already reserved.");
@@ -497,6 +493,10 @@ void World::addAIUnit(int id, const Location& pos)
 	units[id] = creator.createMonster(1, this->currentWorldFrame, id);
 	units[id].scale = 1;
 	units[id].position = pos;
+
+    RandomMachine random;
+    random.setSeed(currentWorldFrame);
+    this->itemCreator.fillWithItems(*this, units[id], depth, units[id].getInventoryEditor(), random);
 
     // should get rid of these still.
     VisualWorld::ModelType model_type = VisualWorld::ModelType::ZOMBIE_MODEL;
