@@ -45,6 +45,7 @@ public:
 
 
 	void drawMessages();
+        void drawLevelUpInfo();
 	void drawCrossHair() const;
 	void drawStatusBar() const;
 	void drawBanner() const;
