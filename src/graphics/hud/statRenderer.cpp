@@ -25,38 +25,38 @@ void StatRenderer::drawStatExplanation() {
 
     switch (selected) {
         case 0:
-                ss1 << "^vIncreases movement speed";
-                break;
-        case 1:
-                ss1 << "^vDecreases sanity loss and related negative effects";
+                ss1 << "^yIncreases movement speed";
                 break;
         case 2:
-                ss1 << "^vIncreases range of nearby enemies shown on minimap";
+                ss1 << "^yDecreases sanity loss and related negative effects";
+                break;
+        case 1:
+                ss1 << "^yIncreases range of nearby enemies shown on minimap";
                 break;
         case 3:
-                ss1 << "^vIncreases a characters maximum hit points";
-                break;
-        case 4:
-                ss1 << "^vDecreases reload and cool-down times for ballistic weapons";
-                break;
-        case 5:
-                ss1 << "^vIncreases ambient light on player's local view";
-                break;
-        case 6:
-                ss1 << "^vIncreases FOV, decreases screen blur, linearizes sound attenuation";
+                ss1 << "^yIncreases a characters maximum hit points";
                 break;
         case 7:
-                ss1 << "^vIncreases the chances of successfully using terminals and buttons";
+                ss1 << "^yDecreases reload and cool-down times for ballistic weapons";
+                break;
+        case 6:
+                ss1 << "^yIncreases ambient light on player's local view";
+                break;
+        case 5:
+                ss1 << "^yIncreases FOV, decreases screen blur, linearizes sound attenuation";
+                break;
+        case 4:
+                ss1 << "^yIncreases the chances of successfully using terminals and buttons";
                 break;
         case 8:
-                ss1 << "^vIncreases beam weapons' recharge rate";
+                ss1 << "^yIncreases beam weapons' recharge rate";
                 break;
         case 9:
-            ss1 << "^rSomething";
+            ss1 << "^yDecreases chances of being noticed by monsters";
         default:
                 break;
      }           
-     textRenderer.drawString(ss1.str(), -0.7f, 0.2f, 1.4f);
+     textRenderer.drawString(ss1.str(), -0.65f, 0.2f, 1.4f);
 }
 
 int StatRenderer::input(int dx, int dy, int mousePress, int) {
