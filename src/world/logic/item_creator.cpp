@@ -182,7 +182,7 @@ WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randome
     item.intVals["DAMAGE_TYPE"] = DamageType::PHYSICAL;
     item.intVals["TYPE"] = 1;
     item.intVals["ITEM_LVL"] = quality - 3;
-    item.intVals["DAMAGE"] = (randomer.getInt() % quality) * quality + quality;
+    item.intVals["DAMAGE"] = (randomer.getInt() % quality) * quality + quality * 3;
     item.intVals["BPS"] = 1 + randomer.getInt() % (quality - 2);
     item.intVals["CLIPSIZE"] = 3 + quality / item.intVals["BPS"];
     item.intVals["COOLDOWN"] = (15 - quality) * item.intVals["BPS"];

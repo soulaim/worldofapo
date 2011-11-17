@@ -100,7 +100,6 @@ void Inventory::setActiveItem(World& world, Unit&, unsigned i) {
         return;
     }
 
-    world.add_message(ss.str());
     this->active_item = i;
 }
 

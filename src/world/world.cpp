@@ -350,7 +350,7 @@ void World::worldTick(int tickCount)
             Location spawnPoint = this->lvl.getRandomLocation(depthCounter + ((i * 1731) % 10000) );
             if(lvl.getHeight(spawnPoint.x, spawnPoint.z) < 6) {
 
-                int depth = depthCounter / 1000;
+                int depth = depthCounter / 400;
                 stringstream spawnMessage; spawnMessage << "^RSpawning monster with depth: " << depth;
                 this->add_message(spawnMessage.str());
 

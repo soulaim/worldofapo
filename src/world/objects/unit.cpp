@@ -219,7 +219,7 @@ void Unit::increaseStat(World& world, int increasedStat) {
             world.add_message("^YIncreased: ^G" + statsNames.getName(increasedStat));
         stats.intVals[statsNames.getKey(increasedStat)]++;
         intVals["STAT_POINTS"]--;
-        intVals["REGEN"] = stats.intVals["CONSTITUTION"];
+        intVals["REGEN"] = stats.intVals["CONSTITUTION"] / 3;
     }
 }
 

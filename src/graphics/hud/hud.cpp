@@ -219,8 +219,12 @@ void Hud::drawLevelUpInfo()
     if (myUnit.intVals["STAT_POINTS"] > 0)
     {
         stringstream ss0;
-        ss0 << "^RUnused statpoints left: " << myUnit.intVals["STAT_POINTS"];
-        textRenderer.drawString(ss0.str(), -0.95f, -0.4f, 2.0f, true);
+        ss0 << "^GUnused statpoints left: " << myUnit.intVals["STAT_POINTS"];
+        textRenderer.drawString(ss0.str(), -0.26f, +0.8f, 1.6f, true);
+
+        stringstream ss1;
+        ss1 << "^GPress & Hold tab to spend points!";
+        textRenderer.drawString(ss1.str(), -0.3f, +0.7f, 1.6f, true);
     }
 
 }
