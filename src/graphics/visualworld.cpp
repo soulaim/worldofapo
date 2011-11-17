@@ -392,6 +392,7 @@ void VisualWorld::tickLights(const std::map<int, Unit>& units)
 			else
 			{
 				light.position = units.find(light.unitBind)->second.getEyePosition();
+                light.position.y += 4;
 			}
 		}
 	}

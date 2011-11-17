@@ -169,14 +169,18 @@ void World::createLevelObjects() //fazias
             addBoxUnit(id, pos);
         }
         else if(it->object_name == "smallitem") {
+            /*
             RandomMachine random; random.setSeed(itemCreationNums);
             WorldItem item = itemCreator.createSmallItem(1 + depth / 3, random); item.position = pos;
             this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+            */
         }
         else if(it->object_name == "item") {
+            /*
             WorldItem item = itemCreator.makeItem(depth, ++itemCreationNums, this->currentWorldFrame);
             item.position = pos;
             this->addItem(item, VisualWorld::ModelType::ITEM_MODEL, unitIDgenerator.nextID());
+            */
         }
         else if(it->object_name == "monster") {
             int id = this->unitIDgenerator.nextID();
@@ -343,10 +347,9 @@ void World::worldTick(int tickCount)
             Location spawnPoint = this->lvl.getRandomLocation(depthCounter + ((i * 1731) % 10000) );
             if(lvl.getHeight(spawnPoint.x, spawnPoint.z) < 6) {
 
-                int depth = depthCounter / 500;
+                int depth = depthCounter / 1000;
                 stringstream spawnMessage; spawnMessage << "^RSpawning monster with depth: " << depth;
                 this->add_message(spawnMessage.str());
-
 
                 int id = this->unitIDgenerator.nextID();
                 this->addAIUnit(id, spawnPoint, depth);
@@ -433,8 +436,7 @@ void World::worldTick(int tickCount)
 		}
 	}
 
-	for(size_t i = 0; i < deadUnits.size(); ++i)
-	{
+	for(size_t i = 0; i < deadUnits.size(); ++i) {
 		removeUnit(deadUnits[i]);
 	}
 	deadUnits.clear();

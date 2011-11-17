@@ -109,7 +109,7 @@ WorldItem ItemCreator::createAmulet(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.strVals["NAME"] = "Power\\sAmulet";
     item.intVals["TYPE"] = 10;
-
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -119,6 +119,7 @@ WorldItem ItemCreator::createArmsArmor(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.intVals["TYPE"] = 9;
     item.strVals["NAME"] = "Arm\\sprotectors";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -128,6 +129,7 @@ WorldItem ItemCreator::createTorsoArmor(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.intVals["TYPE"] = 6;
     item.strVals["NAME"] = "Power\\sVest";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -137,6 +139,7 @@ WorldItem ItemCreator::createHeadArmor(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.intVals["TYPE"] = 5;
     item.strVals["NAME"] = "Cap";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -146,6 +149,7 @@ WorldItem ItemCreator::createLegArmor(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.intVals["TYPE"] = 8;
     item.strVals["NAME"] = "Pants";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -155,6 +159,7 @@ WorldItem ItemCreator::createBeltArmor(int quality, RandomMachine& random) {
     item.intVals["AC"] = quality + random.getInt() % quality;
     item.intVals["TYPE"] = 7;
     item.strVals["NAME"] = "Belt";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -176,6 +181,7 @@ WorldItem ItemCreator::createBallisticWeapon(int quality, RandomMachine& randome
     item.intVals["COOLDOWN"] = (15 - quality) * item.intVals["BPS"];
     item.intVals["RELOAD_TIME"] = (17 - quality) * 10;
     item.strVals["NAME"] = "Hand\\sCannon";
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::WEAPON_MODEL;
     return item;
 }
 
@@ -198,6 +204,7 @@ WorldItem ItemCreator::createTorch(int quality, RandomMachine& random) {
     item.strVals["EFFECT1"] = "LIGHT";
     item.intVals["EFFECT1"] = 2 + (random.getInt() & 7);
     item.intVals["AMOUNT"] = quality * 2;
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -209,6 +216,7 @@ WorldItem ItemCreator::createMediKit(int quality, RandomMachine& random) {
     item.strVals["EFFECT1"] = "HEALTH";
     item.intVals["EFFECT1"] = 10 + 4 * (random.getInt() % quality);
     item.intVals["AMOUNT"] = quality * 2;
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -220,6 +228,7 @@ WorldItem ItemCreator::createAntiDepressant(int quality, RandomMachine& random) 
     item.strVals["EFFECT1"] = "SANITY";
     item.intVals["EFFECT1"] = 10 + random.getInt() % 20;
     item.intVals["AMOUNT"] = quality * 2 + (random.getInt() % (quality * 2));
+    item.intVals["MODEL_TYPE"] = VisualWorld::ModelType::ITEM_MODEL;
     return item;
 }
 
@@ -236,6 +245,4 @@ WorldItem ItemCreator::createSmallItem(int quality, RandomMachine& random) {
     else {
         return createTorch(quality, random);
     }
-
-    return item;
 }

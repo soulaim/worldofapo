@@ -46,7 +46,7 @@ void WorldItem::getDetails(std::vector<std::string>& result) {
 const Location& WorldItem::bb_top() const
 {
     bb_top_.x = position.x + 1;
-    bb_top_.y = position.y + 2;
+    bb_top_.y = position.y + 1;
     bb_top_.z = position.z + 1;
 	return bb_top_;
 }
@@ -87,16 +87,17 @@ void WorldItem::collides(OctreeObject& o)
 	if(o.type == OctreeObject::WORLD_ITEM)
 	{
 		Location direction = (position - o.position);
-		if(direction.length() == FixedPoint(0))
+
+        RandomMachine random; random.setSeed(id);
+        while(direction.length() == FixedPoint(0))
 		{
-            RandomMachine random; random.setSeed(id);
             direction.x = (random.getInt() % 100) - 50;
             direction.z = (random.getInt() % 100) - 50;
             direction.y = (random.getInt() % 10);
 		}
 
 		direction.normalize();
-		direction *= FixedPoint(1, 10);
+		direction *= FixedPoint(1, 5);
 		velocity += direction;
 	}
 }
