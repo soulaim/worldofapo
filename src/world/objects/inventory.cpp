@@ -71,7 +71,6 @@ void Inventory::destroyItem(WorldItem* item) {
 void Inventory::reloadAction(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {
-        world.add_message("^yNo item is active, reload item ^rfailed");
     } else {
         item->onReload(world, unit);
     }
@@ -80,7 +79,6 @@ void Inventory::reloadAction(World& world, Unit& unit) {
 void Inventory::useActiveItemPrimary(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {
-        world.add_message("^yNo item is active, using item ^rfailed");
     } else {
         item->onActivate(world, unit);
     }
@@ -89,7 +87,6 @@ void Inventory::useActiveItemPrimary(World& world, Unit& unit) {
 void Inventory::useActiveItemSecondary(World& world, Unit& unit) {
     WorldItem* item = this->wieldedItems[this->active_item];
     if(item == 0) {
-        world.add_message("^yNo item is active, using item ^rfailed");
     } else {
         item->onSecondaryActivate(world, unit);
     }
@@ -103,9 +100,7 @@ void Inventory::setActiveItem(World& world, Unit&, unsigned i) {
         return;
     }
 
-    std::stringstream ss; ss << "Selected item " << i;
     world.add_message(ss.str());
-
     this->active_item = i;
 }
 
@@ -234,7 +229,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
             return true;
         }
 
-        world.add_message("^YInventory full! Make room in the inventory first.");
+        // world.add_message("^YInventory full! Make room in the inventory first.");
         return false;
     }
 

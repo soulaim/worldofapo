@@ -445,7 +445,7 @@ void VisualWorld::activateTorch(const Unit& unit, int power) {
         id = lightIDgenerator.nextID();
 
 	LightObject& light = lights[id];
-	light.setDiffuse(multiplier * 5.3f, multiplier * 3.3f, multiplier * 1.3f);
+	light.setDiffuse(multiplier * 1.3f, multiplier * 0.7f, multiplier * 0.7f);
 	light.setSpecular(0.f, 0.f, 0.f);
 	light.setLife(25 * 120); // two minutes of light.
 	light.setPower(5);

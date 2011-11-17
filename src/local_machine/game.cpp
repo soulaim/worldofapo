@@ -369,6 +369,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			// the new way
 			if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
 			{
+                SpawningHeroes[server_msg.keyState].unit.setHumanStart(*(this->world));
 				SpawningHeroes[server_msg.keyState].unit.name       = Players[server_msg.keyState].name;
 				SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
 			}
@@ -379,6 +380,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			Unit& unit = world->units.find(server_msg.keyState)->second;
 			unit = SpawningHeroes[server_msg.keyState].unit;
             unit.position = world->lvl.getStartLocation();
+
 
 			world->intVals["NO_INPUT"] = 10; // NOTE: to prevent de-sync!
 
