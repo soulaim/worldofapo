@@ -98,7 +98,7 @@ void WorldItem::collides(OctreeObject& o)
 
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
-		velocity += direction;
+		position += direction;
 	}
 }
 
