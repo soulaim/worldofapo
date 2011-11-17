@@ -50,13 +50,14 @@ public:
 
     void destroyItem(WorldItem* item);
 
+    long long hash() const;
     void clear();
     WorldItem* getItemActive() const; // returns active item.
     WorldItem* getItemSlot(int slot_id) const; // returns item in a given slot.
 
     void dropItemCurrent(World&, Unit&); // drop active item (how to drop armor?)
-    void dropItemSlot(World&, Unit&, int); // drop the item from a given slot.
-    void dropAll(World&, Unit&); // when a unit dies, it drops all items.
+    void dropItemSlot(World&, const Location& position, int); // drop the item from a given slot.
+    void dropAll(World&, const Location&); // when a unit dies, it drops all items.
     int getArmorClass() const;
 
     void pickUpHelper(World&, Unit&, WorldItem*, int);

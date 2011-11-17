@@ -88,6 +88,8 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 	}
 	else
 	{
+        unit.dropAllItems(world);
+        
         DeathNPCEvent event;
         event.t_position = t_position;
         event.t_velocity = t_velocity;
@@ -99,7 +101,7 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
 		world.unitHasDied(unit.id);
         world.awardExperience(unit);
-        unit.dropAllItems(world);
+
 	}
 
 }

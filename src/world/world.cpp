@@ -25,8 +25,10 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 		hash = ((hash << 5) + hash) + pos.x.getInteger();
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
+        hash = ((hash << 5) + hash) + it->second.getInventory().hash();
 	}
-	checksums.push_back(hash);
+
+    checksums.push_back(hash);
 
 	hash = 5381;
 	for (auto it = units.begin(); it != units.end(); ++it)
@@ -56,6 +58,7 @@ void World::checksum(vector<World::CheckSumType>& checksums) const
 		hash = ((hash << 5) + hash) + pos.x.getInteger();
 		hash = ((hash << 5) + hash) + pos.y.getInteger();
 		hash = ((hash << 5) + hash) + pos.z.getInteger();
+        hash = ((hash << 5) + hash) + it->second["DAMAGE"];
 	}
 	checksums.push_back(hash);
 }
@@ -276,6 +279,7 @@ int World::getLocalTeam()
 World::World(VisualWorld* vw)
 {
 	localPlayerID = -1; // default value.
+    currentWorldFrame = 0;
 
 	assert(vw);
 	visualworld = vw;

@@ -388,6 +388,7 @@ void Game::handleServerMessage(const Order& server_msg)
 			SpawningHeroes.erase(server_msg.keyState);
 
 			world->add_message("^GHero created!");
+            world->resetGame();
 
 			sort(UnitInput.begin(), UnitInput.end());
 		}

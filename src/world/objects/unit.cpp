@@ -51,6 +51,7 @@ void Unit::setHumanStart(World& world) {
     WorldItem item3 = itemCreator.createAntiDepressant(1, random);
 
     weapon.intVals["DAMAGE"] = 12;
+    inventory.clear();
     inventory.pickUp(world, *this, &weapon, true);
     inventory.pickUp(world, *this, &item1, true);
     inventory.pickUp(world, *this, &item2, true);
@@ -58,7 +59,7 @@ void Unit::setHumanStart(World& world) {
 }
 
 void Unit::dropAllItems(World& world) {
-    inventory.dropAll(world, *this);
+    inventory.dropAll(world, this->getEyePosition());
 }
 
 void Unit::activateCurrentItemPrimary(World& world) {
@@ -246,7 +247,7 @@ void Unit::regenerate()
     int& hitpoints = intVals["HEALTH"];
     if(hitpoints <= 0)
         return;
-    
+
 	if(hitpoints < unit_max_hp)
 	{
 		int regen = intVals["REGEN"];

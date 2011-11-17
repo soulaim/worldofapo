@@ -912,7 +912,9 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 
 		cerr << "Adding a new hero at frame " << simulRules.currentFrame << ", units.size() = " << world.units.size() << endl;
 
+        world.resetGame();
 		sort(UnitInput.begin(), UnitInput.end());
+
 		serverSendRequestPlayerNameMessage(server_msg.keyState);
 	}
 	else if(server_msg.serverCommand == NetworkMessage::ServerMessageType::SET_PLAYER_ID_MESSAGE_ID)

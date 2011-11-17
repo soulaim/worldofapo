@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <map>
 
 Inventory::Inventory(): max_items(11), small_items_begin(8) {
     this->last_pickup_time = 0;
@@ -178,7 +179,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
     if(slot < 6) {
         // if wearing something already, THROW IT ON THE GROUND!!11!
         if(this->wieldedItems[slot] != 0)
-            this->dropItemSlot(world, unit, slot);
+            this->dropItemSlot(world, unit.getEyePosition(), slot);
         this->pickUpHelper(world, unit, item, slot);
         return true;
     }
@@ -199,13 +200,13 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
 
         // if a weapon is selected, then replace that weapon
         if(this->active_item >= 6u && this->active_item < this->small_items_begin) {
-            this->dropItemSlot(world, unit, (int)this->active_item);
+            this->dropItemSlot(world, unit.getEyePosition(), (int)this->active_item);
             this->pickUpHelper(world, unit, item, active_item);
             return true;
         }
 
         // replace first weapon item
-        this->dropItemSlot(world, unit, 6);
+        this->dropItemSlot(world, unit.getEyePosition(), 6);
         this->pickUpHelper(world, unit, item, 6);
         return true;
     }
@@ -222,7 +223,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
 
         if(this->active_item >= this->small_items_begin) {
             if(this->wieldedItems[active_item] != 0) {
-                this->dropItemSlot(world, unit, active_item);
+                this->dropItemSlot(world, unit.getEyePosition(), active_item);
             }
             this->pickUpHelper(world, unit, item, active_item);
             return true;
@@ -243,26 +244,38 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
 }
 
 void Inventory::dropItemCurrent(World& world, Unit& unit) {
-    dropItemSlot(world, unit, this->active_item);
+    dropItemSlot(world, unit.getEyePosition(), this->active_item);
 }
 
-void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
+void Inventory::dropItemSlot(World& world, const Location& position, int i) {
     if(this->wieldedItems[i] == 0)
         return;
 
     int id = world.nextUnitID();
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), id);
     world.items[id].velocity = Location(0, 0, 0);
-    world.items[id].position = unit.getEyePosition();
+    world.items[id].position = position;
 
     delete this->wieldedItems[i];
     this->wieldedItems[i] = 0;
 }
 
-void Inventory::dropAll(World& world, Unit& unit) {
+long long Inventory::hash() const {
+    long long ans = 0;
     for(unsigned i=0; i<this->max_items; ++i) {
         if(this->wieldedItems[i] != 0)
-            dropItemSlot(world, unit, i);
+        {
+            for(auto it = wieldedItems[i]->intVals.begin(); it != wieldedItems[i]->intVals.end(); ++it)
+                ans += it->second * 5 * i;
+        }
+    }
+    return ans;
+}
+
+void Inventory::dropAll(World& world, const Location& position) {
+    for(unsigned i=0; i<this->max_items; ++i) {
+        if(this->wieldedItems[i] != 0)
+            dropItemSlot(world, position, i);
     }
 }
 
