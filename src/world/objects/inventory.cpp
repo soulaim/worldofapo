@@ -77,10 +77,12 @@ void Inventory::reloadAction(World& world, Unit& unit) {
 }
 
 void Inventory::useActiveItemPrimary(World& world, Unit& unit) {
-    WorldItem* item = this->wieldedItems[this->active_item];
-    if(item == 0) {
-    } else {
-        item->onActivate(world, unit);
+    if(unit["HEALTH"] > 0) {
+        WorldItem* item = this->wieldedItems[this->active_item];
+        if(item == 0) {
+        } else {
+            item->onActivate(world, unit);
+        }
     }
 }
 

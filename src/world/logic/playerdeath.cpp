@@ -6,6 +6,7 @@
 
 void PlayerDeathHandler::handle(World& world, Unit& unit) {
 
+    unit["HEALTH"] = -10000;
     std::stringstream ss; ss << "^G" << unit.name << " ^Rhas died!";
     world.add_message(ss.str());
 

@@ -51,7 +51,8 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 		a_velocity = it->second.velocity;
 	}
 
-	bool verbose = unit.human();
+    // bool verbose = unit.human();
+	bool verbose = false;
 
     if(verbose) {
         std::stringstream msg;
@@ -82,7 +83,8 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 			queueMsg(event);
 		}
 
-        playerDeath.handle(world, unit);
+        if(unit["HEALTH"] > -1000)
+            playerDeath.handle(world, unit);
 	}
 	else
 	{

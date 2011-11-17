@@ -244,6 +244,9 @@ void Unit::regenerate()
 {
 	int unit_max_hp = getMaxHP();
     int& hitpoints = intVals["HEALTH"];
+    if(hitpoints <= 0)
+        return;
+    
 	if(hitpoints < unit_max_hp)
 	{
 		int regen = intVals["REGEN"];
