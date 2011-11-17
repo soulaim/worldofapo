@@ -68,8 +68,9 @@ Model* ModelFactory::create(size_t prototype)
 	if(prototypes.size() <= prototype || !prototypes[prototype])
 	{
 		cerr << "ERROR: model with prototype " << prototype << " not loaded!\n";
-		throw std::logic_error("Error creating model");
+        return new InvisibleModel(*(InvisibleModel*)prototypes[0].get() );
 	}
+    
 	assert(types.size() == prototypes.size());
 	Model* model = prototypes[prototype].get();
 	Model* ret = 0;
