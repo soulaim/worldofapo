@@ -49,7 +49,8 @@ void Unit::setHumanStart(World& world) {
     WorldItem item1 = itemCreator.createTorch(1, random);
     WorldItem item2 = itemCreator.createAntiDepressant(1, random);
     WorldItem item3 = itemCreator.createAntiDepressant(1, random);
-    
+
+    weapon.intVals["DAMAGE"] = 12;
     inventory.pickUp(world, *this, &weapon, true);
     inventory.pickUp(world, *this, &item1, true);
     inventory.pickUp(world, *this, &item2, true);

@@ -262,7 +262,7 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
     random.setSeed(unit.id);
     FixedPoint x = FixedPoint( (random.getInt() % 10) - 5, 10 );
     FixedPoint z = FixedPoint( (random.getInt() % 10) - 5, 10 );
-    FixedPoint y = FixedPoint( (random.getInt() % 5)  + 1, 10  );
+    FixedPoint y = FixedPoint( (random.getInt() % 5)  + 1, 10 );
     this->wieldedItems[i]->velocity = Location(x, y, z);
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), world.nextUnitID());
 
