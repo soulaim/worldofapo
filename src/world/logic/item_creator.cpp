@@ -70,12 +70,19 @@ void ItemCreator::fillWithItems(World& world, Unit& unit, int depth, Inventory& 
         inventory.pickUp(world, unit, &item, true);
     }
 
-    for(int i=0; i<2; ++i) {
+    {
         int small = getQualityFromDepth(depth, random);
-        if(!small) break;
-
-        WorldItem item = this->createSmallItem(small, random);
+        if(small == 0) small = 1;
+        WorldItem item = this->createTorch(small, random);
         inventory.pickUp(world, unit, &item, true);
+    }
+
+    {
+        int small = getQualityFromDepth(depth, random);
+        if(small) {
+            WorldItem item = this->createSmallItem(small, random);
+            inventory.pickUp(world, unit, &item, true);
+        }
     }
 }
 

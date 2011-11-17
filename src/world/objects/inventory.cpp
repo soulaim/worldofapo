@@ -178,8 +178,10 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
     // armor slot, easy
     if(slot < 6) {
         // if wearing something already, THROW IT ON THE GROUND!!11!
-        if(this->wieldedItems[slot] != 0)
+        if(this->wieldedItems[slot] != 0) {
             this->dropItemSlot(world, unit.getEyePosition(), slot);
+        }
+
         this->pickUpHelper(world, unit, item, slot);
         return true;
     }
@@ -253,7 +255,14 @@ void Inventory::dropItemSlot(World& world, const Location& position, int i) {
 
     int id = world.nextUnitID();
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), id);
-    world.items[id].velocity = Location(0, 0, 0);
+
+    RandomMachine random;
+    random.setSeed(i);
+    FixedPoint x = FixedPoint( (random.getInt() % 30)-15, 40);
+    FixedPoint z = FixedPoint( (random.getInt() % 30)-15, 40);
+    FixedPoint y = FixedPoint( (random.getInt() % 15)+5,  40);
+
+    world.items[id].velocity = Location(x, y, z);
     world.items[id].position = position;
 
     delete this->wieldedItems[i];
