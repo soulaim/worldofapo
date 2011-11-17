@@ -18,9 +18,6 @@
     <Filter Include="Source Files\main">
       <UniqueIdentifier>{1bd5afb9-cdf4-4a46-84d7-48799a9e451d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gamedata">
-      <UniqueIdentifier>{c1dc50d8-6bd0-40b8-9239-ba49a0df498a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\local_machine">
       <UniqueIdentifier>{2cd6c109-6521-40ae-a90e-5d02dffd70af}</UniqueIdentifier>
     </Filter>
@@ -59,6 +56,18 @@
     </Filter>
     <Filter Include="Source Files\graphics\particles">
       <UniqueIdentifier>{49d57578-ca4a-41ac-9dff-2ef089c7f384}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\hud">
+      <UniqueIdentifier>{c04aa4e0-1712-4e7f-ad78-a1928b021538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\world\logic">
+      <UniqueIdentifier>{88339af0-8fa7-4ae0-84dc-d64f9b1c7ce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\world\level">
+      <UniqueIdentifier>{f2895c92-e657-48e8-8ea9-acdf0b536cab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game_data">
+      <UniqueIdentifier>{c1dc50d8-6bd0-40b8-9239-ba49a0df498a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,9 +187,6 @@
     <ClCompile Include="..\src\misc\logger.cpp">
       <Filter>Source Files\misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\misc\messaging_system.cpp">
-      <Filter>Source Files\misc</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\misc\timer.cpp">
       <Filter>Source Files\misc</Filter>
     </ClCompile>
@@ -195,51 +201,6 @@
     </ClCompile>
     <ClCompile Include="..\src\physics\octree_object.cpp">
       <Filter>Source Files\physics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\ai_behaviours.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\level.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\ordercontainer.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\playerinfo.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\random.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\world_team.cpp">
-      <Filter>Source Files\world</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\inventory.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\projectile.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\unit.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\world_item.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\world_item_use.cpp">
-      <Filter>Source Files\world\objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\ballistic.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\beam.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\world\objects\items\tool.cpp">
-      <Filter>Source Files\world\objects\items</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\basiccamera.cpp">
       <Filter>Source Files\graphics</Filter>
@@ -266,9 +227,6 @@
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\graphics_loadingscreen.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\graphics\hud.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\graphics\image.cpp">
@@ -355,6 +313,117 @@
     <ClCompile Include="..\src\gamesound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graphics\projectile_path.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\itempickrenderer.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\statRenderer.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\textRenderer.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\barRenderer.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\hud.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\graphics\hud\inventoryrenderer.cpp">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\projectile_ticker.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\stats_names.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\unit_ai.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\unit_ticker.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\unitdeath.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\item_creator.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\item_ticker.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\monster_creator.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\logic\playerdeath.cpp">
+      <Filter>Source Files\world\logic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\projectile.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\unit.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\world_item.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\world_item_use.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\inventory.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\itempicker.cpp">
+      <Filter>Source Files\world\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\small.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\tool.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\armor.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\ballistic.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\objects\items\beam.cpp">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\level\level_objects.cpp">
+      <Filter>Source Files\world\level</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\level\levelgenerator.cpp">
+      <Filter>Source Files\world\level</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\level\level.cpp">
+      <Filter>Source Files\world\level</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\level\level_object.cpp">
+      <Filter>Source Files\world\level</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\random.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\world.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\world_team.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\ai_behaviours.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\ordercontainer.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\world\playerinfo.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\net\socket.h">
@@ -364,7 +433,7 @@
       <Filter>Source Files\net</Filter>
     </ClInclude>
     <ClInclude Include="..\src\game_data\character_info.h">
-      <Filter>Source Files\gamedata</Filter>
+      <Filter>Source Files\game_data</Filter>
     </ClInclude>
     <ClInclude Include="..\src\local_machine\game.h">
       <Filter>Source Files\local_machine</Filter>
@@ -420,51 +489,6 @@
     <ClInclude Include="..\src\physics\octree_object.h">
       <Filter>Source Files\physics</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\world\item.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\level.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\order.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\ordercontainer.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\playerinfo.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\random.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\world.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\worldevent.h">
-      <Filter>Source Files\world</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\inventory.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\projectile.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\unit.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\world_item.h">
-      <Filter>Source Files\world\objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\ballistic.h">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\beam.h">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\world\objects\items\tool.h">
-      <Filter>Source Files\world\objects\items</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\graphics\basiccamera.h">
       <Filter>Source Files\graphics</Filter>
     </ClInclude>
@@ -481,9 +505,6 @@
       <Filter>Source Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\graphics_helper.h">
-      <Filter>Source Files\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\graphics\hud.h">
       <Filter>Source Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics\image.h">
@@ -587,6 +608,120 @@
     </ClInclude>
     <ClInclude Include="..\src\gamesound.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\projectile_path.h">
+      <Filter>Source Files\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\inventoryrenderer.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\itempickrenderer.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\statRenderer.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\textRenderer.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\barRenderer.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graphics\hud\hud.h">
+      <Filter>Source Files\graphics\hud</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\playerdeath.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\projectile_ticker.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\stats_names.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\unit_ai.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\unit_ticker.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\unitdeath.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\damagetype.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\item_creator.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\item_ticker.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\logic\monster_creator.h">
+      <Filter>Source Files\world\logic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\itempicker.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\projectile.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\unit.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\world_item.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\inventory.h">
+      <Filter>Source Files\world\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\small.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\tool.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\armor.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\ballistic.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\objects\items\beam.h">
+      <Filter>Source Files\world\objects\items</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\level\level_object.h">
+      <Filter>Source Files\world\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\level\level_objects.h">
+      <Filter>Source Files\world\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\level\levelgenerator.h">
+      <Filter>Source Files\world\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\level\level.h">
+      <Filter>Source Files\world\level</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\random.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\world.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\worldevent.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\item.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\order.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\ordercontainer.h">
+      <Filter>Source Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\world\playerinfo.h">
+      <Filter>Source Files\world</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
