@@ -134,8 +134,6 @@ int getSlot(WorldItem* item) {
     }
 
     return 8; // small items
-
-
 }
 
 void removeItemFromWorld(World&, WorldItem* item) {
@@ -252,15 +250,9 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
     if(this->wieldedItems[i] == 0)
         return;
 
-    RandomMachine random;
-    random.setSeed(unit.id);
-    FixedPoint x = FixedPoint( (random.getInt() % 10) - 5, 10 );
-    FixedPoint z = FixedPoint( (random.getInt() % 10) - 5, 10 );
-    FixedPoint y = FixedPoint( (random.getInt() % 5)  + 1, 10 );
-
     int id = world.nextUnitID();
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), id);
-    world.items[id].velocity = Location(x, y, z);
+    world.items[id].velocity = Location(0, 0, 0);
     world.items[id].position = unit.getEyePosition();
 
     delete this->wieldedItems[i];

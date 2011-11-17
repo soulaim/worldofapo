@@ -86,6 +86,7 @@ void WorldItem::collides(OctreeObject& o)
 
 	if(o.type == OctreeObject::WORLD_ITEM)
 	{
+        /*
 		Location direction = (position - o.position);
 
         RandomMachine random; random.setSeed(id);
@@ -99,6 +100,7 @@ void WorldItem::collides(OctreeObject& o)
 		direction.normalize();
 		direction *= FixedPoint(1, 5);
 		position += direction;
+        */
 	}
 }
 
