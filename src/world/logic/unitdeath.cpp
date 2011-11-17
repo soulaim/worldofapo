@@ -72,7 +72,10 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
 	if(unit.human())
 	{
-		{
+        if(unit["HEALTH"] > -1000)
+        {
+            playerDeath.handle(world, unit);
+
 			DeathPlayerEvent event;
 			event.t_position = t_position;
 			event.t_velocity = t_velocity;
@@ -81,15 +84,12 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 			event.actor_id = actor_id;
 			event.target_id = target_id;
 			queueMsg(event);
-		}
-
-        if(unit["HEALTH"] > -1000)
-            playerDeath.handle(world, unit);
+        }
 	}
 	else
 	{
         unit.dropAllItems(world);
-        
+
         DeathNPCEvent event;
         event.t_position = t_position;
         event.t_velocity = t_velocity;
@@ -101,7 +101,6 @@ void UnitDeathHandler::doDeathFor(World& world, Unit& unit) {
 
 		world.unitHasDied(unit.id);
         world.awardExperience(unit);
-
 	}
 
 }
