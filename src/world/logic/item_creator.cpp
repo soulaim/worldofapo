@@ -63,7 +63,14 @@ void ItemCreator::fillWithItems(World& world, Unit& unit, int depth, Inventory& 
         inventory.pickUp(world, unit, &item, true);
     }
 
-    for(int i=0; i<3; ++i) {
+    {
+        int small = getQualityFromDepth(depth, random);
+        if(small == 0) small = 1;
+        WorldItem item = this->createAntiDepressant(small, random);
+        inventory.pickUp(world, unit, &item, true);
+    }
+
+    for(int i=0; i<2; ++i) {
         int small = getQualityFromDepth(depth, random);
         if(!small) break;
 
