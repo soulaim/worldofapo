@@ -153,12 +153,9 @@ void World::atDeath(MovableObject& object, HasProperties& properties)
 
 void World::createLevelObjects() //fazias
 {
-    // TODO: This should somehow be a property of the world or something.
-    int depth = 1;
-
     cerr << "reading level objects" << endl;
     vector<LevelObject> objects = lvl.level_objects.getObjects();
-    int itemCreationNums = 0;
+
     for(vector<LevelObject>::iterator it = objects.begin();it != objects.end();++it)
     {
         cerr << "+";

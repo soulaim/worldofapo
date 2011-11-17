@@ -4,7 +4,7 @@
 #include "world/objects/inventory.h"
 #include "world/logic/damagetype.h"
 #include "world/objects/unit.h"
-
+#include "graphics/visualworld.h"
 
 int getQualityFromDepth(int depth, RandomMachine& random) {
     int max_quality = 1 + depth / 3;
