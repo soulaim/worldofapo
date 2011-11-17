@@ -891,6 +891,7 @@ void DedicatedServer::ServerHandleServerMessage(const Order& server_msg)
 		// the new way
 		if(SpawningHeroes[server_msg.keyState].unit.name == "nameless")
 		{
+            SpawningHeroes[server_msg.keyState].unit.setHumanStart(*(this->world));
 			SpawningHeroes[server_msg.keyState].unit.name = Players[server_msg.keyState].name;
 			SpawningHeroes[server_msg.keyState].playerInfo.name = Players[server_msg.keyState].name;
 		}

@@ -368,7 +368,6 @@ void World::worldTick(int tickCount)
 	*/
 
 	octree.reset(new Octree(Location(0, 0, 0), Location(lvl.max_x(), FixedPoint(400), lvl.max_z())));
-
 	for(map<int, Unit>::iterator iter = units.begin(); iter != units.end(); ++iter) {
 		octree->insertObject(&(iter->second));
 	}
