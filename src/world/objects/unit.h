@@ -66,6 +66,8 @@ public:
     void pushPickableItem(WorldItem& item);
     ItemPicker itemPick;
 
+    void setHumanStart(World& world);
+
     // movement
 	void accelerateForward();
 	void accelerateBackward();

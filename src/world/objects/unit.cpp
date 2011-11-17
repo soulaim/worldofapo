@@ -39,6 +39,23 @@ Unit::Unit():
 	scale = FixedPoint(1);
 }
 
+void Unit::setHumanStart(World& world) {
+    intVals["STAT_POINTS"] = 6;
+
+    ItemCreator itemCreator;
+    RandomMachine random; random.setSeed(15);
+
+    WorldItem weapon = itemCreator.createBallisticWeapon(1, random);
+    WorldItem item1 = itemCreator.createTorch(1, random);
+    WorldItem item2 = itemCreator.createAntiDepressant(1, random);
+    WorldItem item3 = itemCreator.createAntiDepressant(1, random);
+    
+    inventory.pickUp(world, *this, &weapon, true);
+    inventory.pickUp(world, *this, &item1, true);
+    inventory.pickUp(world, *this, &item2, true);
+    inventory.pickUp(world, *this, &item3, true);
+}
+
 void Unit::dropAllItems(World& world) {
     inventory.dropAll(world, *this);
 }
@@ -201,6 +218,7 @@ void Unit::increaseStat(World& world, int increasedStat) {
             world.add_message("^YIncreased: ^G" + statsNames.getName(increasedStat));
         stats.intVals[statsNames.getKey(increasedStat)]++;
         intVals["STAT_POINTS"]--;
+        intVals["REGEN"] = stats.intVals["CONSTITUTION"];
     }
 }
 
@@ -336,6 +354,7 @@ int Unit::getMaxHP() const
 bool Unit::gainExperience(World& world, int exp) {
     intVals["EXPERIENCE"] += exp;
     if(intVals["EXPERIENCE"] > intVals["EXPLIMIT"]) {
+        intVals["EXPERIENCE"] -= intVals["EXPLIMIT"];
         intVals["EXPLIMIT"] *= 9;
         intVals["EXPLIMIT"] /= 7;
         levelUp(world);

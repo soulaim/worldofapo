@@ -197,6 +197,7 @@ void World::resetGame()
 {
 	cerr << "Reseting world game to a feasible start" << endl;
     this->intVals["START"] = this->currentWorldFrame;
+    this->add_message("^GGame reset! You can now try again.");
 
     for(auto it = units.begin(); it != units.end(); ++it)
 	{
@@ -230,6 +231,7 @@ void World::resetGame()
 		{
             it->second.position = startPos;
             it->second.velocity = Location();
+            it->second.setHumanStart(*this);
 		}
 	}
 }
@@ -512,6 +514,7 @@ void World::addUnit(int id, bool playerCharacter, int team)
 
 	units[id] = Unit();
 	units[id].init();
+    units[id].setHumanStart(*this);
 
 	int r_seed = team + 7;
 	if(playerCharacter)

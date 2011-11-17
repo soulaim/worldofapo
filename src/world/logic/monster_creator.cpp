@@ -2,17 +2,17 @@
 #include "world/logic/monster_creator.h"
 #include "world/random.h"
 
-void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine&)
+void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine& random)
 {
     HasProperties& stats = unit.getStatsEditor();
 
     // these are taken into account.
-    stats.intVals["CONSTITUTION"] = depth - 10;
-    stats.intVals["MOVEMENT"] = depth - 3;
+    stats.intVals["CONSTITUTION"] = depth - 9;
+    stats.intVals["MOVEMENT"] = depth / 2 - 3;
     stats.intVals["TELEPATHIC"] = 10;
 
     // :G
-    stats.intVals["BALLISTIC"] = 10;
+    stats.intVals["BALLISTIC"] = random.getInt() % (depth+1);
     stats.intVals["BEAM"] = 10;
     stats.intVals["ENGINEER"] = 10;
     stats.intVals["ZEN"] = 10;
@@ -21,7 +21,7 @@ void MonsterCreator::setAttributes(Unit& unit, int depth, RandomMachine&)
     stats.intVals["DARKVISION"] = 10;
 
     unit.intVals["SANITY"] = 100;
-	unit.intVals["HEALTH"] = 10;
+	unit.intVals["HEALTH"] = unit.getMaxHP();
 	unit.intVals["REGEN"] = 0;
 }
 
@@ -43,7 +43,6 @@ Unit MonsterCreator::createMonster(int depth, int tick, int mon_num) {
     monster["T"] = -1;
     monster["HEALTH"] = monster.getMaxHP();
 
-    monster["REWARD"] = 3;
-
+    monster["REWARD"] = 3 + depth * 2;
     return monster;
 }
