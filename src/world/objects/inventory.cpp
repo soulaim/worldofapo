@@ -119,14 +119,6 @@ WorldItem* Inventory::getItemSlot(int slot_id) const {
 
 int getSlot(WorldItem* item) {
 
-    // arm => amulet
-    // amulet => belt
-    // belt => arm
-
-    // AMULET_SLOT = 4,
-    // BELT_SLOT = 5,
-    // ARM_SLOT = 2
-
     int itemType = item->intVals["TYPE"];
 
     if(itemType == 11)
@@ -166,6 +158,16 @@ void Inventory::pickUpHelper(World& world, Unit& unit, WorldItem* item, int slot
     unit.itemPick.reset();
 }
 
+void Inventory::clear() {
+    this->last_pickup_time = 0;
+    this->active_item = 6;
+    for(unsigned i=0; i<this->max_items; ++i) {
+        if(this->wieldedItems[i] != 0)
+            delete this->wieldedItems[i];
+        this->wieldedItems[i] = 0;
+    }
+}
+
 bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
 
     assert(item != 0 && "Picking up an item failed: Nullpointer!");
@@ -174,7 +176,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
         if(last_pickup_time + 13 > world.currentWorldFrame) return false;
         last_pickup_time = world.currentWorldFrame;
     }
-    
+
     unsigned slot = getSlot(item);
 
 
@@ -233,6 +235,7 @@ bool Inventory::pickUp(World& world, Unit& unit, WorldItem* item, bool forced) {
         }
 
         world.add_message("^YInventory full! Make room in the inventory first.");
+        return false;
     }
 
     if(slot == 9) {
@@ -254,7 +257,13 @@ void Inventory::dropItemSlot(World& world, Unit& unit, int i) {
         return;
 
     this->wieldedItems[i]->position = unit.getEyePosition();
-    this->wieldedItems[i]->velocity = unit.getLookDirection() * FixedPoint(10, 100);
+
+    RandomMachine random;
+    random.setSeed(unit.id);
+    FixedPoint x = FixedPoint( (random.getInt() % 10) - 5, 10 );
+    FixedPoint z = FixedPoint( (random.getInt() % 10) - 5, 10 );
+    FixedPoint y = FixedPoint( (random.getInt() % 5)  + 1, 10  );
+    this->wieldedItems[i]->velocity = Location(x, y, z);
     world.addItem(*(this->wieldedItems[i]), VisualWorld::ModelType(this->wieldedItems[i]->intVals["MODEL_TYPE"]), world.nextUnitID());
 
     delete this->wieldedItems[i];

@@ -199,7 +199,10 @@ void World::resetGame()
     this->intVals["START"] = this->currentWorldFrame;
     this->add_message("^GGame reset! You can now try again.");
 
-    for(auto it = units.begin(); it != units.end(); ++it)
+    for(map<int, WorldItem>::iterator it = items.begin(); it != items.end(); ++it)
+        it->second.dead = 1;
+
+    for(map<int, Unit>::iterator it = units.begin(); it != units.end(); ++it)
 	{
 		if(!it->second.human())
 		{
@@ -210,8 +213,9 @@ void World::resetGame()
 		else
 		{
 			// reset player characters
-            int id = it->second.id;
+            int id = it->first;
             it->second = Unit();
+            it->second.getInventoryEditor().clear();
             it->second.init();
 			it->second["HEALTH"] = it->second.getMaxHP();
             it->second.id = id;

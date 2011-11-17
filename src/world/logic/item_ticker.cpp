@@ -31,7 +31,6 @@ void ItemTicker::tickItem(World& world, WorldItem& item, Model* model)
 		FixedPoint friction = FixedPoint(88, 100);
 
 		item.position.y = world.lvl.getHeight(item.position.x, item.position.z);
-
 		item.velocity.y = FixedPoint(50, 1000); // no clue if this makes any sense
 		item.velocity.x *= friction;
 		item.velocity.z *= friction;

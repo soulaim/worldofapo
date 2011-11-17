@@ -33,6 +33,7 @@ public:
     Inventory(const Inventory& inventory);
     Inventory& operator = (const Inventory& inventory);
 
+
     enum SlotName {
         HEAD_SLOT = 0,
         TORSO_SLOT = 1,
@@ -49,6 +50,7 @@ public:
 
     void destroyItem(WorldItem* item);
 
+    void clear();
     WorldItem* getItemActive() const; // returns active item.
     WorldItem* getItemSlot(int slot_id) const; // returns item in a given slot.
 
